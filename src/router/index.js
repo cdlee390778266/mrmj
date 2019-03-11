@@ -17,7 +17,37 @@ export default new Router({
                 {
                     path: '/dashboard',
                     component: resolve => require(['../components/page/Dashboard.vue'], resolve),
-                    meta: { title: '系统首页' }
+                    meta: { title: '首页' }
+                },
+                {
+                    path: '/demand',
+                    component: resolve => require(['../components/page/demand.vue'], resolve),
+                    meta: { title: '跟踪需求' }
+                },
+                {
+                    path: '/order',
+                    component: resolve => require(['../components/page/order.vue'], resolve),
+                    meta: { title: '订单开展' }
+                },
+                {
+                    path: '/service',
+                    component: resolve => require(['../components/page/service.vue'], resolve),
+                    meta: { title: '售后反馈' }
+                },
+                {
+                    path: '/money',
+                    component: resolve => require(['../components/page/money.vue'], resolve),
+                    meta: { title: '应收款' }
+                },
+                {
+                    path: '/user',
+                    component: resolve => require(['../components/page/user.vue'], resolve),
+                    meta: { title: '客户档案' }
+                },
+                {
+                    path: '/chart',
+                    component: resolve => require(['../components/page/chart.vue'], resolve),
+                    meta: { title: '信息查询与分析' }
                 },
                 {
                     path: '/icon',

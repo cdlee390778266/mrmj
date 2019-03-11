@@ -44,45 +44,34 @@
                         title: '首页'
                     },
                     {
-                        icon: 'el-icon-lx-calendar',
-                        index: '3',
-                        title: '销售',
-                        subs: [
-                            {
-                                index: 'form',
-                                title: '首页'
-                            },
-                            {
-                                index: '3-2',
-                                title: '客户需求管理',
-                                subs: [
-                                    {
-                                        index: 'editor',
-                                        title: '跟踪需求'
-                                    }
-                                ]
-                            },
-                            {
-                                index: '3-2',
-                                title: '销售订单管理',
-                                subs: [
-                                    {
-                                        index: 'editor',
-                                        title: '销售订单开展'
-                                    }
-                                ]
-                            },
-                            {
-                                index: '3-2',
-                                title: '信息查询与分析',
-                                subs: [
-                                    {
-                                        index: 'editor',
-                                        title: '信息查询与分析'
-                                    }
-                                ]
-                            }
-                        ]
+                        icon: 'el-icon-lx-edit',
+                        index: 'demand',
+                        title: '跟踪需求'
+                    },
+                    {
+                        icon: 'el-icon-tickets',
+                        index: 'order',
+                        title: '订单开展'
+                    },
+                    {
+                        icon: 'el-icon-lx-service',
+                        index: 'service',
+                        title: '售后反馈'
+                    },
+                    {
+                        icon: 'el-icon-lx-redpacket',
+                        index: 'money',
+                        title: '应收款'
+                    },
+                    {
+                        icon: 'el-icon-lx-people',
+                        index: 'user',
+                        title: '客户档案'
+                    },
+                    {
+                        icon: 'el-icon-lx-rank',
+                        index: 'chart',
+                        title: '信息查询与分析'
                     },
                     {
                         icon: 'el-icon-lx-cascades',
