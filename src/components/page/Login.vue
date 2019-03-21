@@ -1,7 +1,7 @@
 <template>
     <div class="login-wrap">
         <div class="ms-login">
-            <div class="ms-title">后台管理系统</div>
+            <div class="ms-title">欢迎您使用系统</div>
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0px" class="ms-content">
                 <el-form-item prop="username">
                     <el-input v-model="ruleForm.username" placeholder="username">
@@ -13,10 +13,12 @@
                         <el-button slot="prepend" icon="el-icon-lx-lock"></el-button>
                     </el-input>
                 </el-form-item>
+                <div class="forget">
+                    <router-link to="/"><small>忘记密码</small></router-link>
+                </div>
                 <div class="login-btn">
                     <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
                 </div>
-                <p class="login-tips">Tips : 用户名和密码随便填。</p>
             </el-form>
         </div>
     </div>
@@ -61,8 +63,8 @@
         position: relative;
         width:100%;
         height:100%;
-        background-image: url(../../assets/img/login-bg.jpg);
-        background-size: 100%;
+        background: url(../../assets/img/login-bg.jpg) no-repeat center;
+        background-size: cover;
     }
     .ms-title{
         width:100%;
@@ -93,9 +95,13 @@
         height:36px;
         margin-bottom: 10px;
     }
-    .login-tips{
-        font-size:12px;
-        line-height:30px;
-        color:#fff;
+    .forget {
+        position: relative;
+        top: -10px;
+        color: #fff;
+        text-align: right;
+    }
+    .forget a {
+        color: #fff;
     }
 </style>

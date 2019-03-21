@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   t="1550645672992"
+   class="icon"
+   style=""
+   viewBox="0 0 1024 1024"
+   version="1.1"
+   p-id="4249"
+   width="200"
+   height="200"
+   id="svg3731"
+   sodipodi:docname="首页.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+  <metadata
+     id="metadata3735">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="936"
+     inkscape:window-height="774"
+     id="namedview3733"
+     showgrid="false"
+     inkscape:zoom="4.18"
+     inkscape:cx="100"
+     inkscape:cy="100"
+     inkscape:window-x="681"
+     inkscape:window-y="109"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg3731" />
+  <defs
+     id="defs3727">
+    <style
+       type="text/css"
+       id="style3725" />
+  </defs>
+  <path
+     d="M932 442.016L560 84q-20-18.016-48-18.016t-48 18.016L92 442.016q-11.008 10.016-12 24.992t8.992 26.016q10.016 11.008 24.992 12t26.016-8.992L512 138.016l372 358.016q11.008 10.016 26.016 8.992t24.992-12q10.016-11.008 8.992-26.016t-12-24.992z m-99.008 132.992q-15.008 0-25.504 10.496t-10.496 25.504v276.992h-143.008v-240q0-30.016-20.992-51.008T581.984 576h-140q-30.016 0-51.008 20.992t-20.992 51.008v240H226.976v-276.992q0-15.008-10.496-25.504t-25.504-10.496q-15.008 0-25.504 10.496t-10.496 25.504v276.992q0 30.016 20.992 51.008T226.976 960h570.016q30.016 0 51.008-20.992t20.992-51.008v-276.992q0-15.008-10.496-25.504t-25.504-10.496zM442.016 648h140v240h-140v-240z"
+     p-id="4250"
+     id="path3729"
+     style="fill:#f9f9f9" />
+</svg>

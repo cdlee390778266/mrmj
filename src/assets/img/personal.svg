@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   t="1550646127109"
+   class="icon"
+   style=""
+   viewBox="0 0 1024 1024"
+   version="1.1"
+   p-id="6805"
+   width="200"
+   height="200"
+   id="svg112"
+   sodipodi:docname="员工管理.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+  <metadata
+     id="metadata116">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview114"
+     showgrid="false"
+     inkscape:zoom="1.18"
+     inkscape:cx="100"
+     inkscape:cy="100"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg112" />
+  <defs
+     id="defs106">
+    <style
+       type="text/css"
+       id="style104" />
+  </defs>
+  <path
+     d="M904.533333 0H153.6a34.133333 34.133333 0 0 0-34.133333 34.133333V273.066667a34.133333 34.133333 0 0 0 68.266666 0V68.266667h682.666667v887.466666h-682.666667v-204.8a34.133333 34.133333 0 0 0-68.266666 0v238.933334a34.133333 34.133333 0 0 0 34.133333 34.133333h750.933333a34.133333 34.133333 0 0 0 34.133334-34.133333V34.133333A34.133333 34.133333 0 0 0 904.533333 0z"
+     fill="#666666"
+     p-id="6806"
+     id="path108"
+     style="fill:#000000" />
+  <path
+     d="M119.466667 409.6h68.266666a34.133333 34.133333 0 0 0 0-68.266667h-68.266666a34.133333 34.133333 0 0 0 0 68.266667zM119.466667 546.133333h68.266666a34.133333 34.133333 0 0 0 0-68.266666h-68.266666a34.133333 34.133333 0 0 0 0 68.266666zM187.733333 682.666667a34.133333 34.133333 0 0 0 0-68.266667h-68.266666a34.133333 34.133333 0 0 0 0 68.266667zM290.133333 699.733333a34.133333 34.133333 0 0 0 68.266667 0 179.541333 179.541333 0 0 1 358.4 0 34.133333 34.133333 0 0 0 68.266667 0A247.125333 247.125333 0 0 0 645.12 477.866667a157.696 157.696 0 1 0-215.04 0A247.125333 247.125333 0 0 0 290.133333 699.733333z m157.696-337.237333a89.429333 89.429333 0 1 1 90.112 90.112 89.429333 89.429333 0 0 1-90.112-90.112z"
+     fill="#666666"
+     p-id="6807"
+     id="path110"
+     style="fill:#000000" />
+</svg>

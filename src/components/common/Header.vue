@@ -1,31 +1,29 @@
 <template>
     <div class="header">
         <!-- 折叠按钮 -->
-        <div class="collapse-btn" @click="collapseChage">
+        <!-- <div class="collapse-btn" @click="collapseChage">
             <i class="el-icon-menu"></i>
+        </div> -->
+        <div class="logo mgl10">
+            <img src="../../assets/img/logo.png" height="32">
+            <img src="../../assets/img/LogoText.svg" height="30" class="mgl10">
         </div>
-        <div class="logo">生产过程执行管理系统</div>
         <div class="header-right">
             <div class="header-user-con">
-                <!-- 全屏显示 -->
-                <div class="btn-fullscreen" @click="handleFullScreen">
-                    <el-tooltip effect="dark" :content="fullscreen?`取消全屏`:`全屏`" placement="bottom">
-                        <i class="el-icon-rank"></i>
-                    </el-tooltip>
-                </div>
+                欢迎您使用系统，今天是<span class="fc9EB900">2019-03-06</span>
                 <!-- 个人设置 -->
-                <div class="btn-bell">
+                <div class="btn-bell mgl10">
                     <el-tooltip effect="dark" content="个人设置" placement="bottom">
                         <router-link to="/tabs">
-                            <i class="el-icon-lx-addressbook"></i>
+                            <img src="../../assets/img/personal.svg" height="20">
                         </router-link>
                     </el-tooltip>
                 </div>
                 <!-- 部门设置 -->
-                <div class="btn-bell">
+                <div class="btn-bell mgr20">
                     <el-tooltip effect="dark" content="部门设置" placement="bottom">
                         <router-link to="/tabs">
-                            <i class="el-icon-lx-settings"></i>
+                            <img src="../../assets/img/setting.svg" height="20">
                         </router-link>
                     </el-tooltip>
                 </div>
@@ -33,7 +31,7 @@
                 <div class="btn-bell">
                     <el-tooltip effect="dark" content="退出" placement="bottom">
                         <router-link to="/tabs">
-                            <i class="el-icon-setting"></i>
+                            <img src="../../assets/img/loginout.svg" height="20">
                         </router-link>
                     </el-tooltip>
                 </div>
@@ -111,28 +109,29 @@
         position: relative;
         box-sizing: border-box;
         width: 100%;
-        height: 70px;
-        font-size: 22px;
+        height: 50px;
         border-bottom: 3px solid #a3bf1f;
     }
     .collapse-btn{
         float: left;
         padding: 0 21px;
         cursor: pointer;
-        line-height: 70px;
+        line-height: 50px;
     }
     .header .logo{
+        position: relative;
+        top: 8px;
         float: left;
         width:250px;
-        line-height: 70px;
+        line-height: 50px;
     }
     .header-right{
         float: right;
-        padding-right: 50px;
+        padding-right: 20px;
     }
     .header-user-con{
         display: flex;
-        height: 70px;
+        height: 50px;
         align-items: center;
     }
     .btn-fullscreen{
@@ -143,7 +142,6 @@
     .btn-bell, .btn-fullscreen{
         position: relative;
         width: 30px;
-        height: 30px;
         text-align: center;
         border-radius: 15px;
         cursor: pointer;
