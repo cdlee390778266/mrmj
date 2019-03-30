@@ -25,6 +25,11 @@ export default new Router({
                     meta: { title: '跟踪需求' }
                 },
                 {
+                    path: '/detail',
+                    component: resolve => require(['../components/page/detail.vue'], resolve),
+                    meta: { title: '报价' }
+                },
+                {
                     path: '/order',
                     component: resolve => require(['../components/page/order.vue'], resolve),
                     meta: { title: '订单开展' }

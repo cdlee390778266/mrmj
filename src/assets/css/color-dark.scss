@@ -38,6 +38,9 @@ body{
 .mg0 {
     margin: 0;
 }
+.mgb0 {
+    margin-bottom: 0 !important;
+}
 .mg10 {
     margin: 10px;
 }
@@ -261,6 +264,15 @@ body{
 .tr {
     text-align: right;
 }
+.hide {
+    display: none;
+}
+.show {
+    display: block;
+}
+.lh32 {
+    line-height: 32px;
+}
 .pointer {
     cursor: pointer;
 }
@@ -420,4 +432,18 @@ body{
     th {
         background-color: #e4e4e4 !important;
     }
+}
+.v-upload {
+  width: 88px;
+  .el-upload {
+    width: 88px;
+    height: 88px;
+    line-height: 86px;
+  }
+}
+.v-textarea textarea {
+    height: 100px;
+}
+.el-form-item-mgb0 .el-form-item {
+    margin-bottom: 0 !important;
 }
