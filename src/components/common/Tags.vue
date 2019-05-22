@@ -37,6 +37,7 @@
             // 关闭单个标签
             closeTags(index) {
                 const delItem = this.tagsList.splice(index, 1)[0];
+                if(index == 0) return; 
                 const item = this.tagsList[index] ? this.tagsList[index] : this.tagsList[index - 1];
                 if (item) {
                     delItem.path === this.$route.fullPath && this.$router.push(item.path);
@@ -66,7 +67,7 @@
                         this.tagsList.shift();
                     }
                     this.tagsList.push({
-                        title: route.meta.title,
+                        title: route.name,
                         path: route.fullPath,
                         name: route.matched[1].components.default.name
                     })

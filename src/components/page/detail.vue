@@ -40,7 +40,7 @@
                     :data="tabs.calc.enclosureList"
                     border
                     size="mini"
-                    style="width: 100%">
+                    style="width: 100%; max-width: 400px;">
                     <el-table-column
                       type="index"
                       label="序号">
@@ -73,32 +73,105 @@
                     </el-col>
                     <el-col :span="8">
                         <span>加载历史报价：</span>
-                        <el-select v-model="tabs.calc.form.history">
+                        <el-select v-model="tabs.calc.form.history" style="width: 100px;" size="mini">
                             <el-option label="模具零件" value="0"></el-option>
                             <el-option label="整体模具" value="1"></el-option>
                         </el-select>
                     </el-col>
-                    <el-col :span="24">
+                    <el-col :span="24" class="mgt10">
                         <span class="mgl10">交易货币：</span>
-                        <el-select style="width: 100px;" v-model="tabs.calc.form.btype">
+                        <el-select size="mini" style="width: 100px;" v-model="tabs.calc.form.btype">
                             <el-option label="欧元" value="0"></el-option>
                             <el-option label="美元" value="1"></el-option>
                             <el-option label="日元" value="2"></el-option>
                         </el-select>
                         <span class="mgl10">汇率：</span>
-                        <el-select style="width: 100px;" v-model="tabs.calc.form.erate">
+                        <el-select size="mini" style="width: 100px;" v-model="tabs.calc.form.erate">
                             <el-option label="7.0" value="0"></el-option>
                             <el-option label="6.5" value="1"></el-option>
                             <el-option label="6.2" value="2"></el-option>
                         </el-select>
                         <span class="mgl10">管理费用上浮比例：</span>
-                        <el-select style="width: 100px;" class="mgr40" v-model="tabs.calc.form.goup">
+                        <el-select size="mini" style="width: 100px;" class="mgr40" v-model="tabs.calc.form.goup">
                             <el-option label="5.0" value="0"></el-option>
                             <el-option label="5.1" value="1"></el-option>
                             <el-option label="5.2" value="2"></el-option>
                         </el-select>
                         <el-button type="primary">工序工时单价设置</el-button>
                     </el-col>
+                    <el-row class="mgt20 mgb20">
+                        <div class="el-table el-table--fit el-table--border el-table--enable-row-hover el-table--enable-row-transition el-table--mini mgt10">
+                            <table class="el-table__body" style="width: 100%">
+                                <thead class="has-gutter">
+                                    <tr class="">
+                                        <th><div class="cell">Det No</div></th>
+                                        <th><div class="cell">数量</div></th>
+                                        <th><div class="cell">材料</div></th>
+                                        <th><div class="cell">M</div></th>
+                                        <th><div class="cell">EDB</div></th>
+                                        <th><div class="cell">G</div></th>
+                                        <th><div class="cell">CNCV</div></th>
+                                        <th><div class="cell">CNCH</div></th>
+                                        <th><div class="cell">EDM</div></th>
+                                        <th><div class="cell">W/C</div></th>
+                                        <th><div class="cell">BENCH</div></th>
+                                        <th><div class="cell">编程</div></th>
+                                        <th><div class="cell">电极设计</div></th>
+                                        <th><div class="cell">设计</div></th>
+                                        <th><div class="cell">QC</div></th>
+                                        <th><div class="cell">Total</div></th>
+                                        <th><div class="cell">订购</div></th>
+                                        <th><div class="cell">铜材</div></th>
+                                        <th><div class="cell">钢材</div></th>
+                                        <th><div class="cell">合计人民币</div></th>
+                                        <th><div class="cell">单价人民币</div></th>
+                                        <th><div class="cell">单价</div></th>
+                                        <th><div class="cell">最终价格</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="el-table__row">
+                                        <td>
+                                            <div class="cell"><div>1</div></div>
+                                        </td>
+                                        <td>
+                                            <div class="cell">王小虎</div>
+                                        </td>
+                                        <td>
+                                            <div class="cell"><a href="">下载</a></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="el-table el-table--fit el-table--border el-table--enable-row-hover el-table--enable-row-transition el-table--mini mgt10">
+                            <table class="el-table__body" style="width: 100%">
+                                <thead class="has-gutter">
+                                    <tr class="">
+                                        <th><div class="cell">长(MM)</div></th>
+                                        <th><div class="cell">宽(MM)</div></th>
+                                        <th><div class="cell">高(MM)</div></th>
+                                        <th><div class="cell">重量(KG)</div></th>
+                                        <th><div class="cell">材料</div></th>
+                                        <th><div class="cell">运费</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="el-table__row">
+                                        <td>
+                                            <div class="cell"><div>1</div></div>
+                                        </td>
+                                        <td>
+                                            <div class="cell">王小虎</div>
+                                        </td>
+                                        <td>
+                                            <div class="cell"><a href="">下载</a></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </el-row>
                 </el-row>
             </div>
             <div class="preview hide" :class="{'show': activeTab == 'preview'}">
