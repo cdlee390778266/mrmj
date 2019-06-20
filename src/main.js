@@ -8,6 +8,10 @@ import './components/common/directives';
 import "babel-polyfill";
 import Utils from './js/utils'
 
+import pageWrapper from './components/page/common/page-wrapper'
+
+Vue.component('pageWrapper', pageWrapper)
+
 Vue.config.productionTip = false
 Vue.prototype.$utils = Utils;
 Vue.use(ElementUI, {

@@ -1,7 +1,7 @@
 var baseUrl = 'http://112.19.171.231:8080/fests/';
 
 const CONFIG = {
-	activeMenuType: 'quality',
+	activeMenuType: 'sale',
 	cookieKey: 'user',
 	page: {
 		size: 10,

@@ -264,6 +264,12 @@ body{
 .tr {
     text-align: right;
 }
+.fr {
+    float: right;
+}
+.fl {
+    float: left;
+}
 .hide {
     display: none;
 }
@@ -318,7 +324,7 @@ body{
         }
         .list {
             position: absolute;
-            top: 50px;
+            top: 88px;
             right: 0px;
             bottom: 0px;
             left: 0px;
@@ -380,7 +386,7 @@ body{
             top: 105px;
             left: 0px;
             right: 0px;
-            bottom: 20px;
+            bottom: 0px;
             line-height: 24px;
             .main-content-scorll {
                 position: absolute;
@@ -465,4 +471,22 @@ body{
             margin-right: 10px;
         }
     }
+}
+.el-carousel__indicator--vertical {
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+	.el-carousel__button {
+		width: 10px !important;
+		height: 10px !important;
+		margin: 10px auto;
+		border-radius: 100%;
+		background: #999;
+		cursor: pointer;
+		&:hover {
+			background: #333;
+		}
+	}
+}
+.el-carousel__indicator.is-active button {
+	background: #000;
 }
