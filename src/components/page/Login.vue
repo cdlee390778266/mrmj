@@ -44,6 +44,7 @@
         },
         methods: {
             submitForm(formName) {
+                console.log(this.$el)
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         localStorage.setItem('ms_username',this.ruleForm.username);
