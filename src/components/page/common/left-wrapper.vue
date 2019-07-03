@@ -120,6 +120,7 @@
         border
         size="mini"
         align="center"
+        :span-method="objectSpanMethod"
         style="width: 100%">
         <el-table-column
           prop="date"
@@ -556,6 +557,21 @@
         this.faceUrl = file.url;
         this.addDialog.dialogVisible = true;
       },
+      objectSpanMethod({ row, column, rowIndex, columnIndex }) { //合并
+        if (columnIndex === 0) {
+          if (rowIndex % 2 === 0) {
+            return {
+              rowspan: 2,
+              colspan: 1
+            };
+          } else {
+            return {
+              rowspan: 0,
+              colspan: 0
+            };
+          }
+        }
+      }
     },
     created() {}
   };
