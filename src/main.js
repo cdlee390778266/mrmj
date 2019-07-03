@@ -9,10 +9,8 @@ import "babel-polyfill";
 import Utils from './js/utils'
 
 import pageWrapper from './components/page/common/page-wrapper'
-import leftWrapper from './components/page/common/left-wrapper'
 
 Vue.component('pageWrapper', pageWrapper)
-Vue.component('leftWrapper', leftWrapper)
 
 Vue.config.productionTip = false
 Vue.prototype.$utils = Utils;
