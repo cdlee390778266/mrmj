@@ -640,3 +640,20 @@ body {
 .el-carousel__indicator.is-active button {
 	background: #000;
 }
+
+.filter {
+	padding-top: 10px;
+	p {
+		padding: 5px 10px;
+		font-size: 16px;
+		color: #666;
+		transition: all .4s;
+		cursor: pointer;
+		i {
+			color: #999;
+		}
+		&:hover {
+			background: #d4d4d4;
+		}
+	}
+}
