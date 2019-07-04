@@ -20,7 +20,7 @@
           </div>
         </div>
         <div class="list">
-          <div class="list-item pd10 active" v-for="(item, index) in left.list" :key="index" v-show="isShowList">
+          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.id }" v-show="isShowList" @click="handleSelect(item)">
             <div class="dflex">
               <div>
                 <img src="../../../assets/img/img1.svg" width="30" class="mgr10 mgt10" />
@@ -414,6 +414,7 @@
       return {
         name: localStorage.getItem("ms_username"),
         left: {
+          activeId: 125944,
           list: [
             {
               name: 'dddddddd',
@@ -424,7 +425,7 @@
             },
             {
               name: 'dddddddd',
-              id: '125944',
+              id: '1259445',
               type: '模具零件',
               startDate: '2019.01.08',
               endDate: '2019.03.09'
@@ -674,6 +675,9 @@
             };
           }
         }
+      },
+      handleSelect(item) {
+        this.left.activeId = item.id;
       },
       del(index, row) {
         console.log(index, row);

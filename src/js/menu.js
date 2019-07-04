@@ -11,7 +11,7 @@ const MENU = {
 			icon: 'el-icon-lx-edit'
 		},
 		{
-			name: '订单开展',
+			name: '销售订单开展',
 			path: '/order',
 			icon: 'el-icon-tickets'
 		},
