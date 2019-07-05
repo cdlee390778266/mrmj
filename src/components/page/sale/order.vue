@@ -13,7 +13,7 @@
           <div class="mgb10">
             当前订单：
             <el-input v-model="form.text" style="width: 110px" prefix-icon="el-icon-search" @focus="isShowList = false" />
-            <el-button type="primary" @click="handle.add.dialogVisible = true" style="width: 80px; margin-left: 10px;">新增需求</el-button>
+            <el-button type="primary" @click="handle.add.dialogVisible = true" style="width: 80px; margin-left: 10px;">新增订单</el-button>
           </div>
         </div>
         <div class="list" style="top: 64px;">
@@ -33,8 +33,10 @@
               <el-col :span="12">状态：{{ item.type }}</el-col>
               <el-col :span="12">进度：<el-progress :percentage="50" color="rgba(0, 255, 0, 1)" style="width: 90px;display: inline-block;"></el-progress></el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="handle.add.dialogVisible = true">修改</a>
-                <a href="javascript: void(0);" @click="handle.stop.dialogVisible = true">删除</a>
+                <a href="javascript: void(0);" @click="handle.update.dialogVisible = true">修改</a>
+                <a href="javascript: void(0);" @click="handle.update.dialogVisible = true">暂停</a>
+                <a href="javascript: void(0);" @click="handle.update.dialogVisible = true">终止</a>
+                <a href="javascript: void(0);" @click="handle.del.dialogVisible = true">删除</a>
               </el-col>
             </el-row>
           </div>
@@ -56,14 +58,16 @@
               <el-row>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：XXXXXX公司</el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：12312323123</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求编号：REQ1901</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求类型：模具零件</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求状态：已报价</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">已报总价：12301.00</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">报价货币：欧元</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">模具号：REQ1901</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单类型：模具零件</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单状态：已报价</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单总价：12301.00</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">汇率：欧元</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单总价（RMB）：欧元</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">当前成本累计（RMB）：欧元</el-col>
               </el-row>
               <el-row>
-                <el-col :span="24">需求零件列表：</el-col>
+                <el-col :span="24">订单零件列表：</el-col>
                 <el-col :span="24">
                   <el-table
                     :data="right.list[right.activeIndex].spList"
@@ -75,14 +79,16 @@
                     <el-table-column type="index" label="序号" width="50"></el-table-column>
                     <el-table-column prop="date" label="零件号" width="180"></el-table-column>
                     <el-table-column prop="name" label="客户编号" width="180"></el-table-column>
-                    <el-table-column prop="address" label="需求数量"></el-table-column>
-                    <el-table-column prop="d" label="要求交期"></el-table-column>
+                    <el-table-column prop="address" label="数量"></el-table-column>
+                    <el-table-column prop="d" label="单价"></el-table-column>
+                    <el-table-column prop="address" label="总价"></el-table-column>
+                    <el-table-column prop="address" label="下单日期"></el-table-column>
+                    <el-table-column prop="address" label="要求交期"></el-table-column>
                     <el-table-column prop="address" label="说明"></el-table-column>
                   </el-table>
                 </el-col>
               </el-row>
               <el-row>
-                <el-col :span="24">需求附件：</el-col>
                 <el-col :span="24">
                   <el-table
                     :data="right.list[right.activeIndex].spList"
@@ -113,25 +119,139 @@
       </div>
     </div>
 
-    <el-dialog title="新增客户需求" :visible.sync="handle.add.dialogVisible">
-      <el-form :model="handle.add.form" label-width="100px">
-        <div class="dflex">
+    <el-dialog title="新增销售订单" :visible.sync="handle.add.dialogVisible" width="900px">
+      <div class="dflex">
+        <div style="width: 200px;" class="bor rel">
+          <div style="display: inline-block; background: #fff; position: relative; top: -10px; left: 10px; z-index: 1">选择需求生成订单</div>
+          <div class="order-table-wrapper">
+            <el-table :data="handle.add.form.detailList" size="mini" class="order-table">
+              <el-table-column prop="date" label="需求编号" width="100" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="name" label="客户名称" show-overflow-tooltip	></el-table-column>
+              <el-table-column prop="address" label="需求类型" show-overflow-tooltip	></el-table-column>
+              <el-table-column prop="address" label="要求交期" show-overflow-tooltip	></el-table-column>
+            </el-table>
+          </div>
+        </div>
+        <div class="flex">
+          <el-form :model="handle.add.form" label-width="100px" class="bor mgl10 pd10">
+            <div style="display: inline-block; background: #fff; position: relative; top: -20px; left: 10px; z-index: 1">选择需求生成订单</div>
+            <div class="dflex mgt20">
+              <div class="flex">
+                <el-form-item label="客户">
+                  <el-input v-model="handle.add.form.name" auto-complete="off"></el-input>
+                </el-form-item>
+                <el-row>
+                  <el-col :span="12">
+                    <el-form-item label="模具号">
+                      <el-input v-model="handle.add.form.id" auto-complete="off" aria-placeholder="请输入模具号"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                    <el-form-item label="订单类型">
+                      <el-select v-model="handle.add.form.type">
+                        <el-option label="模具零件" value="0"></el-option>
+                        <el-option label="整体模具" value="1"></el-option>
+                      </el-select>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </div>
+              <el-upload
+                action="https://jsonplaceholder.typicode.com/posts/"
+                list-type="picture-card"
+                class="v-upload pdl10"
+                :multiple="false"
+                :limit="1"
+                :on-preview="handlePictureCardPreview"
+              >
+                <i class="el-icon-plus"></i>
+              </el-upload>
+            </div>
+            <div>
+              <p>零件清单：</p>
+              <el-table :data="handle.add.form.detailList" height="160" border size="mini" style="width: 100%">
+                <el-table-column prop="date" label="零件号" width="100"></el-table-column>
+                <el-table-column prop="name" label="数量" width="88"></el-table-column>
+                <el-table-column prop="address" label="要求交期"></el-table-column>
+                <el-table-column prop="address" label="单价"></el-table-column>
+                <el-table-column prop="address" label="总价"></el-table-column>
+                <el-table-column prop="address" label="说明"></el-table-column>
+              </el-table>
+            </div>
+            <el-row class="mgt20">
+              <el-col :span="8" style="line-height: 33px;">
+                订单总价（RMB）：231323.00
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="结算货币">
+                  <el-select v-model="handle.add.form.type" style="width: 80px;">
+                    <el-option label="欧元" value="0"></el-option>
+                    <el-option label="美元" value="1"></el-option>
+                    <el-option label="日元" value="1"></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-form-item label="结算货币总价">
+                  <el-input v-model="handle.add.form.id" auto-complete="off" aria-placeholder="请输入结算货币总价" style="width: 80px;"></el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <div>
+              <p class="mgb10">
+                上传附件：
+                <el-button type="primary" size="mini">选择上传文件</el-button>
+              </p>
+              <el-table
+                :data="handle.add.form.enclosureList"
+                height="160"
+                border
+                size="mini"
+                style="width: 100%"
+              >
+                <el-table-column prop="date" label="上传文件"></el-table-column>
+                <el-table-column prop="name" label="资料名称"></el-table-column>
+                <el-table-column label="操作">
+                  <template slot-scope="scope">
+                    <el-button size="mini" type="danger" @click="del(scope.$index, scope.row)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+            <el-form-item label="需求编号" class="mgt20">
+              <el-input type="textarea" v-model="handle.add.form.dsc"></el-input>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="handle.add.dialogVisible = false">下单订单</el-button>
+        <el-button type="primary" @click="handle.add.dialogVisible = false">存为草稿</el-button>
+        <el-button @click="handle.add.dialogVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="删除确认框" :visible.sync="handle.del.dialogVisible">
+      <el-form :model="handle.del.form" label-width="100px">
+        您确定删除此订单？
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="handle.del.dialogVisible = false">确 定</el-button>
+        <el-button @click="handle.del.dialogVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="修改模具零件订单" :visible.sync="handle.update.dialogVisible" width="700px">
+      <el-form :model="handle.update.form" label-width="100px">
+        <div class="dflex mgt20">
           <div class="flex">
             <el-form-item label="客户">
               <el-input v-model="handle.add.form.name" auto-complete="off"></el-input>
             </el-form-item>
             <el-row>
-              <el-col :span="12">
-                <el-form-item label="需求类型">
-                  <el-select v-model="handle.add.form.type">
-                    <el-option label="模具零件" value="0"></el-option>
-                    <el-option label="整体模具" value="1"></el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="需求编号">
-                  <el-input v-model="handle.add.form.id" auto-complete="off"></el-input>
+              <el-col :span="24">
+                <el-form-item label="模具号">
+                  <el-input v-model="handle.add.form.id" auto-complete="off" aria-placeholder="请输入模具号"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -148,16 +268,37 @@
           </el-upload>
         </div>
         <div>
-          <p>需求明细：</p>
+          <p>零件清单：</p>
           <el-table :data="handle.add.form.detailList" height="160" border size="mini" style="width: 100%">
             <el-table-column prop="date" label="零件号" width="100"></el-table-column>
             <el-table-column prop="name" label="数量" width="88"></el-table-column>
             <el-table-column prop="address" label="要求交期"></el-table-column>
+            <el-table-column prop="address" label="单价"></el-table-column>
+            <el-table-column prop="address" label="总价"></el-table-column>
             <el-table-column prop="address" label="说明"></el-table-column>
           </el-table>
         </div>
+        <el-row class="mgt20">
+          <el-col :span="8" style="line-height: 33px;">
+            订单总价（RMB）：231323.00
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="结算货币">
+              <el-select v-model="handle.add.form.type" style="width: 80px;">
+                <el-option label="欧元" value="0"></el-option>
+                <el-option label="美元" value="1"></el-option>
+                <el-option label="日元" value="1"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="结算货币总价">
+              <el-input v-model="handle.add.form.id" auto-complete="off" aria-placeholder="请输入结算货币总价" style="width: 80px;"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <div>
-          <p class="mgt20 mgb10">
+          <p class="mgb10">
             上传附件：
             <el-button type="primary" size="mini">选择上传文件</el-button>
           </p>
@@ -182,106 +323,9 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.add.dialogVisible = false">确 定</el-button>
-        <el-button @click="handle.add.dialogVisible = false">取 消</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="删除确认框" :visible.sync="handle.stop.dialogVisible">
-      <el-form :model="handle.stop.form" label-width="100px">
-        您确定删除此订单？
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.stop.dialogVisible = false">确 定</el-button>
-        <el-button @click="handle.stop.dialogVisible = false">取 消</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="新增模具零件订单" :visible.sync="handle.order.dialogVisible" width="700px">
-      <el-form :model="handle.order.form" label-width="100px">
-        <div class="dflex">
-          <div class="flex">
-            <el-form-item label="客户">
-              <el-input v-model="handle.order.form.name" auto-complete="off"></el-input>
-            </el-form-item>
-            <el-form-item label="模具号">
-              <el-input v-model="handle.order.form.id" auto-complete="off"></el-input>
-            </el-form-item>
-          </div>
-          <el-upload
-            action="https://jsonplaceholder.typicode.com/posts/"
-            list-type="picture-card"
-            class="v-upload pdl10"
-            :multiple="false"
-            :limit="1"
-            :on-preview="handlePictureCardPreview"
-          >
-            <i class="el-icon-plus"></i>
-          </el-upload>
-        </div>
-        <div>
-          <p>零件清单：</p>
-          <el-table
-            :data="handle.order.form.detailList"
-            height="160"
-            border
-            size="mini"
-            style="width: 100%"
-          >
-            <el-table-column prop="date" label="零件号" width="100"></el-table-column>
-            <el-table-column prop="name" label="数量" width="88"></el-table-column>
-            <el-table-column prop="address" label="要求交期"></el-table-column>
-            <el-table-column prop="address" label="单价"></el-table-column>
-            <el-table-column prop="address" label="总价"></el-table-column>
-            <el-table-column prop="address" label="说明"></el-table-column>
-          </el-table>
-        </div>
-        <div>
-          <div class="mgt20 mgb0 dflex el-form-item-mgb0" style="line-height: 32px;">
-            <div class="flex">订单总价（RMB）：231323.00</div>
-            <div class="flex">
-              <el-form-item label="结算货币">
-                <el-select v-model="handle.order.form.btype">
-                  <el-option label="欧元" value="0"></el-option>
-                  <el-option label="美元" value="1"></el-option>
-                  <el-option label="日元" value="2"></el-option>
-                </el-select>
-              </el-form-item>
-            </div>
-            <div class="flex">
-              <el-form-item label="结算货币总价">
-                <el-input v-model="handle.order.form.total" auto-complete="off"></el-input>
-              </el-form-item>
-            </div>
-          </div>
-          <p class="mgb10">
-            上传附件：
-            <el-button type="primary" size="mini">选择上传文件</el-button>
-          </p>
-          <el-table
-            :data="handle.order.form.enclosureList"
-            height="160"
-            border
-            size="mini"
-            style="width: 100%"
-          >
-            <el-table-column prop="date" label="上传文件"></el-table-column>
-            <el-table-column prop="name" label="资料名称"></el-table-column>
-            <el-table-column label="操作">
-              <template slot-scope="scope">
-                <el-button size="mini" type="danger" @click="del(scope.$index, scope.row)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <el-form-item label="说明" class="mgt20">
-          <el-input type="textarea" v-model="handle.order.form.dsc"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.order.dialogVisible = false">下达订单</el-button>
-        <el-button type="primary" @click="handle.order.dialogVisible = false">存为草稿</el-button>
-        <el-button @click="handle.order.dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handle.update.dialogVisible = false">下达订单</el-button>
+        <el-button type="primary" @click="handle.update.dialogVisible = false">存为草稿</el-button>
+        <el-button @click="handle.update.dialogVisible = false">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -422,67 +466,14 @@
               ]
             }
           },
-          plan: {
-            dialogVisible: false,
-            data: [{
-              date: '2016-05-03',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }, {
-              date: '2016-05-02',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }, {
-              date: '2016-05-04',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }, {
-              date: '2016-05-01',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }, {
-              date: '2016-05-08',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }, {
-              date: '2016-05-06',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }, {
-              date: '2016-05-07',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }]
-          },
-          stop: {
+          del: {
             dialogVisible: false,
             form: {
               reason: "",
               dsc: ""
             }
           },
-          order: {
+          update: {
             dialogVisible: false,
             form: {
               faceUrl: "",
@@ -541,21 +532,6 @@
       handlePictureCardPreview(file) {
         this.faceUrl = file.url;
         this.addDialog.dialogVisible = true;
-      },
-      objectSpanMethod({ row, column, rowIndex, columnIndex }) { //合并
-        if (columnIndex === 0) {
-          if (rowIndex % 2 === 0) {
-            return {
-              rowspan: 2,
-              colspan: 1
-            };
-          } else {
-            return {
-              rowspan: 0,
-              colspan: 0
-            };
-          }
-        }
       },
       handleSelect(item) {
         this.left.activeId = item.id;

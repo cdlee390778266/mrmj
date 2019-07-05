@@ -657,3 +657,23 @@ body {
 		}
 	}
 }
+
+.order-table-wrapper {
+	position: absolute;
+	top: 0;
+	right: 1px;
+	bottom: 0;
+	left: 0;
+	padding: 20px 10px 10px 0;
+	overflow: auto;
+	.el-table {
+		min-width: 400px;
+		border: none;
+		th, td {
+			border: 0 !important;
+		}
+		&:before {
+			display: none;
+		}
+	}
+}
