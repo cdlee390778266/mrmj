@@ -13,7 +13,7 @@
           <div class="mgb10">
             待处理投诉：
             <el-input v-model="form.text" style="width: 110px" prefix-icon="el-icon-search" @focus="isShowList = false" />
-            <el-button type="primary" @click="handle.update.dialogVisible = true" style="width: 70px; margin-left: 10px;">新增投诉</el-button>
+            <el-button type="primary" @click="$router.push('/sale/serviceEdit/add')" style="width: 70px; margin-left: 10px;">新增投诉</el-button>
           </div>
         </div>
         <div class="list" style="top: 64px;">
@@ -32,8 +32,8 @@
               <el-col :span="12">日期：666</el-col>
               <el-col :span="24">待处理：{{ item.type }}</el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="handle.update.dialogVisible = true">编辑</a>
-                <a href="javascript: void(0);" @click="handle.del.dialogVisible = true">处理完成</a>
+                <a href="javascript: void(0);" @click="$router.push('/sale/serviceEdit/edit/11')">编辑</a>
+                <a href="javascript: void(0);" @click="$router.push('/sale/serviceComplete/11')">处理完成</a>
               </el-col>
             </el-row>
           </div>
@@ -159,92 +159,6 @@
         </page-wrapper>
       </div>
     </div>
-
-    <el-dialog title="新增客户投诉" :visible.sync="handle.update.dialogVisible" width="700px">
-      <el-form :model="handle.update.form" label-width="100px" class="mgl10 pd10">
-        <div class="dflex">
-          <div class="flex">
-            <el-form-item label="客户">
-              <el-input v-model="handle.update.form.name" auto-complete="off"></el-input>
-            </el-form-item>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="联系人">
-                  <el-select v-model="handle.update.form.type">
-                    <el-option label="模具零件" value="0"></el-option>
-                    <el-option label="整体模具" value="1"></el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="职务">
-                  <el-select v-model="handle.update.form.type">
-                    <el-option label="模具零件" value="0"></el-option>
-                    <el-option label="整体模具" value="1"></el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="联系电话">
-                  <el-input v-model="handle.update.form.id" auto-complete="off" aria-placeholder="请输联系人电话"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="邮箱地址">
-                  <el-input v-model="handle.update.form.id" auto-complete="off" aria-placeholder="请输联系人电话"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="客户PO.号">
-                  <el-select v-model="handle.update.form.type">
-                    <el-option label="模具零件" value="0"></el-option>
-                    <el-option label="整体模具" value="1"></el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="投诉单号">
-                  <el-input v-model="handle.update.form.id" auto-complete="off" aria-placeholder="请输联系人电话"></el-input>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </div>
-        </div>
-        <div>
-          <el-table :data="handle.update.form.detailList" height="160" border size="mini" style="width: 100%">
-            <el-table-column prop="date" label="零件号" width="100"></el-table-column>
-            <el-table-column prop="name" label="投诉类型" width="88"></el-table-column>
-            <el-table-column prop="address" label="存在问题"></el-table-column>
-            <el-table-column prop="address" label="情况描述"></el-table-column>
-          </el-table>
-        </div>
-        <div>
-          <p class="mgb10 mgt20">
-            投诉附件：
-            <el-button type="primary" size="mini">选择上传文件</el-button>
-          </p>
-          <el-table
-            :data="handle.update.form.enclosureList"
-            height="160"
-            border
-            size="mini"
-            style="width: 100%"
-          >
-            <el-table-column prop="date" label="上传文件"></el-table-column>
-            <el-table-column prop="name" label="资料名称"></el-table-column>
-            <el-table-column label="操作">
-              <template slot-scope="scope">
-                <el-button size="mini" type="danger" @click="del(scope.$index, scope.row)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.update.dialogVisible = false">保 存</el-button>
-        <el-button @click="handle.update.dialogVisible = false">返 回</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -254,7 +168,6 @@
     mixins: [leftMixin],
     data() {
       return {
-        name: localStorage.getItem("ms_username"),
         left: {
           activeId: 125944,
           list: [
@@ -331,65 +244,6 @@
               ]
             }
           ]
-        },
-        handle: {
-          update: {
-            dialogVisible: false,
-            form: {
-              faceUrl: "",
-              name: "",
-              type: "0",
-              id: "",
-              dsc: "",
-              detailList: [
-                {
-                  date: "2016-05-03",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                {
-                  date: "2016-05-02",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                {
-                  date: "2016-05-01",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                }
-              ],
-              enclosureList: [
-                {
-                  date: "2016-05-03",
-                  name: "王小虎"
-                },
-                {
-                  date: "2016-05-02",
-                  name: "王小虎"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "王小虎"
-                },
-                {
-                  date: "2016-05-01",
-                  name: "王小虎"
-                }
-              ]
-            }
-          },
-          del: {
-            dialogVisible: false,
-            form: {
-              reason: "",
-              dsc: ""
-            }
-          }
         }
       };
     },

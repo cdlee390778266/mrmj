@@ -40,6 +40,20 @@ const MENU = {
 			path: '/detail',
 			icon: '',
 			isSubPage: true
+		},
+		{
+			name: '编辑客户投诉',
+			path: '/serviceEdit',
+			paramsPath: '/serviceEdit/:type?/:id?',
+			icon: '',
+			isSubPage: true
+		},
+		{
+			name: '投诉完成',
+			path: '/serviceComplete',
+			paramsPath: '/serviceComplete/:id',
+			icon: '',
+			isSubPage: true
 		}
 	],
 	project: [

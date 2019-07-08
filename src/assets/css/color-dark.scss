@@ -518,15 +518,6 @@ body {
 			bottom: 0px;
 			line-height: 24px;
 
-			.main-content-scorll {
-				position: absolute;
-				top: 0px;
-				left: 10px;
-				right: 30px;
-				bottom: 0px;
-				overflow-y: auto;
-			}
-
 			.main-content-page {
 				position: absolute;
 				top: 50%;
@@ -562,6 +553,15 @@ body {
 			}
 		}
 
+		.main-content-scorll {
+			position: absolute;
+			top: 0px;
+			left: 10px;
+			right: 30px;
+			bottom: 0px;
+			overflow-y: auto;
+		}
+		
 		.down {
 			position: absolute;
 			bottom: 0;

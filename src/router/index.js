@@ -103,7 +103,7 @@ function createRoutes() {
     for(let value of MENU[key]) {
       routes[1].children.push({
         name: value.name,
-        path: `/${key}${value.path}`,
+        path: value.paramsPath ? `/${key}${value.paramsPath}` : `/${key}${value.path}`,
         component: resolve => require([`../components/page/${key}${value.path}.vue`], resolve)
       })
     }
