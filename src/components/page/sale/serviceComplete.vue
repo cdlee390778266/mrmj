@@ -109,8 +109,8 @@
           </el-select>
         </el-form-item>
         <div class="handle-btns pdtb10">
-          <el-button type="primary" @click="handle.update.dialogVisible = false">保 存</el-button>
-          <el-button @click="handle.update.dialogVisible = false">返 回</el-button>
+          <el-button type="primary" @click="handle.update.dialogVisible = false">完 成</el-button>
+          <el-button>返 回</el-button>
         </div>
       </el-form>
     </div>
