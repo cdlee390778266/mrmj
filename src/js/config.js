@@ -1,4 +1,4 @@
-var baseUrl = 'http://112.19.171.231:8080/fests/';
+var baseUrl = 'http://118.178.229.13:51110/';
 
 const CONFIG = {
 	activeMenuType: 'sale',
@@ -8,7 +8,12 @@ const CONFIG = {
 		total: 101,
 	},
 	api: {
-		testUrl: baseUrl + 'comcenter/replylist.do', //测试
+
+		//销售
+		saveCustomer: baseUrl + 'customer/saveCustomer', //客户/供应商信息录入
+		countryList: baseUrl + 'country/qc', //国家列表
+		
+
 	},
 	success: {
 		"1": "加载数据成功",

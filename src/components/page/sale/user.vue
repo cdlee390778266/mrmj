@@ -3,7 +3,7 @@
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-copy"></i> 当前位置：客户档案
+          <i class="el-icon-lx-copy"></i> 当前位置：售后反馈
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -109,42 +109,41 @@
         <div class="dflex mgt20">
           <div class="flex">
             <el-form-item label="客户名称">
-              <el-input v-model="handle.add.form.name" auto-complete="off"></el-input>
+              <el-input v-model="handle.update.form.customerName" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item label="客户简称">
-              <el-input v-model="handle.add.form.name" auto-complete="off"></el-input>
+              <el-input v-model="handle.update.form.abbreiation" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item label="客户所在国">
-              <el-select v-model="handle.add.form.type" style="width: 100%;">
-                <el-option label="模具零件" value="0"></el-option>
-                <el-option label="整体模具" value="1"></el-option>
+              <el-select v-model="handle.update.form.countryId" style="width: 100%;">
+                <el-option :label="模具零件" value="0" v-for="(item, index) in handle.update.list.country" :key="index"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="详细地址">
-              <el-input v-model="handle.add.form.name" auto-complete="off"></el-input>
+              <el-input v-model="handle.update.form.address" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item label="联系电话">
-              <el-input v-model="handle.add.form.name" auto-complete="off"></el-input>
+              <el-input v-model="handle.update.form.phone" auto-complete="off"></el-input>
             </el-form-item>
             <el-row>
               <el-col :span="12">
                 <el-form-item label="传真">
-                  <el-input v-model="handle.add.form.id" auto-complete="off" aria-placeholder="请输入传真"></el-input>
+                  <el-input v-model="handle.update.form.fax" auto-complete="off" aria-placeholder="请输入传真"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="电子邮件">
-                  <el-input v-model="handle.add.form.id" auto-complete="off" aria-placeholder="请输入电子邮件"></el-input>
+                  <el-input v-model="handle.update.form.email" auto-complete="off" aria-placeholder="请输入电子邮件"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="8">
                 <el-form-item label="企业负责人">
-                  <el-input v-model="handle.add.form.id" auto-complete="off" aria-placeholder="请输入企业负责人"></el-input>
+                  <el-input v-model="handle.update.form.personInCharge" auto-complete="off" aria-placeholder="请输入企业负责人"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="8">
                 <el-form-item label="常用货币">
-                  <el-select v-model="handle.add.form.type" style="width: 100%;">
+                  <el-select v-model="handle.update.form.currencyId" style="width: 100%;">
                     <el-option label="欧元" value="0"></el-option>
                     <el-option label="美元" value="1"></el-option>
                     <el-option label="日元" value="2"></el-option>
@@ -155,7 +154,7 @@
                 <el-form-item label="付款账期">
                   <div class="dflex">
                     <div class="flex">
-                      <el-input v-model="handle.add.form.id" auto-complete="off" aria-placeholder="请输入付款账期"></el-input>
+                      <el-input type="number" v-model="handle.update.form.accountPeriod" auto-complete="off" aria-placeholder="请输入付款账期"></el-input>
                     </div>
                     <div style="padding-left: 5px;">天</div>
                   </div>
@@ -176,8 +175,15 @@
         </div>
         <div>
           <p>业务联系人：</p>
-          <el-table :data="handle.add.form.detailList" height="160" border size="mini" style="width: 100%">
-            <el-table-column prop="date" label="联系人姓名" width="100"></el-table-column>
+          <el-table :data="handle.update.form.liaisonManList" height="160" border size="mini" style="width: 100%">
+            <el-table-column prop="liaisonManName" label="联系人姓名" width="100">
+              <template scope="scope">
+                <div @click="scope.row.edit = true">
+                  <el-input v-show="scope.row.edit" size="small" v-model="scope.row.liaisonManName" @blur="scope.row.edit = false"></el-input>
+                  <span v-show="!scope.row.edit">{{ scope.row.liaisonManName }}</span>
+                </div>
+              </template>
+            </el-table-column>
             <el-table-column prop="name" label="性别" width="88"></el-table-column>
             <el-table-column prop="address" label="职位"></el-table-column>
             <el-table-column prop="address" label="联系电话"></el-table-column>
@@ -200,17 +206,9 @@
     mixins: [leftMixin],
     data() {
       return {
-        name: localStorage.getItem("ms_username"),
         left: {
           activeId: 125944,
           list: [
-            {
-              name: 'dddddddd',
-              id: '125944',
-              type: '模具零件',
-              startDate: '2019.01.08',
-              endDate: '2019.03.09'
-            },
             {
               name: 'dddddddd',
               id: '1259445',
@@ -225,18 +223,6 @@
           list: [
             {
               spList: [
-                {
-                  date: "172988",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                },
                 {
                   date: "2016-05-01",
                   name: "",
@@ -279,114 +265,37 @@
           ]
         },
         handle: {
-          add: {
-            dialogVisible: false,
-            form: {
-              faceUrl: "",
-              name: "",
-              type: "0",
-              id: "",
-              dsc: "",
-              detailList: [
-                {
-                  date: "2016-05-03",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                {
-                  date: "2016-05-02",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                {
-                  date: "2016-05-01",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                }
-              ],
-              enclosureList: [
-                {
-                  date: "2016-05-03",
-                  name: "王小虎"
-                },
-                {
-                  date: "2016-05-02",
-                  name: "王小虎"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "王小虎"
-                },
-                {
-                  date: "2016-05-01",
-                  name: "王小虎"
-                }
-              ]
-            }
-          },
-          del: {
-            dialogVisible: false,
-            form: {
-              reason: "",
-              dsc: ""
-            }
-          },
           update: {
             dialogVisible: false,
+            list: {
+              country: []
+            },
             form: {
-              faceUrl: "",
-              name: "",
-              type: "0",
-              id: "",
-              btype: "0",
-              total: 1256,
-              dsc: "",
-              detailList: [
+              customerName: '',
+              number: '',
+              customerType: 0,
+              abbreiation: '',
+              countryId: '',
+              currencyId: '',
+              accountPeriod: '',
+              address: '',
+              industryNume: '',
+              phone: '',
+              valueScale: '',
+              province: '',
+              city: '',
+              distinct: '',
+              fax: '',
+              email: '',
+              personInCharge: '',
+              personScale: '',
+              liaisonManList: [
                 {
-                  date: "2016-05-03",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                {
-                  date: "2016-05-02",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                {
-                  date: "2016-05-01",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                }
-              ],
-              enclosureList: [
-                {
-                  date: "2016-05-03",
-                  name: "王小虎"
-                },
-                {
-                  date: "2016-05-02",
-                  name: "王小虎"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "王小虎"
-                },
-                {
-                  date: "2016-05-01",
-                  name: "王小虎"
+                  edit: false,
+                  liaisonManName: ''
                 }
               ]
-            },
+            }
           }
         }
       };
