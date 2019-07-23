@@ -1,0 +1,27 @@
+.edit-table {
+  .el-table__body td {
+    height: 36px;
+    padding: 0;
+    .cell {
+      padding: 0 !important;
+      & > div {
+        padding: 6px 10px;
+        & > div {
+          position: relative;
+          height: 23px;
+          .el-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            .el-input__inner {
+              height: 23px;
+              line-height: 23px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

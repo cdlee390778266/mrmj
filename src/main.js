@@ -7,6 +7,7 @@ import './assets/css/icon.css';
 import './components/common/directives';
 import "babel-polyfill";
 import Utils from './js/utils'
+import Dict from './js/dict'
 
 import pageWrapper from './components/page/common/page-wrapper'
 
@@ -14,6 +15,7 @@ Vue.component('pageWrapper', pageWrapper)
 
 Vue.config.productionTip = false
 Vue.prototype.$utils = Utils;
+Vue.prototype.$dict = Dict;
 Vue.use(ElementUI, {
     size: 'small'
 });

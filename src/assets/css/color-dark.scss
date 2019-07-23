@@ -1,7 +1,11 @@
+@import  "button";
+@import  "table";
+
 /***** 变量 ******/
 $c9EB900: #9EB900;
 $c3375AB: #3375AB;
 $borderColor: #ddd;
+$themeColor: rgba(22, 155, 213, 1);
 
 body {
 	color: #333;
@@ -398,6 +402,16 @@ body {
 	display: block;
 }
 
+.pos-relative {
+	position: relative;
+}
+
+.ellipsis {
+	overflow: hidden;
+	text-overflow:ellipsis;
+	white-space: nowrap;
+}
+
 .lh32 {
 	line-height: 32px;
 }
@@ -704,6 +718,20 @@ body {
 		}
 		&:before {
 			display: none;
+		}
+	}
+}
+
+.tags-li.active {
+	border: 1px solid $themeColor;
+	background-color: $themeColor;
+}
+
+.el-dialog {
+	.el-dialog__header {
+		background: rgba(51, 117, 171, 1);
+		.el-dialog__title, .el-dialog__headerbtn .el-dialog__close {
+			color: #fff;
 		}
 	}
 }

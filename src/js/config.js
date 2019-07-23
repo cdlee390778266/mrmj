@@ -1,4 +1,4 @@
-var baseUrl = 'http://118.178.229.13:51110/';
+var baseUrl = 'http://118.178.229.13:41000/';
 
 const CONFIG = {
 	activeMenuType: 'sale',
@@ -8,12 +8,15 @@ const CONFIG = {
 		total: 101,
 	},
 	api: {
+		//公共
+		currencyList: baseUrl + 'requirement/currency/qc', //货币种类列表
+		countryList: baseUrl + 'country/qc', //国家列表
+		uploadFiles: baseUrl + 'fc/uploadFiles', //上传文件
+		download: baseUrl + 'fc/downloadFiles', //下载文件
 
 		//销售
 		saveCustomer: baseUrl + 'customer/saveCustomer', //客户/供应商信息录入
-		countryList: baseUrl + 'country/qc', //国家列表
 		
-
 	},
 	success: {
 		"1": "加载数据成功",

@@ -3,7 +3,7 @@
     <el-menu
       class="sidebar-el-menu"
       :default-active="onRoutes"
-      :collapse="collapse"
+      :collapse="true"
       background-color="#000"
       text-color="#fff"
       active-text-color="#20a0ff"

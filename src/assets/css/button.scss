@@ -1,0 +1,8 @@
+.el-button--primary {
+  background-color: rgba(22, 155, 213, 1) !important;
+  border-color: rgba(22, 155, 213, 1) !important;
+  &:hover {
+    background-color: rgba(22, 155, 213, .8) !important;
+    border-color: rgba(22, 155, 213, .8) !important;
+  }
+}

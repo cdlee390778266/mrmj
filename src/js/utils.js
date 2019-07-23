@@ -15,8 +15,8 @@ Utils.CONFIG = CONFIG;
  * @param      {<string>}  code    提示代码
  * @return     {<string>}  提示文字
  */
-Utils.getTipText = function(type , code) {
-	if(!type || !code) return;
+Utils.getTipText = function (type, code) {
+	if (!type || !code) return;
 	return CONFIG[type][code] || '';
 }
 
@@ -27,13 +27,13 @@ Utils.getTipText = function(type , code) {
  * @param      {<string>}  textType    提示文字类型
  * @param      {<string>}  code        提示代码
  */
-Utils.showTip = function(type, textType, code, text) {
+Utils.showTip = function (type, textType, code, text) {
 	MessageBox({
 		title: '消息',
 		showClose: true,
 		message: text ? text : Utils.getTipText(textType, code),
-		type: type ? type: 'success'
-    })
+		type: type ? type : 'success'
+	})
 }
 // Utils.showTip = function(type, textType, code, text) {
 // 	Message({
@@ -46,7 +46,7 @@ Utils.showTip = function(type, textType, code, text) {
 /**
  * Hides the tip. 关闭提示框
  */
-Utils.hideTip = function() {
+Utils.hideTip = function () {
 	Message.close();
 }
 
@@ -57,11 +57,11 @@ Utils.hideTip = function() {
  * @param      {<type>}  textType  弹出文字类型
  * @param      {<type>}  code      弹出文字代码
  */
-Utils.showModalDialog = function(type, textType, code) {
+Utils.showModalDialog = function (type, textType, code) {
 	MessageBox.alert(Utils.getTipText(textType, code), '提示', {
-    	confirmButtonText: '确定',
-    	type: type ? type: 'success'
-    })
+		confirmButtonText: '确定',
+		type: type ? type : 'success'
+	})
 }
 
 /**
@@ -72,10 +72,10 @@ Utils.showModalDialog = function(type, textType, code) {
  * @param      {Function}  error    失败回调
  * @param      {string}    params   参数
  */
-Utils.getJson = function(url, success, error, params = {}, isShowPop=false, urlParams) {
-	if(!url) return;
+Utils.getJson = function (url, success, error, params = {}, isShowPop = false, urlParams) {
+	if (!url) return;
 	var loadingInstance;
-	if(isShowPop) {
+	if (isShowPop) {
 		loadingInstance = Loading.service({
 			fullscreen: true,
 			customClass: 'loading page-loading'
@@ -83,27 +83,31 @@ Utils.getJson = function(url, success, error, params = {}, isShowPop=false, urlP
 	}
 	Utils.ajaxCount++;
 	Utils.$http({
-			method: 'post',
-			url: url,
-			timeout: 5000,
-			data: params,
-			params: urlParams
-		})
-		.then(function(res){
+		method: 'post',
+		url: url,
+		timeout: 5000,
+		data: params,
+		params: urlParams
+	})
+		.then(function (res) {
 			// if(!(--Utils.ajaxCount) && isShowPop) {
 			// 	loadingInstance.close()
 			// }
-			if(isShowPop) {
+			if (isShowPop) {
 				loadingInstance.close()
 			}
-            if(typeof success == 'function') success(res.data)
-        }, function(err){
-        	if(isShowPop) {
-        		loadingInstance.close();
-        	}
-        	Utils.showTip('error', 'error', '-1');
-            if(typeof error == 'function') error(err)
-        })
+			if(res.data.status == 'OK' ) {
+				if (typeof success == 'function') success(res.data)
+			}else {
+				Utils.showTip('error', 'error', '', res.data.message);
+			}
+		}, function (err) {
+			if (isShowPop) {
+				loadingInstance.close();
+			}
+			Utils.showTip('error', 'error', '-1');
+			if (typeof error == 'function') error(err)
+		})
 }
 
 export default Utils

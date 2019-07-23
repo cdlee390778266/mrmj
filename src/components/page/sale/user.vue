@@ -104,9 +104,9 @@
       </div>
     </div>
 
-    <el-dialog title="客户档案" :visible.sync="handle.update.dialogVisible" width="700px">
+    <el-dialog title="客户档案" center :visible.sync="handle.update.dialogVisible" width="700px" v-dialogDrag>
       <el-form :model="handle.update.form" label-width="100px">
-        <div class="dflex mgt20">
+        <div class="dflex">
           <div class="flex">
             <el-form-item label="客户名称">
               <el-input v-model="handle.update.form.customerName" auto-complete="off"></el-input>
@@ -175,20 +175,67 @@
         </div>
         <div>
           <p>业务联系人：</p>
-          <el-table :data="handle.update.form.liaisonManList" height="160" border size="mini" style="width: 100%">
-            <el-table-column prop="liaisonManName" label="联系人姓名" width="100">
+          <el-table :data="handle.update.form.liaisonManList" border size="mini" style="width: 100%" class="edit-table">
+            <el-table-column prop="liaisonManName" label="联系人姓名"	width="100" show-overflow-tooltip>
               <template scope="scope">
-                <div @click="scope.row.edit = true">
-                  <el-input v-show="scope.row.edit" size="small" v-model="scope.row.liaisonManName" @blur="scope.row.edit = false"></el-input>
-                  <span v-show="!scope.row.edit">{{ scope.row.liaisonManName }}</span>
+                <div>
+                  <div @click="scope.row.liaisonManNameEdit = true">
+                    <el-input size="mini" v-model="scope.row.liaisonManName" @blur="scope.row.liaisonManNameEdit = false" :style="{opacity: scope.row.liaisonManNameEdit ? 1 : 0}"/>
+                    <div class="ellipsis">{{ scope.row.liaisonManName }}</div>
+                  </div>
                 </div>
               </template>
             </el-table-column>
-            <el-table-column prop="name" label="性别" width="88"></el-table-column>
-            <el-table-column prop="address" label="职位"></el-table-column>
-            <el-table-column prop="address" label="联系电话"></el-table-column>
-            <el-table-column prop="address" label="电子邮件"></el-table-column>
-            <el-table-column prop="address" label="备注"></el-table-column>
+            <el-table-column prop="name" label="性别" width="88" show-overflow-tooltip>
+              <template scope="scope">
+                <div>
+                  <div @click="scope.row.genderEdit = true">
+                    <el-input size="mini" v-model="scope.row.gender" @blur="scope.row.genderEdit = false" :style="{opacity: scope.row.genderEdit ? 1 : 0}"/>
+                    <div class="ellipsis">{{ scope.row.gender }}</div>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="address" label="职位" show-overflow-tooltip>
+              <template scope="scope">
+                <div>
+                  <div @click="scope.row.positionEdit = true">
+                    <el-input size="mini" v-model="scope.row.position" @blur="scope.row.positionEdit = false" :style="{opacity: scope.row.positionEdit ? 1 : 0}"/>
+                    <div class="ellipsis">{{ scope.row.position }}</div>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="address" label="联系电话" show-overflow-tooltip>
+              <template scope="scope">
+                <div>
+                  <div @click="scope.row.phoneEdit = true">
+                    <el-input size="mini" v-model="scope.row.phone" @blur="scope.row.phoneEdit = false" :style="{opacity: scope.row.phoneEdit ? 1 : 0}"/>
+                    <div class="ellipsis">{{ scope.row.phone }}</div>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="address" label="电子邮件" show-overflow-tooltip>
+              <template scope="scope">
+                <div>
+                  <div @click="scope.row.emailEdit = true">
+                    <el-input size="mini" v-model="scope.row.email" @blur="scope.row.emailEdit = false" :style="{opacity: scope.row.emailEdit ? 1 : 0}"/>
+                    <div class="ellipsis">{{ scope.row.email }}</div>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="address" label="备注" show-overflow-tooltip>
+              <template scope="scope">
+                <div>
+                  <div @click="scope.row.remarkEdit = true">
+                    <el-input size="mini" v-model="scope.row.remark" @blur="scope.row.remarkEdit = false" :style="{opacity: scope.row.remarkEdit ? 1 : 0}"/>
+                    <div class="ellipsis">{{ scope.row.remark }}</div>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
       </el-form>
@@ -205,7 +252,25 @@
   export default {
     mixins: [leftMixin],
     data() {
+      let liaisonManDefault = {
+        liaisonManName: '',
+        liaisonManNameEdit: false,
+        gender: '',
+        genderEdit: false,
+        position: '',
+        positionEdit: false,
+        phone: '',
+        phoneEdit: false,
+        email: '',
+        emailEdit: false,
+        remark: '',
+        remarkEdit: false
+      }
       return {
+        selectList: {
+          currency: [],
+          country: []
+        },
         left: {
           activeId: 125944,
           list: [
@@ -241,24 +306,6 @@
                   name: "",
                   address: "3",
                   d: "2019-03-02"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                },
-                {
-                  date: "2016-05-01",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                },
-                {
-                  date: "2016-05-03",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
                 }
               ]
             }
@@ -289,12 +336,7 @@
               email: '',
               personInCharge: '',
               personScale: '',
-              liaisonManList: [
-                {
-                  edit: false,
-                  liaisonManName: ''
-                }
-              ]
+              liaisonManList: [Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault)]
             }
           }
         }
@@ -308,12 +350,11 @@
       handleSelect(item) {
         this.left.activeId = item.id;
       },
-      del(index, row) {
-        console.log(index, row);
-      },
       refresh() {}
     },
-    created() {}
+    created() {
+      //币种列表
+    }
   };
 </script>
 
