@@ -105,24 +105,24 @@
     </div>
 
     <el-dialog title="客户档案" center :visible.sync="handle.update.dialogVisible" width="700px" v-dialogDrag>
-      <el-form :model="handle.update.form" label-width="100px">
+      <el-form :model="handle.update.form" :rules="handle.update.rules" label-width="100px" ref="updateForm">
         <div class="dflex">
           <div class="flex">
-            <el-form-item label="客户名称">
+            <el-form-item label="客户名称" prop="customerName">
               <el-input v-model="handle.update.form.customerName" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="客户简称">
+            <el-form-item label="客户简称" prop="abbreiation">
               <el-input v-model="handle.update.form.abbreiation" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="客户所在国">
+            <el-form-item label="客户所在国" prop="countryId">
               <el-select v-model="handle.update.form.countryId" style="width: 100%;">
-                <el-option :label="模具零件" value="0" v-for="(item, index) in handle.update.list.country" :key="index"></el-option>
+                <el-option v-for="(item, index) in $dict.countryList" :key="index" :label="item.name" :value="item.mrCountryId"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="详细地址">
+            <el-form-item label="详细地址" prop="address">
               <el-input v-model="handle.update.form.address" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="联系电话">
+            <el-form-item label="联系电话" prop="phone">
               <el-input v-model="handle.update.form.phone" auto-complete="off"></el-input>
             </el-form-item>
             <el-row>
@@ -142,16 +142,14 @@
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item label="常用货币">
+                <el-form-item label="常用货币" prop="currencyId">
                   <el-select v-model="handle.update.form.currencyId" style="width: 100%;">
-                    <el-option label="欧元" value="0"></el-option>
-                    <el-option label="美元" value="1"></el-option>
-                    <el-option label="日元" value="2"></el-option>
+                    <el-option v-for="(item, index) in $dict.currencyList" :key="index" :label="item.name" :value="item.mrCurrencyId"></el-option>
                   </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item label="付款账期">
+                <el-form-item label="付款账期" prop="accountPeriod">
                   <div class="dflex">
                     <div class="flex">
                       <el-input type="number" v-model="handle.update.form.accountPeriod" auto-complete="off" aria-placeholder="请输入付款账期"></el-input>
@@ -240,7 +238,7 @@
         </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.update.dialogVisible = false">保 存</el-button>
+        <el-button type="primary" @click="submitForm('updateForm')">保 存</el-button>
         <el-button @click="handle.update.dialogVisible = false">取 消</el-button>
       </div>
     </el-dialog>
@@ -267,10 +265,6 @@
         remarkEdit: false
       }
       return {
-        selectList: {
-          currency: [],
-          country: []
-        },
         left: {
           activeId: 125944,
           list: [
@@ -314,13 +308,10 @@
         handle: {
           update: {
             dialogVisible: false,
-            list: {
-              country: []
-            },
             form: {
               customerName: '',
               number: '',
-              customerType: 0,
+              customerType: 10,
               abbreiation: '',
               countryId: '',
               currencyId: '',
@@ -337,6 +328,30 @@
               personInCharge: '',
               personScale: '',
               liaisonManList: [Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault)]
+            },
+            rules: {
+              customerName: [
+                { required: true, message: this.$utils.getTipText('error', '-1010')},
+                { max: 20, message: this.$utils.getTipText('error', '-1011')}
+              ],
+              abbreiation: [
+                { required: true, message: this.$utils.getTipText('error', '-1012')}
+              ],
+              countryId: [
+                { required: true, message: this.$utils.getTipText('error', '-1013')}
+              ],
+              currencyId: [
+                { required: true, message: this.$utils.getTipText('error', '-1017')}
+              ],
+              accountPeriod: [
+                { required: true, message: this.$utils.getTipText('error', '-1018')}
+              ],
+              address: [
+                { required: true, message: this.$utils.getTipText('error', '-1014')}
+              ],
+              phone: [
+                { validator: this.$validator.checkPhone}
+              ],
             }
           }
         }
@@ -349,6 +364,19 @@
       },
       handleSelect(item) {
         this.left.activeId = item.id;
+      },
+      submitForm(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            alert('submit!');
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      resetForm(formName) {
+        this.$refs[formName].resetFields();
       },
       refresh() {}
     },
