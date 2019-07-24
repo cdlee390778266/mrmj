@@ -1,15 +1,15 @@
 <template>
-    <div class="login-wrap">
+    <div class="login-wrap" v-loading="isLoading">
         <div class="ms-login">
             <div class="ms-title">欢迎您使用系统</div>
-            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0px" class="ms-content">
-                <el-form-item prop="username">
-                    <el-input v-model="ruleForm.username" placeholder="username">
+            <el-form :model="form" :rules="rules" ref="form" label-width="0px" class="ms-content">
+                <el-form-item prop="userAccount">
+                    <el-input v-model="form.userAccount" placeholder="用户名">
                         <el-button slot="prepend" icon="el-icon-lx-people"></el-button>
                     </el-input>
                 </el-form-item>
-                <el-form-item prop="password">
-                    <el-input type="password" placeholder="password" v-model="ruleForm.password" @keyup.enter.native="submitForm('ruleForm')">
+                <el-form-item prop="userPass">
+                    <el-input type="password" placeholder="密码" maxlength="20" v-model="form.userPass" @keyup.enter.native="submitForm('form')">
                         <el-button slot="prepend" icon="el-icon-lx-lock"></el-button>
                     </el-input>
                 </el-form-item>
@@ -17,7 +17,7 @@
                     <router-link to="/"><small>忘记密码</small></router-link>
                 </div>
                 <div class="login-btn">
-                    <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
+                    <el-button type="primary" @click="submitForm('form')">登录</el-button>
                 </div>
             </el-form>
         </div>
@@ -28,29 +28,35 @@
     export default {
         data: function(){
             return {
-                ruleForm: {
-                    username: 'admin',
-                    password: '123123'
+                isLoading: false,
+                form: {
+                    userAccount: '',
+                    userPass: ''
                 },
                 rules: {
-                    username: [
-                        { required: true, message: '请输入用户名', trigger: 'blur' }
+                    userAccount: [
+                        { required: true, message: this.$utils.getTipText('error', '-1030')}
                     ],
-                    password: [
-                        { required: true, message: '请输入密码', trigger: 'blur' }
+                    userPass: [
+                        { required: true, message: this.$utils.getTipText('error', '-1031')},
+                        // { min: 6, message: this.$utils.getTipText('error', '-1032')},
+                        // { max: 20, message: this.$utils.getTipText('error', '-1032')}
                     ]
                 }
             }
         },
         methods: {
             submitForm(formName) {
-                console.log(this.$el)
                 this.$refs[formName].validate((valid) => {
+                    
                     if (valid) {
-                        localStorage.setItem('ms_username',this.ruleForm.username);
-                        this.$router.push('/');
+                        this.isLoading = true;
+                        this.$utils.getJson(this.$utils.CONFIG.api.login, () => {
+                            this.isLoading = false;
+                            localStorage.setItem('token',this.form.userAccount);
+                            this.$router.push('/');
+                        }, () => this.isLoading = false, this.form) 
                     } else {
-                        console.log('error submit!!');
                         return false;
                     }
                 });

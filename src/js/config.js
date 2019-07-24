@@ -14,6 +14,8 @@ const CONFIG = {
 		uploadFiles: baseUrl + 'fc/uploadFiles', //上传文件
 		download: baseUrl + 'fc/downloadFiles', //下载文件
 
+		login: baseUrl + 'auth/login', //登录
+
 		//销售
 		saveCustomer: baseUrl + 'customer/saveCustomer', //客户/供应商信息录入
 		
@@ -33,6 +35,9 @@ const CONFIG = {
 		'-1016': '请输入正确的电话号码！',
 		'-1017': '请选择常用货币！',
 		'-1018': '请输入付款账期！',
+		'-1030': '请输入用户名！',
+		'-1031': '请输入密码！',
+		'-1032': '请输入6-20位密码！',
 	}
 }
 
