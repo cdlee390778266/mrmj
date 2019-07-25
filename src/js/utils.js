@@ -83,6 +83,9 @@ Utils.getJson = function (url, success, error, params = {}, isShowPop = false, u
 	}
 	Utils.ajaxCount++;
 	Utils.$http({
+		headers: {
+			Authorization: localStorage.getItem('token')
+		},
 		method: 'post',
 		url: url,
 		timeout: 5000,
@@ -108,6 +111,35 @@ Utils.getJson = function (url, success, error, params = {}, isShowPop = false, u
 			Utils.showTip('error', 'error', '-1');
 			if (typeof error == 'function') error(err)
 		})
+}
+
+/**
+ * 取得本地存储值
+ */
+Utils.getStorage = function(key) {
+	return key ? localStorage.getItem(key) : '';
+}
+
+/**
+ * 按指定格式-格式化时间 如：new Date().Format('yyyy-MM-dd hh:mm:ss');
+ * hasWeek用来显示是否显示星期
+ */
+Date.prototype.Format = function(fmt, hasWeek) {
+	let weekday = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+	let o = {
+		'M+': this.getMonth() + 1,
+		'd+': this.getDate(),
+		'h+': this.getHours(),
+		'm+': this.getMinutes(),
+		's+': this.getSeconds(),
+		'q+': Math.floor((this.getMonth() + 3) / 3), //季度
+		'S': this.getMilliseconds() //毫秒
+	};
+	if(/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + '')).substr(4 - RegExp.$1.length);
+	for(var k in o) {
+		if(new RegExp('(' + k + ')').test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length ==  1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)))
+	}
+	return fmt + (hasWeek ? '&nbsp;&nbsp;&nbsp;&nbsp;' + weekday[this.getDay()] : '');
 }
 
 export default Utils

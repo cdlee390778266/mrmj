@@ -161,12 +161,15 @@
             </el-row>
           </div>
           <el-upload
-            action="https://jsonplaceholder.typicode.com/posts/"
+            :action="$utils.CONFIG.api.uploadFiles"
             list-type="picture-card"
             class="v-upload pdl10"
+            name="files"
+            :customerId="$utils.getStorage('userId')"
             :multiple="false"
             :limit="1"
             :on-preview="handlePictureCardPreview"
+            :before-upload="beforeUpload"
           >
             <i class="el-icon-plus"></i>
           </el-upload>
@@ -265,29 +268,11 @@
         remarkEdit: false
       }
       return {
-        left: {
-          activeId: 125944,
-          list: [
-            {
-              name: 'dddddddd',
-              id: '1259445',
-              type: '模具零件',
-              startDate: '2019.01.08',
-              endDate: '2019.03.09'
-            }
-          ]
-        },
         right: {
           activeIndex: 0,
           list: [
             {
               spList: [
-                {
-                  date: "2016-05-01",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                },
                 {
                   date: "2016-05-03",
                   name: "",
@@ -308,9 +293,9 @@
         handle: {
           update: {
             dialogVisible: false,
+            isLoading: false,
             form: {
               customerName: '',
-              number: '',
               customerType: 10,
               abbreiation: '',
               countryId: '',
@@ -327,7 +312,8 @@
               email: '',
               personInCharge: '',
               personScale: '',
-              liaisonManList: [Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault)]
+              liaisonManList: [Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault)],
+              remark: ''
             },
             rules: {
               customerName: [
@@ -358,17 +344,44 @@
       };
     },
     methods: {
+      getLeftList() { //获取左侧列表数据
+        let params = {
+          customerName: '',
+          customerNumber: '',
+          countryId: '',
+          province: '',
+          city: '',
+          distinct: '',
+          offset: this.left.page.offset,
+          limit: this.left.page.limit,
+          total: this.left.page.total,
+          sorting: '',
+        }
+        this.left.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.customerQueryCustomer, (res) => {
+
+        }, () => this.isLoading = false, params)
+      },
       handlePictureCardPreview(file) {
         this.faceUrl = file.url;
         this.addDialog.dialogVisible = true;
+      },
+      beforeUpload(file) {
+        console.log(file)
       },
       handleSelect(item) {
         this.left.activeId = item.id;
       },
       submitForm(formName) {
+        console.log(1)
         this.$refs[formName].validate((valid) => {
+          console.log(2)
           if (valid) {
-            alert('submit!');
+            let params = Object.assign({}, this.handle.update.form);
+            params.liaisonManList = [];
+            this.$utils.getJson(this.$utils.CONFIG.api.saveCustomer, (res) => {
+
+            }, () => this.isLoading = false, params)
           } else {
             console.log('error submit!!');
             return false;
@@ -381,7 +394,7 @@
       refresh() {}
     },
     created() {
-      //币种列表
+      this.getLeftList();
     }
   };
 </script>

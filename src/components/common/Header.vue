@@ -1,16 +1,12 @@
 <template>
     <div class="header">
-        <!-- 折叠按钮 -->
-        <!-- <div class="collapse-btn" @click="collapseChage">
-            <i class="el-icon-menu"></i>
-        </div> -->
         <div class="logo mgl10">
             <img src="../../assets/img/logo.png" height="32">
             <img src="../../assets/img/LogoText.svg" height="30" class="mgl10">
         </div>
         <div class="header-right">
             <div class="header-user-con">
-                欢迎您使用系统，今天是<span class="fc9EB900">2019-03-06</span>
+                欢迎您使用系统，今天是<span class="fc9EB900">{{ this.date }}</span>
                 <!-- 个人设置 -->
                 <div class="btn-bell mgl10">
                     <el-tooltip effect="dark" content="个人设置" placement="bottom">
@@ -44,16 +40,7 @@
     export default {
         data() {
             return {
-                collapse: false,
-                fullscreen: false,
-                name: 'linxin',
-                message: 2
-            }
-        },
-        computed:{
-            username(){
-                let username = localStorage.getItem('ms_username');
-                return username ? username : this.name;
+                date: new Date().Format('yyyy-MM-dd')
             }
         },
         methods:{
@@ -63,44 +50,10 @@
                     localStorage.removeItem('ms_username')
                     this.$router.push('/login');
                 }
-            },
-            // 侧边栏折叠
-            collapseChage(){
-                this.collapse = !this.collapse;
-                bus.$emit('collapse', this.collapse);
-            },
-            // 全屏事件
-            handleFullScreen(){
-                let element = document.documentElement;
-                if (this.fullscreen) {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.webkitCancelFullScreen) {
-                        document.webkitCancelFullScreen();
-                    } else if (document.mozCancelFullScreen) {
-                        document.mozCancelFullScreen();
-                    } else if (document.msExitFullscreen) {
-                        document.msExitFullscreen();
-                    }
-                } else {
-                    if (element.requestFullscreen) {
-                        element.requestFullscreen();
-                    } else if (element.webkitRequestFullScreen) {
-                        element.webkitRequestFullScreen();
-                    } else if (element.mozRequestFullScreen) {
-                        element.mozRequestFullScreen();
-                    } else if (element.msRequestFullscreen) {
-                        // IE11
-                        element.msRequestFullscreen();
-                    }
-                }
-                this.fullscreen = !this.fullscreen;
             }
         },
         mounted(){
-            if(document.body.clientWidth < 1500){
-                this.collapseChage();
-            }
+            
         }
     }
 </script>

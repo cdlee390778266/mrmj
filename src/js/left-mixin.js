@@ -25,6 +25,12 @@ let leftMixin = {
 			form: {
 				text: '',
 				type: ''
+			},
+			left: {
+				activeId: '',
+				isLoading: false,
+				page: Object.assign({}, this.$utils.CONFIG.page),
+				list: []
 			}
 		}
 	},

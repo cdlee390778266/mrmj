@@ -1,7 +1,7 @@
 <template>
     <div class="login-wrap" v-loading="isLoading">
         <div class="ms-login">
-            <div class="ms-title">欢迎您使用系统</div>
+            <div class="ms-title">明锐模具生产过程执行管理系统</div>
             <el-form :model="form" :rules="rules" ref="form" label-width="0px" class="ms-content">
                 <el-form-item prop="userAccount">
                     <el-input v-model="form.userAccount" placeholder="用户名">
@@ -13,9 +13,9 @@
                         <el-button slot="prepend" icon="el-icon-lx-lock"></el-button>
                     </el-input>
                 </el-form-item>
-                <div class="forget">
+                <!-- <div class="forget">
                     <router-link to="/"><small>忘记密码</small></router-link>
-                </div>
+                </div> -->
                 <div class="login-btn">
                     <el-button type="primary" @click="submitForm('form')">登录</el-button>
                 </div>
@@ -51,10 +51,12 @@
                     
                     if (valid) {
                         this.isLoading = true;
-                        this.$utils.getJson(this.$utils.CONFIG.api.login, () => {
+                        this.$utils.getJson(this.$utils.CONFIG.api.login, (res) => {
                             this.isLoading = false;
-                            localStorage.setItem('token',this.form.userAccount);
-                            this.$router.push('/');
+                            localStorage.setItem('token',res.data.token);
+                            localStorage.setItem('userId',res.data.userId);
+                            localStorage.setItem('userName',res.data.userName);
+                            this.$router.push('/sale/home');
                         }, () => this.isLoading = false, this.form) 
                     } else {
                         return false;
