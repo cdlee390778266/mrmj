@@ -22,7 +22,10 @@ const CONFIG = {
 		
 		customerQueryCustomer: baseUrl + 'requirement/customer/queryCustomer', //客户档案--客户/供应商查询
 		saveCustomerHeadPortraits: baseUrl + 'requirement/customer/saveCustomerHeadPortraits', //客户档案--存储客户当前上传的头像
-		saveCustomer: baseUrl + 'customer/saveCustomer', //客户档案--客户/供应商信息录入
+		saveCustomer: baseUrl + 'requirement/customer/saveCustomer', //客户档案--客户/供应商信息录入
+		customerQwaip: baseUrl + 'requirement/customer/qwaip', //客户档案--查询客户/供应商信息
+		modifyCustomerInfo: baseUrl + 'requirement/customer/modifyCustomerInfo', //客户档案--修改客户信息
+		sumCusRequirement: baseUrl + 'requirement/customer/sumCusRequirement', //客户档案--统计当前符合条件的客户需求数量
 		
 	},
 	success: {

@@ -84,7 +84,7 @@ Utils.getJson = function (url, success, error, params = {}, isShowPop = false, u
 	Utils.ajaxCount++;
 	Utils.$http({
 		headers: {
-			Authorization: localStorage.getItem('token')
+			Authorization: localStorage.getItem('token') || ''
 		},
 		method: 'post',
 		url: url,

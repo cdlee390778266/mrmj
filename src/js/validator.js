@@ -9,6 +9,9 @@ Validator.checkPhone = (rule, value, callback) => {
   }else if(!(/^1(3|4|5|6|7|8|9)\d{9}$/.test(value))) {
 
     callback(new Error(Utils.getTipText('error', '-1016')));
+  }else {
+
+  	callback();
   }
 }
 

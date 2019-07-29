@@ -169,7 +169,8 @@
             :multiple="false"
             :limit="1"
             :on-preview="handlePictureCardPreview"
-            :before-upload="beforeUpload"
+            :on-success="uploadSuccess "
+            :on-error="uploadError"
           >
             <i class="el-icon-plus"></i>
           </el-upload>
@@ -295,6 +296,7 @@
             dialogVisible: false,
             isLoading: false,
             form: {
+              fileId: '',
               customerName: '',
               customerType: 10,
               abbreiation: '',
@@ -366,19 +368,30 @@
         this.faceUrl = file.url;
         this.addDialog.dialogVisible = true;
       },
-      beforeUpload(file) {
-        console.log(file)
+      uploadSuccess(res) {
+        this.handle.update.form.fileId = res.data[0].fileId;
+      },
+      uploadError() {
+        this.handle.update.form.fileId = '';
       },
       handleSelect(item) {
         this.left.activeId = item.id;
       },
+      saveFile() {
+        let params = {
+          fileId: this.handle.update.form.fileId,
+          customerId: this.$utils.getStorage('userId')
+        }
+        this.$utils.getJson(this.$utils.CONFIG.api.saveCustomerHeadPortraits, (res) => {
+
+        }, () => this.isLoading = false, params)
+      },
       submitForm(formName) {
-        console.log(1)
         this.$refs[formName].validate((valid) => {
-          console.log(2)
           if (valid) {
             let params = Object.assign({}, this.handle.update.form);
             params.liaisonManList = [];
+            this.handle.update.form.fileId && this.saveFile();
             this.$utils.getJson(this.$utils.CONFIG.api.saveCustomer, (res) => {
 
             }, () => this.isLoading = false, params)
