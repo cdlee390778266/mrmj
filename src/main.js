@@ -6,6 +6,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 import './assets/css/icon.css';
 import './components/common/directives';
 import "babel-polyfill";
+import Filter from './js/filter'
 import Utils from './js/utils'
 import Dict from './js/dict'
 import Validator from './js/validator'

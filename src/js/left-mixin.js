@@ -31,7 +31,8 @@ let leftMixin = {
 				isLoading: false,
 				page: Object.assign({}, this.$utils.CONFIG.page),
 				list: []
-			}
+			},
+			currentData: {}
 		}
 	},
 	methods: {

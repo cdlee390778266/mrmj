@@ -17,13 +17,13 @@
           </div>
         </div>
         <div class="list" style="top: 64px;">
-          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.id }" v-show="isShowList" @click="handleSelect(item)">
+          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrCustomerId }" v-show="isShowList" @click="handleSelect(item)">
             <div class="dflex">
               <div>
                 <img src="../../../assets/img/img1.svg" width="30" class="mgr10 mgt10" />
               </div>
               <div class="flex">
-                <p>{{ item.id }}</p>
+                <p>{{ item.name }}</p>
               </div>
             </div>
             <el-row>
@@ -38,68 +38,70 @@
         </div>
       </div>
       <div class="main-right">
-        <page-wrapper @change="refresh">
+        <page-wrapper @change="refresh" :rightList="left.list">
           <template #pageName>
             客户信息明细
           </template>
           <template #pageTitle>
             <i class="el-icon-lx-edit"></i> 客户信息
           </template>
-          <div class="pdt10 mgt10">
-            <el-scrollbar class="main-content-scorll pdt10">
-              <el-row>
-                <el-col :span="24"><strong>客户信息</strong></el-col>
-                <el-col :span="24">
-                  <div class="dflex">
-                    <div class="flex">
-                      <el-row>
-                        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户名称：XXXXXXXXXXXXXXX公司</el-col>
-                        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户简称：XXXXX</el-col>
-                        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户所在国：美国</el-col>
-                        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">详细地址：撒的发生的发生打发斯蒂芬</el-col>
-                        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">联系电话：123123123123123</el-col>
-                        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">传真：123123123</el-col>
-                        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">电子邮件：fasdfasdf@xxxxxxxx.com</el-col>
-                        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">企业负责人：asdfasdfasdf</el-col>
-                        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">付款账期：30天</el-col>
-                        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">使用货币：美元</el-col>
-                      </el-row>
+          <template v-slot:default="slotProps">
+            <div class="pdt10 mgt10">
+              <el-scrollbar class="main-content-scorll pdt10">
+                <el-row>
+                  <el-col :span="24"><strong>客户信息</strong></el-col>
+                  <el-col :span="24">
+                    <div class="dflex">
+                      <div class="flex">
+                        <el-row>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户名称：{{ slotProps.data.name | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户简称：{{ slotProps.data.abbreviation | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户所在国：{{ slotProps.data.country ? slotProps.data.country.name : '-' }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">详细地址：{{ slotProps.data.address | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">联系电话：{{ slotProps.data.phone | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">传真：{{ slotProps.data.fax | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">电子邮件：{{ slotProps.data.email | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">企业负责人：{{ slotProps.data.personInCharge | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">付款账期：{{ slotProps.data.accountPeriod | filterNull }}天</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">使用货币：{{ slotProps.data.currency ? slotProps.data.currency.name : '-' }}</el-col>
+                        </el-row>
+                      </div>
+                      <el-upload
+                        action="https://jsonplaceholder.typicode.com/posts/"
+                        list-type="picture-card"
+                        class="v-upload pdr20"
+                        :multiple="false"
+                        :limit="1"
+                        :on-preview="handlePictureCardPreview"
+                      >
+                        <i class="el-icon-plus"></i>
+                      </el-upload>
                     </div>
-                    <el-upload
-                      action="https://jsonplaceholder.typicode.com/posts/"
-                      list-type="picture-card"
-                      class="v-upload pdr20"
-                      :multiple="false"
-                      :limit="1"
-                      :on-preview="handlePictureCardPreview"
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <el-col :span="24"><strong>联系人信息：</strong></el-col>
+                  <el-col :span="24">
+                    <el-table
+                      :data="right.list[right.activeIndex].spList"
+                      border
+                      size="mini"
+                      class="content-table"
+                      style="width: 100%"
                     >
-                      <i class="el-icon-plus"></i>
-                    </el-upload>
-                  </div>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="24"><strong>联系人信息：</strong></el-col>
-                <el-col :span="24">
-                  <el-table
-                    :data="right.list[right.activeIndex].spList"
-                    border
-                    size="mini"
-                    class="content-table"
-                    style="width: 100%"
-                  >
-                    <el-table-column prop="date" label="联系人姓名" width="180"></el-table-column>
-                    <el-table-column prop="name" label="性别" width="180"></el-table-column>
-                    <el-table-column prop="address" label="职位"></el-table-column>
-                    <el-table-column prop="d" label="单价"></el-table-column>
-                    <el-table-column prop="address" label="联系电话"></el-table-column>
-                    <el-table-column prop="address" label="电子邮件"></el-table-column>
-                    <el-table-column prop="address" label="备注"></el-table-column>
-                  </el-table>
-                </el-col>
-              </el-row>
-            </el-scrollbar>
-          </div>
+                      <el-table-column prop="date" label="联系人姓名" width="180"></el-table-column>
+                      <el-table-column prop="name" label="性别" width="180"></el-table-column>
+                      <el-table-column prop="address" label="职位"></el-table-column>
+                      <el-table-column prop="d" label="单价"></el-table-column>
+                      <el-table-column prop="address" label="联系电话"></el-table-column>
+                      <el-table-column prop="address" label="电子邮件"></el-table-column>
+                      <el-table-column prop="address" label="备注"></el-table-column>
+                    </el-table>
+                  </el-col>
+                </el-row>
+              </el-scrollbar>
+            </div>
+          </template>
         </page-wrapper>
       </div>
     </div>
@@ -347,14 +349,19 @@
     },
     methods: {
       getLeftList() { //获取左侧列表数据
+
         let params = {
-          name: '',
           _PAGE: this.left.page.currentPage,
           _PAGE_SIZE: this.left.page.limit,
         }
+        if(this.form.text) params.name = this.form.text;
+
         this.left.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.customerQwaip, (res) => {
-          this.left.list = res.content;
+
+          this.left.list = res.data.content;
+          this.left.activeId = this.left.list.length ? this.left.list[0].mrCustomerId : '';
+
         }, () => this.isLoading = false, params)
       },
       resetForm(formName) {
@@ -381,6 +388,7 @@
       },
       handleSelect(item) {
         this.left.activeId = item.id;
+        this.currentData= item;
       },
       saveFile() {
         let params = {
