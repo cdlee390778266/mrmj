@@ -39,8 +39,8 @@
                     ],
                     userPass: [
                         { required: true, message: this.$utils.getTipText('error', '-1031')},
-                        // { min: 6, message: this.$utils.getTipText('error', '-1032')},
-                        // { max: 20, message: this.$utils.getTipText('error', '-1032')}
+                        { min: 6, message: this.$utils.getTipText('error', '-1032')},
+                        { max: 20, message: this.$utils.getTipText('error', '-1032')}
                     ]
                 }
             }
@@ -56,7 +56,27 @@
                             localStorage.setItem('token',res.data.token);
                             localStorage.setItem('userId',res.data.userId);
                             localStorage.setItem('userName',res.data.userName);
-                            this.$router.push('/sale/home');
+                            switch (res.data.orgName) {
+                                case '销售部':
+                                    this.$utils.CONFIG.activeMenuType = 'sale';
+                                    break;
+                                case '项目部':
+                                    this.$utils.CONFIG.activeMenuType = 'project';
+                                    break;
+                                case '生产部':
+                                    this.$utils.CONFIG.activeMenuType = 'product';
+                                    break;
+                                case '计划部':
+                                    this.$utils.CONFIG.activeMenuType = 'plan';
+                                    break;
+                                case '质检部':
+                                    this.$utils.CONFIG.activeMenuType = 'quality';
+                                    break;
+                                default:
+                                    break;
+                            }
+                            localStorage.setItem('department', this.$utils.CONFIG.activeMenuType);
+                            this.$router.push(`/${this.$utils.CONFIG.activeMenuType}/home`);
                         }, () => this.isLoading = false, this.form) 
                     } else {
                         return false;

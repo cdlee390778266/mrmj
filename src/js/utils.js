@@ -28,7 +28,7 @@ Utils.getTipText = function (type, code) {
  * @param      {<string>}  code        提示代码
  */
 Utils.showTip = function (type, textType, code, text) {
-	MessageBox({
+	Message({
 		title: '消息',
 		showClose: true,
 		message: text ? text : Utils.getTipText(textType, code),
@@ -103,6 +103,7 @@ Utils.getJson = function (url, success, error, params = {}, isShowPop = false, u
 				if (typeof success == 'function') success(res.data)
 			}else {
 				Utils.showTip('error', 'error', '', res.data.message);
+				if (typeof error == 'function') error(res.data)
 			}
 		}, function (err) {
 			if (isShowPop) {

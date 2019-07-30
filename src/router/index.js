@@ -94,6 +94,7 @@ function createRoutes() {
 
 createRoutes();
 
+
 export default new Router({
   routes
 })

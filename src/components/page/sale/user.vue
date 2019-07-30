@@ -13,7 +13,7 @@
           <div class="mgb10">
             待处理投诉：
             <el-input v-model="form.text" style="width: 100px" prefix-icon="el-icon-search" @focus="isShowList = false" />
-            <el-button type="primary" @click="handle.update.dialogVisible = true" style="width: 80px; margin-left: 10px;">新增客户</el-button>
+            <el-button type="primary" @click="edit('add', 'updateForm')" style="width: 80px; margin-left: 10px;">新增客户</el-button>
           </div>
         </div>
         <div class="list" style="top: 64px;">
@@ -104,7 +104,7 @@
       </div>
     </div>
 
-    <el-dialog title="客户档案" center :visible.sync="handle.update.dialogVisible" width="700px" v-dialogDrag>
+    <el-dialog title="客户档案" center :visible.sync="handle.update.dialogVisible" width="700px" v-dialogDrag v-loading="handle.update.isLoading">
       <el-form :model="handle.update.form" :rules="handle.update.rules" label-width="100px" ref="updateForm">
         <div class="dflex">
           <div class="flex">
@@ -201,7 +201,7 @@
             <el-table-column prop="address" label="职位" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="scope.row.positionEdit = true">
+                  <div @click="showInput(handle.update.form.liaisonManList, scope.row, scope.$index)">
                     <el-input size="mini" v-model="scope.row.position" @blur="scope.row.positionEdit = false" :style="{opacity: scope.row.positionEdit ? 1 : 0}"/>
                     <div class="ellipsis">{{ scope.row.position }}</div>
                   </div>
@@ -254,21 +254,21 @@
   export default {
     mixins: [leftMixin],
     data() {
-      let liaisonManDefault = {
-        liaisonManName: '',
-        liaisonManNameEdit: false,
-        gender: '',
-        genderEdit: false,
-        position: '',
-        positionEdit: false,
-        phone: '',
-        phoneEdit: false,
-        email: '',
-        emailEdit: false,
-        remark: '',
-        remarkEdit: false
-      }
       return {
+        liaisonManDefault: {
+          liaisonManName: '',
+          liaisonManNameEdit: false,
+          gender: '',
+          genderEdit: false,
+          position: '',
+          positionEdit: false,
+          phone: '',
+          phoneEdit: false,
+          email: '',
+          emailEdit: false,
+          remark: '',
+          remarkEdit: false
+        },
         right: {
           activeIndex: 0,
           list: [
@@ -314,7 +314,7 @@
               email: '',
               personInCharge: '',
               personScale: '',
-              liaisonManList: [Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault), Object.assign({}, liaisonManDefault)],
+              liaisonManList: [Object.assign({}, this.liaisonManDefault), Object.assign({}, this.liaisonManDefault)],
               remark: ''
             },
             rules: {
@@ -348,21 +348,21 @@
     methods: {
       getLeftList() { //获取左侧列表数据
         let params = {
-          customerName: '',
-          customerNumber: '',
-          countryId: '',
-          province: '',
-          city: '',
-          distinct: '',
-          offset: this.left.page.offset,
-          limit: this.left.page.limit,
-          total: this.left.page.total,
-          sorting: '',
+          name: '',
+          _PAGE: this.left.page.currentPage,
+          _PAGE_SIZE: this.left.page.limit,
         }
         this.left.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.customerQueryCustomer, (res) => {
-
+        this.$utils.getJson(this.$utils.CONFIG.api.customerQwaip, (res) => {
+          this.left.list = res.content;
         }, () => this.isLoading = false, params)
+      },
+      resetForm(formName) {
+        this.$refs[formName] && this.$refs[formName].resetFields();
+      },
+      edit(type, formName) {
+        this.resetForm(formName);
+        this.handle.update.dialogVisible = true
       },
       handlePictureCardPreview(file) {
         this.faceUrl = file.url;
@@ -373,6 +373,11 @@
       },
       uploadError() {
         this.handle.update.form.fileId = '';
+      },
+      showInput(list, row, index) {
+        console.log(66)
+        row.positionEdit = true;
+        if(list.length -1 == index) list.push(Object.assign({}, this.liaisonManDefault))
       },
       handleSelect(item) {
         this.left.activeId = item.id;
@@ -390,19 +395,21 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             let params = Object.assign({}, this.handle.update.form);
+            params.valueScale = parseInt(params.valueScale);
+            params.personScale = parseInt(params.personScale);
             params.liaisonManList = [];
             this.handle.update.form.fileId && this.saveFile();
+            this.handle.update.isLoading = true;
             this.$utils.getJson(this.$utils.CONFIG.api.saveCustomer, (res) => {
-
-            }, () => this.isLoading = false, params)
+              this.handle.update.isLoading = false;
+              this.handle.update.dialogVisible = false;
+              this.$utils.showTip('success', 'success', '102');
+            }, () => this.handle.update.isLoading = false, params)
           } else {
             console.log('error submit!!');
             return false;
           }
         });
-      },
-      resetForm(formName) {
-        this.$refs[formName].resetFields();
       },
       refresh() {}
     },

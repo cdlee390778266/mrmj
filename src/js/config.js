@@ -4,6 +4,7 @@ const CONFIG = {
 	activeMenuType: 'sale',
 	cookieKey: 'user',
 	page: {
+		currentPage: 0,
 		offset: 0,
 		limit: 10,
 		totalElements: 0,
@@ -16,7 +17,7 @@ const CONFIG = {
 		uploadFiles: baseUrl + 'fc/uploadFiles', //上传文件
 		download: baseUrl + 'fc/downloadFiles', //下载文件
 
-		login: baseUrl + 'auth/login', //登录
+		login: baseUrl + 'authMR/login', //登录
 
 		//销售模块
 		
@@ -31,6 +32,7 @@ const CONFIG = {
 	success: {
 		"1": "加载数据成功",
 		'101': "注册成功",
+		'102': '保存成功'
 	},
 	error: {
 		'-1': '加载数据失败，请检查网络！',
