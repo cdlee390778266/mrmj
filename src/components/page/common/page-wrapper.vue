@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="main-right-title"><slot name="pageName">需求明细</slot></div>
-    <div class="tc up">
+    <div class="tc up" v-if="haveCarousel">
       <img src="../../../assets/img/up.png" height="12" width="60" class="pointer" @click="prev">
     </div>
     <div class="main-content-title">
@@ -17,13 +17,17 @@
         :loop="false"
         trigger="click"
         ref="carousel"
+        v-if="haveCarousel"
       >
         <el-carousel-item v-for="(item, index) in rightList" :key="index">
           <slot :data="item"></slot>
         </el-carousel-item>
       </el-carousel>
+      <template v-esle>
+        <slot></slot>
+      </template>
     </div>
-    <div class="tc down">
+    <div class="tc down" v-if="haveCarousel">
       <img src="../../../assets/img/down.png" height="12" width="60" class="pointer" @click="next">
     </div>
   </div>
@@ -31,7 +35,7 @@
 
 <script>
   export default {
-    props: ['rightList'],
+    props: ['rightList', 'haveCarousel'],
     data() {
       return {
         height: 300

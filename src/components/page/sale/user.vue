@@ -3,12 +3,12 @@
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-copy"></i> 当前位置：售后反馈
+          <i class="el-icon-lx-copy"></i> 当前位置：客户档案
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="main">
-      <div class="main-left">
+      <div class="main-left" v-loading="left.isLoading">
         <div class="main-left-search pd10">
           <div class="mgb10">
             客户信息：
@@ -28,7 +28,7 @@
             </div>
             <el-row>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="handle.update.dialogVisible = true">编辑</a>
+                <a href="javascript: void(0);" @click="edit('edit', 'updateForm', item)">编辑</a>
               </el-col>
             </el-row>
           </div>
@@ -37,8 +37,8 @@
           </div>
         </div>
       </div>
-      <div class="main-right">
-        <page-wrapper @change="refresh" :rightList="left.list">
+      <div class="main-right" v-loading="right.isLoading">
+        <page-wrapper @change="search" :rightList="left.list">
           <template #pageName>
             客户信息明细
           </template>
@@ -54,28 +54,21 @@
                     <div class="dflex">
                       <div class="flex">
                         <el-row>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户名称：{{ slotProps.data.name | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户简称：{{ slotProps.data.abbreviation | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户所在国：{{ slotProps.data.country ? slotProps.data.country.name : '-' }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">详细地址：{{ slotProps.data.address | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">联系电话：{{ slotProps.data.phone | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">传真：{{ slotProps.data.fax | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">电子邮件：{{ slotProps.data.email | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">企业负责人：{{ slotProps.data.personInCharge | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">付款账期：{{ slotProps.data.accountPeriod | filterNull }}天</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">使用货币：{{ slotProps.data.currency ? slotProps.data.currency.name : '-' }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户名称：{{ currentData.name | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户简称：{{ currentData.abbreviation | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户所在国：{{ currentData.country ? currentData.country.name : '-' }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">详细地址：{{ currentData.address | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">联系电话：{{ currentData.phone | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">传真：{{ currentData.fax | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">电子邮件：{{ currentData.email | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">企业负责人：{{ currentData.personInCharge | filterNull }}</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">付款账期：{{ currentData.accountPeriod | filterNull }}天</el-col>
+                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">使用货币：{{ currentData.currency ? currentData.currency.name : '-' }}</el-col>
                         </el-row>
                       </div>
-                      <el-upload
-                        action="https://jsonplaceholder.typicode.com/posts/"
-                        list-type="picture-card"
-                        class="v-upload pdr20"
-                        :multiple="false"
-                        :limit="1"
-                        :on-preview="handlePictureCardPreview"
-                      >
-                        <i class="el-icon-plus"></i>
-                      </el-upload>
+                      <div class="pd10">
+                        <img :src="currentData.business && currentData.business.fileId ? `${$utils.CONFIG.api.image}?fileId=${currentData.business.fileId}` : defaultImg" width="88" height="88">
+                      </div>
                     </div>
                   </el-col>
                 </el-row>
@@ -83,19 +76,18 @@
                   <el-col :span="24"><strong>联系人信息：</strong></el-col>
                   <el-col :span="24">
                     <el-table
-                      :data="right.list[right.activeIndex].spList"
+                      :data="currentData.liaisonMens"
                       border
                       size="mini"
                       class="content-table"
                       style="width: 100%"
                     >
-                      <el-table-column prop="date" label="联系人姓名" width="180"></el-table-column>
-                      <el-table-column prop="name" label="性别" width="180"></el-table-column>
-                      <el-table-column prop="address" label="职位"></el-table-column>
-                      <el-table-column prop="d" label="单价"></el-table-column>
-                      <el-table-column prop="address" label="联系电话"></el-table-column>
-                      <el-table-column prop="address" label="电子邮件"></el-table-column>
-                      <el-table-column prop="address" label="备注"></el-table-column>
+                      <el-table-column prop="name" label="联系人姓名" width="180" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="gender" label="性别" width="180" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="position" label="职位" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="phone" label="联系电话" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="email" label="电子邮件" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="remark" label="备注" show-overflow-tooltip></el-table-column>
                     </el-table>
                   </el-col>
                 </el-row>
@@ -183,8 +175,8 @@
             <el-table-column prop="liaisonManName" label="联系人姓名"	width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="scope.row.liaisonManNameEdit = true">
-                    <el-input size="mini" v-model="scope.row.liaisonManName" @blur="scope.row.liaisonManNameEdit = false" :style="{opacity: scope.row.liaisonManNameEdit ? 1 : 0}"/>
+                  <div @click="showInput(handle.update.form.liaisonManList, scope.$index, 'liaisonManNameEdit')">
+                    <el-input size="mini" v-model="scope.row.liaisonManName" @focus="showInput(handle.update.form.liaisonManList, scope.$index, 'liaisonManNameEdit')" @blur="scope.row.liaisonManNameEdit = false" :style="{opacity: scope.row.liaisonManNameEdit ? 1 : 0}"/>
                     <div class="ellipsis">{{ scope.row.liaisonManName }}</div>
                   </div>
                 </div>
@@ -193,8 +185,8 @@
             <el-table-column prop="name" label="性别" width="88" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="scope.row.genderEdit = true">
-                    <el-input size="mini" v-model="scope.row.gender" @blur="scope.row.genderEdit = false" :style="{opacity: scope.row.genderEdit ? 1 : 0}"/>
+                  <div @click="showInput(handle.update.form.liaisonManList, scope.$index, 'genderEdit')">
+                    <el-input size="mini" v-model="scope.row.gender" @focus="showInput(handle.update.form.liaisonManList, scope.$index, 'genderEdit')" @blur="scope.row.genderEdit = false" :style="{opacity: scope.row.genderEdit ? 1 : 0}"/>
                     <div class="ellipsis">{{ scope.row.gender }}</div>
                   </div>
                 </div>
@@ -203,8 +195,8 @@
             <el-table-column prop="address" label="职位" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="showInput(handle.update.form.liaisonManList, scope.row, scope.$index)">
-                    <el-input size="mini" v-model="scope.row.position" @blur="scope.row.positionEdit = false" :style="{opacity: scope.row.positionEdit ? 1 : 0}"/>
+                  <div @click="showInput(handle.update.form.liaisonManList, scope.$index, 'positionEdit')">
+                    <el-input size="mini" v-model="scope.row.position" @focus="showInput(handle.update.form.liaisonManList, scope.$index, 'positionEdit')" @blur="scope.row.positionEdit = false" :style="{opacity: scope.row.positionEdit ? 1 : 0}"/>
                     <div class="ellipsis">{{ scope.row.position }}</div>
                   </div>
                 </div>
@@ -213,8 +205,8 @@
             <el-table-column prop="address" label="联系电话" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="scope.row.phoneEdit = true">
-                    <el-input size="mini" v-model="scope.row.phone" @blur="scope.row.phoneEdit = false" :style="{opacity: scope.row.phoneEdit ? 1 : 0}"/>
+                  <div @click="showInput(handle.update.form.liaisonManList, scope.$index, 'phoneEdit')">
+                    <el-input size="mini" v-model="scope.row.phone" @focus="showInput(handle.update.form.liaisonManList, scope.$index, 'phoneEdit')" @blur="scope.row.phoneEdit = false" :style="{opacity: scope.row.phoneEdit ? 1 : 0}"/>
                     <div class="ellipsis">{{ scope.row.phone }}</div>
                   </div>
                 </div>
@@ -223,8 +215,8 @@
             <el-table-column prop="address" label="电子邮件" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="scope.row.emailEdit = true">
-                    <el-input size="mini" v-model="scope.row.email" @blur="scope.row.emailEdit = false" :style="{opacity: scope.row.emailEdit ? 1 : 0}"/>
+                  <div @click="showInput(handle.update.form.liaisonManList, scope.$index, 'emailEdit')">
+                    <el-input size="mini" v-model="scope.row.email" @focus="showInput(handle.update.form.liaisonManList, scope.$index, 'emailEdit')" @blur="scope.row.emailEdit = false" :style="{opacity: scope.row.emailEdit ? 1 : 0}"/>
                     <div class="ellipsis">{{ scope.row.email }}</div>
                   </div>
                 </div>
@@ -233,8 +225,8 @@
             <el-table-column prop="address" label="备注" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="scope.row.remarkEdit = true">
-                    <el-input size="mini" v-model="scope.row.remark" @blur="scope.row.remarkEdit = false" :style="{opacity: scope.row.remarkEdit ? 1 : 0}"/>
+                  <div @click="showInput(handle.update.form.liaisonManList, scope.$index, 'remarkEdit')">
+                    <el-input size="mini" v-model="scope.row.remark" @focus="showInput(handle.update.form.liaisonManList, scope.$index, 'remarkEdit')" @blur="scope.row.remarkEdit = false" :style="{opacity: scope.row.remarkEdit ? 1 : 0}"/>
                     <div class="ellipsis">{{ scope.row.remark }}</div>
                   </div>
                 </div>
@@ -274,30 +266,13 @@
         },
         right: {
           activeIndex: 0,
-          list: [
-            {
-              spList: [
-                {
-                  date: "2016-05-03",
-                  name: "",
-                  address: ""
-                }
-              ],
-              enclosureList: [
-                {
-                  date: "172988",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                }
-              ]
-            }
-          ]
+          isLoading: false
         },
         handle: {
           update: {
             dialogVisible: false,
             isLoading: false,
+            handleType: 'add',
             form: {
               fileId: '',
               customerName: '',
@@ -317,7 +292,7 @@
               email: '',
               personInCharge: '',
               personScale: '',
-              liaisonManList: [Object.assign({}, this.liaisonManDefault), Object.assign({}, this.liaisonManDefault)],
+              liaisonManList: [],
               remark: ''
             },
             rules: {
@@ -361,30 +336,94 @@
         this.$utils.getJson(this.$utils.CONFIG.api.customerQwaip, (res) => {
 
           this.left.list = res.data.content;
-          this.left.activeId = this.left.list.length ? this.left.list[0].mrCustomerId : '';
+          if(this.left.list.length) {
 
-        }, () => this.isLoading = false, params)
+            this.left.activeId = this.left.list[0].mrCustomerId;
+            this.currentData = this.left.list[0];
+          }
+          this.left.isLoading = false;
+        }, () => this.left.isLoading = false, params)
       },
       resetForm(formName) {
+
         this.$refs[formName] && this.$refs[formName].resetFields();
       },
-      edit(type, formName) {
+      resetLiaisonMan() {
+        this.handle.update.form.liaisonManList = [
+          Object.assign({}, this.liaisonManDefault),
+          Object.assign({}, this.liaisonManDefault)
+        ]
+      },
+      setFormData(item) {
+
+        let liaisonManList = []
+        item.liaisonMens.forEach(data => {
+
+          let liaisonMan = Object.assign({}, this.liaisonManDefault);
+          liaisonMan.liaisonManId = data.mrLiaisonManId;
+          liaisonMan.liaisonManName = data.name;
+          liaisonMan.gender = data.gender;
+          liaisonMan.position = data.position;
+          liaisonMan.phone = data.phone;
+          liaisonMan.email = data.email;
+          liaisonMan.remark = data.remark;
+          liaisonManList.push(liaisonMan);
+        })
+
+        if(!liaisonManList.length) {
+
+          liaisonManList = [
+            Object.assign({}, this.liaisonManDefault),
+            Object.assign({}, this.liaisonManDefault)
+          ];
+        }else if(liaisonManList.length == 1) {
+
+          liaisonManList.push(Object.assign({}, this.liaisonManDefault));
+        }
+
+        this.handle.update.form = {
+          customerId: item.id,
+          customerName: item.name,
+          customerType: 10,
+          abbreiation: item.abbreiation,
+          countryId: item.countryId,
+          currencyId: item.currencyId,
+          accountPeriod: item.accountPeriod,
+          address: item.address,
+          industryNume: item.industryNume,
+          phone: item.phone,
+          valueScale: item.valueScale,
+          fax: item.fax,
+          email: item.email,
+          personInCharge: item.personInCharge,
+          personScale: item.personScale,
+          liaisonManList: liaisonManList,
+          remark: item.remark
+        }
+      },
+      edit(type, formName, item) {
+
+        this.handle.update.handleType = type;
         this.resetForm(formName);
         this.handle.update.dialogVisible = true
+        if(this.handle.update.handleType == 'edit') this.setFormData(item);
       },
       handlePictureCardPreview(file) {
+
         this.faceUrl = file.url;
         this.addDialog.dialogVisible = true;
       },
       uploadSuccess(res) {
+
         this.handle.update.form.fileId = res.data[0].fileId;
       },
       uploadError() {
+
         this.handle.update.form.fileId = '';
       },
-      showInput(list, row, index) {
-        console.log(66)
-        row.positionEdit = true;
+      showInput(list, index, key) {
+
+        list[index][key] = true;
         if(list.length -1 == index) list.push(Object.assign({}, this.liaisonManDefault))
       },
       handleSelect(item) {
@@ -401,17 +440,35 @@
         }, () => this.isLoading = false, params)
       },
       submitForm(formName) {
+
         this.$refs[formName].validate((valid) => {
           if (valid) {
+
+            let url = this.handle.update.handleType == 'add' ? this.$utils.CONFIG.api.saveCustomer : this.$utils.CONFIG.api.modifyCustomerInfo;
             let params = Object.assign({}, this.handle.update.form);
             params.valueScale = parseInt(params.valueScale);
             params.personScale = parseInt(params.personScale);
             params.liaisonManList = [];
+            this.handle.update.form.liaisonManList.forEach(item => {
+              if(item.liaisonManName && item.gender && item.position && item.phone) {
+                params.liaisonManList.push({
+                  liaisonManName: item.liaisonManName,
+                  gender: item.gender,
+                  position: item.position,
+                  phone: item.phone,
+                  email: item.email,
+                  remark: item.remark
+                });
+              }
+            })
             this.handle.update.form.fileId && this.saveFile();
+
             this.handle.update.isLoading = true;
-            this.$utils.getJson(this.$utils.CONFIG.api.saveCustomer, (res) => {
+            this.$utils.getJson(url, (res) => {
+
               this.handle.update.isLoading = false;
               this.handle.update.dialogVisible = false;
+              this.search();
               this.$utils.showTip('success', 'success', '102');
             }, () => this.handle.update.isLoading = false, params)
           } else {
@@ -420,10 +477,14 @@
           }
         });
       },
-      refresh() {}
+      search() {
+        this.left.page.currentPage = 0;
+        this.getLeftList();
+      }
     },
     created() {
-      this.getLeftList();
+      this.resetLiaisonMan();
+      this.search();
     }
   };
 </script>
