@@ -11,7 +11,7 @@
       <div class="main-left">
         <div class="main-left-search pd10">
           <div class="mgb10">
-            待处理投诉：
+            客户信息：
             <el-input v-model="form.text" style="width: 100px" prefix-icon="el-icon-search" @focus="isShowList = false" />
             <el-button type="primary" @click="edit('add', 'updateForm')" style="width: 80px; margin-left: 10px;">新增客户</el-button>
           </div>
@@ -20,7 +20,7 @@
           <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrCustomerId }" v-show="isShowList" @click="handleSelect(item)">
             <div class="dflex">
               <div>
-                <img src="../../../assets/img/img1.svg" width="30" class="mgr10 mgt10" />
+                <img :src="item.business && item.business.fileId ? `${$utils.CONFIG.api.image}?fileId=${item.business.fileId}` : defaultImg" width="30" class="mgr10 mgt10" />
               </div>
               <div class="flex">
                 <p>{{ item.name }}</p>
@@ -257,6 +257,7 @@
     mixins: [leftMixin],
     data() {
       return {
+        defaultImg: require('../../../assets/img/img1.svg'),
         liaisonManDefault: {
           liaisonManName: '',
           liaisonManNameEdit: false,
