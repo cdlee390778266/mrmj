@@ -29,6 +29,7 @@ let leftMixin = {
 			left: {
 				activeId: '',
 				isLoading: false,
+				isLoadingMore: false,
 				page: Object.assign({}, this.$utils.CONFIG.page),
 				list: []
 			},
@@ -37,6 +38,30 @@ let leftMixin = {
 	},
 	methods: {
 
+	},
+	mounted() {
+		let _this = this;
+		let prevScrollTop = 0;
+		let isScrollDown = false;
+		if(this.$refs.list) {
+			this.$refs.list.onscroll = function() {	//下拉加载更多
+
+		   		let scrollTop = this.scrollTop;
+		   		let clientHeight = this.clientHeight;
+		   		let scrollHeight = this.scrollHeight;
+				isScrollDown = prevScrollTop < scrollTop;
+				prevScrollTop = scrollTop;
+		        if(scrollTop+clientHeight+40 > scrollHeight && isScrollDown && !_this.left.isLoadingMore){
+
+					_this.left.isLoadingMore = true;
+					_this.left.pagecurrentPage++;
+					_this.getLeftList('isLoadingMore');
+				}
+			}
+		}
+	},
+	destroyed() {
+		this.$refs.list.onscroll = null;
 	}
 }
 

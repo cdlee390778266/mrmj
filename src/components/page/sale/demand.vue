@@ -19,7 +19,7 @@
             <el-button type="primary" class="fr" @click="handle.plan.dialogVisible = true" style="width: 130px;">查看生产计划</el-button>
           </div>
         </div>
-        <div class="list">
+        <div class="list" ref="list">
           <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.id }" v-show="isShowList" @click="handleSelect(item)">
             <div class="dflex">
               <div>
@@ -42,13 +42,16 @@
               </el-col>
             </el-row>
           </div>
+          <div class="tc pd10" v-show="isShowList">
+            加载更多 <i class="el-icon-loading"></i>
+          </div>
           <div class="filter" v-show="!isShowList">
             <p v-for="(item, index) in filter.typeList" :key="index" @click="isShowList = true"><i class="el-icon-search"></i> {{ item.label }}</p>
           </div>
         </div>
       </div>
       <div class="main-right">
-        <page-wrapper @change="refresh">
+        <page-wrapper @change="refresh" :haveCarousel="true">
           <div class="pdt10 mgt10">
             <el-scrollbar class="main-content-scorll pdt10">
               <el-row>
@@ -412,13 +415,25 @@
     mixins: [leftMixin],
     data() {
       return {
-        name: localStorage.getItem("ms_username"),
         left: {
-          activeId: 125944,
           list: [
             {
               name: 'dddddddd',
-              id: '125944',
+              id: '1259445',
+              type: '模具零件',
+              startDate: '2019.01.08',
+              endDate: '2019.03.09'
+            },
+            {
+              name: 'dddddddd',
+              id: '1259445',
+              type: '模具零件',
+              startDate: '2019.01.08',
+              endDate: '2019.03.09'
+            },
+            {
+              name: 'dddddddd',
+              id: '1259445',
               type: '模具零件',
               startDate: '2019.01.08',
               endDate: '2019.03.09'
@@ -438,48 +453,12 @@
             {
               spList: [
                 {
-                  date: "172988",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                },
-                {
-                  date: "2016-05-01",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                },
-                {
                   date: "2016-05-03",
                   name: "",
                   address: ""
                 }
               ],
               enclosureList: [
-                {
-                  date: "172988",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                },
-                {
-                  date: "2016-05-01",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                },
                 {
                   date: "2016-05-03",
                   name: "",
@@ -501,39 +480,12 @@
               dsc: "",
               detailList: [
                 {
-                  date: "2016-05-03",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                {
-                  date: "2016-05-02",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                {
                   date: "2016-05-01",
                   name: "王小虎",
                   address: "上海市普陀区金沙江路 1518 弄"
                 }
               ],
               enclosureList: [
-                {
-                  date: "2016-05-03",
-                  name: "王小虎"
-                },
-                {
-                  date: "2016-05-02",
-                  name: "王小虎"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "王小虎"
-                },
                 {
                   date: "2016-05-01",
                   name: "王小虎"
@@ -550,42 +502,7 @@
               city: '普陀区',
               address: '上海市普陀区金沙江路 1518 弄',
               zip: 200333
-            }, {
-              date: '2016-05-02',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }, {
-              date: '2016-05-04',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }, {
-              date: '2016-05-01',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }, {
-              date: '2016-05-08',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }, {
-              date: '2016-05-06',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }, {
+            },{
               date: '2016-05-07',
               name: '王小虎',
               province: '上海',
@@ -657,6 +574,29 @@
       };
     },
     methods: {
+      getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
+
+        let params = {
+          customerName: '',
+          componentNo: '',
+          requirementType: '',
+          offset: this.left.page.currentPage,
+          limit: this.left.page.limit,
+        }
+        if(this.form.text) params.name = this.form.text;
+
+        this.left[loadingKey] = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryRequirement, (res) => {
+
+          this.left.list = res.data.content;
+          if(this.left.list.length) {
+
+            this.left.activeId = this.left.list[0].mrCustomerId;
+            this.currentData = this.left.list[0];
+          }
+          this.left[loadingKey] = false;
+        }, () => this.left[loadingKey] = false, params)
+      },
       handlePictureCardPreview(file) {
         this.faceUrl = file.url;
         this.addDialog.dialogVisible = true;
@@ -684,7 +624,9 @@
       },
       refresh() {}
     },
-    created() {}
+    created() {
+      this.getLeftList();
+    }
   };
 </script>
 

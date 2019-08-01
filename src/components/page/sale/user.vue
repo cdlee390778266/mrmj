@@ -16,7 +16,7 @@
             <el-button type="primary" @click="edit('add', 'updateForm')" style="width: 80px; margin-left: 10px;">新增客户</el-button>
           </div>
         </div>
-        <div class="list" style="top: 64px;">
+        <div class="list" style="top: 64px;" ref="list">
           <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrCustomerId }" v-show="isShowList" @click="handleSelect(item)">
             <div class="dflex">
               <div>
@@ -31,6 +31,9 @@
                 <a href="javascript: void(0);" @click="edit('edit', 'updateForm', item)">编辑</a>
               </el-col>
             </el-row>
+          </div>
+          <div class="tc pd10" v-show="isShowList">
+            加载更多 <i class="el-icon-loading"></i>
           </div>
           <div class="filter" v-show="!isShowList">
             <p v-for="(item, index) in filter.typeList" :key="index" @click="isShowList = true"><i class="el-icon-search"></i> {{ item.label }}</p>
@@ -327,8 +330,9 @@
       getLeftList() { //获取左侧列表数据
 
         let params = {
-          _PAGE: this.left.page.currentPage,
+          _PAGE: this.left.page.offset,
           _PAGE_SIZE: this.left.page.limit,
+          sorting: '_MrCustomer.name'
         }
         if(this.form.text) params.name = this.form.text;
 
@@ -486,7 +490,7 @@
         });
       },
       search() {
-        this.left.page.currentPage = 0;
+        this.left.page.offset = 0;
         this.getLeftList();
       }
     },

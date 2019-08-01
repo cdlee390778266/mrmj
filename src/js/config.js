@@ -6,7 +6,7 @@ const CONFIG = {
 	page: {
 		currentPage: 0,
 		offset: 0,
-		limit: 100,
+		limit: 10,
 		totalElements: 0,
 		totalPages: 0
 	},
@@ -20,14 +20,24 @@ const CONFIG = {
 
 		login: baseUrl + 'authMR/login', //登录
 
-		//销售模块
-		
+		/* 销售模块*/
 		customerQueryCustomer: baseUrl + 'requirement/customer/queryCustomer', //客户档案--客户/供应商查询
 		saveCustomerHeadPortraits: baseUrl + 'requirement/customer/saveCustomerHeadPortraits', //客户档案--存储客户当前上传的头像
 		saveCustomer: baseUrl + 'requirement/customer/saveCustomer', //客户档案--客户/供应商信息录入
 		customerQwaip: baseUrl + 'requirement/customer/qwaip', //客户档案--查询客户/供应商信息
 		modifyCustomerInfo: baseUrl + 'requirement/customer/modifyCustomerInfo', //客户档案--修改客户信息
 		sumCusRequirement: baseUrl + 'requirement/customer/sumCusRequirement', //客户档案--统计当前符合条件的客户需求数量
+		saveRequirement: baseUrl + '/requirement/req/saveRequirement', //需求--新增需求
+		modifyRequirement: baseUrl + '/requirement/req/modifyRequirement', //需求--需求修改
+		queryRequirement: baseUrl + '/requirement/req/queryRequirement', //需求--需求查询
+		queryRequirementDetail: baseUrl + '/requirement/req/queryRequirementDetail', //需求--客户需求详情
+		sumRequirement: baseUrl + '/requirement/requirement/sumRequirement', //需求--统计符合条件
+		saveDemand: baseUrl + '/requirement/demand/saveDemand', //需求--需求终止
+		sysCodeQc: baseUrl + '/requirement/sysCode/qc', //需求--需求终止类型查询
+		inputDemand: baseUrl + '/requirement/demand/inputDemand', //需求--终止类型联想匹配
+		saveComponentOfferRecord: baseUrl + '/requirement/componentOfferRecord/saveComponentOfferRecord', //需求--零件报价
+
+
 		
 	},
 	success: {
