@@ -98,15 +98,15 @@
       </div>
     </div>
 
-    <el-dialog title="客户档案" center :visible.sync="handle.update.dialogVisible" width="700px" v-dialogDrag v-loading="handle.update.isLoading">
-      <el-form :model="handle.update.form" :rules="handle.update.rules" label-width="100px" ref="updateForm">
+    <el-dialog title="客户档案" center :visible.sync="handle.update.dialogVisible" width="700px" v-dialogDrag>
+      <el-form :model="handle.update.form" :rules="handle.update.rules" v-loading="handle.update.isLoading" label-width="100px" ref="updateForm">
         <div class="dflex">
           <div class="flex">
             <el-form-item label="客户名称" prop="customerName">
               <el-input v-model="handle.update.form.customerName" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="客户简称" prop="abbreiation">
-              <el-input v-model="handle.update.form.abbreiation" auto-complete="off"></el-input>
+            <el-form-item label="客户简称" prop="abbreviation">
+              <el-input v-model="handle.update.form.abbreviation" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item label="客户所在国" prop="countryId">
               <el-select v-model="handle.update.form.countryId" style="width: 100%;">
@@ -277,7 +277,7 @@
               fileId: '',
               customerName: '',
               customerType: 10,
-              abbreiation: '',
+              abbreviation: '',
               countryId: '',
               currencyId: '',
               accountPeriod: '',
@@ -300,7 +300,7 @@
                 { required: true, message: this.$utils.getTipText('error', '-1010')},
                 { max: 20, message: this.$utils.getTipText('error', '-1011')}
               ],
-              abbreiation: [
+              abbreviation: [
                 { required: true, message: this.$utils.getTipText('error', '-1012')}
               ],
               countryId: [
@@ -385,7 +385,7 @@
           customerId: item.id,
           customerName: item.name,
           customerType: 10,
-          abbreiation: item.abbreiation,
+          abbreviation: item.abbreviation,
           countryId: item.countryId,
           currencyId: item.currencyId,
           accountPeriod: item.accountPeriod,
@@ -430,14 +430,21 @@
         this.left.activeId = item.id;
         this.currentData= item;
       },
-      saveFile() {
+      closeDialog() {
+        this.handle.update.isLoading = false;
+        this.handle.update.dialogVisible = false;
+      },
+      saveFile(id) {
         let params = {
           fileId: this.handle.update.form.fileId,
-          customerId: this.$utils.getStorage('userId')
+          customerId: id
         }
         this.$utils.getJson(this.$utils.CONFIG.api.saveCustomerHeadPortraits, (res) => {
 
-        }, () => this.isLoading = false, params)
+          this.closeDialog();
+          this.$utils.showTip('success', 'success', '102');
+          this.search();
+        }, () => this.handle.update.isLoading = false, params)
       },
       submitForm(formName) {
 
@@ -461,15 +468,16 @@
                 });
               }
             })
-            this.handle.update.form.fileId && this.saveFile();
 
             this.handle.update.isLoading = true;
             this.$utils.getJson(url, (res) => {
 
-              this.handle.update.isLoading = false;
-              this.handle.update.dialogVisible = false;
-              this.search();
-              this.$utils.showTip('success', 'success', '102');
+              if(this.handle.update.form.fileId) {
+                this.saveFile(res.data.id)
+              }else {
+                this.closeDialog();
+                this.search();
+              }
             }, () => this.handle.update.isLoading = false, params)
           } else {
             console.log('error submit!!');
