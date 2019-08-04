@@ -49,12 +49,12 @@ let leftMixin = {
 		   		let scrollTop = this.scrollTop;
 		   		let clientHeight = this.clientHeight;
 		   		let scrollHeight = this.scrollHeight;
-				isScrollDown = prevScrollTop < scrollTop;
-				prevScrollTop = scrollTop;
-		        if(scrollTop+clientHeight+40 > scrollHeight && isScrollDown && !_this.left.isLoadingMore){
+					isScrollDown = prevScrollTop < scrollTop;
+					prevScrollTop = scrollTop;
+		      if((scrollTop+clientHeight+40 > scrollHeight) && isScrollDown && !_this.left.isLoadingMore && (_this.left.page.currentPage < _this.left.page.totalPages)){
 
 					_this.left.isLoadingMore = true;
-					_this.left.pagecurrentPage++;
+					_this.left.page.currentPage++;
 					_this.getLeftList('isLoadingMore');
 				}
 			}

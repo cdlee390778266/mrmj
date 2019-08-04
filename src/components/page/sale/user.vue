@@ -32,8 +32,8 @@
               </el-col>
             </el-row>
           </div>
-          <div class="tc pd10" v-show="isShowList">
-            加载更多 <i class="el-icon-loading"></i>
+          <div class="tc pd10" v-show="isShowList && left.page.currentPage < left.page.totalPages">
+            加载中<i class="el-icon-loading"></i>
           </div>
           <div class="filter" v-show="!isShowList">
             <p v-for="(item, index) in filter.typeList" :key="index" @click="isShowList = true"><i class="el-icon-search"></i> {{ item.label }}</p>
@@ -158,10 +158,12 @@
             </el-row>
           </div>
           <el-upload
-            :action="$utils.CONFIG.api.uploadFiles"
             list-type="picture-card"
             class="v-upload pdl10"
             name="files"
+            accept="jpg"
+            ref="upload"
+            :action="$utils.CONFIG.api.uploadFiles"
             :customerId="$utils.getStorage('userId')"
             :multiple="false"
             :limit="1"
@@ -327,26 +329,38 @@
       };
     },
     methods: {
-      getLeftList() { //获取左侧列表数据
+      getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
 
         let params = {
-          _PAGE: this.left.page.offset,
+          _PAGE: this.left.page.currentPage,
           _PAGE_SIZE: this.left.page.limit,
           sorting: '_MrCustomer.name'
         }
         if(this.form.text) params.name = this.form.text;
 
-        this.left.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.customerQwaip, (res) => {
+        this.left[loadingKey] = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.customerQcip, (res) => {
 
-          this.left.list = res.data.content;
+          if(loadingKey == 'isLoadingMore') {
+
+            this.left.list = this.left.list.concat(res.data.content);
+          }else {
+
+            this.left.list = res.data.content;
+          }
+          this.left.page.totalPages = res.data.totalPages;
+          
           if(this.left.list.length) {
 
             this.left.activeId = this.left.list[0].mrCustomerId;
             this.currentData = this.left.list[0];
           }
-          this.left.isLoading = false;
-        }, () => this.left.isLoading = false, params)
+          this.left[loadingKey] = false;
+        }, () => this.left[loadingKey] = false, params)
+      },
+      resetUpload() {
+
+        this.$refs.upload && this.$refs.upload.clearFiles();
       },
       resetForm(formName) {
 
@@ -408,6 +422,7 @@
       edit(type, formName, item) {
 
         this.handle.update.handleType = type;
+        this.resetUpload();
         this.resetForm(formName);
         this.handle.update.dialogVisible = true
         if(this.handle.update.handleType == 'edit') this.setFormData(item);
