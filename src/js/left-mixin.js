@@ -3,6 +3,7 @@ let leftMixin = {
 		return {
 			isShowList: true,
 			filter: {
+				selectedValue: '',
 				typeList: [
 					{
 						label: '按照客户名称搜索需求',
@@ -37,13 +38,19 @@ let leftMixin = {
 		}
 	},
 	methods: {
+		select1(item) {
 
+			this.filter.selectedValue = item.value;
+			this.isShowList = true;
+			this.search && this.search();
+		}
 	},
 	mounted() {
 		let _this = this;
 		let prevScrollTop = 0;
 		let isScrollDown = false;
 		if(this.$refs.list) {
+
 			this.$refs.list.onscroll = function() {	//下拉加载更多
 
 		   		let scrollTop = this.scrollTop;
@@ -51,10 +58,10 @@ let leftMixin = {
 		   		let scrollHeight = this.scrollHeight;
 					isScrollDown = prevScrollTop < scrollTop;
 					prevScrollTop = scrollTop;
-		      if((scrollTop+clientHeight+40 > scrollHeight) && isScrollDown && !_this.left.isLoadingMore && (_this.left.page.currentPage < _this.left.page.totalPages)){
-
+		      if((scrollTop+clientHeight+40 > scrollHeight) && isScrollDown && !_this.left.isLoadingMore && (_this.left.page.offset < _this.left.page.totalPages)){
+			
 					_this.left.isLoadingMore = true;
-					_this.left.page.currentPage++;
+					_this.left.page.offset++;
 					_this.getLeftList('isLoadingMore');
 				}
 			}

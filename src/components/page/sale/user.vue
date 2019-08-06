@@ -32,11 +32,11 @@
               </el-col>
             </el-row>
           </div>
-          <div class="tc pd10" v-show="isShowList && left.page.currentPage < left.page.totalPages">
+          <div class="tc pd10" v-show="isShowList && left.page.offset < left.page.totalPages">
             加载中<i class="el-icon-loading"></i>
           </div>
           <div class="filter" v-show="!isShowList">
-            <p v-for="(item, index) in filter.typeList" :key="index" @click="isShowList = true"><i class="el-icon-search"></i> {{ item.label }}</p>
+            <p v-for="(item, index) in filter.typeList" :key="index" @click="select1(item)"><i class="el-icon-search"></i> {{ item.label }}</p>
           </div>
         </div>
       </div>
@@ -269,6 +269,19 @@
           remark: '',
           remarkEdit: false
         },
+        filter: {
+          selectedValue: 0,
+          typeList: [
+            {
+						label: '按照客户名称搜索客户',
+              value: '0',
+            },
+            {
+              label: '按照联系人名称搜索客户',
+              value: '1',
+            }
+          ]
+        },
         right: {
           activeIndex: 0,
           isLoading: false
@@ -332,8 +345,9 @@
       getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
 
         let params = {
-          _PAGE: this.left.page.currentPage,
-          _PAGE_SIZE: this.left.page.limit,
+          type: this.filter.selectedValue,
+          offset: this.left.page.offset,
+          limit: this.left.page.limit,
           sorting: '_MrCustomer.name'
         }
         if(this.form.text) params.name = this.form.text;
@@ -505,11 +519,12 @@
         });
       },
       search() {
-        this.left.page.offset = 0;
+        this.left.page.offset = 1;
         this.getLeftList();
       }
     },
     created() {
+      
       this.resetLiaisonMan();
       this.search();
     }
