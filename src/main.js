@@ -27,6 +27,7 @@ Vue.use(ElementUI, {
 //使用钩子函数对路由进行权限跳转
 // router.beforeEach((to, from, next) => {
 //     const role = Utils.getStorage('token');
+//     console.log(155)
 //     if (!role) {
 //         next('/login');
 //     } else {

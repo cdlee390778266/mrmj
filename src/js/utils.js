@@ -1,6 +1,7 @@
-import axios from 'axios'
-import CONFIG from './config'
+import axios from 'axios';
+import CONFIG from './config';
 import { Loading, Message, MessageBox } from 'element-ui';
+import Menu from '../js/menu';
 
 var Utils = {}
 
@@ -16,6 +17,7 @@ Utils.CONFIG = CONFIG;
  * @return     {<string>}  提示文字
  */
 Utils.getTipText = function (type, code) {
+
 	if (!type || !code) return;
 	return CONFIG[type][code] || '';
 }
@@ -28,6 +30,7 @@ Utils.getTipText = function (type, code) {
  * @param      {<string>}  code        提示代码
  */
 Utils.showTip = function (type, textType, code, text) {
+
 	Message({
 		title: '消息',
 		showClose: true,
@@ -47,6 +50,7 @@ Utils.showTip = function (type, textType, code, text) {
  * Hides the tip. 关闭提示框
  */
 Utils.hideTip = function () {
+
 	Message.close();
 }
 
@@ -58,6 +62,7 @@ Utils.hideTip = function () {
  * @param      {<type>}  code      弹出文字代码
  */
 Utils.showModalDialog = function (type, textType, code) {
+
 	MessageBox.alert(Utils.getTipText(textType, code), '提示', {
 		confirmButtonText: '确定',
 		type: type ? type : 'success'
@@ -73,9 +78,11 @@ Utils.showModalDialog = function (type, textType, code) {
  * @param      {string}    params   参数
  */
 Utils.getJson = function (url, success, error, params = {}, isShowPop = false, urlParams) {
+
 	if (!url) return;
 	var loadingInstance;
 	if (isShowPop) {
+
 		loadingInstance = Loading.service({
 			fullscreen: true,
 			customClass: 'loading page-loading'
@@ -93,22 +100,29 @@ Utils.getJson = function (url, success, error, params = {}, isShowPop = false, u
 		params: urlParams
 	})
 		.then(function (res) {
+
 			// if(!(--Utils.ajaxCount) && isShowPop) {
 			// 	loadingInstance.close()
 			// }
 			if (isShowPop) {
+
 				loadingInstance.close()
 			}
 			if(res.data.status == 'OK' ) {
+
 				if (typeof success == 'function') success(res.data)
 			}else {
+
 				Utils.showTip('error', 'error', '', res.data.message);
 				if (typeof error == 'function') error(res.data)
 			}
 		}, function (err) {
+
 			if (isShowPop) {
+
 				loadingInstance.close();
 			}
+
 			Utils.showTip('error', 'error', '-1');
 			if (typeof error == 'function') error(err)
 		})
@@ -118,7 +132,69 @@ Utils.getJson = function (url, success, error, params = {}, isShowPop = false, u
  * 取得本地存储值
  */
 Utils.getStorage = function(key) {
+
 	return key ? localStorage.getItem(key) : '';
+}
+
+/**
+ * 设置本地存储值
+ */
+Utils.setStorage = function(key, value) {
+
+	return key ? localStorage.setItem(key, value) : '';
+}
+
+/**
+ * 移除本地存储值
+ */
+Utils.removeStorage = function(key) {
+
+	return key ? localStorage.removeItem(key) : '';
+}
+
+/**
+ * 设置用户本地存储值
+ */
+Utils.setUserStorage = function(token, userId, userName, orgCode) {
+
+	if(!token) return;
+
+	Utils.setStorage(CONFIG.storageNames.tokenName, token);
+	Utils.setStorage(CONFIG.storageNames.useridName, userId);
+	Utils.setStorage(CONFIG.storageNames.usernameName, userName);
+	Utils.setStorage(CONFIG.storageNames.orgcodeName, orgCode);
+}
+
+/**
+ * 移除用户本地存储值
+ */
+Utils.removeUserStorage = function() {
+
+	Utils.removeStorage(CONFIG.storageNames.tokenName);
+	Utils.removeStorage(CONFIG.storageNames.useridName);
+	Utils.removeStorage(CONFIG.storageNames.usernameName);
+	Utils.removeStorage(CONFIG.storageNames.orgcodeName);
+}
+
+/**
+ * 检查部门是否存在，并返回数据对象
+ * orgCode 部门代码
+ */
+Utils.checkModuleExistence = function(orgCode) {
+
+	let existence = false;
+	let webOrgKey = '';
+
+	for(let key in Menu) {
+
+		if(Menu[key].orgCode == orgCode) {
+
+			existence = true;
+			webOrgKey = key;
+			break;
+		}
+	}
+	return {existence: existence, webOrgKey: webOrgKey};
 }
 
 /**
@@ -126,6 +202,7 @@ Utils.getStorage = function(key) {
  * hasWeek用来显示是否显示星期
  */
 Date.prototype.Format = function(fmt, hasWeek) {
+
 	let weekday = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 	let o = {
 		'M+': this.getMonth() + 1,

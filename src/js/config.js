@@ -2,7 +2,12 @@ var baseUrl = 'http://118.178.229.13:41000/';
 
 const CONFIG = {
 	activeMenuType: 'sale',
-	cookieKey: 'user',
+	storageNames: {
+		tokenName: 'token',
+		useridName: 'userId',
+		usernameName: 'userName',
+		orgcodeName: 'org',
+	},
 	page: {
 		offset: 1,
 		limit: 10,
@@ -46,6 +51,7 @@ const CONFIG = {
 	},
 	error: {
 		'-1': '加载数据失败，请检查网络！',
+		'-1000': '数据出错，没有对应的部门！',
 		'-1010': '请输入客户名称！',
 		'-1011': '长度不得大于20位！',
 		'-1012': '请输入客户简称！',

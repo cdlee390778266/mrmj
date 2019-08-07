@@ -1,18 +1,37 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import MENU from '../js/menu'
+import MENU from '../js/menu';
+import Utils from '../js/utils';
 
 Vue.use(Router);
-0
+
 let routes = [
   {
-    path: '/',
-    redirect: '/home'
-  },
-  {
     path: '',
+    beforeEnter: (to, from, next) => {
+
+      let token = Utils.getStorage(Utils.CONFIG.storageNames.tokenName);
+
+      if(token) {
+
+        let orgCode = Utils.getStorage(Utils.CONFIG.storageNames.orgcodeName);
+        let orgObj = Utils.checkModuleExistence(orgCode);
+        if(orgObj.existence) {	//如果部门存在
+
+          next();
+        }else {
+          
+          Utils.removeUserStorage();
+          next('/login');
+        }
+      }else {
+
+        next('/login');
+      }
+      
+      token ? next() : next('/login');
+    },
     component: resolve => require(['../components/common/Home.vue'], resolve),
-    meta: { title: '' },
     children:[
       {
         path: '/icon',
@@ -52,16 +71,30 @@ let routes = [
         component: resolve => require(['../components/page/DragDialog.vue'], resolve),
         meta: { title: '拖拽弹框' }
       },
-      {
-        // 权限页面
-        path: '/permission',
-        component: resolve => require(['../components/page/Permission.vue'], resolve),
-        meta: { title: '权限测试', permission: true }
-      }
     ]
   },
   {
     path: '/login',
+    beforeEnter: (to, from, next) => {
+
+      let token = Utils.getStorage(Utils.CONFIG.storageNames.tokenName);
+      if (token) {
+        
+        let orgCode = Utils.getStorage(Utils.CONFIG.storageNames.orgcodeName);
+        let orgObj = Utils.checkModuleExistence(orgCode);
+        if(orgObj.existence) {	//如果部门存在
+
+          Utils.CONFIG.activeMenuType = orgObj.webOrgKey;
+          next(`/${Utils.CONFIG.activeMenuType}/home`);
+        }else {
+
+          next();
+        }
+      } else {
+
+        next();
+      }
+    },
     component: resolve => require(['../components/page/Login.vue'], resolve)
   },
   {
@@ -81,19 +114,21 @@ let routes = [
 ]
 
 function createRoutes() {
+
   for(let key in MENU) {
-    for(let value of MENU[key]) {
-      routes[1].children.push({
-        name: value.name,
-        path: value.paramsPath ? `/${key}${value.paramsPath}` : `/${key}${value.path}`,
-        component: resolve => require([`../components/page/${key}${value.path}.vue`], resolve)
+
+    for(let item of MENU[key].list) {
+      
+      routes[0].children.push({
+        name: item.name,
+        path: item.paramsPath ? `/${key}${item.paramsPath}` : `/${key}${item.path}`,
+        component: resolve => require([`../components/page/${key}${item.path}.vue`], resolve)
       })
     }
   }
 }
 
 createRoutes();
-
 
 export default new Router({
   routes
