@@ -32,7 +32,7 @@
               </el-col>
             </el-row>
           </div>
-          <div class="tc pd10" v-show="isShowList && left.page.offset < left.page.totalPages">
+          <div class="tc pd10" v-show="isShowList && left.page.offset < left.page.totalPages && left.list.length && left.isLoadingMore">
             加载中<i class="el-icon-loading"></i>
           </div>
           <div class="filter" v-show="!isShowList">
@@ -519,7 +519,7 @@
         });
       },
       search() {
-        this.left.page.offset = 1;
+        this.left.page.offset = 0;
         this.getLeftList();
       }
     },

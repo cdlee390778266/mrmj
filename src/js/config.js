@@ -9,7 +9,7 @@ const CONFIG = {
 		orgcodeName: 'org',
 	},
 	page: {
-		offset: 1,
+		offset: 0,
 		limit: 10,
 		totalElements: 0,
 		totalPages: 0

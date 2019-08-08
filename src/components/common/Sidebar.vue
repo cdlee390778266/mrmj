@@ -10,7 +10,7 @@
       unique-opened
       router
     >
-      <el-menu-item v-for="item in menu[type]" :index="`/${type}${item.path}`" :key="item.path" v-if="!item.isSubPage">
+      <el-menu-item v-for="item in menu[type].list" :index="`/${type}${item.path}`" :key="item.path" v-if="!item.isSubPage">
         <i :class="item.icon"></i>
         <span slot="title">{{ item.name }}</span>
       </el-menu-item>
