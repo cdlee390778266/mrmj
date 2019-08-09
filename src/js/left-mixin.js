@@ -43,7 +43,15 @@ let leftMixin = {
 			this.filter.selectedValue = item.value;
 			this.isShowList = true;
 			this.search && this.search();
-		}
+		},
+		resetUpload() {
+
+      this.$refs.upload && this.$refs.upload.clearFiles();
+    },
+    resetForm(formName) {
+
+      this.$refs[formName] && this.$refs[formName].resetFields();
+    },
 	},
 	mounted() {
 		let _this = this;

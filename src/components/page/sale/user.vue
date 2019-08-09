@@ -372,14 +372,7 @@
           this.left[loadingKey] = false;
         }, () => this.left[loadingKey] = false, params)
       },
-      resetUpload() {
-
-        this.$refs.upload && this.$refs.upload.clearFiles();
-      },
-      resetForm(formName) {
-
-        this.$refs[formName] && this.$refs[formName].resetFields();
-      },
+      
       resetLiaisonMan() {
         this.handle.update.form.liaisonManList = [
           Object.assign({}, this.liaisonManDefault),
