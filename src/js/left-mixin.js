@@ -1,6 +1,7 @@
 let leftMixin = {
 	data() {
 		return {
+			defaultImg: require('../assets/img/img1.svg'),
 			isShowList: true,
 			filter: {
 				selectedValue: '',
@@ -10,16 +11,12 @@ let leftMixin = {
 						value: '1',
 					},
 					{
-						label: '按照模具号搜索需求',
+						label: '按照零件号搜索需求',
 						value: '2',
 					},
 					{
-						label: '按照零件号搜索需求',
+						label: '按照客户PO号搜索需求',
 						value: '3',
-					},
-					{
-						label: '按照需求说明内容搜索需求',
-						value: '4',
 					}
 				]
 			},
@@ -38,27 +35,84 @@ let leftMixin = {
 		}
 	},
 	methods: {
-		select1(item) {
+		getData(url, params, idKey="id", loadingKey = 'isLoading') { //获取左侧列表数据
+
+      this.left[loadingKey] = true;
+      this.$utils.getJson(url, (res) => {
+
+        if(loadingKey == 'isLoadingMore') {
+
+          this.left.list = this.left.list.concat(res.data.content);
+        }else {
+
+          this.left.list = res.data.content;
+        }
+        this.left.page.totalPages = res.data.totalPages;
+        
+        if(this.left.list.length) {
+
+          this.left.activeId = this.left.list[0][idKey];
+          this.currentData = this.left.list[0];
+        }
+        this.left[loadingKey] = false;
+      }, () => this.left[loadingKey] = false, params)
+    },
+		selectType(item) {
 
 			this.filter.selectedValue = item.value;
 			this.isShowList = true;
 			this.search && this.search();
 		},
-		resetUpload() {
+		handleSelect(item, idKey = 'id') {
+			console.log(22)
+      this.left.activeId = item[idKey];
+      this.currentData= item;
+    },
+    closeDialog(formKey = 'update') {
+        
+      this.handle[formKey].isLoading = false;
+      this.handle[formKey].dialogVisible = false;
+    },
+		resetUpload(ref = 'upload') {
 
-      this.$refs.upload && this.$refs.upload.clearFiles();
+      this.$refs[ref] && this.$refs[ref].clearFiles();
     },
     resetForm(formName) {
 
       this.$refs[formName] && this.$refs[formName].resetFields();
     },
+    uploadSuccess(res, formKey = 'update') {
+
+      this.handle.update.form.fileId = res.data[0].fileId;
+    },
+    uploadError(formKey = 'update') {
+
+      this.handle[formKey].form.fileId = '';
+    },
+    saveFile(id, formKey = 'update') {
+        
+      let params = {
+        fileId: this.handle[formKey].form.fileId,
+        customerId: id
+      }
+      this.$utils.getJson(this.$utils.CONFIG.api.saveCustomerHeadPortraits, (res) => {
+
+        this.closeDialog();
+        this.$utils.showTip('success', 'success', '102');
+        this.search();
+      }, () => this.handle.update.isLoading = false, params)
+    },
+    search() {
+      this.left.page.pageNo = 1;
+      this.getLeftList();
+    }
 	},
 	mounted() {
 		let _this = this;
 		let prevScrollTop = 0;
 		let isScrollDown = false;
 		if(this.$refs.list) {
-
+	
 			this.$refs.list.onscroll = function() {	//下拉加载更多
 
 		   		let scrollTop = this.scrollTop;
@@ -66,17 +120,18 @@ let leftMixin = {
 		   		let scrollHeight = this.scrollHeight;
 					isScrollDown = prevScrollTop < scrollTop;
 					prevScrollTop = scrollTop;
-		      if((scrollTop+clientHeight+40 > scrollHeight) && isScrollDown && !_this.left.isLoadingMore && (_this.left.page.offset < _this.left.page.totalPages)){
+		      if((scrollTop+clientHeight+40 > scrollHeight) && isScrollDown && !_this.left.isLoadingMore && (_this.left.page.pageNo < _this.left.page.totalPages)){
 			
 					_this.left.isLoadingMore = true;
-					_this.left.page.offset++;
+					_this.left.page.pageNo++;
 					_this.getLeftList('isLoadingMore');
 				}
 			}
 		}
 	},
 	destroyed() {
-		this.$refs.list.onscroll = null;
+
+		this.$refs.list && (this.$refs.list.onscroll = null);
 	}
 }
 

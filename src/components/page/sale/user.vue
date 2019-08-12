@@ -36,7 +36,7 @@
             加载中<i class="el-icon-loading"></i>
           </div>
           <div class="filter" v-show="!isShowList">
-            <p v-for="(item, index) in filter.typeList" :key="index" @click="select1(item)"><i class="el-icon-search"></i> {{ item.label }}</p>
+            <p v-for="(item, index) in filter.typeList" :key="index" @click="selectType(item)"><i class="el-icon-search"></i> {{ item.label }}</p>
           </div>
         </div>
       </div>
@@ -167,9 +167,8 @@
             :customerId="$utils.getStorage('userId')"
             :multiple="false"
             :limit="1"
-            :on-preview="handlePictureCardPreview"
-            :on-success="uploadSuccess "
-            :on-error="uploadError"
+            :on-success="(res) => uploadSuccess(res)"
+            :on-error="() => uploadError()"
           >
             <i class="el-icon-plus"></i>
           </el-upload>
@@ -254,7 +253,6 @@
     mixins: [leftMixin],
     data() {
       return {
-        defaultImg: require('../../../assets/img/img1.svg'),
         liaisonManDefault: {
           liaisonManName: '',
           liaisonManNameEdit: false,
@@ -352,25 +350,7 @@
         }
         if(this.form.text) params.name = this.form.text;
 
-        this.left[loadingKey] = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.customerQcip, (res) => {
-
-          if(loadingKey == 'isLoadingMore') {
-
-            this.left.list = this.left.list.concat(res.data.content);
-          }else {
-
-            this.left.list = res.data.content;
-          }
-          this.left.page.totalPages = res.data.totalPages;
-          
-          if(this.left.list.length) {
-
-            this.left.activeId = this.left.list[0].mrCustomerId;
-            this.currentData = this.left.list[0];
-          }
-          this.left[loadingKey] = false;
-        }, () => this.left[loadingKey] = false, params)
+        this.getData(this.$utils.CONFIG.api.customerQcip, params, 'mrCustomerId', loadingKey);
       },
       
       resetLiaisonMan() {
@@ -434,44 +414,13 @@
         this.handle.update.dialogVisible = true
         if(this.handle.update.handleType == 'edit') this.setFormData(item);
       },
-      handlePictureCardPreview(file) {
-
-        this.faceUrl = file.url;
-        this.addDialog.dialogVisible = true;
-      },
-      uploadSuccess(res) {
-
-        this.handle.update.form.fileId = res.data[0].fileId;
-      },
-      uploadError() {
-
-        this.handle.update.form.fileId = '';
-      },
+      
       showInput(list, index, key) {
 
         list[index][key] = true;
         if(list.length -1 == index) list.push(Object.assign({}, this.liaisonManDefault))
       },
-      handleSelect(item) {
-        this.left.activeId = item.id;
-        this.currentData= item;
-      },
-      closeDialog() {
-        this.handle.update.isLoading = false;
-        this.handle.update.dialogVisible = false;
-      },
-      saveFile(id) {
-        let params = {
-          fileId: this.handle.update.form.fileId,
-          customerId: id
-        }
-        this.$utils.getJson(this.$utils.CONFIG.api.saveCustomerHeadPortraits, (res) => {
-
-          this.closeDialog();
-          this.$utils.showTip('success', 'success', '102');
-          this.search();
-        }, () => this.handle.update.isLoading = false, params)
-      },
+      
       submitForm(formName) {
 
         this.$refs[formName].validate((valid) => {
@@ -506,14 +455,9 @@
               }
             }, () => this.handle.update.isLoading = false, params)
           } else {
-            console.log('error submit!!');
             return false;
           }
         });
-      },
-      search() {
-        this.left.page.offset = 0;
-        this.getLeftList();
       }
     },
     created() {
@@ -523,7 +467,6 @@
     }
   };
 </script>
-
 
 <style scoped lang="scss">
   .el-row {

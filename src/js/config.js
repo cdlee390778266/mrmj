@@ -9,8 +9,8 @@ const CONFIG = {
 		orgcodeName: 'org',
 	},
 	page: {
-		offset: 0,
-		limit: 10,
+		pageNo: 1,
+		pageSize: 10,
 		totalElements: 0,
 		totalPages: 0
 	},
@@ -31,17 +31,17 @@ const CONFIG = {
 		customerQcip: baseUrl + 'requirement/customer/selectCustomer', //客户档案--查询客户/供应商信息
 		modifyCustomerInfo: baseUrl + 'requirement/customer/modifyCustomerInfo', //客户档案--修改客户信息
 		sumCusRequirement: baseUrl + 'requirement/customer/sumCusRequirement', //客户档案--统计当前符合条件的客户需求数量
-		saveRequirement: baseUrl + '/requirement/req/saveRequirement', //需求--新增需求
-		modifyRequirement: baseUrl + '/requirement/req/modifyRequirement', //需求--需求修改
-		queryRequirement: baseUrl + '/requirement/req/queryRequirement', //需求--需求查询
-		queryRequirementDetail: baseUrl + '/requirement/req/queryRequirementDetail', //需求--客户需求详情
-		sumRequirement: baseUrl + '/requirement/requirement/sumRequirement', //需求--统计符合条件
-		saveDemand: baseUrl + '/requirement/demand/saveDemand', //需求--需求终止
-		sysCodeQc: baseUrl + '/requirement/sysCode/qc', //需求--需求终止类型查询
-		inputDemand: baseUrl + '/requirement/demand/inputDemand', //需求--终止类型联想匹配
-		saveComponentOfferRecord: baseUrl + '/requirement/componentOfferRecord/saveComponentOfferRecord', //需求--零件报价
+		saveRequirement: baseUrl + 'requirement/req/saveRequirement', //需求--新增需求
+		modifyRequirement: baseUrl + 'requirement/req/modifyRequirement', //需求--需求修改
+		queryRequirementDetail: baseUrl + 'requirement/req/queryRequirementDetail', //需求--需求查询
+		sumRequirement: baseUrl + 'requirement/requirement/sumRequirement', //需求--统计符合条件
+		saveDemand: baseUrl + 'requirement/demand/saveDemand', //需求--需求终止
+		sysCodeQc: baseUrl + 'requirement/sysCode/qc', //需求--需求终止类型查询
+		inputDemand: baseUrl + 'requirement/demand/inputDemand', //需求--终止类型联想匹配
+		saveComponentOfferRecord: baseUrl + 'requirement/componentOfferRecord/saveComponentOfferRecord', //需求--零件报价
 
-
+		/* 生产模块*/
+		saveDemand: baseUrl + 'requirement/demand/saveDemand', //需求--需求终止
 		
 	},
 	success: {

@@ -8,7 +8,7 @@
       </el-breadcrumb>
     </div>
     <div class="main">
-      <div class="main-left">
+      <div class="main-left" v-loading="left.isLoading">
         <div class="main-left-search pd10">
           <div class="mgb10">
             需求列表：
@@ -23,17 +23,19 @@
           <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.id }" v-show="isShowList" @click="handleSelect(item)">
             <div class="dflex">
               <div>
-                <img src="../../../assets/img/img1.svg" width="30" class="mgr10 mgt10" />
+                <div>
+                <img :src="item.business && item.business.fileId ? `${$utils.CONFIG.api.image}?fileId=${item.business.fileId}` : defaultImg" width="30" class="mgr10 mgt10" />
+              </div>
               </div>
               <div class="flex">
-                <p>{{ item.name }}</p>
-                <p>客户PO号：{{ item.id }}</p>
+                <p>{{ (item.customer ? item.customer.name : '') | filterNull }}</p>
+                <p>客户PO号：{{ item.customerPoNo | filterNull }}</p>
               </div>
             </div>
             <el-row>
-              <el-col :span="12">需求类型：{{ item.type }}</el-col>
-              <el-col :span="12">交期：{{ item.endDate }}</el-col>
-              <el-col :span="24">报价：{{ item.startDate }}</el-col>
+              <el-col :span="12">需求类型：{{ item.reqTypeId | filterValueToLabel($dict.reqTypeValToLab) }}</el-col>
+              <el-col :span="12">交期：{{ item.reqCompletionDate | filterNull }}</el-col>
+              <el-col :span="24">报价：{{ item.totalPrice | filterNull }}{{ (item.currency ? item.currency.name : '') | filterNull }}</el-col>
               <el-col :span="24" class="tr">
                 <a href="javascript: void(0);" @click="handle.add.dialogVisible = true">修改</a>
                 <a href="javascript: void(0);" @click="handle.stop.dialogVisible = true">终止</a>
@@ -42,11 +44,11 @@
               </el-col>
             </el-row>
           </div>
-          <div class="tc pd10" v-show="isShowList">
-            加载更多 <i class="el-icon-loading"></i>
+          <div class="tc pd10" v-show="isShowList && left.isLoadingMore">
+            加载中<i class="el-icon-loading"></i>
           </div>
           <div class="filter" v-show="!isShowList">
-            <p v-for="(item, index) in filter.typeList" :key="index" @click="isShowList = true"><i class="el-icon-search"></i> {{ item.label }}</p>
+            <p v-for="(item, index) in filter.typeList" :key="index" @click="selectType(item)"><i class="el-icon-search"></i> {{ item.label }}</p>
           </div>
         </div>
       </div>
@@ -55,30 +57,30 @@
           <div class="pdt10 mgt10">
             <el-scrollbar class="main-content-scorll pdt10">
               <el-row>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：XXXXXX公司</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：12312323123</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求编号：REQ1901</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求类型：模具零件</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求状态：已报价</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">已报总价：12301.00</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">报价货币：欧元</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ (currentData.customer ? currentData.customer.name : '') | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{ currentData.customerPoNo | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求编号：{{ currentData.requirementNum | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求类型：{{ currentData.reqTypeId | filterValueToLabel($dict.reqTypeValToLab) }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求状态：{{ currentData.reqStatusId | filterValueToLabel($dict.reqStatusValToLab) }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">已报总价：{{ currentData.totalPrice | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">报价货币：{{ (currentData.currency ? currentData.currency.name : '') | filterNull }}</el-col>
               </el-row>
               <el-row>
                 <el-col :span="24">需求零件列表：</el-col>
                 <el-col :span="24">
                   <el-table
-                    :data="right.list[right.activeIndex].spList"
+                    :data="currentData.componentRequirements"
                     border
                     size="mini"
                     class="content-table"
                     style="width: 100%"
                   >
-                    <el-table-column type="index" label="序号" width="50"></el-table-column>
-                    <el-table-column prop="date" label="零件号" width="180"></el-table-column>
-                    <el-table-column prop="name" label="客户编号" width="180"></el-table-column>
-                    <el-table-column prop="address" label="需求数量"></el-table-column>
-                    <el-table-column prop="d" label="要求交期"></el-table-column>
-                    <el-table-column prop="address" label="说明"></el-table-column>
+                    <el-table-column type="index" label="序号" width="50" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="componentNum" label="零件号" width="180" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="customerNo" label="客户编号" width="180" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="componentAmount" label="需求数量" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="completionDate" label="要求交期" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="remark" label="说明" show-overflow-tooltip></el-table-column>
                   </el-table>
                 </el-col>
               </el-row>
@@ -86,14 +88,14 @@
                 <el-col :span="24">需求附件：</el-col>
                 <el-col :span="24">
                   <el-table
-                    :data="right.list[right.activeIndex].spList"
+                    :data="currentData.attachments"
                     border
                     size="mini"
                     class="content-table"
                     style="width: 100%"
                   >
                     <el-table-column type="index" label="序号" width="50"></el-table-column>
-                    <el-table-column prop="date" label="附件名称"></el-table-column>
+                    <el-table-column prop="fileName" label="附件名称" show-overflow-tooltip></el-table-column>
                     <el-table-column width="100" label="操作">
                       <template slot-scope="scope">
                         <a href style="color: #3375AB;">下载</a>
@@ -106,7 +108,7 @@
                 <el-col :span="24">需求说明：</el-col>
                 <el-col
                   :span="24"
-                >这里保存的是对客户需求的详细说明。Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc eget.</el-col>
+                >{{ currentData.remark | filterNull }}</el-col>
               </el-row>
             </el-scrollbar>
           </div>
@@ -415,38 +417,6 @@
     mixins: [leftMixin],
     data() {
       return {
-        left: {
-          list: [
-            {
-              name: 'dddddddd',
-              id: '1259445',
-              type: '模具零件',
-              startDate: '2019.01.08',
-              endDate: '2019.03.09'
-            },
-            {
-              name: 'dddddddd',
-              id: '1259445',
-              type: '模具零件',
-              startDate: '2019.01.08',
-              endDate: '2019.03.09'
-            },
-            {
-              name: 'dddddddd',
-              id: '1259445',
-              type: '模具零件',
-              startDate: '2019.01.08',
-              endDate: '2019.03.09'
-            },
-            {
-              name: 'dddddddd',
-              id: '1259445',
-              type: '模具零件',
-              startDate: '2019.01.08',
-              endDate: '2019.03.09'
-            }
-          ]
-        },
         right: {
           activeIndex: 0,
           list: [
@@ -534,16 +504,7 @@
                   name: "王小虎",
                   address: "上海市普陀区金沙江路 1518 弄"
                 },
-                {
-                  date: "2016-05-02",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
+                
                 {
                   date: "2016-05-01",
                   name: "王小虎",
@@ -551,18 +512,6 @@
                 }
               ],
               enclosureList: [
-                {
-                  date: "2016-05-03",
-                  name: "王小虎"
-                },
-                {
-                  date: "2016-05-02",
-                  name: "王小虎"
-                },
-                {
-                  date: "2016-05-04",
-                  name: "王小虎"
-                },
                 {
                   date: "2016-05-01",
                   name: "王小虎"
@@ -577,25 +526,14 @@
       getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
 
         let params = {
-          customerName: '',
-          componentNo: '',
-          requirementType: '',
-          offset: this.left.page.currentPage,
-          limit: this.left.page.limit,
+          name: '',
+          type: '',
+          pageNo: this.left.page.pageNo,
+          pageSize: this.left.page.pageSize,
         }
         if(this.form.text) params.name = this.form.text;
 
-        this.left[loadingKey] = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryRequirement, (res) => {
-
-          this.left.list = res.data.content;
-          if(this.left.list.length) {
-
-            this.left.activeId = this.left.list[0].mrCustomerId;
-            this.currentData = this.left.list[0];
-          }
-          this.left[loadingKey] = false;
-        }, () => this.left[loadingKey] = false, params)
+        this.getData(this.$utils.CONFIG.api.queryRequirementDetail, params, 'id', loadingKey);
       },
       handlePictureCardPreview(file) {
         this.faceUrl = file.url;
@@ -615,9 +553,6 @@
             };
           }
         }
-      },
-      handleSelect(item) {
-        this.left.activeId = item.id;
       },
       del(index, row) {
         console.log(index, row);

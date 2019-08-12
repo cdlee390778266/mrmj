@@ -26,9 +26,7 @@
                 <!-- 退出 -->
                 <div class="btn-bell">
                     <el-tooltip effect="dark" content="退出" placement="bottom">
-                        <router-link to="/tabs">
-                            <img src="../../assets/img/loginout.svg" height="20">
-                        </router-link>
+                      <img src="../../assets/img/loginout.svg" height="20" @click="loginOut">
                     </el-tooltip>
                 </div>
             </div>
@@ -44,13 +42,11 @@
             }
         },
         methods:{
-            // 用户名下拉菜单选择事件
-            handleCommand(command) {
-                if(command == 'loginout'){
-                    localStorage.removeItem('ms_username')
-                    this.$router.push('/login');
-                }
-            }
+          loginOut() {  //退出
+
+            this.$utils.removeUserStorage();
+            this.$router.push('/login');
+          }
         },
         mounted(){
             

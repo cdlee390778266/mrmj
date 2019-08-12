@@ -96,7 +96,7 @@ const MENU = {
 		]
 	},
 	product: {
-		orgCode: 'manu',
+		orgCode: 'org_manu',
 		list: [
 			{
 				name: '首页',
