@@ -13,12 +13,12 @@ let routes = [
       let token = Utils.getStorage(Utils.CONFIG.storageNames.tokenName);
 
       if(token) {
-
+        
         let orgCode = Utils.getStorage(Utils.CONFIG.storageNames.orgcodeName);
         let orgObj = Utils.checkModuleExistence(orgCode);
         if(orgObj.existence) {	//如果部门存在
-
-          next();
+          
+          (to.fullPath == '/' || !to.fullPath.split('/').includes(orgObj.webOrgKey)) ? next(`/${orgObj.webOrgKey}/home`) : next();
         }else {
           
           Utils.removeUserStorage();
@@ -28,16 +28,9 @@ let routes = [
 
         next('/login');
       }
-      
-      token ? next() : next('/login');
     },
     component: resolve => require(['../components/common/Home.vue'], resolve),
     children:[
-      {
-        path: '/icon',
-        component: resolve => require(['../components/page/Icon.vue'], resolve),
-        meta: { title: '自定义图标' }
-      },
       {
         path: '/table',
         component: resolve => require(['../components/page/BaseTable.vue'], resolve),

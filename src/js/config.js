@@ -1,3 +1,5 @@
+import Utils from './utils';
+
 var baseUrl = 'http://118.178.229.13:41000/';
 
 const CONFIG = {

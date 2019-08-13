@@ -31,14 +31,15 @@
 		},
 		computed: {
 			onRoutes() {
+				
 				return this.$route.path;
 			}
 		},
 		created() {
-			// 通过 Event Bus 进行组件间通信，来折叠侧边栏
-			bus.$on("collapse", msg => {
-				this.collapse = msg;
-			});
+
+			let orgCode = this.$utils.getStorage(this.$utils.CONFIG.storageNames.orgcodeName);
+			let orgObj = this.$utils.checkModuleExistence(orgCode);
+			this.type = orgObj.webOrgKey;
 		}
 	};
 </script>

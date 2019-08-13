@@ -67,9 +67,19 @@
 			},
 			// 设置标签
 			setTags(route) {
+
+				let orgCode = this.$utils.getStorage(this.$utils.CONFIG.storageNames.orgcodeName);
+				let orgObj = this.$utils.checkModuleExistence(orgCode);
+
+				if(route.fullPath === '/' || !route.fullPath.split('/').includes(orgObj.webOrgKey)) {
+					this.$router.push(`/${orgObj.webOrgKey}/home`);
+					return;
+				}
+				
 				const isExist = this.tagsList.some(item => {
 					return item.path === route.fullPath;
 				});
+
 				if (!isExist) {
 					if (this.tagsList.length >= 8) {
 						this.tagsList.shift();
