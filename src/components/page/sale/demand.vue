@@ -54,6 +54,11 @@
       </div>
       <div class="main-right">
         <page-wrapper @change="refresh" :haveCarousel="true">
+          <div class="main-content-title">
+            <div>
+              <slot name="pageTitle"><i class="el-icon-lx-edit"></i> 模具零件需求信息</slot>
+            </div>
+          </div>
           <div class="pdt10 mgt10">
             <el-scrollbar class="main-content-scorll pdt10">
               <el-row>

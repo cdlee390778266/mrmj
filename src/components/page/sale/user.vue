@@ -45,11 +45,13 @@
           <template #pageName>
             客户信息明细
           </template>
-          <template #pageTitle>
-            <i class="el-icon-lx-edit"></i> 客户信息
-          </template>
           <template v-slot:default="slotProps">
-            <div class="pdt10 mgt10">
+            <div>
+              <div class="main-content-title">
+                <div>
+                  <i class="el-icon-lx-edit"></i> 客户信息
+                </div>
+              </div>
               <el-scrollbar class="main-content-scorll pdt10">
                 <el-row>
                   <el-col :span="24"><strong>客户信息</strong></el-col>

@@ -52,60 +52,129 @@
       <div class="main-right">
         <page-wrapper @change="refresh" :haveCarousel="true">
           <template #pageName>订单明细</template>
-          <template #pageTitle>订单M-1901信息</template>
           <div class="pdt10 mgt10">
-            <el-scrollbar class="main-content-scorll pdt10">
-              <el-row>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">模具号：{{ (currentData.customer ? currentData.customer.name : '') | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单类型：{{ currentData.customerPoNo | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{ currentData.requirementNum | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ currentData.reqTypeId | filterValueToLabel($dict.reqTypeValToLab) }}</el-col>
-                <el-col :xs="24">
-                  <p>订单说明</p>
-                  <p>这里保存的是对客户需求的详细说明。Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc eget.</p>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="24">订单零件列表：</el-col>
-                <el-col :span="24">
-                  <el-table
-                    :data="currentData.componentRequirements"
-                    border
-                    size="mini"
-                    class="content-table"
-                    style="width: 100%"
-                  >
-                    <el-table-column type="index" label="序号" width="50" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="componentNum" label="零件号" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="customerNo" label="客户编号" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="componentAmount" label="数量" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="completionDate" label="下单日期" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="completionDate" label="要求交期" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="remark" label="说明" show-overflow-tooltip></el-table-column>
-                  </el-table>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="24">订单附件：</el-col>
-                <el-col :span="24">
-                  <el-table
-                    :data="currentData.attachments"
-                    border
-                    size="mini"
-                    class="content-table"
-                    style="width: 100%"
-                  >
-                    <el-table-column type="index" label="序号" width="50"></el-table-column>
-                    <el-table-column prop="fileName" label="附件名称" show-overflow-tooltip></el-table-column>
-                    <el-table-column width="100" label="操作">
-                      <template slot-scope="scope">
-                        <a href style="color: #3375AB;">下载</a>
-                      </template>
-                    </el-table-column>
-                  </el-table>
-                </el-col>
-              </el-row>
-            </el-scrollbar>
+            <el-carousel
+              direction="vertical"
+              :autoplay="false"
+              :loop="false"
+              trigger="click"
+              ref="carousel"
+            >
+              <el-carousel-item >
+                <div class="main-content-title">
+                  <div>
+                    <i class="el-icon-lx-edit"></i> 订单M-1901信息
+                  </div>
+                </div>
+                <el-scrollbar class="main-content-scorll pdt10">
+                  <el-row>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">模具号：{{ (currentData.customer ? currentData.customer.name : '') | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单类型：{{ currentData.customerPoNo | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{ currentData.requirementNum | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ currentData.reqTypeId | filterValueToLabel($dict.reqTypeValToLab) }}</el-col>
+                    <el-col :xs="24">
+                      <p>订单说明</p>
+                      <p>这里保存的是对客户需求的详细说明。Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc eget.</p>
+                    </el-col>
+                  </el-row>
+                  <el-row>
+                    <el-col :span="24">订单零件列表：</el-col>
+                    <el-col :span="24">
+                      <el-table
+                        :data="currentData.componentRequirements"
+                        border
+                        size="mini"
+                        class="content-table"
+                        style="width: 100%"
+                      >
+                        <el-table-column type="index" label="序号" width="50" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="componentNum" label="零件号" width="180" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="customerNo" label="客户编号" width="180" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="componentAmount" label="数量" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="completionDate" label="下单日期" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="completionDate" label="要求交期" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="remark" label="说明" show-overflow-tooltip></el-table-column>
+                      </el-table>
+                    </el-col>
+                  </el-row>
+                  <el-row>
+                    <el-col :span="24">订单附件：</el-col>
+                    <el-col :span="24">
+                      <el-table
+                        :data="currentData.attachments"
+                        border
+                        size="mini"
+                        class="content-table"
+                        style="width: 100%"
+                      >
+                        <el-table-column type="index" label="序号" width="50"></el-table-column>
+                        <el-table-column prop="fileName" label="附件名称" show-overflow-tooltip></el-table-column>
+                        <el-table-column width="100" label="操作">
+                          <template slot-scope="scope">
+                            <a href style="color: #3375AB;">下载</a>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                    </el-col>
+                  </el-row>
+                </el-scrollbar>
+              </el-carousel-item>
+              <el-carousel-item >
+                <div class="main-content-title">
+                  <div>
+                    <i class="el-icon-lx-edit"></i> 制定零件工艺
+                  </div>
+                </div>
+                <el-scrollbar class="main-content-scorll pdt10">
+                  <el-row>
+                    <el-col :span="24" class="mgb10 mgt10">
+                      <strong>待制定订单零件列表</strong>
+                      <el-button type="primary" class="mgl10">选择下表零件，点我制定工艺</el-button>
+                      <span>（选择多个零件，表示选择多个工艺相同零件一齐制定工艺）</span>
+                    </el-col>
+                    <el-col :span="24">
+                      <el-table
+                        :data="currentData.componentRequirements"
+                        border
+                        size="mini"
+                        class="content-table"
+                        style="width: 100%"
+                      >
+                        <el-table-column type="index" label="序号" width="50" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="componentNum" label="零件号" width="180" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="customerNo" label="客户编号" width="180" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="componentAmount" label="要求数量" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="completionDate" label="下单日期" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="completionDate" label="要求交期" show-overflow-tooltip></el-table-column>
+                      </el-table>
+                    </el-col>
+                  </el-row>
+                  <el-row>
+                    <el-col :span="24" class="mgtb10"><strong>已制定工艺卡列表</strong></el-col>
+                    <el-col :span="24">
+                      <el-table
+                        :data="currentData.attachments"
+                        border
+                        size="mini"
+                        class="content-table"
+                        style="width: 100%"
+                      >
+                        <el-table-column type="index" label="序号" width="50"></el-table-column>
+                        <el-table-column prop="fileName" label="零件号" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="fileName" label="工艺制定人员" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="fileName" label="完成日期" show-overflow-tooltip></el-table-column>
+                        <el-table-column width="100" label="操作">
+                          <template slot-scope="scope">
+                            <a href style="color: #3375AB;">编辑</a>
+                            <a href style="color: #3375AB;">删除</a>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                    </el-col>
+                  </el-row>
+                </el-scrollbar>
+              </el-carousel-item>
+            </el-carousel>
           </div>
         </page-wrapper>
       </div>
