@@ -18,7 +18,23 @@ let leftMixin = {
 						label: '按照客户PO号搜索需求',
 						value: '3',
 					}
-				]
+				],
+				listType: {
+					product: [
+						{
+							label: '按照客户名称搜索',
+							value: '1',
+						},
+						{
+							label: '按照模具号搜索',
+							value: '3',
+						},
+						{
+							label: '按照零件号搜索',
+							value: '2',
+						}
+					]
+				}
 			},
 			form: {
 				text: '',
@@ -31,11 +47,15 @@ let leftMixin = {
 				page: Object.assign({}, this.$utils.CONFIG.page),
 				list: []
 			},
-			currentData: {}
+			currentData: {
+			},
+			right: {
+				page1: {}
+			}
 		}
 	},
 	methods: {
-		getData(url, params, idKey="id", loadingKey = 'isLoading') { //获取左侧列表数据
+		getData(url, params, idKey="id", loadingKey = 'isLoading', success = null) { //获取左侧列表数据
 
       this.left[loadingKey] = true;
       this.$utils.getJson(url, (res) => {
@@ -53,6 +73,7 @@ let leftMixin = {
 
           this.left.activeId = this.left.list[0][idKey];
           this.currentData = this.left.list[0];
+          typeof success == 'function' && success(this.left.activeId);
         }
         this.left[loadingKey] = false;
       }, () => this.left[loadingKey] = false, params)
@@ -64,7 +85,7 @@ let leftMixin = {
 			this.search && this.search();
 		},
 		handleSelect(item, idKey = 'id') {
-			console.log(22)
+			
       this.left.activeId = item[idKey];
       this.currentData= item;
     },

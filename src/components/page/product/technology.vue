@@ -17,7 +17,7 @@
           </div>
         </div>
         <div class="list" ref="list" style="top: 65px;">
-          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.id }" v-show="isShowList" @click="handleSelect(item)">
+          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrSaleOrderId }" v-show="isShowList" @click="handleSelect(item, 'mrSaleOrderId')">
             <div class="dflex">
               <div>
                 <div>
@@ -26,16 +26,16 @@
               </div>
               <div class="flex">
                 <div class="dflex">
-                  <p class="flex ellipsis">来源：<span>{{ (item.customer ? item.customer.name : '') | filterNull }}</span></p>
-                  <p class="flex ellipsis">模具号：<span>{{ item.customerPoNo | filterNull }}</span></p>
+                  <p class="flex ellipsis">来源：<span>{{ item.saleOrderOrigin | filterNull }}</span></p>
+                  <p class="flex ellipsis">模具号：<span>{{ item.mouldNo | filterNull }}</span></p>
                 </div>
                 <div class="dflex">
-                  <p class="ellipsis">客户：<span>{{ (item.customer ? item.customer.name : '') | filterNull }}</span></p>
+                  <p class="ellipsis">客户：<span>{{ item.name | filterNull }}</span></p>
                 </div>
               </div>
             </div>
             <el-row>
-              <el-col :span="24">交期：{{ item.reqCompletionDate | filterNull }}</el-col>
+              <el-col :span="24">交期：{{ item.completionDate | filterNull }}</el-col>
               <el-col :span="24" class="tr">
                 <a href="javascript: void(0);" @click="handle.add.dialogVisible = true">下达生产订单</a>
               </el-col>
@@ -49,7 +49,7 @@
           </div>
         </div>
       </div>
-      <div class="main-right">
+      <div class="main-right" v-loading="right.isLoading">
         <page-wrapper @change="refresh" :haveCarousel="true">
           <template #pageName>订单明细</template>
           <div class="pdt10 mgt10">
@@ -63,37 +63,37 @@
               <el-carousel-item >
                 <div class="main-content-title">
                   <div>
-                    <i class="el-icon-lx-edit"></i> 订单M-1901信息
+                    <i class="el-icon-lx-edit"></i> 订单{{ right.page1.mrSaleOrderId }}信息
                   </div>
                 </div>
                 <el-scrollbar class="main-content-scorll pdt10">
                   <el-row>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">模具号：{{ (currentData.customer ? currentData.customer.name : '') | filterNull }}</el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单类型：{{ currentData.customerPoNo | filterNull }}</el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{ currentData.requirementNum | filterNull }}</el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ currentData.reqTypeId | filterValueToLabel($dict.reqTypeValToLab) }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">模具号：{{ right.page1.mouldNo | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单类型：{{ right.page1.saleOrderType | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{ right.page1.customerPoNo | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ right.page1.name | filterNull }}</el-col>
                     <el-col :xs="24">
                       <p>订单说明</p>
-                      <p>这里保存的是对客户需求的详细说明。Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc eget.</p>
+                      <p>{{ right.page1.remark | filterNull }}</p>
                     </el-col>
                   </el-row>
                   <el-row>
                     <el-col :span="24">订单零件列表：</el-col>
                     <el-col :span="24">
                       <el-table
-                        :data="currentData.componentRequirements"
+                        :data="right.page1.componentOrders"
                         border
                         size="mini"
                         class="content-table"
                         style="width: 100%"
                       >
                         <el-table-column type="index" label="序号" width="50" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="componentNum" label="零件号" width="180" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="componentNo" label="零件号" width="180" show-overflow-tooltip></el-table-column>
                         <el-table-column prop="customerNo" label="客户编号" width="180" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="componentAmount" label="数量" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="completionDate" label="下单日期" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="completionDate" label="要求交期" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="remark" label="说明" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="requirementQuantity" label="数量" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="issuedOrderDate" label="下单日期" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="requireDeliveryDate" label="要求交期" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="description" label="说明" show-overflow-tooltip></el-table-column>
                       </el-table>
                     </el-col>
                   </el-row>
@@ -101,7 +101,7 @@
                     <el-col :span="24">订单附件：</el-col>
                     <el-col :span="24">
                       <el-table
-                        :data="currentData.attachments"
+                        :data="right.page1.attachments"
                         border
                         size="mini"
                         class="content-table"
@@ -111,7 +111,7 @@
                         <el-table-column prop="fileName" label="附件名称" show-overflow-tooltip></el-table-column>
                         <el-table-column width="100" label="操作">
                           <template slot-scope="scope">
-                            <a href style="color: #3375AB;">下载</a>
+                            <a :href="`$utils.CONFIG.api.download/${scope.row.fileId}`" style="color: #3375AB;">下载</a>
                           </template>
                         </el-table-column>
                       </el-table>
@@ -367,7 +367,6 @@
             class="v-upload pdl10"
             :multiple="false"
             :limit="1"
-            :on-preview="handlePictureCardPreview"
           >
             <i class="el-icon-plus"></i>
           </el-upload>
@@ -448,15 +447,10 @@
       return {
         right: {
           activeIndex: 0,
+          isLoading: false,
           list: [
             {
-              spList: [
-                {
-                  date: "2016-05-03",
-                  name: "",
-                  address: ""
-                }
-              ],
+              
               enclosureList: [
                 {
                   date: "2016-05-03",
@@ -556,17 +550,40 @@
 
         let params = {
           name: '',
-          type: '',
+          mouldNo: '',
+          componentNo: '',
+          type: this.filter.selectedValue,
           pageNo: this.left.page.pageNo,
           pageSize: this.left.page.pageSize,
         }
         if(this.form.text) params.name = this.form.text;
 
-        this.getData(this.$utils.CONFIG.api.queryRequirementDetail, params, 'id', loadingKey);
+        this.getData(this.$utils.CONFIG.api.queryPendingSaleOrder, params, 'mrSaleOrderId', loadingKey, this.getDetail);
       },
-      handlePictureCardPreview(file) {
-        this.faceUrl = file.url;
-        this.addDialog.dialogVisible = true;
+      getDetail(id) {
+
+        let params = {
+          mrSaleOrderId: id
+        }
+
+        this.right.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryPendingSaleOrderDetail, (res) => {  
+
+          this.right.page1 = res.data[0] || {};
+          this.right.isLoading = false;
+        }, () => this.right.isLoading = false, params);
+
+        this.$utils.getJson(this.$utils.CONFIG.api.queryNoMakeCraft, (res) => {
+
+          this.right.page2 = res.data[0] || {};
+          this.right.isLoading = false;
+        }, () => this.right.isLoading = false, params);
+      },
+      handleSelect(item, idKey = 'id') {
+      
+        this.left.activeId = item[idKey];
+        this.currentData= item;
+        this.getDetail(this.left.activeId);
       },
       objectSpanMethod({ row, column, rowIndex, columnIndex }) { //合并
         if (columnIndex === 0) {
@@ -589,6 +606,7 @@
       refresh() {}
     },
     created() {
+      this.filter.typeList = this.filter.listType.product;
       this.getLeftList();
     }
   };

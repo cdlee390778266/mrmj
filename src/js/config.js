@@ -43,7 +43,16 @@ const CONFIG = {
 		saveComponentOfferRecord: baseUrl + 'requirement/componentOfferRecord/saveComponentOfferRecord', //需求--零件报价
 
 		/* 生产模块*/
-		saveDemand: baseUrl + 'requirement/demand/saveDemand', //需求--需求终止
+		queryPendingSaleOrder: baseUrl + 'requirement/saleOrder/queryPendingSaleOrder', //生产--待处理的销售订单列表
+		queryPendingSaleOrderDetail: baseUrl + 'requirement/saleOrder/queryPendingSaleOrderDetail', //生产--销售订单详细信息
+		designCraftRouteLine: baseUrl + 'productionOrder/designCraftRouteLine', //生产--制定零件工艺与下料清单
+		queryNoMakeCraft: baseUrl + 'requirement/productionOrder/queryNoMakeCraft', //生产--待制定订单零件列表查询
+		queryHaveMakeCraftComponent: baseUrl + 'requirement/productionOrder/queryHaveMakeCraftComponent', //生产--已制定工艺列表查询
+		releasedProductionOrder: baseUrl + 'productionOrder/releasedProductionOrder', //生产--下达生产订单
+		applyElectrodeDesignTasks: baseUrl + 'electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
+		designElectrodeDesignTasks: baseUrl + 'electrodeOrder/designElectrodeDesignTasks', //生产--设计电极任务
+		applyProgrammeTasks: baseUrl + 'programmeTasks/applyProgrammeTasks', //生产--申领编程任务
+		releasedElectrodeProductionOrder: baseUrl + 'electrodeOrder/releasedElectrodeProductionOrder', //生产--下达电极生产订单
 		
 	},
 	success: {
