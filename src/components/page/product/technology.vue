@@ -13,7 +13,19 @@
           <div class="mgb10">
             待处理订单：
             <el-input v-model="form.text" style="width: 130px" prefix-icon="el-icon-search" @focus="isShowList = false" />
-            <el-button type="primary" icon="el-icon-sort" class="mgl10"></el-button>
+            
+            <el-dropdown ref="sort" :hide-on-click="false">
+              <el-button type="primary" icon="el-icon-sort" class="mgl10"></el-button>
+              <el-dropdown-menu slot="dropdown" class="sort">
+                <el-dropdown-item>
+                  <el-button type="text" class="fs14" :class="{active: filter.sort.sortType == 'ascending'}" @click="checkSort('ascending')">升序</el-button>
+                  <el-button type="text" class="fr fs14" :class="{active: filter.sort.sortType == 'desc'}" @click="checkSort('desc')">降序</el-button>
+                </el-dropdown-item>
+                <el-dropdown-item divided v-for="(item, index) in filter.sort.listType.product" :key="index">
+                  <el-radio v-model="filter.sort.sortField" :label="item.value">{{item.label}}</el-radio>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </div>
         </div>
         <div class="list" ref="list" style="top: 65px;">
@@ -52,7 +64,6 @@
       <div class="main-right" v-loading="right.isLoading">
         <page-wrapper @change="refresh" :haveCarousel="true">
           <template #pageName>订单明细</template>
-          <div class="pdt10 mgt10">
             <el-carousel
               direction="vertical"
               :autoplay="false"
@@ -129,23 +140,29 @@
                   <el-row>
                     <el-col :span="24" class="mgb10 mgt10">
                       <strong>待制定订单零件列表</strong>
-                      <el-button type="primary" class="mgl10">选择下表零件，点我制定工艺</el-button>
+                      <el-button type="primary" class="mgl10" @click="jump">选择下表零件，点我制定工艺</el-button>
                       <span>（选择多个零件，表示选择多个工艺相同零件一齐制定工艺）</span>
                     </el-col>
                     <el-col :span="24">
                       <el-table
-                        :data="currentData.componentRequirements"
+                        :data="right.page2.noMakeCraftList"
                         border
                         size="mini"
                         class="content-table"
                         style="width: 100%"
+                        @selection-change="handleSelectionChange"
                       >
+                        <el-table-column
+                        type="selection"
+                        width="50">
+                        </el-table-column>
                         <el-table-column type="index" label="序号" width="50" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="componentNum" label="零件号" width="180" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="componentNo" label="零件号" width="180" show-overflow-tooltip></el-table-column>
                         <el-table-column prop="customerNo" label="客户编号" width="180" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="componentAmount" label="要求数量" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="completionDate" label="下单日期" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="completionDate" label="要求交期" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="requirementQuantity" label="要求数量" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="issuedOrderDate" label="下单日期" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="requireDeliveryDate" label="要求交期" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="description" label="说明" show-overflow-tooltip></el-table-column>
                       </el-table>
                     </el-col>
                   </el-row>
@@ -153,19 +170,23 @@
                     <el-col :span="24" class="mgtb10"><strong>已制定工艺卡列表</strong></el-col>
                     <el-col :span="24">
                       <el-table
-                        :data="currentData.attachments"
+                        :data="right.page2.haveMakeCraftList"
                         border
                         size="mini"
                         class="content-table"
                         style="width: 100%"
                       >
                         <el-table-column type="index" label="序号" width="50"></el-table-column>
-                        <el-table-column prop="fileName" label="零件号" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="fileName" label="工艺制定人员" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="fileName" label="完成日期" show-overflow-tooltip></el-table-column>
+                        <el-table-column label="零件号" show-overflow-tooltip>
+                          <template slot-scope="scope">
+                            {{ componentNo(scope.row.components) }}
+                          </template>
+                        </el-table-column>
+                        <el-table-column prop="craftMakePerson" label="工艺制定人员" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="completionDate" label="完成日期" show-overflow-tooltip></el-table-column>
                         <el-table-column width="100" label="操作">
                           <template slot-scope="scope">
-                            <a href style="color: #3375AB;">编辑</a>
+                            <a href style="color: #3375AB;" class="mgr10">编辑</a>
                             <a href style="color: #3375AB;">删除</a>
                           </template>
                         </el-table-column>
@@ -175,7 +196,7 @@
                 </el-scrollbar>
               </el-carousel-item>
             </el-carousel>
-          </div>
+         
         </page-wrapper>
       </div>
     </div>
@@ -446,8 +467,12 @@
     data() {
       return {
         right: {
-          activeIndex: 0,
-          isLoading: false,
+          page1: {},
+          page2: {
+            selections: [],
+            noMakeCraftList: [],
+            haveMakeCraftList: []
+          },
           list: [
             {
               
@@ -567,15 +592,21 @@
         }
 
         this.right.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryPendingSaleOrderDetail, (res) => {  
+        this.$utils.getJson(this.$utils.CONFIG.api.queryPendingSaleOrderDetail, (res) => { //订单详情 
 
           this.right.page1 = res.data[0] || {};
           this.right.isLoading = false;
         }, () => this.right.isLoading = false, params);
 
-        this.$utils.getJson(this.$utils.CONFIG.api.queryNoMakeCraft, (res) => {
+        this.$utils.getJson(this.$utils.CONFIG.api.queryNoMakeCraft, (res) => { //待制定订单零件列表
 
-          this.right.page2 = res.data[0] || {};
+          this.right.page2.noMakeCraftList = res.data;
+          this.right.isLoading = false;
+        }, () => this.right.isLoading = false, params);
+
+        this.$utils.getJson(this.$utils.CONFIG.api.queryHaveMakeCraftComponent, (res) => { //已制定工艺卡列表
+
+          this.right.page2.haveMakeCraftList = res.data;
           this.right.isLoading = false;
         }, () => this.right.isLoading = false, params);
       },
@@ -584,6 +615,15 @@
         this.left.activeId = item[idKey];
         this.currentData= item;
         this.getDetail(this.left.activeId);
+      },
+      handleSelectionChange(val) {
+
+        this.right.page2.selections = val;
+      },
+      jump() {
+
+        if(!this.right.page2.selections.length) this.$utils.showTip('error', 'error', '-1040');
+        
       },
       objectSpanMethod({ row, column, rowIndex, columnIndex }) { //合并
         if (columnIndex === 0) {
@@ -604,6 +644,21 @@
         console.log(index, row);
       },
       refresh() {}
+    },
+    computed: {
+      componentNo() {
+
+        return (components) => {
+
+          let arr = [];
+          components.forEach(item => {
+
+            arr.push(item.componentNo);
+          })
+          
+          return arr.join('/');
+        }
+      }
     },
     created() {
       this.filter.typeList = this.filter.listType.product;

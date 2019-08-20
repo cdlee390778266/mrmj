@@ -333,7 +333,7 @@ body {
 }
 
 .fs14 {
-	font-size: 14px;
+	font-size: 14px !important;
 }
 
 .fs16 {
@@ -733,4 +733,48 @@ body {
 			color: #fff;
 		}
 	}
+}
+.el-carousel--vertical {
+	position: absolute !important;
+	top: 0;
+	right: 0;
+	bottom: 40px;
+	left: 0;
+	padding-top: 10px;
+	overflow: hidden;
+	.el-carousel__container {
+		height: 100%;
+	}
+}
+.sort {
+	background: rgba(242, 242, 242, 1);
+	.el-dropdown-menu__item {
+		&:first-child {
+			button {
+				color: #606266;
+				&.active {
+					color: #169bd5;
+					text-decoration: underline;
+				}
+			}
+			&:hover {
+				background: transparent;
+			}
+		}
+		.el-radio__input.is-checked+.el-radio__label {
+			color: #169bd5;
+		}
+		.el-radio__input.is-checked .el-radio__inner {
+			border-color: #169bd5;
+			background: #169bd5;
+		}
+	}	
+}
+.handle {
+	position: absolute;
+	left: 10px;
+	right: 10px;
+	bottom: 0;
+	background: #fff;
+	border-top: 1px solid #a3bf1f;
 }

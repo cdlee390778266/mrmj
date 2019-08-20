@@ -34,6 +34,30 @@ let leftMixin = {
 							value: '2',
 						}
 					]
+				},
+				sort: {
+					sortType: 'desc',
+					sortField: '',
+					listType: {
+						product: [
+							{
+								label: '按模具号排序',
+								value: '0',
+							},
+							{
+								label: '按客户名称排序',
+								value: '1',
+							},
+							{
+								label: '按要求交期排序',
+								value: '2',
+							},
+							{
+								label: '按订单类型排序',
+								value: '3',
+							},
+						]
+					}
 				}
 			},
 			form: {
@@ -50,7 +74,11 @@ let leftMixin = {
 			currentData: {
 			},
 			right: {
-				page1: {}
+				isLoading: false,
+				page1: {},
+				page2: {},
+				page3: {},
+				page4: {}
 			}
 		}
 	},
@@ -122,6 +150,12 @@ let leftMixin = {
         this.$utils.showTip('success', 'success', '102');
         this.search();
       }, () => this.handle.update.isLoading = false, params)
+    },
+    checkSort(sortType) {
+
+    	this.filter.sort.sortType = sortType;
+    	this.$refs.sort.hide();
+    	this.search();
     },
     search() {
       this.left.page.pageNo = 1;

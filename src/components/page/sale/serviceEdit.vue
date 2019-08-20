@@ -314,12 +314,4 @@
     top: 50px !important;
     right: 10px !important;
   }
-  .handle {
-    position: absolute;
-    left: 10px;
-    right: 10px;
-    bottom: 0;
-    background: #fff;
-    border-top: 1px solid #a3bf1f;
-  }
 </style>

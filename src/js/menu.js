@@ -109,6 +109,13 @@ const MENU = {
 				icon: 'el-icon-edit'
 			},
 			{
+				name: '制定工艺卡',
+				path: '/processCard',
+				paramsPath: '/processcard/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
 				name: '电极设计任务',
 				path: '/task',
 				icon: 'el-icon-potato-strips'
