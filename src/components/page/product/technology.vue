@@ -18,7 +18,7 @@
               <el-button type="primary" icon="el-icon-sort" class="mgl10"></el-button>
               <el-dropdown-menu slot="dropdown" class="sort">
                 <el-dropdown-item>
-                  <el-button type="text" class="fs14" :class="{active: filter.sort.sortType == 'ascending'}" @click="checkSort('ascending')">升序</el-button>
+                  <el-button type="text" class="fs14" :class="{active: filter.sort.sortType == ''}" @click="checkSort('')">升序</el-button>
                   <el-button type="text" class="fr fs14" :class="{active: filter.sort.sortType == 'desc'}" @click="checkSort('desc')">降序</el-button>
                 </el-dropdown-item>
                 <el-dropdown-item divided v-for="(item, index) in filter.sort.listType.product" :key="index">
@@ -187,7 +187,7 @@
                         <el-table-column width="100" label="操作">
                           <template slot-scope="scope">
                             <a href style="color: #3375AB;" class="mgr10">编辑</a>
-                            <a href style="color: #3375AB;">删除</a>
+                            <a href style="color: #3375AB;" @click="deleteCraft(scope.row)">删除</a>
                           </template>
                         </el-table-column>
                       </el-table>
@@ -578,6 +578,7 @@
           mouldNo: '',
           componentNo: '',
           type: this.filter.selectedValue,
+          sorting: `${this.filter.sort.sortField} ${this.filter.sort.sortType}`,
           pageNo: this.left.page.pageNo,
           pageSize: this.left.page.pageSize,
         }
@@ -640,8 +641,14 @@
           }
         }
       },
-      del(index, row) {
-        console.log(index, row);
+      deleteCraft(row) {  //删除工艺卡
+        
+        this.right.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.deleteCraftInfoById, (res) => {  
+
+          this.right.isLoading = false;
+          this.right.page2.haveMakeCraftList = this.right.page2.haveMakeCraftList.filter(item => item.mrCraftRouteLineId == row.mrCraftRouteLineId);
+        }, () => this.right.isLoading = false, {mrCraftRouteLineId: row.mrCraftRouteLineId});
       },
       refresh() {}
     },

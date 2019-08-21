@@ -21,79 +21,145 @@
       </div>
       <div class="content">
         <h5 class="content-left-title">零件工艺版本列表</h5>
-        <div class="content-left">
+        <div class="content-left" v-loading="left.isLoading">
           <div class="list tc">
             <div class="list-head dflex">
               <div class="flex">工艺版本号</div>
               <div class="flex">图纸名称版本</div>
             </div>
             <div class="list-body">
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本图纸名称版本图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
-              </div>
-              <div class="dflex">
-                <div class="flex">工艺版本号</div>
-                <div class="flex">图纸名称版本</div>
+              <div class="dflex" v-for="(item, index) in left.list" :key="index" :class="{active: left.activeId == `${item.mrCraftRouteLineVersionId}_${item.versionNo}`}">
+                <div class="flex">{{item.componentVersionNo}}</div>
+                <div class="flex">{{item.drawingVersionNo}}</div>
               </div>
             </div>
           </div>
         </div>
         <h5 class="content-right-title">工艺信息明细</h5>
         <div class="content-right">
-          
+          <p><strong>工艺版本号</strong>（可输入新的版本号，保存后为零件增加新版本工艺路线）
+          </p>
+          <p>
+            工艺路线版本号： 
+            <el-input size="mini" v-model="form.name" style="width: 100px" />
+          </p>
+          <p>
+            <span>零件号码：407</span>
+            <span class="mgl20">数量： 
+            <el-input size="mini" v-model="form.name" style="width: 100px" /></span>
+            <span class="mgl20">备货数量： 
+            <el-input size="mini" v-model="form.name" style="width: 100px" /></span>
+          </p>
+          <p>
+            <span>零件号码：407</span>
+            <span class="mgl20">数量： 
+            <el-input size="mini" v-model="form.name" style="width: 100px" /></span>
+            <span class="mgl20">备货数量： 
+            <el-input size="mini" v-model="form.name" style="width: 100px" /></span>
+          </p>
+          <p><strong>下料清单</strong></p>
+          <p>
+            <span class="mgl20">材料：
+              <el-select size="mini" v-model="value" placeholder="请选择" style="width: 100px;">
+                <el-option
+                  label="1"
+                  value="2">
+                </el-option>
+              </el-select>
+            </span>
+            <span>下料尺寸（净尺寸mm）：
+              <el-input size="mini" v-model="form.name" style="width: 50px" placeholder="长"/>
+              X
+              <el-input size="mini" v-model="form.name" style="width: 50px" placeholder="宽"/>
+              X
+              <el-input size="mini" v-model="form.name" style="width: 50px" placeholder="高"/>
+            </span>
+          </p>
+          <p>
+            备注：
+            <el-input
+              type="textarea"
+              :rows="4"
+              placeholder="请输入内容"
+              style="width: 600px;"
+              v-model="textarea">
+            </el-input>
+          </p>
+          <p>
+            <strong>加工工序</strong>
+            <el-table
+              :data="tableData"
+              border
+              size="mini"
+              class="content-table"
+              style="width: 100%">
+              <el-table-column
+                prop="date"
+                label="工序序号"
+                show-overflow-tooltip>
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                label="工序名称"
+                show-overflow-tooltip>
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                label="加工工序内容"
+                show-overflow-tooltip>
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                label="是否委外"
+                show-overflow-tooltip>
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                label="估工(H)"
+                show-overflow-tooltip>
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                label="操作者"
+                show-overflow-tooltip>
+              </el-table-column>
+            </el-table>
+          </p>
+          <p>
+            工艺说明：
+            <el-input
+              type="textarea"
+              :rows="4"
+              placeholder="请输入内容"
+              v-model="textarea">
+            </el-input>
+          </p>
+          <p><strong>工艺附件</strong></p>
+          <p>
+            上传工艺附件： <el-button size="mini" type="primary">上传图纸</el-button>
+          </p>
+            <el-table
+              :data="tableData"
+              border
+              size="mini"
+              class="content-table"
+              style="width: 100%">
+              <el-table-column
+                prop="date"
+                label="资料名称"
+                show-overflow-tooltip>
+              </el-table-column>
+              <el-table-column
+                label="操作者"
+                width="120"
+                align="center"
+                show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <a href style="color: #3375AB;">删除</a>
+                </template>
+              </el-table-column>
+            </el-table>
+          </p>
         </div>
       </div>
       <div class="handle pdtb10 tr">
@@ -110,16 +176,58 @@
     mixins: [leftMixin],
     data() {
       return {
-        
+        form: {
+
+        },
+        tableData: [{
+          date: '2016-05-03',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1516 弄'
+        }]
       };
     },
     methods: {
-      
+      getLeftList() { //获取版本列表
+
+        let params = {
+          componentNo: ''
+        }
+
+        this.left.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryComponentVersion, (res) => {
+
+          this.left.list = res.data.content;
+         
+          if(this.left.list.length) {
+
+            this.left.activeId = `${this.left.list[0].mrCraftRouteLineVersionId}_${this.left.list[0].versionNo}`;
+            this.currentData = this.left.list[0];
+            this.getDetail(this.currentData);
+          }
+          this.left.isLoading = false;
+        }, () => this.left.isLoading = false, params)
+      },
+      getDetail(currentData) {
+
+        let params = {
+          mrCraftRouteLineId: currentData.mrCraftRouteLineVersionId,
+          versionNo: currentData.versionNo,
+        }
+
+        this.right.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryVersionDetail, (res) => { //版本详情 
+
+          this.right.page1 = res.data[0] || {};
+          this.right.isLoading = false;
+        }, () => this.right.isLoading = false, params);
+
+      },
       refresh() {}
     },
     
     created() {
       
+      this.getLeftList();
     }
   };
 </script>
@@ -211,8 +319,12 @@
         bottom: 0;
         left: 220px;
         right: 0;
+        padding: 10px;
         overflow: auto;
         border: 1px solid #ddd;
+        p {
+          margin-bottom: 10px;
+        }
       }
     }
     .handle {

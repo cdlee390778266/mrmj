@@ -45,10 +45,17 @@ const CONFIG = {
 		/* 生产模块*/
 		queryPendingSaleOrder: baseUrl + 'requirement/saleOrder/queryPendingSaleOrder', //生产--待处理的销售订单列表
 		queryPendingSaleOrderDetail: baseUrl + 'requirement/saleOrder/queryPendingSaleOrderDetail', //生产--销售订单详细信息
+		modifyCraftRouteLine: baseUrl + '/requirement/productionOrder/modifyCraftRouteLine', //生产--修改零件工艺与下料清单
+		deleteCraftInfoById: baseUrl + '/requirement/productionOrder/deleteCraftInfoById', //生产--删除已制定工艺卡
 		designCraftRouteLine: baseUrl + 'productionOrder/designCraftRouteLine', //生产--制定零件工艺与下料清单
 		queryNoMakeCraft: baseUrl + 'requirement/productionOrder/queryNoMakeCraft', //生产--待制定订单零件列表查询
 		queryHaveMakeCraftComponent: baseUrl + 'requirement/productionOrder/queryHaveMakeCraftComponent', //生产--已制定工艺列表查询
 		releasedProductionOrder: baseUrl + 'productionOrder/releasedProductionOrder', //生产--下达生产订单
+
+
+		queryComponentVersion: baseUrl + 'requirement/productionOrder/queryComponentVersion', //生产--零件版本查询接口
+		queryVersionDetail: baseUrl + 'requirement/productionOrder/queryVersionDetail', //生产--版本详细信息查询接口
+
 		applyElectrodeDesignTasks: baseUrl + 'electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
 		designElectrodeDesignTasks: baseUrl + 'electrodeOrder/designElectrodeDesignTasks', //生产--设计电极任务
 		applyProgrammeTasks: baseUrl + 'programmeTasks/applyProgrammeTasks', //生产--申领编程任务

@@ -36,25 +36,25 @@ let leftMixin = {
 					]
 				},
 				sort: {
-					sortType: 'desc',
+					sortType: '',
 					sortField: '',
 					listType: {
 						product: [
 							{
 								label: '按模具号排序',
-								value: '0',
+								value: '_MrSaleOrder.mouldNo',
 							},
 							{
 								label: '按客户名称排序',
-								value: '1',
+								value: '_MrCustomer.name',
 							},
 							{
 								label: '按要求交期排序',
-								value: '2',
+								value: '_MrSaleOrder.completionDate',
 							},
 							{
 								label: '按订单类型排序',
-								value: '3',
+								value: '_MrSaleOrder.saleOrderType',
 							},
 						]
 					}
