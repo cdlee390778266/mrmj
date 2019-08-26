@@ -49,7 +49,7 @@
             <el-row>
               <el-col :span="24">交期：{{ item.completionDate | filterNull }}</el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="handle.add.dialogVisible = true">下达生产订单</a>
+                <a href="javascript: void(0);" @click="getOrderDetail(item)">下达生产订单</a>
               </el-col>
             </el-row>
           </div>
@@ -202,259 +202,47 @@
     </div>
 
     <el-dialog title="下达生产订单" :visible.sync="handle.add.dialogVisible">
-      <el-form :model="handle.add.form" label-width="100px">
-        <el-row class="mgb10">
-          <el-col :span="8">模具号：M-1901</el-col>
-          <el-col :span="8">客户：测试测试测试测试公司</el-col>
-          <el-col :span="8">交期：2019.04.31</el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="24" class="mgb10">
-            <span class="mgr40">序号：1</span>
-            <span class="mgr40">零件号码：407/408</span>
-            <span>数量：3+1/3+1/48+5/30+3</span>
-          </el-col>
-          <el-col :span="24" class="mgb10">
-            <span class="mgr40">版本：
-              <el-select style="width: 100px;">
-                <el-option v-for="(item, index) in $dict.countryList" :key="index" :label="item.name" :value="item.mrCountryId"></el-option>
-              </el-select>
-            </span>
-            <span>材料：1.2343ESU</span>
-          </el-col>
-        </el-row>
-        <div>
-          <p>工序及估工：</p>
-          <el-table :data="handle.add.form.detailList" height="160" border size="mini" style="width: 100%">
-            <el-table-column prop="date" label="零件号" width="100"></el-table-column>
-            <el-table-column prop="name" label="数量" width="88"></el-table-column>
-            <el-table-column prop="address" label="要求交期"></el-table-column>
-            <el-table-column prop="address" label="说明"></el-table-column>
-          </el-table>
-        </div>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.add.dialogVisible = false">下达生产订单</el-button>
-        <el-button type="primary" @click="handle.add.dialogVisible = false">保存草稿</el-button>
-        <el-button type="primary" @click="handle.add.dialogVisible = false">返回</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="查看当前计划" :visible.sync="handle.plan.dialogVisible">
-      <el-table
-        :data="handle.plan.data"
-        border
-        size="mini"
-        align="center"
-        :span-method="objectSpanMethod"
-        style="width: 100%">
-        <el-table-column
-          prop="date"
-          label="模具号"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="下图日期"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="出货日期"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="客户"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="要求日期"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="状态"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="零件号码"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="数量"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="版本"
-          width="100">
-        </el-table-column>
-        <el-table-column label="工艺时间">
-          <el-table-column
-            prop="province"
-            label="M"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            prop="city"
-            label="H\WC"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="H\T"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            prop="zip"
-            label="G"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            prop="zip"
-            label="EDM"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            prop="zip"
-            label="CNC"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            prop="zip"
-            label="EDB"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            prop="zip"
-            label="W/C"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            prop="zip"
-            label="PL"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            prop="zip"
-            label="ENG"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            prop="zip"
-            label="other"
-            width="100">
-          </el-table-column>
-        </el-table-column>
-      </el-table>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="handle.plan.dialogVisible = false">返 回</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="终止原因" :visible.sync="handle.stop.dialogVisible">
-      <el-form :model="handle.stop.form" label-width="100px">
-        <el-form-item label="需求终止原因" class="mgt20">
-          <el-input v-model="handle.stop.form.reason"></el-input>
-        </el-form-item>
-        <el-form-item label="说明" class="mgt20">
-          <el-input type="textarea" v-model="handle.stop.form.dsc" class="v-textarea"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.stop.dialogVisible = false">确 定</el-button>
-        <el-button @click="handle.stop.dialogVisible = false">取 消</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="新增模具零件订单" :visible.sync="handle.order.dialogVisible" width="700px">
-      <el-form :model="handle.order.form" label-width="100px">
-        <div class="dflex">
-          <div class="flex">
-            <el-form-item label="客户">
-              <el-input v-model="handle.order.form.name" auto-complete="off"></el-input>
-            </el-form-item>
-            <el-form-item label="模具号">
-              <el-input v-model="handle.order.form.id" auto-complete="off"></el-input>
-            </el-form-item>
-          </div>
-          <el-upload
-            action="https://jsonplaceholder.typicode.com/posts/"
-            list-type="picture-card"
-            class="v-upload pdl10"
-            :multiple="false"
-            :limit="1"
-          >
-            <i class="el-icon-plus"></i>
-          </el-upload>
-        </div>
-        <div>
-          <p>零件清单：</p>
-          <el-table
-            :data="handle.order.form.detailList"
-            height="160"
-            border
-            size="mini"
-            style="width: 100%"
-          >
-            <el-table-column prop="date" label="零件号" width="100"></el-table-column>
-            <el-table-column prop="name" label="数量" width="88"></el-table-column>
-            <el-table-column prop="address" label="要求交期"></el-table-column>
-            <el-table-column prop="address" label="单价"></el-table-column>
-            <el-table-column prop="address" label="总价"></el-table-column>
-            <el-table-column prop="address" label="说明"></el-table-column>
-          </el-table>
-        </div>
-        <div>
-          <div class="mgt20 mgb0 dflex el-form-item-mgb0" style="line-height: 32px;">
-            <div class="flex">订单总价（RMB）：231323.00</div>
-            <div class="flex">
-              <el-form-item label="结算货币">
-                <el-select v-model="handle.order.form.btype">
-                  <el-option label="欧元" value="0"></el-option>
-                  <el-option label="美元" value="1"></el-option>
-                  <el-option label="日元" value="2"></el-option>
-                </el-select>
-              </el-form-item>
-            </div>
-            <div class="flex">
-              <el-form-item label="结算货币总价">
-                <el-input v-model="handle.order.form.total" auto-complete="off"></el-input>
-              </el-form-item>
+      <div v-loading="handle.add.isLoading">
+        <el-form :model="handle.add.form" label-width="100px">
+          <el-row class="pdtb10 borb">
+            <el-col :span="8">模具号：{{handle.add.data.mouldNo}}</el-col>
+            <el-col :span="8">客户：{{handle.add.data.name}}</el-col>
+            <el-col :span="8">交期：{{handle.add.data.deliveryDate}}</el-col>
+          </el-row>
+          <div class="dialog-content pdt10">
+            <div class="mgb10 borb" v-for="(item, index) in handle.add.data" :key="index">
+              <el-row>
+                <el-col :span="24" class="mgb10">
+                  <span class="mgr40">序号：1</span>
+                  <span class="mgr40">零件号码：407/408</span>
+                  <span>数量：3+1/3+1/48+5/30+3</span>
+                </el-col>
+                <el-col :span="24" class="mgb10">
+                  <span class="mgr40">版本：
+                    <el-select style="width: 100px;">
+                      <el-option v-for="(item, index) in $dict.countryList" :key="index" :label="item.name" :value="item.mrCountryId"></el-option>
+                    </el-select>
+                  </span>
+                  <span>材料：1.2343ESU</span>
+                </el-col>
+              </el-row>
+              <div>
+                <p>工序及估工：</p>
+                <el-table :data="handle.add.form.detailList"  border size="mini" style="width: 100%">
+                  <el-table-column prop="date" label="零件号" width="100"></el-table-column>
+                  <el-table-column prop="name" label="数量" width="88"></el-table-column>
+                  <el-table-column prop="address" label="要求交期"></el-table-column>
+                  <el-table-column prop="address" label="说明"></el-table-column>
+                </el-table>
+              </div>
             </div>
           </div>
-          <p class="mgb10">
-            上传附件：
-            <el-button type="primary" size="mini">选择上传文件</el-button>
-          </p>
-          <el-table
-            :data="handle.order.form.enclosureList"
-            height="160"
-            border
-            size="mini"
-            style="width: 100%"
-          >
-            <el-table-column prop="date" label="上传文件"></el-table-column>
-            <el-table-column prop="name" label="资料名称"></el-table-column>
-            <el-table-column label="操作">
-              <template slot-scope="scope">
-                <el-button size="mini" type="danger" @click="del(scope.$index, scope.row)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
+        </el-form>
+        <div slot="footer" class="dialog-footer tr mgt30">
+          <el-button type="primary" @click="handle.add.dialogVisible = false">下达生产订单</el-button>
+          <el-button type="primary" @click="handle.add.dialogVisible = false">保存草稿</el-button>
+          <el-button type="primary" @click="handle.add.dialogVisible = false">返回</el-button>
         </div>
-        <el-form-item label="说明" class="mgt20">
-          <el-input type="textarea" v-model="handle.order.form.dsc"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.order.dialogVisible = false">下达订单</el-button>
-        <el-button type="primary" @click="handle.order.dialogVisible = false">存为草稿</el-button>
-        <el-button @click="handle.order.dialogVisible = false">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -489,83 +277,16 @@
         },
         handle: {
           add: {
-            dialogVisible: false,
+            dialogVisible: true,
+            isLoading: false,
+            data: {},
             form: {
-              faceUrl: "",
+              mouldNo: "",
               name: "",
               type: "0",
               id: "",
               dsc: "",
-              detailList: [
-                {
-                  date: "2016-05-01",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                }
-              ],
-              enclosureList: [
-                {
-                  date: "2016-05-01",
-                  name: "王小虎"
-                }
-              ]
             }
-          },
-          plan: {
-            dialogVisible: false,
-            data: [{
-              date: '2016-05-03',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            },{
-              date: '2016-05-07',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }]
-          },
-          stop: {
-            dialogVisible: false,
-            form: {
-              reason: "",
-              dsc: ""
-            }
-          },
-          order: {
-            dialogVisible: false,
-            form: {
-              faceUrl: "",
-              name: "",
-              type: "0",
-              id: "",
-              btype: "0",
-              total: 1256,
-              dsc: "",
-              detailList: [
-                {
-                  date: "2016-05-03",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                
-                {
-                  date: "2016-05-01",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                }
-              ],
-              enclosureList: [
-                {
-                  date: "2016-05-01",
-                  name: "王小虎"
-                }
-              ]
-            },
           }
         }
       };
@@ -574,15 +295,13 @@
       getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
 
         let params = {
-          name: '',
-          mouldNo: '',
-          componentNo: '',
+          parameter: '',
           type: this.filter.selectedValue,
           sorting: `${this.filter.sort.sortField} ${this.filter.sort.sortType}`,
           pageNo: this.left.page.pageNo,
           pageSize: this.left.page.pageSize,
         }
-        if(this.form.text) params.name = this.form.text;
+        if(this.form.text) params.parameter = this.form.text;
 
         this.getData(this.$utils.CONFIG.api.queryPendingSaleOrder, params, 'mrSaleOrderId', loadingKey, this.getDetail);
       },
@@ -616,6 +335,33 @@
         this.left.activeId = item[idKey];
         this.currentData= item;
         this.getDetail(this.left.activeId);
+      },
+      getOrderDetail(item) {
+
+        this.handle.add.dialogVisible = true;
+
+        let params = {
+          mrSaleOrderId: item.mrSaleOrderId
+        }
+
+        this.$utils.getJson(this.$utils.CONFIG.api.queryProductionOrderInfo, (res) => {
+
+          this.handle.add.isLoading = false;
+          this.handle.add.data = res.data || {};
+        }, () => this.handle.add.isLoading = false, params);
+      },
+      addProductionOrder() {  //下达生产订单
+
+        let params = {
+          mrSaleOrderId: ''
+        }
+
+        this.$utils.getJson(this.$utils.CONFIG.api.releasedProductionOrder, (res) => { 
+
+          this.handle.add.isLoading = false;
+          this.showTip('success', 'success', '102');
+          this.search();
+        }, () => this.handle.add.isLoading = false, params);
       },
       handleSelectionChange(val) {
 
@@ -676,5 +422,8 @@
 
 
 <style scoped lang="scss">
-
+  .dialog-content {
+    max-height: 400px;
+    overflow-y: auto;
+  }
 </style>

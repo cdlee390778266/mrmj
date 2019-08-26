@@ -36,31 +36,31 @@
           </div>
         </div>
         <h5 class="content-right-title">工艺信息明细</h5>
-        <div class="content-right">
+        <div class="content-right" v-loading="right.isLoading">
           <p><strong>工艺版本号</strong>（可输入新的版本号，保存后为零件增加新版本工艺路线）
           </p>
           <p>
-            工艺路线版本号： 
-            <el-input size="mini" v-model="form.name" style="width: 100px" />
+            <span>工艺路线版本号：</span> 
+            <el-input size="mini" v-model="right.page1.componentVersionNo" style="width: 100px" />
+            <span class="mgl20">使用图纸版本号：</span> 
+            <el-select size="mini" v-model="right.page1.drawingVersionNo" placeholder="请选择" style="width: 100px;">
+              <el-option
+                label="1"
+                value="2">
+              </el-option>
+            </el-select>
           </p>
-          <p>
-            <span>零件号码：407</span>
+          <p v-for="(item, index) in right.page1.components" :key="index">
+            <span>零件号码：{{item.componentNo}}</span>
             <span class="mgl20">数量： 
-            <el-input size="mini" v-model="form.name" style="width: 100px" /></span>
+            <el-input size="mini" v-model="item.quantity" style="width: 100px" /></span>
             <span class="mgl20">备货数量： 
-            <el-input size="mini" v-model="form.name" style="width: 100px" /></span>
-          </p>
-          <p>
-            <span>零件号码：407</span>
-            <span class="mgl20">数量： 
-            <el-input size="mini" v-model="form.name" style="width: 100px" /></span>
-            <span class="mgl20">备货数量： 
-            <el-input size="mini" v-model="form.name" style="width: 100px" /></span>
+            <el-input size="mini" v-model="item.stockingQuantity" style="width: 100px" /></span>
           </p>
           <p><strong>下料清单</strong></p>
           <p>
             <span class="mgl20">材料：
-              <el-select size="mini" v-model="value" placeholder="请选择" style="width: 100px;">
+              <el-select size="mini" v-model="right.page1.stuffId" placeholder="请选择" style="width: 100px;">
                 <el-option
                   label="1"
                   value="2">
@@ -68,11 +68,11 @@
               </el-select>
             </span>
             <span>下料尺寸（净尺寸mm）：
-              <el-input size="mini" v-model="form.name" style="width: 50px" placeholder="长"/>
+              <el-input size="mini" v-model="right.page1.length" style="width: 50px" placeholder="长"/>
               X
-              <el-input size="mini" v-model="form.name" style="width: 50px" placeholder="宽"/>
+              <el-input size="mini" v-model="right.page1.width" style="width: 50px" placeholder="宽"/>
               X
-              <el-input size="mini" v-model="form.name" style="width: 50px" placeholder="高"/>
+              <el-input size="mini" v-model="right.page1.height" style="width: 50px" placeholder="高"/>
             </span>
           </p>
           <p>
@@ -82,44 +82,46 @@
               :rows="4"
               placeholder="请输入内容"
               style="width: 600px;"
-              v-model="textarea">
+              v-model="right.page1.remark">
             </el-input>
           </p>
           <p>
             <strong>加工工序</strong>
             <el-table
-              :data="tableData"
+              :data="right.page1.processes"
               border
               size="mini"
               class="content-table"
               style="width: 100%">
               <el-table-column
-                prop="date"
+                prop="processSequence"
                 label="工序序号"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
-                prop="date"
+                prop="name"
                 label="工序名称"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
-                prop="date"
+                prop="processContent"
                 label="加工工序内容"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
-                prop="date"
                 label="是否委外"
                 show-overflow-tooltip>
+                <template slot-scope="scope">
+                  {{scope.row.isOutsource ? '是' : '否'}}
+                </template>
               </el-table-column>
               <el-table-column
-                prop="date"
+                prop="estimationWorkTime"
                 label="估工(H)"
                 show-overflow-tooltip>
               </el-table-column>
               <el-table-column
-                prop="date"
+                prop="operator"
                 label="操作者"
                 show-overflow-tooltip>
               </el-table-column>
@@ -131,7 +133,7 @@
               type="textarea"
               :rows="4"
               placeholder="请输入内容"
-              v-model="textarea">
+              v-model="right.page1.processDescription">
             </el-input>
           </p>
           <p><strong>工艺附件</strong></p>
@@ -139,7 +141,7 @@
             上传工艺附件： <el-button size="mini" type="primary">上传图纸</el-button>
           </p>
             <el-table
-              :data="tableData"
+              :data="right.page1.a"
               border
               size="mini"
               class="content-table"
@@ -163,7 +165,7 @@
         </div>
       </div>
       <div class="handle pdtb10 tr">
-        <el-button type="primary" @click="handle.update.dialogVisible = false">保 存</el-button>
+        <el-button type="primary" @click="save">保 存</el-button>
         <el-button @click="handle.update.dialogVisible = false">返 回</el-button>
       </div>
     </div>
@@ -211,16 +213,41 @@
 
         let params = {
           mrCraftRouteLineId: currentData.mrCraftRouteLineVersionId,
-          versionNo: currentData.versionNo,
+          versionNo: currentData.componentVersionNo,
         }
 
         this.right.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryVersionDetail, (res) => { //版本详情 
 
-          this.right.page1 = res.data[0] || {};
+          this.right.page1 = res.data || {};
           this.right.isLoading = false;
         }, () => this.right.isLoading = false, params);
+      },
+      save() {
 
+        let params = {
+          saleOrderId: '',
+          customerId: '',
+          versionNo: '',
+          stuffId: '',
+          length: '',
+          width: '',
+          height: '',
+          remark: '',
+          processDescription: '',
+          components: [],
+          processes: [],
+          isOutsource: '',
+          estimationWorkTime: '',
+          operator: ''
+        }
+
+        this.right.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.designCraftRouteLine, (res) => { //版本详情 
+
+          this.right.isLoading = false;
+          this.showTip('success', 'success', '102');
+        }, () => this.right.isLoading = false, params);
       },
       refresh() {}
     },
