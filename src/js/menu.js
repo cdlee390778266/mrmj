@@ -116,9 +116,16 @@ const MENU = {
 				isSubPage: true
 			},
 			{
-				name: '电极设计任务',
+				name: '电极设计与CNC编程',
 				path: '/task',
 				icon: 'el-icon-potato-strips'
+			},
+			{
+				name: '完成电极设计任务',
+				path: '/designElectrode',
+				paramsPath: '/designElectrode/:id?',
+				icon: '',
+				isSubPage: true
 			},
 			{
 				name: '生产进度跟踪',
@@ -126,7 +133,21 @@ const MENU = {
 				icon: 'el-icon-s-operation'
 			},
 			{
-				name: '工序生产',
+				name: '手动增加生产订单',
+				path: '/editOrder',
+				paramsPath: '/editOrder/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
+				name: '查看当前全部订单',
+				path: '/detail',
+				paramsPath: '/detail/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
+				name: '当日工序生产',
 				path: '/procedure',
 				icon: 'el-icon-paperclip'
 			},
