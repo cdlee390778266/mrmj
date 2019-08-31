@@ -37,7 +37,7 @@ let leftMixin = {
 				},
 				sort: {
 					sortType: '',
-					sortField: '',
+					sortField: '_MrSaleOrder.mouldNo',
 					listType: {
 						product: [
 							{

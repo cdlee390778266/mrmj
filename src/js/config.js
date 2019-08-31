@@ -50,8 +50,9 @@ const CONFIG = {
 		designCraftRouteLine: baseUrl + 'productionOrder/designCraftRouteLine', //生产--制定零件工艺与下料清单
 		queryNoMakeCraft: baseUrl + 'requirement/productionOrder/queryNoMakeCraft', //生产--待制定订单零件列表查询
 		queryHaveMakeCraftComponent: baseUrl + 'requirement/productionOrder/queryHaveMakeCraftComponent', //生产--已制定工艺列表查询
-		queryProductionOrderInfo: baseUrl + '/requirement/productionOrder/queryProductionOrderInfo', //生产--查询待下达生产订单时的详细信息
-		releasedProductionOrder: baseUrl + 'productionOrder/releasedProductionOrder', //生产--下达生产订单
+		queryProductionOrderInfo: baseUrl + 'requirement/productionOrder/queryProductionOrderInfo', //生产--查询待下达生产订单时的详细信息
+		releasedProductionOrder: baseUrl + 'requirement/productionOrder/releasedProductionOrder', //生产--下达生产订单
+		saveAsDraft: baseUrl + 'requirement/productionOrder/saveAsDraft', //生产--将生产订单保存为草稿
 
 
 		queryComponentVersion: baseUrl + 'requirement/productionOrder/queryComponentVersion', //生产--零件版本查询接口

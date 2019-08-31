@@ -179,7 +179,7 @@
                         <el-table-column type="index" label="序号" width="50"></el-table-column>
                         <el-table-column label="零件号" show-overflow-tooltip>
                           <template slot-scope="scope">
-                            {{ componentNo(scope.row.components) }}
+                            {{scope.row.components | concatString('componentNo')}}
                           </template>
                         </el-table-column>
                         <el-table-column prop="craftMakePerson" label="工艺制定人员" show-overflow-tooltip></el-table-column>
@@ -201,46 +201,58 @@
       </div>
     </div>
 
-    <el-dialog title="下达生产订单" :visible.sync="handle.add.dialogVisible">
+    <el-dialog title="下达生产订单" class="dialog-gray" :visible.sync="handle.add.dialogVisible">
       <div v-loading="handle.add.isLoading">
         <el-form :model="handle.add.form" label-width="100px">
           <el-row class="pdtb10 borb">
-            <el-col :span="8">模具号：{{handle.add.data.mouldNo}}</el-col>
-            <el-col :span="8">客户：{{handle.add.data.name}}</el-col>
-            <el-col :span="8">交期：{{handle.add.data.deliveryDate}}</el-col>
+            <el-col :span="8">模具号：{{handle.add.data[0] && handle.add.data[0].mouldNo}}</el-col>
+            <el-col :span="8">客户：{{handle.add.data[0] && handle.add.data[0].name}}</el-col>
+            <el-col :span="8">交期：{{handle.add.data[0] && handle.add.data[0].deliveryDate}}</el-col>
           </el-row>
-          <div class="dialog-content pdt10">
-            <div class="mgb10 borb" v-for="(item, index) in handle.add.data" :key="index">
+          <div class="dialog-content pdt10 pdlr10 mglr10 bgfff">
+            <div class="mgb10" :class="{borb: handle.add.data && (index != handle.add.data.length - 1)}" v-for="(item, index) in handle.add.data" :key="index">
               <el-row>
                 <el-col :span="24" class="mgb10">
-                  <span class="mgr40">序号：1</span>
-                  <span class="mgr40">零件号码：407/408</span>
-                  <span>数量：3+1/3+1/48+5/30+3</span>
+                  <span class="mgr40">序号：{{item.processSequence}}</span>
+                  <span class="mgr40">零件号码：{{item.components | concatString('componentNo')}}</span></span>
+                  <span>数量：{{item.components | concatString('quantity')}}</span>
                 </el-col>
                 <el-col :span="24" class="mgb10">
                   <span class="mgr40">版本：
-                    <el-select style="width: 100px;">
-                      <el-option v-for="(item, index) in $dict.countryList" :key="index" :label="item.name" :value="item.mrCountryId"></el-option>
+                    <el-select style="width: 100px;" v-model="item.versionNo">
+                      <el-option v-for="(itemc, index) in item.versions" :key="index" :label="itemc.versionNo" :value="itemc.versionNo"></el-option>
                     </el-select>
                   </span>
-                  <span>材料：1.2343ESU</span>
+                  <span>材料：{{item.versions && item.versions.length && item.versions[0].stuffName}}</span>
                 </el-col>
               </el-row>
-              <div>
+              <div class="mgb20">
                 <p>工序及估工：</p>
-                <el-table :data="handle.add.form.detailList"  border size="mini" style="width: 100%">
-                  <el-table-column prop="date" label="零件号" width="100"></el-table-column>
-                  <el-table-column prop="name" label="数量" width="88"></el-table-column>
-                  <el-table-column prop="address" label="要求交期"></el-table-column>
-                  <el-table-column prop="address" label="说明"></el-table-column>
-                </el-table>
+                <table class="mrmj-table">
+                  <thead>
+                    <tr>
+                      <th class="bge4e4e4">工序顺序</th>
+                      <th v-for="(itemc, index) in item.processes" :key="index">{{itemc.name}}</th>
+                      <th class="bge4e4e4">工时合计</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="bge4e4e4">估工（H）</td>
+                      <th v-for="(itemc, index) in item.processes" :key="index">{{itemc.estimationWorkTime}}</th>
+                      <th class="bge4e4e4">
+                        {{item.processes | sum('estimationWorkTime')}}
+                      </th>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         </el-form>
-        <div slot="footer" class="dialog-footer tr mgt30">
-          <el-button type="primary" @click="handle.add.dialogVisible = false">下达生产订单</el-button>
-          <el-button type="primary" @click="handle.add.dialogVisible = false">保存草稿</el-button>
+        <div slot="footer" class="dialog-footer tr pdtb20 pdlr10">
+          <el-button type="primary" @click="addOrder(false)">下达生产订单</el-button>
+          <el-button type="primary" @click="addOrder(true)">保存草稿</el-button>
           <el-button type="primary" @click="handle.add.dialogVisible = false">返回</el-button>
         </div>
       </div>
@@ -277,7 +289,7 @@
         },
         handle: {
           add: {
-            dialogVisible: true,
+            dialogVisible: false,
             isLoading: false,
             data: {},
             form: {
@@ -336,24 +348,50 @@
         this.currentData= item;
         this.getDetail(this.left.activeId);
       },
-      getOrderDetail(item) {
+      getOrderDetail(item) {  //生产订单详情
 
+        this.handle.add.order = item;
         this.handle.add.dialogVisible = true;
 
         let params = {
           mrSaleOrderId: item.mrSaleOrderId
         }
-
+        
         this.$utils.getJson(this.$utils.CONFIG.api.queryProductionOrderInfo, (res) => {
 
           this.handle.add.isLoading = false;
-          this.handle.add.data = res.data || {};
+          this.handle.add.data = res.data || [];
+        }, () => this.handle.add.isLoading = false, params);
+      },
+      addOrder(saveAsDraft = false) {  //下达生产订单, saveAsDraft=false为下达生产订单;saveAsDraft=true为保存为草稿
+
+        let params = {
+          mrSaleOrderId: this.handle.add.order.mrSaleOrderId,
+          versions: []
+        }
+
+        this.handle.add.data.map(item => {  //取得选中的版本，如没选中则默认选中第一个
+
+          params.versions.push({
+            mrCraftRouteLineId: item.mrCraftRouteLineId,
+            versionNo: item.versionNo || 'A'
+          })
+        })
+        
+        let url = saveAsDraft ? this.$utils.CONFIG.api.saveAsDraft : this.$utils.CONFIG.api.releasedProductionOrder;
+        this.handle.add.isLoading = true;
+        this.$utils.getJson(url, (res) => {
+
+          this.handle.add.isLoading = false;
+          this.handle.add.dialogVisible = false;
+          !saveAsDraft && this.search();
         }, () => this.handle.add.isLoading = false, params);
       },
       addProductionOrder() {  //下达生产订单
 
         let params = {
-          mrSaleOrderId: ''
+          mrSaleOrderId: '',
+
         }
 
         this.$utils.getJson(this.$utils.CONFIG.api.releasedProductionOrder, (res) => { 
@@ -397,21 +435,6 @@
         }, () => this.right.isLoading = false, {mrCraftRouteLineId: row.mrCraftRouteLineId});
       },
       refresh() {}
-    },
-    computed: {
-      componentNo() {
-
-        return (components) => {
-
-          let arr = [];
-          components.forEach(item => {
-
-            arr.push(item.componentNo);
-          })
-          
-          return arr.join('/');
-        }
-      }
     },
     created() {
       this.filter.typeList = this.filter.listType.product;
