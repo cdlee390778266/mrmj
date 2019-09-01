@@ -77,37 +77,25 @@ Utils.showModalDialog = function (type, textType, code) {
  * @param      {Function}  error    失败回调
  * @param      {string}    params   参数
  */
-Utils.getJson = function (url, success, error, params = {}, isShowPop = false, urlParams) {
+Utils.getJson = function (url, success, error, params = {}, method='post', isFile = false) {
 
 	if (!url) return;
 	var loadingInstance;
-	if (isShowPop) {
-
-		loadingInstance = Loading.service({
-			fullscreen: true,
-			customClass: 'loading page-loading'
-		});
-	}
-	Utils.ajaxCount++;
-	Utils.$http({
+	var config = {
 		headers: {
 			Authorization: localStorage.getItem('token') || ''
 		},
-		method: 'post',
+		method: method,
 		url: url,
 		timeout: 5000,
-		data: params,
-		params: urlParams
-	})
+		data: params
+	}
+
+	isFile && (config['Content-Type'] = 'multipart/form-data');
+
+	Utils.$http(config)
 		.then(function (res) {
 
-			// if(!(--Utils.ajaxCount) && isShowPop) {
-			// 	loadingInstance.close()
-			// }
-			if (isShowPop) {
-
-				loadingInstance.close()
-			}
 			if(res.data.status == 'OK' ) {
 
 				if (typeof success == 'function') success(res.data)
@@ -117,11 +105,6 @@ Utils.getJson = function (url, success, error, params = {}, isShowPop = false, u
 				if (typeof error == 'function') error(res.data)
 			}
 		}, function (err) {
-
-			if (isShowPop) {
-
-				loadingInstance.close();
-			}
 
 			Utils.showTip('error', 'error', '-1');
 			if (typeof error == 'function') error(err)

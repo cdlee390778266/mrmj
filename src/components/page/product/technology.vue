@@ -49,7 +49,7 @@
             <el-row>
               <el-col :span="24">交期：{{ item.completionDate | filterNull }}</el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="getOrderDetail(item)">下达生产订单</a>
+                <a href="javascript: void(0);" @click.stop="getOrderDetail(item)">下达生产订单</a>
               </el-col>
             </el-row>
           </div>
@@ -137,7 +137,7 @@
                   </div>
                 </div>
                 <el-scrollbar class="main-content-scorll pdt10">
-                  <el-row>
+                  <el-row v-show="right.page2.noMakeCraftList && right.page2.noMakeCraftList.length">
                     <el-col :span="24" class="mgb10 mgt10">
                       <strong>待制定订单零件列表</strong>
                       <el-button type="primary" class="mgl10" @click="jump">选择下表零件，点我制定工艺</el-button>
@@ -186,8 +186,8 @@
                         <el-table-column prop="completionDate" label="完成日期" show-overflow-tooltip></el-table-column>
                         <el-table-column width="100" label="操作">
                           <template slot-scope="scope">
-                            <a href style="color: #3375AB;" class="mgr10">编辑</a>
-                            <a href style="color: #3375AB;" @click="deleteCraft(scope.row)">删除</a>
+                            <el-button type="text" @click="">编辑</el-button>
+                            <el-button type="text" @click="deleteCraft(scope.row)">删除</el-button>
                           </template>
                         </el-table-column>
                       </el-table>
@@ -273,19 +273,7 @@
             noMakeCraftList: [],
             haveMakeCraftList: []
           },
-          list: [
-            {
-              
-              enclosureList: [
-                {
-                  date: "2016-05-03",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                }
-              ]
-            }
-          ]
+          list: []
         },
         handle: {
           add: {
@@ -407,23 +395,32 @@
       },
       jump() {
 
-        if(!this.right.page2.selections.length) this.$utils.showTip('error', 'error', '-1040');
-        
-      },
-      objectSpanMethod({ row, column, rowIndex, columnIndex }) { //合并
-        if (columnIndex === 0) {
-          if (rowIndex % 2 === 0) {
-            return {
-              rowspan: 2,
-              colspan: 1
-            };
-          } else {
-            return {
-              rowspan: 0,
-              colspan: 0
-            };
-          }
+        if(!this.right.page2.selections.length) {
+          this.$utils.showTip('warning', 'error', '-1040');
+          return;
         }
+        let obj = {
+          mrSaleOrderId: this.currentData.mrSaleOrderId,
+          customerId: this.currentData.customerId,
+          componentNos: '',
+          requirementQuantitys: '',
+          mouldNo: this.currentData.mouldNo,
+          name: this.currentData.name,
+          completionDate: this.currentData.completionDate,
+          customerPoNo: this.currentData.customerPoNo
+        };
+        let time = new Date().getTime();
+        this.right.page2.selections.map((item, index) => {
+
+          obj.componentNos += item.componentNo;
+          obj.requirementQuantitys += item.requirementQuantity;
+          if(index != this.right.page2.selections.length - 1) {
+            obj.componentNos+= '/';
+            obj.requirementQuantitys += '/';
+          }
+        });
+        localStorage.setItem(time, JSON.stringify(obj));
+        this.$router.push(`/product/processCard/${time}`);
       },
       deleteCraft(row) {  //删除工艺卡
         
@@ -431,7 +428,7 @@
         this.$utils.getJson(this.$utils.CONFIG.api.deleteCraftInfoById, (res) => {  
 
           this.right.isLoading = false;
-          this.right.page2.haveMakeCraftList = this.right.page2.haveMakeCraftList.filter(item => item.mrCraftRouteLineId == row.mrCraftRouteLineId);
+          this.right.page2.haveMakeCraftList = this.right.page2.haveMakeCraftList.filter(item => item.mrCraftRouteLineId != row.mrCraftRouteLineId);
         }, () => this.right.isLoading = false, {mrCraftRouteLineId: row.mrCraftRouteLineId});
       },
       refresh() {}

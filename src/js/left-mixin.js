@@ -130,6 +130,18 @@ let leftMixin = {
 
       this.$refs[formName] && this.$refs[formName].resetFields();
     },
+    uploadFile() {
+        
+      let formData = new FormData();
+      formData.append('files', this.$refs.file.files[0]);
+
+      this.right.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.uploadFiles, (res) => { //版本详情 
+
+        this.right.isLoading = false;
+        typeof this.uploadSuccess == 'function' && this.uploadSuccess(res);
+      }, () => this.right.isLoading = false, formData, 'post', true);
+    },
     uploadSuccess(res, formKey = 'update') {
 
       this.handle.update.form.fileId = res.data[0].fileId;
@@ -137,6 +149,20 @@ let leftMixin = {
     uploadError(formKey = 'update') {
 
       this.handle[formKey].form.fileId = '';
+    },
+    deleteFiles(fileId, deleteRow) {
+
+    	this.right.isLoading = true;
+    	this.deleteRow = deleteRow;
+      this.$utils.getJson(this.$utils.CONFIG.api.deleteFiles, (res) => { //版本详情 
+
+        this.right.isLoading = false;
+        typeof this.deleteSuccess == 'function' && this.deleteSuccess();
+      }, () => this.right.isLoading = false, {fileId: fileId});
+    },
+    down(fileId) {
+
+    	window.open(`${this.$utils.CONFIG.api.download}?fileId=${fileId}`, "_blank")
     },
     saveFile(id, formKey = 'update') {
         

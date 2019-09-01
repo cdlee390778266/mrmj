@@ -97,57 +97,5 @@ export default {
 
 
 <style scoped lang="scss">
-	.v-tabs {
-		border-bottom: 1px solid #a3bf1f;
-		.v-tab {
-				display: inline-block;
-				width: 120px;
-				line-height: 40px;
-				text-align: center;
-				font-size: 16px;
-				cursor: pointer;
-				&.active {
-				color: #fff;
-				background: #a3bf1f;
-				}
-		}
-	}
-	.detail-main {
-		position: absolute;
-		top: 115px;
-		right: 10px;
-		bottom: 54px;
-		left: 10px;
-		overflow-y: auto;
-		& > div {
-			position: absolute;
-			top: 0;
-			right: 0;
-			bottom: 0;
-			left: 0;
-			.preview-content {
-				position: absolute;
-				top: 0;
-				right: 0px;
-				bottom: 0;
-				left: 0;
-				overflow-y: auto;
-			}
-			.preview-handle {
-				position: absolute;
-				top: 0;
-				right: 0px;
-				bottom: 0;
-				width: 100px;
-			}
-		}
-	}
-	.detail-footer {
-		position: absolute;
-		left: 10px;
-		right: 10px;
-		bottom: 0px;
-		padding: 10px 0;
-		border-top: 1px solid #a3bf1f;
-	}
+	
 </style>

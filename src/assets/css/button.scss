@@ -6,3 +6,9 @@
     border-color: rgba(22, 155, 213, .8) !important;
   }
 }
+.el-button--text {
+	color: #3375AB !important;
+	&:hover {
+		text-decoration: underline;
+	}
+}
