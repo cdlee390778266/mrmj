@@ -48,7 +48,7 @@ const CONFIG = {
 		queryPendingSaleOrderDetail: baseUrl + 'requirement/saleOrder/queryPendingSaleOrderDetail', //生产--销售订单详细信息
 		modifyCraftRouteLine: baseUrl + 'requirement/productionOrder/modifyCraftRouteLine', //生产--修改零件工艺与下料清单
 		deleteCraftInfoById: baseUrl + 'requirement/productionOrder/deleteCraftInfoById', //生产--删除已制定工艺卡
-		designCraftRouteLine: baseUrl + 'productionOrder/designCraftRouteLine', //生产--制定零件工艺与下料清单
+		designCraftRouteLine: baseUrl + 'requirement/productionOrder/designCraftRouteLine', //生产--制定零件工艺与下料清单
 		queryNoMakeCraft: baseUrl + 'requirement/productionOrder/queryNoMakeCraft', //生产--待制定订单零件列表查询
 		queryHaveMakeCraftComponent: baseUrl + 'requirement/productionOrder/queryHaveMakeCraftComponent', //生产--已制定工艺列表查询
 		queryProductionOrderInfo: baseUrl + 'requirement/productionOrder/queryProductionOrderInfo', //生产--查询待下达生产订单时的详细信息
@@ -56,6 +56,8 @@ const CONFIG = {
 		saveAsDraft: baseUrl + 'requirement/productionOrder/saveAsDraft', //生产--将生产订单保存为草稿
 
 		stuff: baseUrl + 'requirement/stuff/qc', //生产--材料列表
+		process: baseUrl + 'requirement/process/qc', //生产--工序名称查询
+		sysCode: baseUrl + 'requirement/sysCode/qc', //生产--工序内容查询
 		queryComponentVersion: baseUrl + 'requirement/productionOrder/queryComponentVersion', //生产--零件版本查询接口
 		queryVersionDetail: baseUrl + 'requirement/productionOrder/queryVersionDetail', //生产--版本详细信息查询接口
 		saveCraftAttachment: baseUrl + 'requirement/productionOrder/saveCraftAttachment', //生产--存储上传的文件
@@ -89,6 +91,7 @@ const CONFIG = {
 		'-1031': '请输入密码！',
 		'-1032': '请输入6-20位密码！',
 		'-1040': '请选择一个或多个零件，制定工艺。当选择多个零件时，表示对所选的多个零件制定相同的工艺。',
+		'-1041': '请制定工艺！',
 	}
 }
 

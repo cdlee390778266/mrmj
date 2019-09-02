@@ -39,7 +39,17 @@ let Dict = {
 		20: '已报价',
 		30: '终止',
 		40: '已下单'
-	},	
+	},
+	outsourceList: [	//是否委外列表
+		{
+			label: '是',
+			value: 1
+		},
+		{
+			label: '否',
+			value: 0
+		}
+	],
 }
 
 function getCurrency() {	//获取币种列表

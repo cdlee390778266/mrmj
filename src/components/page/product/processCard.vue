@@ -39,7 +39,7 @@
                 </div>
                 <div class="list-body">
                   <div class="dflex" v-for="(item, index) in left.list" :key="index" :class="{active: left.activeId == `${item.mrCraftRouteLineVersionId}_${item.versionNo}`}" @click="handleSelect(item)">
-                    <div class="flex">{{item.componentVersionNo}}</div>
+                    <div class="flex">{{item.craftVersionNo}}</div>
                     <div class="flex">{{item.drawingVersionNo}}</div>
                   </div>
                 </div>
@@ -51,7 +51,7 @@
               </p>
               <p>
                 <span>工艺路线版本号：</span> 
-                <el-input size="mini" v-model="right.page1.componentVersionNo" style="width: 100px" />
+                <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
                 <span class="mgl20">使用图纸版本号：</span> 
                 <el-select size="mini" v-model="right.page1.drawingVersionNo" placeholder="请选择" style="width: 100px;">
                   <el-option v-for="(itemc, index) in left.list" :key="index" :label="itemc.drawingVersionNo" :value="itemc.drawingVersionNo"></el-option>
@@ -95,39 +95,130 @@
                   :data="right.page1.processes"
                   border
                   size="mini"
-                  class="content-table"
+                  max-height="200"
+                  class="content-table edit-table"
                   style="width: 100%">
                   <el-table-column
-                    prop="processSequence"
                     label="工序序号"
                     show-overflow-tooltip>
+                    <template scope="scope">
+                      <div>
+                        <div @click="showInput(right.page1.processes, scope.$index, 'processSequenceEdit')">
+                          <div class="ellipsis">{{ scope.row.processSequence }}</div>
+                          <el-input size="mini" v-model="scope.row.processSequence" @focus="showInput(right.page1.processes, scope.$index, 'processSequenceEdit')" @blur="scope.row.processSequenceEdit = false" :style="{opacity: scope.row.processSequenceEdit ? 1 : 0}"/>
+                        </div>
+                      </div>
+                    </template>
                   </el-table-column>
                   <el-table-column
-                    prop="name"
                     label="工序名称"
                     show-overflow-tooltip>
+                    <template scope="scope">
+                      <div>
+                        <div @click="showInput(right.page1.processes, scope.$index, 'nameEdit')">
+                          <div class="ellipsis">{{ scope.row.name }}</div>
+                          <el-autocomplete
+                            class="inline-input"
+                            v-model="scope.row.name"
+                            :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.process, 'name')"
+                            valueKey="name"
+                            value="mrProcessId"
+                            placeholder="请输入内容"
+                            @focus="showInput(right.page1.processes, scope.$index, 'nameEdit')"
+                            @blur="scope.row.nameEdit = false"
+                            :style="{opacity: scope.row.nameEdit ? 1 : 0}"
+                            @select="itemc => scope.row.processId = itemc.mrProcessId"
+                          ></el-autocomplete>
+                        </div>
+                      </div>
+                    </template>
                   </el-table-column>
                   <el-table-column
-                    prop="processContent"
                     label="加工工序内容"
                     show-overflow-tooltip>
+                    <template scope="scope">
+                      <div>
+                        <div @click="showInput(right.page1.processes, scope.$index, 'processContentEdit')">
+                          <div class="ellipsis">{{ scope.row.processContent }}</div>
+                          <el-autocomplete
+                            class="inline-input"
+                            v-model="scope.row.processContent"
+                            :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.sysCode, 'codeName')"
+                            valueKey="codeName"
+                            value="codeValue"
+                            placeholder="请输入内容"
+                            @focus="showInput(right.page1.processes, scope.$index, 'processContentEdit')"
+                            @blur="scope.row.processContentEdit = false"
+                            :style="{opacity: scope.row.processContentEdit ? 1 : 0}"
+                            @select="itemc => scope.row.processContentValue = itemc.codeValue"
+                          ></el-autocomplete>
+                        </div>
+                      </div>
+                    </template>
                   </el-table-column>
                   <el-table-column
                     label="是否委外"
                     show-overflow-tooltip>
                     <template slot-scope="scope">
-                      {{scope.row.isOutsource ? '是' : '否'}}
+                      <div>
+                        <div @click="showInput(right.page1.processes, scope.$index, 'nameEdit')">
+                          <div class="ellipsis">
+                            {{ 
+                              scope.row.isOutsource == 1 ? '是' : (
+                                 scope.row.isOutsource == 0 ? '否' : ''
+                              )
+                            }}
+                          </div>
+                          <el-select
+                            v-model="scope.row.isOutsource"
+                            placeholder="请选择"
+                            :style="{opacity: scope.row.isOutsourceEdit ? 1 : 0}"
+                            @focus="showInput(right.page1.processes, scope.$index, 'isOutsourceEdit')"
+                            @blur="scope.row.isOutsourceEdit = false">
+                            <el-option
+                              v-for="itemc in $dict.outsourceList"
+                              :key="itemc.value"
+                              :label="itemc.label"
+                              :value="itemc.value">
+                            </el-option>
+                          </el-select>
+                        </div>
+                      </div>
                     </template>
                   </el-table-column>
                   <el-table-column
-                    prop="estimationWorkTime"
                     label="估工(H)"
                     show-overflow-tooltip>
+                    <template scope="scope">
+                      <div>
+                        <div @click="showInput(right.page1.processes, scope.$index, 'estimationWorkTimeEdit')">
+                          <div class="ellipsis">{{ scope.row.estimationWorkTime }}</div>
+                          <el-input size="mini" v-model="scope.row.estimationWorkTime" @focus="showInput(right.page1.processes, scope.$index, 'estimationWorkTimeEdit')" @blur="scope.row.estimationWorkTimeEdit = false" :style="{opacity: scope.row.estimationWorkTimeEdit ? 1 : 0}"/>
+                        </div>
+                      </div>
+                    </template>
                   </el-table-column>
                   <el-table-column
-                    prop="operator"
                     label="操作者"
                     show-overflow-tooltip>
+                    <template scope="scope">
+                      <div>
+                        <div @click="showInput(right.page1.processes, scope.$index, 'operatorEdit')">
+                          <div class="ellipsis">{{ scope.row.operator }}</div>
+                          <el-autocomplete
+                            class="inline-input"
+                            v-model="scope.row.operator"
+                            :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.operator, 'codeName')"
+                            valueKey="codeName"
+                            value="codeValue"
+                            placeholder="请输入内容"
+                            @focus="showInput(right.page1.processes, scope.$index, 'operatorEdit')"
+                            @blur="scope.row.operatorEdit = false"
+                            :style="{opacity: scope.row.operatorEdit ? 1 : 0}"
+                          ></el-autocomplete>
+                        </div>
+                      </div>
+                    </template>
                   </el-table-column>
                 </el-table>
               </p>
@@ -207,13 +298,6 @@
       }
     },
     methods: {
-      getStuffList() { //获取材料列表
-
-        this.$utils.getJson(this.$utils.CONFIG.api.stuff, (res) => {
-
-          this.right.stuff = res.data || [];
-        }, () => this.right.stuff = [], {})
-      },
       getLeftList() { //获取版本列表
 
         let params = {
@@ -235,17 +319,18 @@
         }, () => this.left.isLoading = false, params)
       },
       getDetail(currentData) {
-
+        
         let params = {
           mrCraftRouteLineId: currentData.mrCraftRouteLineId,
-          versionNo: currentData.componentVersionNo,
+          versionNo: currentData.craftVersionNo,
         }
 
         this.right.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryVersionDetail, (res) => { //版本详情 
 
-          this.right.page1 = res.data ? res.data[0] : {};
           this.right.isLoading = false;
+          this.right.page1 = res.data || {};
+          
         }, () => this.right.isLoading = false, params);
       },
       handleSelect(item) {
@@ -258,6 +343,7 @@
 
         let params = [{
             fileId: res.data[0].fileId,
+            fileName: res.data[0].fileName,
             mrCraftRouteLineVersionId: this.currentData.mrCraftRouteLineVersionId
           }]
         this.$utils.getJson(this.$utils.CONFIG.api.saveCraftAttachment, (response) => { //版本详情 
@@ -282,8 +368,8 @@
         let params = {
           saleOrderId: this.component.mrSaleOrderId,
           customerId: this.component.customerId,
-          versionNo: this.currentData.componentVersionNo,
-          drawingVersionNo: this.currentData.drawingVersionNo,
+          versionNo: this.right.page1.craftVersionNo,
+          drawingVersionNo: this.right.page1.drawingVersionNo,
           stuffId: this.right.page1.stuffId,
           length: this.right.page1.length,
           width: this.right.page1.width,
@@ -305,14 +391,16 @@
 
         this.right.page1.processes.map(item => { //工艺列表
 
-          params.processes.push({
-            processSequence: item.processSequence,
-            processId: item.processId,
-            processContent: item.processContent,
-            isOutsource: item.isOutsource,
-            estimationWorkTime: item.estimationWorkTime,
-            operator: item.operator
-          })
+          if(item.processSequence && item.processId) {
+            params.processes.push({
+              processSequence: item.processSequence,
+              processId: item.processId,
+              processContent: item.processContentValue,
+              isOutsource: item.isOutsource,
+              estimationWorkTime: item.estimationWorkTime,
+              operator: item.operator
+            })
+          }
         })
 
         this.right.isLoading = true;
@@ -332,7 +420,9 @@
       if(!component) return;
       this.component = JSON.parse(component);
 
-      this.getStuffList();
+      this.getList(this.$utils.CONFIG.api.stuff, this.right, 'stuff'); //获取材料列表
+      this.getList(this.$utils.CONFIG.api.process, this.right, 'process'); //获取工序名称列表
+      this.getList(this.$utils.CONFIG.api.sysCode, this.right, 'sysCode'); //获取工序内容列表
       this.getLeftList();
     }
   };

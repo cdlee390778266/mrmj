@@ -9,7 +9,7 @@
         & > div {
           position: relative;
           height: 23px;
-          .el-input {
+          .el-input, .el-autocomplete, .el-select {
             position: absolute;
             top: 0;
             left: 0;

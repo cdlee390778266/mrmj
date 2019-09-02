@@ -205,12 +205,12 @@
       <div v-loading="handle.add.isLoading">
         <el-form :model="handle.add.form" label-width="100px">
           <el-row class="pdtb10 borb">
-            <el-col :span="8">模具号：{{handle.add.data[0] && handle.add.data[0].mouldNo}}</el-col>
-            <el-col :span="8">客户：{{handle.add.data[0] && handle.add.data[0].name}}</el-col>
-            <el-col :span="8">交期：{{handle.add.data[0] && handle.add.data[0].deliveryDate}}</el-col>
+            <el-col :span="8">模具号：{{handle.add.order && handle.add.order.mouldNo}}</el-col>
+            <el-col :span="8">客户：{{handle.add.order && handle.add.order.name}}</el-col>
+            <el-col :span="8">交期：{{handle.add.order && handle.add.order.mouldNo}}</el-col>
           </el-row>
           <div class="dialog-content pdt10 pdlr10 mglr10 bgfff">
-            <div class="mgb10" :class="{borb: handle.add.data && (index != handle.add.data.length - 1)}" v-for="(item, index) in handle.add.data" :key="index">
+            <div class="mgb10" :class="{borb: handle.add.data && (index != handle.add.data.length - 1)}" v-for="(item, index) in handle.add.data" :key="index" >
               <el-row>
                 <el-col :span="24" class="mgb10">
                   <span class="mgr40">序号：{{item.processSequence}}</span>
@@ -348,7 +348,15 @@
         this.$utils.getJson(this.$utils.CONFIG.api.queryProductionOrderInfo, (res) => {
 
           this.handle.add.isLoading = false;
-          this.handle.add.data = res.data || [];
+          if(res.data && res.data.length) {
+
+            this.handle.add.data = res.data;
+          }else {
+
+            this.handle.add.data = [];
+            this.handle.add.dialogVisible = false;
+            this.$utils.showTip('warning', 'error', '-1041');
+          }
         }, () => this.handle.add.isLoading = false, params);
       },
       addOrder(saveAsDraft = false) {  //下达生产订单, saveAsDraft=false为下达生产订单;saveAsDraft=true为保存为草稿
@@ -407,7 +415,8 @@
           mouldNo: this.currentData.mouldNo,
           name: this.currentData.name,
           completionDate: this.currentData.completionDate,
-          customerPoNo: this.currentData.customerPoNo
+          customerPoNo: this.currentData.customerPoNo,
+          selections: this.right.page2.selections
         };
         let time = new Date().getTime();
         this.right.page2.selections.map((item, index) => {

@@ -106,6 +106,13 @@ let leftMixin = {
         this.left[loadingKey] = false;
       }, () => this.left[loadingKey] = false, params)
     },
+    getList(url, obj, key) {
+
+    	this.$utils.getJson(url, (res) => {
+ 
+        obj[key] = res.data || [];
+      }, () => obj[key] = [], {})
+    },
 		selectType(item) {
 
 			this.filter.selectedValue = item.value;
@@ -186,7 +193,25 @@ let leftMixin = {
     search() {
       this.left.page.pageNo = 1;
       this.getLeftList();
-    }
+    },
+    showInput(list, index, key, defaultObj = {}) {
+    	
+    	this.$set(list[index], key, true);
+      if(list.length -1 == index) list.push(Object.assign({}, defaultObj))
+    },
+  	querySearch(queryString, cb, list, valueKey = 'name') {
+  		
+      var restaurants = list;
+      var results = queryString ? restaurants.filter(this.createFilter(queryString, valueKey)) : restaurants;
+      // 调用 callback 返回建议列表的数据
+
+      cb(results);
+    },
+    createFilter(queryString, valueKey) {
+      return (restaurant) => {
+        return (restaurant[valueKey].toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
+    },
 	},
 	mounted() {
 		let _this = this;
