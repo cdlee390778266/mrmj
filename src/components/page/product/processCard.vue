@@ -67,9 +67,15 @@
               <p><strong>下料清单</strong></p>
               <p>
                 <span class="mgl20">材料：
-                  <el-select size="mini" v-model="right.page1.stuffId" placeholder="请选择" style="width: 100px;">
-                    <el-option v-for="(itemc, index) in right.stuff" :key="index" :label="itemc.stuffNo" :value="itemc.mrStuffId"></el-option>
-                  </el-select>
+                  <el-autocomplete
+                    style="width: 100px;"
+                    class="inline-input"
+                    v-model="right.page1.stuffNo"
+                    :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.stuff, 'stuffNo')"
+                    valueKey="stuffNo"
+                    value="stuffNo"
+                    placeholder="请输入内容"
+                  ></el-autocomplete>
                 </span>
                 <span class="mgl20">下料尺寸(净尺寸mm)：
                   <el-input size="mini" v-model="right.page1.length" style="width: 70px" placeholder="长"/>
@@ -122,12 +128,11 @@
                             v-model="scope.row.name"
                             :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.process, 'name')"
                             valueKey="name"
-                            value="mrProcessId"
+                            value="name"
                             placeholder="请输入内容"
                             @focus="showInput(right.page1.processes, scope.$index, 'nameEdit')"
                             @blur="scope.row.nameEdit = false"
                             :style="{opacity: scope.row.nameEdit ? 1 : 0}"
-                            @select="itemc => scope.row.processId = itemc.mrProcessId"
                           ></el-autocomplete>
                         </div>
                       </div>
@@ -138,19 +143,18 @@
                     show-overflow-tooltip>
                     <template scope="scope">
                       <div>
-                        <div @click="showInput(right.page1.processes, scope.$index, 'processContentEdit')">
-                          <div class="ellipsis">{{ scope.row.processContent }}</div>
+                        <div @click="showInput(right.page1.processes, scope.$index, 'processContentTextEdit')">
+                          <div class="ellipsis">{{ scope.row.processContentText }}</div>
                           <el-autocomplete
                             class="inline-input"
-                            v-model="scope.row.processContent"
+                            v-model="scope.row.processContentText"
                             :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.sysCode, 'codeName')"
                             valueKey="codeName"
-                            value="codeValue"
+                            value="codeName"
                             placeholder="请输入内容"
-                            @focus="showInput(right.page1.processes, scope.$index, 'processContentEdit')"
-                            @blur="scope.row.processContentEdit = false"
-                            :style="{opacity: scope.row.processContentEdit ? 1 : 0}"
-                            @select="itemc => scope.row.processContentValue = itemc.codeValue"
+                            @focus="showInput(right.page1.processes, scope.$index, 'processContentTextEdit')"
+                            @blur="scope.row.processContentTextEdit = false"
+                            :style="{opacity: scope.row.processContentTextEdit ? 1 : 0}"
                           ></el-autocomplete>
                         </div>
                       </div>
@@ -198,7 +202,7 @@
                       </div>
                     </template>
                   </el-table-column>
-                  <el-table-column
+                  <!-- <el-table-column
                     label="操作者"
                     show-overflow-tooltip>
                     <template scope="scope">
@@ -219,7 +223,7 @@
                         </div>
                       </div>
                     </template>
-                  </el-table-column>
+                  </el-table-column> -->
                 </el-table>
               </p>
               <p>
@@ -231,14 +235,15 @@
                   v-model="right.page1.processDescription">
                 </el-input>
               </p>
-              <p><strong>工艺附件</strong></p>
-              <p>
-                上传工艺附件：
-                <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
-                  <el-button size="mini" type="primary">上传图纸</el-button>
-                  <input type="file" name="file" ref="file" class="posFull opacity0" @change="uploadFile">
-                </span>
-              </p>
+              <template v-if="left.list && left.list.length">
+                <p><strong>工艺附件</strong></p>
+                <p>
+                  上传工艺附件：
+                  <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
+                    <el-button size="mini" type="primary">上传图纸</el-button>
+                    <input type="file" name="file" ref="file" class="posFull opacity0" @change="uploadFile">
+                  </span>
+                </p>
                 <el-table
                   :data="right.page1.attachments"
                   border
@@ -262,7 +267,7 @@
                     </template>
                   </el-table-column>
                 </el-table>
-              </p>
+              </template>
             </div>
           </div>
         </div>
@@ -307,15 +312,21 @@
         this.left.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryComponentVersion, (res) => {
 
-          this.left.list = res.data;
-         
+          this.left.isLoading = false;
+          this.left.list = res.data || [];
+
           if(this.left.list && this.left.list.length) {
 
             this.left.activeId = `${this.left.list[0].mrCraftRouteLineVersionId}_${this.left.list[0].versionNo}`;
             this.currentData = this.left.list[0];
             this.getDetail(this.currentData);
+          }else {
+
+            this.right.page1 = {
+              components: [{}],
+              processes: [{}]
+            }
           }
-          this.left.isLoading = false;
         }, () => this.left.isLoading = false, params)
       },
       getDetail(currentData) {
@@ -365,17 +376,27 @@
       },
       save() {
 
+        if(!this.right.page1.craftVersionNo) { //如果没有输入工艺路线版本号
+          this.$utils.showTip('warning', 'error', '-1043');
+          return;
+        }
+
+        if(this.left.list.filter(item => this.right.page1.craftVersionNo == item.craftVersionNo).length) { //如果工艺路线版本号已存在
+          this.$utils.showTip('warning', 'error', '-1044');
+          return;
+        }
+
         let params = {
           saleOrderId: this.component.mrSaleOrderId,
           customerId: this.component.customerId,
           versionNo: this.right.page1.craftVersionNo,
-          drawingVersionNo: this.right.page1.drawingVersionNo,
-          stuffId: this.right.page1.stuffId,
-          length: this.right.page1.length,
-          width: this.right.page1.width,
-          height: this.right.page1.height,
-          remark: this.right.page1.remark,
-          processDescription: this.right.page1.processDescription,
+          drawingVersionNo: this.right.page1.drawingVersionNo || '',
+          stuffNo: this.right.page1.stuffNo || '',
+          length: this.right.page1.length || 0,
+          width: this.right.page1.width || 0,
+          height: this.right.page1.height || 0,
+          remark: this.right.page1.remark || '',
+          processDescription: this.right.page1.processDescription || '',
           components: [],
           processes: []
         }
@@ -391,11 +412,11 @@
 
         this.right.page1.processes.map(item => { //工艺列表
 
-          if(item.processSequence && item.processId) {
+          if(item.processSequence && item.name) {
             params.processes.push({
               processSequence: item.processSequence,
-              processId: item.processId,
-              processContent: item.processContentValue,
+              name: item.name,
+              processContentText: item.processContentText,
               isOutsource: item.isOutsource,
               estimationWorkTime: item.estimationWorkTime,
               operator: item.operator
@@ -407,7 +428,8 @@
         this.$utils.getJson(this.$utils.CONFIG.api.designCraftRouteLine, (res) => { //版本详情 
 
           this.right.isLoading = false;
-          this.showTip('success', 'success', '102');
+          this.$utils.showTip('success', 'success', '102');
+          this.$router.push('/product/technology');
         }, () => this.right.isLoading = false, params);
       },
       refresh() {}

@@ -90,10 +90,10 @@ let leftMixin = {
 
         if(loadingKey == 'isLoadingMore') {
 
-          this.left.list = this.left.list.concat(res.data.content);
+          this.left.list = this.left.list.concat(res.data.content || res.data);
         }else {
 
-          this.left.list = res.data.content;
+          this.left.list = res.data.content || res.data;
         }
         this.left.page.totalPages = res.data.totalPages;
         
@@ -209,7 +209,7 @@ let leftMixin = {
     },
     createFilter(queryString, valueKey) {
       return (restaurant) => {
-        return (restaurant[valueKey].toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+        return (restaurant[valueKey] && restaurant[valueKey].toLowerCase().indexOf(queryString.toLowerCase()) === 0);
       };
     },
 	},

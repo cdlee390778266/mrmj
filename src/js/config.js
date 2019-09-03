@@ -63,6 +63,11 @@ const CONFIG = {
 		saveCraftAttachment: baseUrl + 'requirement/productionOrder/saveCraftAttachment', //生产--存储上传的文件
 		deleteCraftAttachment: baseUrl + 'requirement/productionOrder/deleteCraftAttachment', //生产--删除本地文件信息
 		
+		queryNoDealEleOrCNC: baseUrl + 'requirement/productionOrder/queryNoDealEleOrCNC', //生产--待设计电极与待处理CNC编程查询
+		applyElectrodeDesignTasks: baseUrl + 'electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
+		applyElectrodeDesignTasks: baseUrl + 'electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
+		applyElectrodeDesignTasks: baseUrl + 'electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
+		applyElectrodeDesignTasks: baseUrl + 'electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
 
 		applyElectrodeDesignTasks: baseUrl + 'electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
 		designElectrodeDesignTasks: baseUrl + 'electrodeOrder/designElectrodeDesignTasks', //生产--设计电极任务
@@ -91,7 +96,10 @@ const CONFIG = {
 		'-1031': '请输入密码！',
 		'-1032': '请输入6-20位密码！',
 		'-1040': '请选择一个或多个零件，制定工艺。当选择多个零件时，表示对所选的多个零件制定相同的工艺。',
-		'-1041': '请制定工艺！',
+		'-1041': '请先为未制定工艺的零件制定工艺！',
+		'-1042': '没有零件工艺！',
+		'-1043': '请输入工艺路线版本号！',
+		'-1044': '输入工艺路线版本号已存在，请重新输入！',
 	}
 }
 

@@ -122,7 +122,7 @@
                         <el-table-column prop="fileName" label="附件名称" show-overflow-tooltip></el-table-column>
                         <el-table-column width="100" label="操作">
                           <template slot-scope="scope">
-                            <a :href="`$utils.CONFIG.api.download/${scope.row.fileId}`" style="color: #3375AB;">下载</a>
+                            <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
                           </template>
                         </el-table-column>
                       </el-table>
@@ -186,7 +186,7 @@
                         <el-table-column prop="completionDate" label="完成日期" show-overflow-tooltip></el-table-column>
                         <el-table-column width="100" label="操作">
                           <template slot-scope="scope">
-                            <el-button type="text" @click="">编辑</el-button>
+                            <el-button type="text" @click="jump(scope.row)">编辑</el-button>
                             <el-button type="text" @click="deleteCraft(scope.row)">删除</el-button>
                           </template>
                         </el-table-column>
@@ -338,13 +338,18 @@
       },
       getOrderDetail(item) {  //生产订单详情
 
-        this.handle.add.order = item;
-        this.handle.add.dialogVisible = true;
+        if(item.isNeed) { //如果有未制定工艺的零件
+          this.$utils.showTip('warning', 'error', '-1041');
+          return;
+        }
 
         let params = {
           mrSaleOrderId: item.mrSaleOrderId
         }
-        
+
+        this.handle.add.order = item;
+        this.handle.add.dialogVisible = true;
+        this.handle.add.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryProductionOrderInfo, (res) => {
 
           this.handle.add.isLoading = false;
@@ -355,7 +360,7 @@
 
             this.handle.add.data = [];
             this.handle.add.dialogVisible = false;
-            this.$utils.showTip('warning', 'error', '-1041');
+            this.$utils.showTip('warning', 'error', '-1042');
           }
         }, () => this.handle.add.isLoading = false, params);
       },
@@ -401,8 +406,8 @@
 
         this.right.page2.selections = val;
       },
-      jump() {
-
+      jump(type = '', row) {
+        console.log(row)
         if(!this.right.page2.selections.length) {
           this.$utils.showTip('warning', 'error', '-1040');
           return;
