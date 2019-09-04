@@ -202,28 +202,6 @@
                       </div>
                     </template>
                   </el-table-column>
-                  <!-- <el-table-column
-                    label="操作者"
-                    show-overflow-tooltip>
-                    <template scope="scope">
-                      <div>
-                        <div @click="showInput(right.page1.processes, scope.$index, 'operatorEdit')">
-                          <div class="ellipsis">{{ scope.row.operator }}</div>
-                          <el-autocomplete
-                            class="inline-input"
-                            v-model="scope.row.operator"
-                            :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.operator, 'codeName')"
-                            valueKey="codeName"
-                            value="codeValue"
-                            placeholder="请输入内容"
-                            @focus="showInput(right.page1.processes, scope.$index, 'operatorEdit')"
-                            @blur="scope.row.operatorEdit = false"
-                            :style="{opacity: scope.row.operatorEdit ? 1 : 0}"
-                          ></el-autocomplete>
-                        </div>
-                      </div>
-                    </template>
-                  </el-table-column> -->
                 </el-table>
               </p>
               <p>
@@ -305,29 +283,34 @@
     methods: {
       getLeftList() { //获取版本列表
 
-        let params = {
-          componentNo: this.component.componentNos
-        }
+        if(this.component.type == 'edit') {  //如果是编辑
 
-        this.left.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryComponentVersion, (res) => {
-
-          this.left.isLoading = false;
-          this.left.list = res.data || [];
-
-          if(this.left.list && this.left.list.length) {
-
-            this.left.activeId = `${this.left.list[0].mrCraftRouteLineVersionId}_${this.left.list[0].versionNo}`;
-            this.currentData = this.left.list[0];
-            this.getDetail(this.currentData);
-          }else {
-
-            this.right.page1 = {
-              components: [{}],
-              processes: [{}]
-            }
+          let params = {
+            componentNo: this.component.componentNos
           }
-        }, () => this.left.isLoading = false, params)
+          this.left.isLoading = true;
+          this.$utils.getJson(this.$utils.CONFIG.api.queryComponentVersion, (res) => {
+
+            this.left.isLoading = false;
+            this.left.list = res.data || [];
+            if(this.left.list.length) {
+
+              this.left.activeId = `${this.left.list[0].mrCraftRouteLineVersionId}_${this.left.list[0].versionNo}`;
+              this.currentData = this.left.list[0];
+              this.getDetail(this.currentData);
+            }
+          }, () => this.left.isLoading = false, params)
+        }else { //如果是制定工艺
+          
+          this.component.components.map(item => {
+            item.quantity = item.requirementQuantity;
+          })
+          this.right.page1 = {
+            components: this.$utils.deepCopy(this.component.components),
+            processes: [{}]
+          }
+
+        }
       },
       getDetail(currentData) {
         

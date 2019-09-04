@@ -49,7 +49,7 @@
             <el-row>
               <el-col :span="24">数量：{{item.components | concatString('quantity')}}</span></el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="handle.design.dialogVisible = true">设计完成</a>
+                <a href="javascript: void(0);" @click="queryElectrodeComponentInfo(item)">设计完成</a>
                 <a href="javascript: void(0);" @click="getOrderDetail(item)">下达电极生产订单</a>
               </el-col>
             </el-row>
@@ -119,10 +119,7 @@
                   >
                     <el-table-column type="index" label="序号" width="50"></el-table-column>
                     <el-table-column prop="fileName" label="附件名称" show-overflow-tooltip></el-table-column>
-                    <el-table-column label="版本号" show-overflow-tooltip>
-                      <template slot-scope="scope">
-                        -
-                      </template>
+                    <el-table-column prop="versionNo" label="版本号" show-overflow-tooltip>
                     </el-table-column>
                     <el-table-column width="100" label="操作">
                       <template slot-scope="scope">
@@ -235,38 +232,37 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="零件电极设计与CNC编程任务完成确认" width="500px" :visible.sync="handle.design.dialogVisible">
-      <div v-loading="handle.design.isLoading">
+    <el-dialog title="零件电极设计与CNC编程任务完成确认" align="center" width="500px" :visible.sync="handle.design.dialogVisible">
+      <div v-loading="handle.design.isLoading" class="tl">
         <el-row>
           <el-col :span="24">
             <strong>零件信息</strong>
           </el-col>
           <el-col :span="12">
-            模具号：M-1901
+            模具号：{{handle.design.data.mouldNo | filterNull}}
           </el-col>
           <el-col :span="12">
-            客户：测试测试测试测试公司
+            客户：{{handle.design.data.name | filterNull}}
           </el-col>
           <el-col :span="24">
-            交期：2019.04.31
+            交期：{{handle.design.data.requireDeliveryDate | filterNull}}
           </el-col>
           <el-col :span="24">
-            零件号码：212/213/214/215
+            零件号码：{{handle.design.data.components | concatString('componentNo')}}
           </el-col>
           <el-col :span="24" class="mgt10">
             <strong>电极设计与CNC编程是否已经完成？</strong>
           </el-col>
           <el-col :span="24">
-            <el-checkbox-group v-model="handle.design.form.type">
-              <el-checkbox label="查修筋"></el-checkbox>
-              <el-checkbox label="查是否漏设计"></el-checkbox>
-              <el-checkbox label="查粗打齿"></el-checkbox>
-              <el-checkbox label="单向公差"></el-checkbox>
-            </el-checkbox-group>
+            {{handle.design.form.checkList}}
+            <el-checkbox label="查修筋" v-model="handle.design.form.checkReinforcement" :true-label="0" :false-label="1"></el-checkbox>
+            <el-checkbox label="查漏设计" v-model="handle.design.form.checkLeakDesign" :true-label="0" :false-label="1"></el-checkbox>
+            <el-checkbox label="查粗打齿" v-model="handle.design.form.checkRoughBeatingTeeth" :true-label="0" :false-label="1"></el-checkbox>
+            <el-checkbox label="单向公差" v-model="handle.design.form.unilateralTolerance" :true-label="0" :false-label="1"></el-checkbox>
           </el-col>
         </el-row>
         <div slot="footer" class="dialog-footer tr mgt30">
-          <el-button type="primary" @click="handle.design.dialogVisible = false">完成</el-button>
+          <el-button type="primary" @click="electrodeDesignCompletion">完成</el-button>
           <el-button type="primary" @click="handle.design.dialogVisible = false">返回</el-button>
         </div>
       </div>
@@ -281,20 +277,6 @@
     data() {
       return {
         defaultImg: require('../../../assets/img/spareParts.svg'),
-        left: {
-          list: [
-            {}
-          ]
-        },
-        right: {
-          page1: {},
-          page2: {
-            selections: [],
-            noMakeCraftList: [],
-            haveMakeCraftList: []
-          },
-          list: []
-        },
         handle: {
           add: {
             dialogVisible: false,
@@ -313,7 +295,10 @@
             isLoading: false,
             data: {},
             form: {
-              type: ''
+              checkLeakDesign: 1,
+              checkReinforcement: 1,
+              checkRoughBeatingTeeth: 1,
+              unilateralTolerance: 1
             }
           }
         }
@@ -333,24 +318,38 @@
 
         this.getData(this.$utils.CONFIG.api.queryNoDealEleOrCNC, params, 'mrElectrodeProductionOrderId', loadingKey);
       },
-      handleSelect(item, idKey = 'id') {
-      
-        this.left.activeId = item[idKey];
-        this.currentData= item;
-      },
-      getOrderDetail(item) {
+      queryElectrodeComponentInfo(item) {
 
-        this.handle.add.dialogVisible = true;
+        this.handle.design.dialogVisible = true;
 
         let params = {
-          mrSaleOrderId: item.mrSaleOrderId
+          mrElectrodeProductionOrderId: item.mrElectrodeProductionOrderId
         }
 
-        this.$utils.getJson(this.$utils.CONFIG.api.queryProductionOrderInfo, (res) => {
+        this.handle.design.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryElectrodeComponentInfo, (res) => {
 
-          this.handle.add.isLoading = false;
-          this.handle.add.data = res.data || {};
-        }, () => this.handle.add.isLoading = false, params);
+          this.handle.design.isLoading = false;
+          this.handle.design.data = res.data || {};
+        }, () => this.handle.design.isLoading = false, params);
+      },
+      electrodeDesignCompletion() {
+
+        let params = {
+          mrElectrodeProductionOrderId: this.handle.design.data.mrElectrodeProductionOrderId,
+          checkLeakDesign: this.handle.design.form.checkLeakDesign,
+          checkReinforcement: this.handle.design.form.checkReinforcement,
+          checkRoughBeatingTeeth: this.handle.design.form.checkRoughBeatingTeeth,
+          unilateralTolerance: this.handle.design.form.unilateralTolerance
+        }
+        
+        this.handle.design.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.electrodeDesignCompletion, (res) => {
+
+          this.handle.design.isLoading = false;
+          this.handle.design.dialogVisible = false;
+          this.$utils.showTip('success', 'success', '102');
+        }, () => this.handle.design.isLoading = false, params);
       },
       addProductionOrder() {  //下达生产订单
 

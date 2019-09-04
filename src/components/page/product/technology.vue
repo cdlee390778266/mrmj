@@ -140,7 +140,7 @@
                   <el-row v-show="right.page2.noMakeCraftList && right.page2.noMakeCraftList.length">
                     <el-col :span="24" class="mgb10 mgt10">
                       <strong>待制定订单零件列表</strong>
-                      <el-button type="primary" class="mgl10" @click="jump">选择下表零件，点我制定工艺</el-button>
+                      <el-button type="primary" class="mgl10" @click="jump('add')">选择下表零件，点我制定工艺</el-button>
                       <span>（选择多个零件，表示选择多个工艺相同零件一齐制定工艺）</span>
                     </el-col>
                     <el-col :span="24">
@@ -186,7 +186,7 @@
                         <el-table-column prop="completionDate" label="完成日期" show-overflow-tooltip></el-table-column>
                         <el-table-column width="100" label="操作">
                           <template slot-scope="scope">
-                            <el-button type="text" @click="jump(scope.row)">编辑</el-button>
+                            <el-button type="text" @click="jump('edit', scope.row)">编辑</el-button>
                             <el-button type="text" @click="deleteCraft(scope.row)">删除</el-button>
                           </template>
                         </el-table-column>
@@ -318,6 +318,14 @@
           this.right.isLoading = false;
         }, () => this.right.isLoading = false, params);
 
+        this.getCraftList();
+      },
+      getCraftList() {  //取得待制定订单零件列表与已制定工艺卡列表
+
+        let params = {
+          mrSaleOrderId: this.left.activeId
+        }
+
         this.$utils.getJson(this.$utils.CONFIG.api.queryNoMakeCraft, (res) => { //待制定订单零件列表
 
           this.right.page2.noMakeCraftList = res.data;
@@ -338,31 +346,27 @@
       },
       getOrderDetail(item) {  //生产订单详情
 
-        if(item.isNeed) { //如果有未制定工艺的零件
+        if(item.isCanIssued == 10) { //如果有未制定工艺的零件
           this.$utils.showTip('warning', 'error', '-1041');
           return;
-        }
+        }else if(item.isCanIssued == 20) { //还存在零件未制定工艺
+          this.$utils.showTip('warning', 'error', '-1042');
+          return;
+        }else if(item.isCanIssued == 30) {
 
-        let params = {
-          mrSaleOrderId: item.mrSaleOrderId
-        }
-
-        this.handle.add.order = item;
-        this.handle.add.dialogVisible = true;
-        this.handle.add.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryProductionOrderInfo, (res) => {
-
-          this.handle.add.isLoading = false;
-          if(res.data && res.data.length) {
-
-            this.handle.add.data = res.data;
-          }else {
-
-            this.handle.add.data = [];
-            this.handle.add.dialogVisible = false;
-            this.$utils.showTip('warning', 'error', '-1042');
+          let params = {
+            mrSaleOrderId: item.mrSaleOrderId
           }
-        }, () => this.handle.add.isLoading = false, params);
+
+          this.handle.add.order = item;
+          this.handle.add.dialogVisible = true;
+          this.handle.add.isLoading = true;
+          this.$utils.getJson(this.$utils.CONFIG.api.queryProductionOrderInfo, (res) => {
+
+            this.handle.add.isLoading = false;
+            this.handle.add.data = res.data;
+          }, () => this.handle.add.isLoading = false, params);
+        }
       },
       addOrder(saveAsDraft = false) {  //下达生产订单, saveAsDraft=false为下达生产订单;saveAsDraft=true为保存为草稿
 
@@ -406,33 +410,47 @@
 
         this.right.page2.selections = val;
       },
-      jump(type = '', row) {
-        console.log(row)
-        if(!this.right.page2.selections.length) {
+      jump(type = 'add', row = {}) {
+        
+        if(type == 'add' && !this.right.page2.selections.length) {
           this.$utils.showTip('warning', 'error', '-1040');
           return;
         }
         let obj = {
+          type: type,
           mrSaleOrderId: this.currentData.mrSaleOrderId,
           customerId: this.currentData.customerId,
-          componentNos: '',
-          requirementQuantitys: '',
           mouldNo: this.currentData.mouldNo,
           name: this.currentData.name,
+          componentNos: '',
+          requirementQuantitys: '',
           completionDate: this.currentData.completionDate,
           customerPoNo: this.currentData.customerPoNo,
-          selections: this.right.page2.selections
+          components: type == 'add' ? this.right.page2.selections : row
         };
-        let time = new Date().getTime();
-        this.right.page2.selections.map((item, index) => {
+        
+        if(type == 'add') {
+          this.right.page2.selections.map((item, index) => {
 
-          obj.componentNos += item.componentNo;
-          obj.requirementQuantitys += item.requirementQuantity;
-          if(index != this.right.page2.selections.length - 1) {
-            obj.componentNos+= '/';
-            obj.requirementQuantitys += '/';
-          }
-        });
+            obj.componentNos += item.componentNo;
+            obj.requirementQuantitys += item.requirementQuantity;
+            if(index != this.right.page2.selections.length - 1) {
+              obj.componentNos+= '/';
+              obj.requirementQuantitys += '/';
+            }
+          });
+        }else {
+          row.components && row.components.length && row.components.map((item, index) => {
+
+            obj.componentNos += item.componentNo;
+            obj.requirementQuantitys += item.quantity;
+            if(index != row.components.length - 1) {
+              obj.componentNos+= '/';
+              obj.requirementQuantitys += '/';
+            }
+          });
+        }
+        let time = new Date().getTime();
         localStorage.setItem(time, JSON.stringify(obj));
         this.$router.push(`/product/processCard/${time}`);
       },
@@ -442,7 +460,7 @@
         this.$utils.getJson(this.$utils.CONFIG.api.deleteCraftInfoById, (res) => {  
 
           this.right.isLoading = false;
-          this.right.page2.haveMakeCraftList = this.right.page2.haveMakeCraftList.filter(item => item.mrCraftRouteLineId != row.mrCraftRouteLineId);
+          this.getCraftList();
         }, () => this.right.isLoading = false, {mrCraftRouteLineId: row.mrCraftRouteLineId});
       },
       refresh() {}

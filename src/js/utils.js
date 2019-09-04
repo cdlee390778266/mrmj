@@ -181,6 +181,28 @@ Utils.checkModuleExistence = function(orgCode) {
 }
 
 /**
+ * 数组或对象深度拷贝
+ */
+Utils.deepCopy = function(o) {
+	if (o instanceof Array) {
+	    var n = [];
+	    for (var i = 0; i < o.length; ++i) {
+	        n[i] = Utils.deepCopy(o[i]);
+	    }
+	    return n;
+
+	} else if (o instanceof Object) {
+	    var n = {}
+	    for (var i in o) {
+	        n[i] = Utils.deepCopy(o[i]);
+	    }
+	    return n;
+	} else {
+	    return o;
+	}
+}
+
+/**
  * 按指定格式-格式化时间 如：new Date().Format('yyyy-MM-dd hh:mm:ss');
  * hasWeek用来显示是否显示星期
  */

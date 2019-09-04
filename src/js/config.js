@@ -64,15 +64,18 @@ const CONFIG = {
 		deleteCraftAttachment: baseUrl + 'requirement/productionOrder/deleteCraftAttachment', //生产--删除本地文件信息
 		
 		queryNoDealEleOrCNC: baseUrl + 'requirement/productionOrder/queryNoDealEleOrCNC', //生产--待设计电极与待处理CNC编程查询
-		applyElectrodeDesignTasks: baseUrl + 'electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
-		applyElectrodeDesignTasks: baseUrl + 'electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
-		applyElectrodeDesignTasks: baseUrl + 'electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
-		applyElectrodeDesignTasks: baseUrl + 'electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
+		queryElectrodeComponentInfo: baseUrl + 'requirement/electrodeOrder/queryElectrodeComponentInfo', //生产--电极设计完成页面查询
+		electrodeDesignCompletion: baseUrl + 'requirement/electrodeOrder/electrodeDesignCompletion', //生产--电极设计完成
+		applyElectrodeDesignTasks: baseUrl + 'requirement/electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
+		queryElectrodeNoById: baseUrl + 'requirement/electrodeOrder/queryElectrodeNoById', //生产--电极工艺版本列表查询
+		modifyEleInfo: baseUrl + 'requirement/electrodeOrder/modifyEleInfo', //生产--修改电极工艺版本列表信息
+		designElectrodeDesignTasks: baseUrl + 'requirement/electrodeOrder/designElectrodeDesignTasks', //生产--设计电极任务
+		saveEleAttachment: baseUrl + 'requirement/electrodeOrder/saveEleAttachment', //生产--存储电极附件
+		applyProgrammeTask: baseUrl + 'requirement/ electrodeOrder/applyProgrammeTask', //生产--申领编程任务
+		releasedElectrodeProductionOrder: baseUrl + 'requirement/electrodeOrder/releasedElectrodeProductionOrder', //生产--下达电极生产订单
+		processAssignWork: baseUrl + 'requirement/operationalPlan/processAssignWork', //生产--工序派工
 
-		applyElectrodeDesignTasks: baseUrl + 'electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
-		designElectrodeDesignTasks: baseUrl + 'electrodeOrder/designElectrodeDesignTasks', //生产--设计电极任务
-		applyProgrammeTasks: baseUrl + 'programmeTasks/applyProgrammeTasks', //生产--申领编程任务
-		releasedElectrodeProductionOrder: baseUrl + 'electrodeOrder/releasedElectrodeProductionOrder', //生产--下达电极生产订单
+		
 		
 	},
 	success: {
@@ -96,8 +99,8 @@ const CONFIG = {
 		'-1031': '请输入密码！',
 		'-1032': '请输入6-20位密码！',
 		'-1040': '请选择一个或多个零件，制定工艺。当选择多个零件时，表示对所选的多个零件制定相同的工艺。',
-		'-1041': '请先为未制定工艺的零件制定工艺！',
-		'-1042': '没有零件工艺！',
+		'-1041': '未制定零件工艺！',
+		'-1042': '还存在零件未制定工艺！',
 		'-1043': '请输入工艺路线版本号！',
 		'-1044': '输入工艺路线版本号已存在，请重新输入！',
 	}
