@@ -213,17 +213,17 @@
             <div class="mgb10" :class="{borb: handle.add.data && (index != handle.add.data.length - 1)}" v-for="(item, index) in handle.add.data" :key="index" >
               <el-row>
                 <el-col :span="24" class="mgb10">
-                  <span class="mgr40">序号：{{item.processSequence}}</span>
+                  <span class="mgr40">序号：{{index + 1}}</span>
                   <span class="mgr40">零件号码：{{item.components | concatString('componentNo')}}</span></span>
                   <span>数量：{{item.components | concatString('quantity')}}</span>
                 </el-col>
                 <el-col :span="24" class="mgb10">
                   <span class="mgr40">版本：
-                    <el-select style="width: 100px;" v-model="item.versionNo">
-                      <el-option v-for="(itemc, index) in item.versions" :key="index" :label="itemc.versionNo" :value="itemc.versionNo"></el-option>
+                    <el-select style="width: 100px;" v-model="item.selectedVersionNo">
+                      <el-option v-for="(itemc, index) in item.versions" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
                     </el-select>
                   </span>
-                  <span>材料：{{item.versions && item.versions.length && item.versions[0].stuffName}}</span>
+                  <span>材料：{{getSelectedVersionStuffNo(item.versions, item.selectedVersionNo)}}</span>
                 </el-col>
               </el-row>
               <div class="mgb20">
@@ -377,10 +377,19 @@
 
         this.handle.add.data.map(item => {  //取得选中的版本，如没选中则默认选中第一个
 
-          params.versions.push({
-            mrCraftRouteLineId: item.mrCraftRouteLineId,
-            versionNo: item.versionNo || 'A'
-          })
+          let obj = {
+            mrCraftRouteLineId: item.mrCraftRouteLineId
+          }
+          if(item.selectedVersionNo) {
+            obj.versionNo = item.selectedVersionNo;
+          }else {
+            if(item.versions && item.versions.length) {
+              obj.versionNo = item.versions[0].versionNo;
+            }else {
+              obj.versionNo = '';
+            }
+          }
+          params.versions.push(obj);
         })
         
         let url = saveAsDraft ? this.$utils.CONFIG.api.saveAsDraft : this.$utils.CONFIG.api.releasedProductionOrder;
@@ -390,20 +399,6 @@
           this.handle.add.isLoading = false;
           this.handle.add.dialogVisible = false;
           !saveAsDraft && this.search();
-        }, () => this.handle.add.isLoading = false, params);
-      },
-      addProductionOrder() {  //下达生产订单
-
-        let params = {
-          mrSaleOrderId: '',
-
-        }
-
-        this.$utils.getJson(this.$utils.CONFIG.api.releasedProductionOrder, (res) => { 
-
-          this.handle.add.isLoading = false;
-          this.showTip('success', 'success', '102');
-          this.search();
         }, () => this.handle.add.isLoading = false, params);
       },
       handleSelectionChange(val) {

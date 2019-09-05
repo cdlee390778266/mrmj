@@ -106,12 +106,12 @@ let leftMixin = {
         this.left[loadingKey] = false;
       }, () => this.left[loadingKey] = false, params)
     },
-    getList(url, obj, key) {
+    getList(url, obj, key, params = {}) {
 
     	this.$utils.getJson(url, (res) => {
  
         obj[key] = res.data || [];
-      }, () => obj[key] = [], {})
+      }, () => obj[key] = [], params)
     },
 		selectType(item) {
 
@@ -212,6 +212,19 @@ let leftMixin = {
         return (restaurant[valueKey] && restaurant[valueKey].toLowerCase().indexOf(queryString.toLowerCase()) === 0);
       };
     },
+    isExistenceVersion(versionList, value, key) {	//版本列表中是否存在版本号
+
+    	return versionList.find(item => item[key] == value);
+    },
+    getSelectedVersionStuffNo(versions, selectedVersionNo) {
+
+    	if(selectedVersionNo) {
+    		let selectedVersion = versions.find(itemc => itemc.versionNo == selectedVersionNo);
+    		return selectedVersion.stuffNo;
+    	}else {
+    		return '';
+    	} 	
+    }
 	},
 	mounted() {
 		let _this = this;

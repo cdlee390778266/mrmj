@@ -38,7 +38,7 @@
                   <div class="flex">图纸名称版本</div>
                 </div>
                 <div class="list-body">
-                  <div class="dflex" v-for="(item, index) in left.list" :key="index" :class="{active: left.activeId == `${item.mrCraftRouteLineVersionId}_${item.versionNo}`}" @click="handleSelect(item)">
+                  <div class="dflex" v-for="(item, index) in left.list" :key="index" :class="{active: left.activeId == item.mrCraftRouteLineVersionId}" @click="handleSelect(item)">
                     <div class="flex">{{item.craftVersionNo}}</div>
                     <div class="flex">{{item.drawingVersionNo}}</div>
                   </div>
@@ -213,7 +213,7 @@
                   v-model="right.page1.processDescription">
                 </el-input>
               </p>
-              <template v-if="left.list && left.list.length">
+              <template v-if="(component.type == 'edit') && isExistenceVersion(left.list, right.page1.craftVersionNo, 'craftVersionNo')">
                 <p><strong>工艺附件</strong></p>
                 <p>
                   上传工艺附件：
@@ -274,6 +274,7 @@
     data() {
       return {
         activeTab: "calc",
+        time: '',
         component: {},
         form: {
 
@@ -295,7 +296,7 @@
             this.left.list = res.data || [];
             if(this.left.list.length) {
 
-              this.left.activeId = `${this.left.list[0].mrCraftRouteLineVersionId}_${this.left.list[0].versionNo}`;
+              this.left.activeId = this.left.list[0].mrCraftRouteLineVersionId;
               this.currentData = this.left.list[0];
               this.getDetail(this.currentData);
             }
@@ -324,17 +325,20 @@
 
           this.right.isLoading = false;
           this.right.page1 = res.data || {};
-          
+          if(!this.right.page1.processes || !this.right.page1.processes.length) {
+            this.right.page1.processes = [{}]
+          }
         }, () => this.right.isLoading = false, params);
       },
       handleSelect(item) {
       
-        this.left.activeId = `${item.mrCraftRouteLineVersionId}_${item.versionNo}`;
+        this.left.activeId = item.mrCraftRouteLineVersionId;
         this.currentData= item;
         this.getDetail(this.currentData);
       },
       uploadSuccess(res) {
 
+        this.$refs.file.value = '';
         let params = [{
             fileId: res.data[0].fileId,
             fileName: res.data[0].fileName,
@@ -364,71 +368,109 @@
           return;
         }
 
-        if(this.left.list.filter(item => this.right.page1.craftVersionNo == item.craftVersionNo).length) { //如果工艺路线版本号已存在
-          this.$utils.showTip('warning', 'error', '-1044');
+        if(this.isExistenceVersion(this.left.list, this.right.page1.craftVersionNo, 'craftVersionNo') && this.currentData.craftVersionNo != this.right.page1.craftVersionNo) { //输入工艺路线版本号与选中工艺路线版本号不一致
+          this.$utils.showTip('warning', 'error', '-1045');
           return;
         }
 
-        let params = {
-          saleOrderId: this.component.mrSaleOrderId,
-          customerId: this.component.customerId,
-          versionNo: this.right.page1.craftVersionNo,
-          drawingVersionNo: this.right.page1.drawingVersionNo || '',
-          stuffNo: this.right.page1.stuffNo || '',
-          length: this.right.page1.length || 0,
-          width: this.right.page1.width || 0,
-          height: this.right.page1.height || 0,
-          remark: this.right.page1.remark || '',
-          processDescription: this.right.page1.processDescription || '',
-          components: [],
-          processes: []
+        let url = '';
+        let params = {}
+
+        if((this.component.type == 'edit') && this.isExistenceVersion(this.left.list, this.right.page1.craftVersionNo, 'craftVersionNo')) {
+
+          url = this.$utils.CONFIG.api.modifyCraftRouteLine;
+          params = {
+            mrCraftRouteLineVersionId: this.right.page1.mrCraftRouteLineVersionId,
+            versionNo: this.right.page1.craftVersionNo,
+            stuffNo: this.right.page1.stuffNo || '',
+            length: this.right.page1.length || 0,
+            width: this.right.page1.width || 0,
+            height: this.right.page1.height || 0,
+            remark: this.right.page1.remark || '',
+            processDescription: this.right.page1.processDescription || '',
+            components: [],
+            processes: []
+          }
+        }else {
+
+          url = this.$utils.CONFIG.api.designCraftRouteLine;
+          params = {
+            saleOrderId: this.component.mrSaleOrderId,
+            customerId: this.component.customerId,
+            versionNo: this.right.page1.craftVersionNo,
+            drawingVersionNo: this.right.page1.drawingVersionNo || '',
+            stuffNo: this.right.page1.stuffNo || '',
+            length: this.right.page1.length || 0,
+            width: this.right.page1.width || 0,
+            height: this.right.page1.height || 0,
+            remark: this.right.page1.remark || '',
+            processDescription: this.right.page1.processDescription || '',
+            components: [],
+            processes: []
+          }
         }
 
         this.right.page1.components.map(item => { //零件列表
 
-          params.components.push({
+          let obj = {
             componentNo: item.componentNo,
             quantity: item.quantity,
             stockingQuantity: item.stockingQuantity,
-          })
+          }
+          if((this.component.type == 'edit') && this.isExistenceVersion(this.left.list, this.right.page1.craftVersionNo, 'craftVersionNo')) {
+
+            obj.mrComponentCraftId = item.mrComponentCraftId
+          }
+          params.components.push(obj);
         })
 
         this.right.page1.processes.map(item => { //工艺列表
 
-          if(item.processSequence && item.name) {
-            params.processes.push({
+          if(item.processSequence && item.name && item.processContentText) {
+
+            let obj = {
               processSequence: item.processSequence,
               name: item.name,
               processContentText: item.processContentText,
               isOutsource: item.isOutsource,
               estimationWorkTime: item.estimationWorkTime,
               operator: item.operator
-            })
+            }
+            
+            if((this.component.type == 'edit') && this.isExistenceVersion(this.left.list, this.right.page1.craftVersionNo, 'craftVersionNo') && item.mrComponentCraftProcessId) {
+              obj.mrComponentCraftProcessId = item.mrComponentCraftProcessId
+            }
+            params.processes.push(obj);
           }
         })
 
         this.right.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.designCraftRouteLine, (res) => { //版本详情 
+        this.$utils.getJson(url, (res) => { //版本详情 
 
           this.right.isLoading = false;
           this.$utils.showTip('success', 'success', '102');
-          this.$router.push('/product/technology');
+          this.component.type = 'edit';
+          localStorage.setItem(this.time, JSON.stringify(this.component));
+          this.refresh();
         }, () => this.right.isLoading = false, params);
       },
-      refresh() {}
+      refresh() {
+
+        this.getList(this.$utils.CONFIG.api.stuff, this.right, 'stuff'); //获取材料列表
+        this.getList(this.$utils.CONFIG.api.process, this.right, 'process'); //获取工序名称列表
+        this.getList(this.$utils.CONFIG.api.sysCode, this.right, 'sysCode', {otherWhereClause: "codeType = 'processContent'"}); //获取工序内容列表
+        this.getLeftList();
+      }
     },
     
     created() {
 
       if(!this.$route.params.id) return;
-      let component = localStorage.getItem(this.$route.params.id);
+      this.time = this.$route.params.id;
+      let component = localStorage.getItem(this.time);
       if(!component) return;
       this.component = JSON.parse(component);
-
-      this.getList(this.$utils.CONFIG.api.stuff, this.right, 'stuff'); //获取材料列表
-      this.getList(this.$utils.CONFIG.api.process, this.right, 'process'); //获取工序名称列表
-      this.getList(this.$utils.CONFIG.api.sysCode, this.right, 'sysCode'); //获取工序内容列表
-      this.getLeftList();
+      this.refresh();
     }
   };
 </script>

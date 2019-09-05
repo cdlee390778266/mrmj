@@ -351,6 +351,10 @@
           this.$utils.showTip('success', 'success', '102');
         }, () => this.handle.design.isLoading = false, params);
       },
+      getOrderDetail(item) {
+
+        this.handle.add.dialogVisible = true;
+      },
       addProductionOrder() {  //下达生产订单
 
         let params = {
