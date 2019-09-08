@@ -49,8 +49,8 @@
             <el-row>
               <el-col :span="24">数量：{{item.components | concatString('quantity')}}</span></el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="queryElectrodeComponentInfo(item)">设计完成</a>
-                <a href="javascript: void(0);" @click="getOrderDetail(item)">下达电极生产订单</a>
+                <a href="javascript: void(0);" @click.stop="queryElectrodeComponentInfo(item)">设计完成</a>
+                <a href="javascript: void(0);" @click.stop="getOrderDetail(item)">下达电极生产订单</a>
               </el-col>
             </el-row>
           </div>
@@ -132,41 +132,45 @@
               <el-row class="mgt10 mgb40">
                 <el-col :span="24">
                   <strong>电极设计任务</strong>
-                  <el-button type="primary" class="mgl10" @click="applySpareParts" v-if="currentData.isElectrodeShow">申领</el-button>
+                  <el-button type="primary" class="mgl10" @click="applySpareParts('design', currentData.electrodeDesignTasks.mrElectrodeDesignTasksId, '电极设计任务')" v-if="currentData.electrodeDesignTasks && !currentData.electrodeDesignTasks.designer">申领</el-button>
+                  <el-button type="primary" class="mgl10" v-if="currentData.electrodeDesignTasks && currentData.electrodeDesignTasks.designer && currentData.electrodeDesignTasks.designer == userName" @click="jump">完成</el-button>
                 </el-col>
-                <el-col :span="24">
-                  <span>设计人员：Chen</span>
-                  <span>完成时间：进行中</span>
+                <el-col :span="24" v-if="currentData.electrodeDesignTasks && currentData.electrodeDesignTasks.designer">
+                  <span>设计人员：{{currentData.electrodeDesignTasks.designer}}</span>
+                  <span class="mgl20">完成时间：{{currentData.electrodeDesignTasks.completionDate}}</span>
                 </el-col>
               </el-row>
               <el-row class="mgt10 mgb40">
                 <el-col :span="24">
                   <strong>ELE编程任务</strong>
-                  <el-button type="primary" class="mgl10" v-if="currentData.isElectrodeShow">申领</el-button>
+                  <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && !currentData.eleProgram.designer" @click="applySpareParts('eleProgram', '', 'ELE编程任务')">申领</el-button>
+                  <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && currentData.eleProgram.designer && currentData.eleProgram.designer == userName">完成</el-button>
                 </el-col>
-                <el-col :span="24">
-                  <span>设计人员：Chen</span>
-                  <span>完成时间：进行中</span>
+                <el-col :span="24" v-if="currentData.eleProgram && currentData.eleProgram.designer">
+                  <span>设计人员：{{currentData.eleProgram.designer}}</span>
+                  <span class="mgl20">完成时间：{{currentData.eleProgram.completionDate}}</span>
                 </el-col>
               </el-row>
               <el-row class="mgt10 mgb40">
                 <el-col :span="24">
                   <strong>CNCV编程任务</strong>
-                  <el-button type="primary" class="mgl10" v-if="currentData.isCNCShow">申领</el-button>
+                  <el-button type="primary" class="mgl10" v-if="currentData.cncvProgram && !currentData.cncvProgram.designer" @click="applySpareParts('eleProgram', '', 'CNCV编程任务')">申领</el-button>
+                  <el-button type="primary" class="mgl10" v-if="currentData.cncvProgram && currentData.cncvProgram.designer && currentData.cncvProgram.designer == userName">完成</el-button>
                 </el-col>
-                <el-col :span="24">
-                  <span>设计人员：Chen</span>
-                  <span>完成时间：进行中</span>
+                <el-col :span="24" v-if="currentData.cncvProgram && currentData.cncvProgram.designer">
+                  <span>设计人员：{{currentData.cncvProgram.designer}}</span>
+                  <span class="mgl20">完成时间：{{currentData.cncvProgram.completionDate}}</span>
                 </el-col>
               </el-row>
               <el-row class="mgt10 mgb40">
                 <el-col :span="24">
                   <strong>CNCH编程任务</strong>
-                  <el-button type="primary" class="mgl10" v-if="currentData.isCNCShow">申领</el-button>
+                  <el-button type="primary" class="mgl10" v-if="currentData.cnchProgram && !currentData.cnchProgram.designer" @click="applySpareParts('eleProgram', '', 'CNCH编程任务')">申领</el-button>
+                  <el-button type="primary" class="mgl10" v-if="currentData.cnchProgram && currentData.cnchProgram.designer && currentData.cnchProgram.designer == userName">完成</el-button>
                 </el-col>
-                <el-col :span="24">
-                  <span>设计人员：Chen</span>
-                  <span>完成时间：进行中</span>
+                <el-col :span="24" v-if="currentData.eleProgram && currentData.eleProgram.designer">
+                  <span>设计人员：{{currentData.eleProgram.designer}}</span>
+                  <span class="mgl20">完成时间：{{currentData.eleProgram.completionDate}}</span>
                 </el-col>
               </el-row>
             </el-scrollbar>
@@ -177,11 +181,11 @@
 
     <el-dialog title="电极生产订单下达对话框" class="dialog-gray" :visible.sync="handle.add.dialogVisible">
       <div v-loading="handle.add.isLoading">
-        <el-form :model="handle.add.form" label-width="100px">
+        <el-form :model="handle.add.form" ref="form" label-width="100px">
           <el-row class="pdtb10 borb">
             <el-col :span="8">模具号：{{handle.add.order && handle.add.order.mouldNo}}</el-col>
             <el-col :span="8">客户：{{handle.add.order && handle.add.order.name}}</el-col>
-            <el-col :span="8">交期：{{handle.add.order && handle.add.order.mouldNo}}</el-col>
+            <el-col :span="8">交期：{{handle.add.order && handle.add.order.requireDeliveryDate}}</el-col>
           </el-row>
           <div class="dialog-content pdt10 pdlr10 mglr10 bgfff">
             <div class="mgb10" :class="{borb: handle.add.data && (index != handle.add.data.length - 1)}" v-for="(item, index) in handle.add.data" :key="index" >
@@ -254,16 +258,26 @@
             <strong>电极设计与CNC编程是否已经完成？</strong>
           </el-col>
           <el-col :span="24">
-            {{handle.design.form.checkList}}
-            <el-checkbox label="查修筋" v-model="handle.design.form.checkReinforcement" :true-label="0" :false-label="1"></el-checkbox>
-            <el-checkbox label="查漏设计" v-model="handle.design.form.checkLeakDesign" :true-label="0" :false-label="1"></el-checkbox>
-            <el-checkbox label="查粗打齿" v-model="handle.design.form.checkRoughBeatingTeeth" :true-label="0" :false-label="1"></el-checkbox>
-            <el-checkbox label="单向公差" v-model="handle.design.form.unilateralTolerance" :true-label="0" :false-label="1"></el-checkbox>
+            {{handle.design.data.checkList}}
+            <el-checkbox label="查修筋" v-model="handle.design.data.checkReinforcement" :true-label="0" :false-label="1"></el-checkbox>
+            <el-checkbox label="查漏设计" v-model="handle.design.data.checkLeakDesign" :true-label="0" :false-label="1"></el-checkbox>
+            <el-checkbox label="查粗打齿" v-model="handle.design.data.checkRoughBeatingTeeth" :true-label="0" :false-label="1"></el-checkbox>
+            <el-checkbox label="单向公差" v-model="handle.design.data.unilateralTolerance" :true-label="0" :false-label="1"></el-checkbox>
           </el-col>
         </el-row>
         <div slot="footer" class="dialog-footer tr mgt30">
           <el-button type="primary" @click="electrodeDesignCompletion">完成</el-button>
           <el-button type="primary" @click="handle.design.dialogVisible = false">返回</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog :title="`${handle.taskApply.title}申领确认框`" align="center" width="500px" :visible.sync="handle.taskApply.dialogVisible">
+      <div v-loading="handle.taskApply.isLoading" class="tl">
+        是否确定申领该零件电极的{{handle.taskApply.title}}?
+        <div slot="footer" class="dialog-footer tr mgt30">
+          <el-button type="primary" @click="applyElectrode">申领</el-button>
+          <el-button type="primary" @click="handle.taskApply.dialogVisible = false">返回</el-button>
         </div>
       </div>
     </el-dialog>
@@ -277,6 +291,7 @@
     data() {
       return {
         defaultImg: require('../../../assets/img/spareParts.svg'),
+        userName: this.$utils.getStorage(this.$utils.CONFIG.storageNames.usernameName),
         handle: {
           add: {
             dialogVisible: false,
@@ -293,12 +308,20 @@
           design: {
             dialogVisible: false,
             isLoading: false,
-            data: {},
-            form: {
+            data: {
               checkLeakDesign: 1,
               checkReinforcement: 1,
               checkRoughBeatingTeeth: 1,
               unilateralTolerance: 1
+            }
+          },
+          taskApply: {
+            title: '',
+            dialogVisible: false,
+            isLoading: false,
+            data: {},
+            form: {
+              
             }
           }
         }
@@ -318,8 +341,16 @@
 
         this.getData(this.$utils.CONFIG.api.queryNoDealEleOrCNC, params, 'mrElectrodeProductionOrderId', loadingKey);
       },
+      resetForm() {
+      
+        this.handle.design.datacheckLeakDesign = 1;
+        this.handle.design.datacheckReinforcement = 1;
+        this.handle.design.datacheckRoughBeatingTeeth = 1;
+        this.handle.design.dataunilateralToleranc = 1;
+      },
       queryElectrodeComponentInfo(item) {
 
+        this.resetForm();
         this.handle.design.dialogVisible = true;
 
         let params = {
@@ -337,10 +368,10 @@
 
         let params = {
           mrElectrodeProductionOrderId: this.handle.design.data.mrElectrodeProductionOrderId,
-          checkLeakDesign: this.handle.design.form.checkLeakDesign,
-          checkReinforcement: this.handle.design.form.checkReinforcement,
-          checkRoughBeatingTeeth: this.handle.design.form.checkRoughBeatingTeeth,
-          unilateralTolerance: this.handle.design.form.unilateralTolerance
+          checkLeakDesign: this.handle.design.data.checkLeakDesign,
+          checkReinforcement: this.handle.design.data.checkReinforcement,
+          checkRoughBeatingTeeth: this.handle.design.data.checkRoughBeatingTeeth,
+          unilateralTolerance: this.handle.design.data.unilateralTolerance
         }
         
         this.handle.design.isLoading = true;
@@ -351,46 +382,83 @@
           this.$utils.showTip('success', 'success', '102');
         }, () => this.handle.design.isLoading = false, params);
       },
-      getOrderDetail(item) {
+      getOrderDetail(item) {  //生产订单详情
 
-        this.handle.add.dialogVisible = true;
+        if(item.isCanIssued == 1) {
+          let params = {
+            mrElectrodeDesignTasksId: item.mrElectrodeProductionOrderId
+          }
+
+          this.handle.add.order = item;
+          this.handle.add.dialogVisible = true;
+          this.handle.add.isLoading = true;
+          this.$utils.getJson(this.$utils.CONFIG.api.queryElectrodeNoById, (res) => {
+
+            this.handle.add.isLoading = false;
+            this.handle.add.data = res.data;
+          }, () => this.handle.add.isLoading = false, params);
+        }else {
+
+          this.$utils.showTip('warning', 'error', '-1046');
+        }
       },
-      addProductionOrder() {  //下达生产订单
+      addOrder(saveAsDraft = false) {  //下达生产订单, saveAsDraft=false为下达生产订单;saveAsDraft=true为保存为草稿
 
         let params = {
-          mrSaleOrderId: ''
+          mrElectrodeDesignTasksId: '',
+          mrElectrodeProductionListOrderId: '',
+          electrodeNo: '',
+          quantity: '',
+          processes: [
+            {
+              mrElectrodeProcessProductionOrderId: '',
+              estimationWorkTime: ''
+            }
+          ]
         }
 
-        this.$utils.getJson(this.$utils.CONFIG.api.releasedProductionOrder, (res) => { 
+        let url = saveAsDraft ? this.$utils.CONFIG.api.saveEleAsModify : this.$utils.CONFIG.api.releasedElectrodeProductionOrder;
+
+        this.$utils.getJson(url, (res) => { 
 
           this.handle.add.isLoading = false;
-          this.showTip('success', 'success', '102');
-          this.search();
+          this.$utils.showTip('success', 'success', '102');
+          !saveAsDraft && this.search();
         }, () => this.handle.add.isLoading = false, params);
       },
-      applySpareParts() {
+      applySpareParts(type, id, title) {
         
-        this.$router.push(`/product/designElectrode`)
+        this.handle.taskApply.type = type;
+        this.handle.taskApply.id = id;
+        this.handle.taskApply.title = title;
+        this.handle.taskApply.dialogVisible = true;
+      },
+      applyElectrode() {
+
+        let params = {
+          mrElectrodeDesignTasksId: this.handle.taskApply.id,
+          designer: this.userName
+        }
+
+        let url = this.handle.taskApply.type == 'design' ? this.$utils.CONFIG.api.applyElectrodeDesignTasks : this.$utils.CONFIG.api.applyProgrammeTask;
+        this.handle.taskApply.isLoading = true;
+        this.$utils.getJson(url, (res) => { 
+
+          this.handle.taskApply.isLoading = false;
+          this.handle.taskApply.dialogVisible = false;
+          this.$utils.showTip('success', 'success', '103');
+        }, () => this.handle.taskApply.isLoading = false, params);
+      },
+      jump() {
+
+        let time = new Date().getTime();
+        this.$utils.setStorage(time, JSON.stringify(this.currentData));
+        this.$router.push(`/product/designElectrode/${time}`);
       },
       refresh() {}
     },
-    computed: {
-      componentNo() {
-
-        return (components) => {
-
-          let arr = [];
-          components.forEach(item => {
-
-            arr.push(item.componentNo);
-          })
-          
-          return arr.join('/');
-        }
-      }
-    },
     created() {
-      this.filter.typeList = this.filter.listType.product;
+
       this.getLeftList();
     }
   };

@@ -199,6 +199,10 @@ let leftMixin = {
     	this.$set(list[index], key, true);
       if(list.length -1 == index) list.push(Object.assign({}, defaultObj))
     },
+  	showObjInput(obj, key) {
+    	
+    	this.$set(obj, key, true);
+    },
   	querySearch(queryString, cb, list, valueKey = 'name') {
   		
       var restaurants = list;
