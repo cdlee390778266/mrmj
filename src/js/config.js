@@ -68,9 +68,11 @@ const CONFIG = {
 		electrodeDesignCompletion: baseUrl + 'requirement/electrodeOrder/electrodeDesignCompletion', //生产--电极设计完成
 		applyElectrodeDesignTasks: baseUrl + 'requirement/electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
 		queryElectrodeNoById: baseUrl + 'requirement/electrodeOrder/queryElectrodeNoById', //生产--电极工艺版本列表查询
+		saveEleAsModify: baseUrl + 'requirement/electrodeOrder/saveEleAsModify', //生产--删除电极工艺版本
 		modifyEleInfo: baseUrl + 'requirement/electrodeOrder/modifyEleInfo', //生产--修改电极工艺版本列表信息
 		designElectrodeDesignTasks: baseUrl + 'requirement/electrodeOrder/designElectrodeDesignTasks', //生产--设计电极任务
 		saveEleAttachment: baseUrl + 'requirement/electrodeOrder/saveEleAttachment', //生产--存储电极附件
+		deleteAttachment: baseUrl + 'requirement/attachment/deleteAttachment', //生产--删除本地电极附件
 		applyProgrammeTask: baseUrl + 'requirement/ electrodeOrder/applyProgrammeTask', //生产--申领编程任务
 		releasedElectrodeProductionOrder: baseUrl + 'requirement/electrodeOrder/releasedElectrodeProductionOrder', //生产--下达电极生产订单
 		processAssignWork: baseUrl + 'requirement/operationalPlan/processAssignWork', //生产--工序派工
@@ -82,7 +84,8 @@ const CONFIG = {
 		"1": "加载数据成功",
 		'101': "注册成功",
 		'102': '保存成功',
-		'103': '申领成功'
+		'103': '申领成功',
+		'104': '删除成功'
 	},
 	error: {
 		'-1': '加载数据失败，请检查网络！',

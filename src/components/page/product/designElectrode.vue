@@ -154,7 +154,7 @@
     </div>
     <div class="detail-footer tr">
       <el-button type="primary" @click="save">保存</el-button>
-      <el-button type="primary" @click="$router.push('/product/technology')">返 回</el-button>
+      <el-button type="primary" @click="$router.push('/product/task')">返 回</el-button>
     </div>
   </div>
 </template>
@@ -210,6 +210,9 @@
       
         this.left.activeId = index;
         this.currentData = item;
+        if(!this.currentData.processes || !this.currentData.processes.length) {
+          this.currentData.processes = [{}];
+        }
       },
       addVersion() {
 
@@ -240,7 +243,13 @@
           this.deleteVersionSuccess(index);
         }else {
 
+          this.left.isLoading = true;
+          this.$utils.getJson(this.$utils.CONFIG.api.saveEleAsModify, (res) => { //版本详情 
 
+            this.left.isLoading = false;
+            this.$utils.showTip('success', 'success', '104');
+            this.deleteVersionSuccess(index);
+          }, () => this.left.isLoading = false, {mrElectrodeProductionListOrderId: this.left.list[index].mrElectrodeProductionListOrderId}, 'post', true);
         }
       },
       uploadSuccess(res) {
@@ -261,9 +270,9 @@
       },
       deleteSuccess() {
 
-        this.$utils.getJson(this.$utils.CONFIG.api.deleteCraftAttachment, (response) => { //版本详情 
+        this.$utils.getJson(this.$utils.CONFIG.api.deleteAttachment, (response) => { //删除附件
           
-          this.right.page1.attachments = this.right.page1.attachments.filter(item => this.deleteRow.fileId != item.fileId);
+          this.currentData.attachments = this.currentData.attachments.filter(item => this.deleteRow.fileId != item.fileId);
         }, () => this.right.isLoading = false, {fileId: this.deleteRow.fileId});
       },
       save() {
@@ -282,7 +291,7 @@
           params = {
             mrElectrodeDesignTasksId: this.component.mrElectrodeDesignTasksId,
             electrodeNo: this.currentData.electrodeNo,
-            quantity: this.currentData.quantity || 0,
+            quantity: parseInt(this.currentData.quantity) || 0,
             processes: [],
             attachments: []
           }
@@ -292,7 +301,7 @@
           params = {
             mrElectrodeProductionListOrderId: this.currentData.mrElectrodeProductionListOrderId,
             electrodeNo: this.currentData.electrodeNo,
-            quantity: this.currentData.quantity || 0,
+            quantity: parseInt(this.currentData.quantity) || 0,
             processes: [],
             attachments: []
           }
@@ -305,7 +314,10 @@
             let obj = {
               processSequence: item.index,
               processName: item.processName,
-              estimationWorkTime: item.estimationWorkTime || 0,
+              estimationWorkTime: parseFloat(item.estimationWorkTime) || 0,
+            }
+            if(item.mrElectrodeProcessProductionOrderId) {
+              obj.mrElectrodeProcessProductionOrderId = item.mrElectrodeProcessProductionOrderId;
             }
             params.processes.push(obj);
           }

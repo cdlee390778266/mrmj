@@ -183,40 +183,29 @@
       <div v-loading="handle.add.isLoading">
         <el-form :model="handle.add.form" ref="form" label-width="100px">
           <el-row class="pdtb10 borb">
-            <el-col :span="8">模具号：{{handle.add.order && handle.add.order.mouldNo}}</el-col>
-            <el-col :span="8">客户：{{handle.add.order && handle.add.order.name}}</el-col>
-            <el-col :span="8">交期：{{handle.add.order && handle.add.order.requireDeliveryDate}}</el-col>
+            <el-col :span="24"><strong>电极列表</strong></el-col>
           </el-row>
           <div class="dialog-content pdt10 pdlr10 mglr10 bgfff">
             <div class="mgb10" :class="{borb: handle.add.data && (index != handle.add.data.length - 1)}" v-for="(item, index) in handle.add.data" :key="index" >
               <el-row>
-                <el-col :span="24" class="mgb10">
-                  <span class="mgr40">序号：{{item.processSequence}}</span>
-                  <span class="mgr40">零件号码：{{item.components | concatString('componentNo')}}</span></span>
-                  <span>数量：{{item.components | concatString('quantity')}}</span>
-                </el-col>
-                <el-col :span="24" class="mgb10">
-                  <span class="mgr40">版本：
-                    <el-select style="width: 100px;" v-model="item.versionNo">
-                      <el-option v-for="(itemc, index) in item.versions" :key="index" :label="itemc.versionNo" :value="itemc.versionNo"></el-option>
-                    </el-select>
-                  </span>
-                  <span>材料：{{item.versions && item.versions.length && item.versions[0].stuffName}}</span>
+                <el-col :span="24">
+                  <span class="mgr40">电极号：{{ item.electrodeNo }}</span>
+                  <span class="mgr40">数量：{{ item.quantity }}</span></span>
+                  <span>附件：<el-button type="text" v-for="(itemc, index) in item.attachments" :key="index" @click="down(itemc.fileId)">{{itemc.fileName}}</el-button></span>
                 </el-col>
               </el-row>
               <div class="mgb20">
-                <p>工序及估工：</p>
                 <table class="mrmj-table">
                   <thead>
                     <tr>
                       <th class="bge4e4e4">工序顺序</th>
-                      <th v-for="(itemc, index) in item.processes" :key="index">{{itemc.name}}</th>
+                      <th v-for="(itemc, index) in item.processes" :key="index">{{itemc.processName}}</th>
                       <th class="bge4e4e4">工时合计</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td class="bge4e4e4">估工（H）</td>
+                      <td class="bge4e4e4">估工(H)</td>
                       <th v-for="(itemc, index) in item.processes" :key="index">{{itemc.estimationWorkTime}}</th>
                       <th class="bge4e4e4">
                         {{item.processes | sum('estimationWorkTime')}}
@@ -382,11 +371,11 @@
           this.$utils.showTip('success', 'success', '102');
         }, () => this.handle.design.isLoading = false, params);
       },
-      getOrderDetail(item) {  //生产订单详情
+      getOrderDetail(item) {  //电极生产订单详情
 
         if(item.isCanIssued == 1) {
           let params = {
-            mrElectrodeDesignTasksId: item.mrElectrodeProductionOrderId
+            mrElectrodeDesignTasksId: item.mrElectrodeDesignTasksId
           }
 
           this.handle.add.order = item;
@@ -402,19 +391,10 @@
           this.$utils.showTip('warning', 'error', '-1046');
         }
       },
-      addOrder(saveAsDraft = false) {  //下达生产订单, saveAsDraft=false为下达生产订单;saveAsDraft=true为保存为草稿
+      addOrder(saveAsDraft = false) {  //下达生产订单, saveAsDraft=false为下达电极生产订单;saveAsDraft=true为保存为草稿
 
         let params = {
-          mrElectrodeDesignTasksId: '',
-          mrElectrodeProductionListOrderId: '',
-          electrodeNo: '',
-          quantity: '',
-          processes: [
-            {
-              mrElectrodeProcessProductionOrderId: '',
-              estimationWorkTime: ''
-            }
-          ]
+          mrElectrodeProductionOrderId: this.handle.add.order.mrElectrodeProductionOrderId
         }
 
         let url = saveAsDraft ? this.$utils.CONFIG.api.saveEleAsModify : this.$utils.CONFIG.api.releasedElectrodeProductionOrder;

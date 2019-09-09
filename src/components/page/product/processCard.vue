@@ -105,16 +105,9 @@
                   class="content-table edit-table"
                   style="width: 100%">
                   <el-table-column
+                    type="index"
                     label="工序序号"
-                    show-overflow-tooltip>
-                    <template scope="scope">
-                      <div>
-                        <div @click="showInput(right.page1.processes, scope.$index, 'processSequenceEdit')">
-                          <div class="ellipsis">{{ scope.row.processSequence }}</div>
-                          <el-input size="mini" v-model="scope.row.processSequence" @focus="showInput(right.page1.processes, scope.$index, 'processSequenceEdit')" @blur="scope.row.processSequenceEdit = false" :style="{opacity: scope.row.processSequenceEdit ? 1 : 0}"/>
-                        </div>
-                      </div>
-                    </template>
+                    width="80">
                   </el-table-column>
                   <el-table-column
                     label="工序名称"
@@ -383,9 +376,9 @@
             mrCraftRouteLineVersionId: this.right.page1.mrCraftRouteLineVersionId,
             versionNo: this.right.page1.craftVersionNo,
             stuffNo: this.right.page1.stuffNo || '',
-            length: this.right.page1.length || 0,
-            width: this.right.page1.width || 0,
-            height: this.right.page1.height || 0,
+            length: parseFloat(this.right.page1.length) || 0,
+            width: parseFloat(this.right.page1.width) || 0,
+            height: parseFloat(this.right.page1.height) || 0,
             remark: this.right.page1.remark || '',
             processDescription: this.right.page1.processDescription || '',
             components: [],
@@ -400,9 +393,9 @@
             versionNo: this.right.page1.craftVersionNo,
             drawingVersionNo: this.right.page1.drawingVersionNo || '',
             stuffNo: this.right.page1.stuffNo || '',
-            length: this.right.page1.length || 0,
-            width: this.right.page1.width || 0,
-            height: this.right.page1.height || 0,
+            length: parseFloat(this.right.page1.length) || 0,
+            width: parseFloat(this.right.page1.width) || 0,
+            height: parseFloat(this.right.page1.height) || 0,
             remark: this.right.page1.remark || '',
             processDescription: this.right.page1.processDescription || '',
             components: [],
@@ -414,8 +407,8 @@
 
           let obj = {
             componentNo: item.componentNo,
-            quantity: item.quantity,
-            stockingQuantity: item.stockingQuantity,
+            quantity: parseInt(item.quantity) || 0,
+            stockingQuantity: parseInt(item.stockingQuantity) || 0,
           }
           if((this.component.type == 'edit') && this.isExistenceVersion(this.left.list, this.right.page1.craftVersionNo, 'craftVersionNo')) {
 
@@ -424,16 +417,16 @@
           params.components.push(obj);
         })
 
-        this.right.page1.processes.map(item => { //工艺列表
+        this.right.page1.processes.map((item, index) => { //工艺列表
 
-          if(item.processSequence && item.name && item.processContentText) {
+          if(item.name && item.processContentText) {
 
             let obj = {
-              processSequence: item.processSequence,
+              processSequence: index + 1,
               name: item.name,
               processContentText: item.processContentText,
               isOutsource: item.isOutsource,
-              estimationWorkTime: item.estimationWorkTime,
+              estimationWorkTime: parseFloat(item.estimationWorkTime) || 0,
               operator: item.operator
             }
             

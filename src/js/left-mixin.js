@@ -147,7 +147,11 @@ let leftMixin = {
 
         this.right.isLoading = false;
         typeof this.uploadSuccess == 'function' && this.uploadSuccess(res);
-      }, () => this.right.isLoading = false, formData, 'post', true);
+      }, () => {
+
+      	this.right.isLoading = false;
+      	this.$refs.file && (this.$refs.file.value = '');
+      }, formData, 'post', true);
     },
     uploadSuccess(res, formKey = 'update') {
 
