@@ -73,12 +73,11 @@ const CONFIG = {
 		designElectrodeDesignTasks: baseUrl + 'requirement/electrodeOrder/designElectrodeDesignTasks', //生产--设计电极任务
 		saveEleAttachment: baseUrl + 'requirement/electrodeOrder/saveEleAttachment', //生产--存储电极附件
 		deleteAttachment: baseUrl + 'requirement/attachment/deleteAttachment', //生产--删除本地电极附件
-		applyProgrammeTask: baseUrl + 'requirement/ electrodeOrder/applyProgrammeTask', //生产--申领编程任务
+		applyProgrammeTask: baseUrl + 'requirement/electrodeOrder/applyProgrammeTask', //生产--申领编程任务
 		releasedElectrodeProductionOrder: baseUrl + 'requirement/electrodeOrder/releasedElectrodeProductionOrder', //生产--下达电极生产订单
+		trackProductionOrder: baseUrl + 'requirement/productionOrder/trackProductionOrder', //生产--生产订单跟踪查询
 		processAssignWork: baseUrl + 'requirement/operationalPlan/processAssignWork', //生产--工序派工
-
-		
-		
+	
 	},
 	success: {
 		"1": "加载数据成功",

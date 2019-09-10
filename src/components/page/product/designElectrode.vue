@@ -312,7 +312,7 @@
           if(item.processName) {
 
             let obj = {
-              processSequence: item.index,
+              processSequence: index + 1,
               processName: item.processName,
               estimationWorkTime: parseFloat(item.estimationWorkTime) || 0,
             }

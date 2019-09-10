@@ -83,7 +83,7 @@ let leftMixin = {
 		}
 	},
 	methods: {
-		getData(url, params, idKey="id", loadingKey = 'isLoading', success = null) { //获取左侧列表数据
+		getData(url, params, idKey="id", loadingKey = 'isLoading', success = null, isSetCurrentData = false) { //获取左侧列表数据
 
       this.left[loadingKey] = true;
       this.$utils.getJson(url, (res) => {
@@ -99,9 +99,15 @@ let leftMixin = {
         
         if(this.left.list.length) {
 
-          this.left.activeId = this.left.list[0][idKey];
-          this.currentData = this.left.list[0];
-          typeof success == 'function' && success(this.left.activeId);
+        	if(!isSetCurrentData) {
+	          this.left.activeId = this.left.list[0][idKey];
+	          this.currentData = this.left.list[0];
+	          typeof success == 'function' && success(this.left.activeId);
+	        }else {
+
+	        	let index = this.left.list.findIndex(item => item[idKey] == this.left.activeId);
+	        	this.currentData = this.left.list[index];
+	        }
         }
         this.left[loadingKey] = false;
       }, () => this.left[loadingKey] = false, params)

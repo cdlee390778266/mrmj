@@ -132,7 +132,7 @@
               <el-row class="mgt10 mgb40">
                 <el-col :span="24">
                   <strong>电极设计任务</strong>
-                  <el-button type="primary" class="mgl10" @click="applySpareParts('design', currentData.electrodeDesignTasks.mrElectrodeDesignTasksId, '电极设计任务')" v-if="currentData.electrodeDesignTasks && !currentData.electrodeDesignTasks.designer">申领</el-button>
+                  <el-button type="primary" class="mgl10" @click="showDialog('taskApply', 'design', currentData.electrodeDesignTasks.mrElectrodeDesignTasksId, '电极设计任务')" v-if="currentData.electrodeDesignTasks && !currentData.electrodeDesignTasks.designer">申领</el-button>
                   <el-button type="primary" class="mgl10" v-if="currentData.electrodeDesignTasks && currentData.electrodeDesignTasks.designer && currentData.electrodeDesignTasks.designer == userName" @click="jump">完成</el-button>
                 </el-col>
                 <el-col :span="24" v-if="currentData.electrodeDesignTasks && currentData.electrodeDesignTasks.designer">
@@ -143,34 +143,142 @@
               <el-row class="mgt10 mgb40">
                 <el-col :span="24">
                   <strong>ELE编程任务</strong>
-                  <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && !currentData.eleProgram.designer" @click="applySpareParts('eleProgram', '', 'ELE编程任务')">申领</el-button>
+                  <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && !currentData.eleProgram.designer" @click="showDialog('taskApply', 'eleProgram', currentData.eleProgram.mrProgrammeTasksId, 'ELE编程任务')">申领</el-button>
                   <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && currentData.eleProgram.designer && currentData.eleProgram.designer == userName">完成</el-button>
+                  <el-button type="primary" class="mgl10" @click="showDialog('attachment', 'eleProgram', '', 'ELE')">编辑</el-button>
                 </el-col>
                 <el-col :span="24" v-if="currentData.eleProgram && currentData.eleProgram.designer">
                   <span>设计人员：{{currentData.eleProgram.designer}}</span>
                   <span class="mgl20">完成时间：{{currentData.eleProgram.completionDate}}</span>
+                  <div>
+                    <p>ELE编程上传附件</p>
+                    <el-table
+                      :data="left.list"
+                      border
+                      size="mini"
+                      class="content-table"
+                      style="width: 100%">
+                      <el-table-column
+                        type="index"
+                        label="序号"
+                        width="80">
+                      </el-table-column>
+                      <el-table-column
+                        prop="fileName"
+                        label="资料名称"
+                        show-overflow-tooltip>
+                      </el-table-column>
+                      <el-table-column
+                        prop="fileName"
+                        label="版本号"
+                        show-overflow-tooltip>
+                      </el-table-column>
+                      <el-table-column
+                        prop="operator"
+                        label="操作"
+                        width="120"
+                        align="center"
+                        show-overflow-tooltip>
+                        <template slot-scope="scope">
+                          <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </div>
                 </el-col>
               </el-row>
               <el-row class="mgt10 mgb40">
                 <el-col :span="24">
                   <strong>CNCV编程任务</strong>
-                  <el-button type="primary" class="mgl10" v-if="currentData.cncvProgram && !currentData.cncvProgram.designer" @click="applySpareParts('eleProgram', '', 'CNCV编程任务')">申领</el-button>
+                  <el-button type="primary" class="mgl10" v-if="currentData.cncvProgram && !currentData.cncvProgram.designer" @click="showDialog('taskApply', 'eleProgram', currentData.cncvProgram.mrProgrammeTasksId, 'CNCV编程任务')">申领</el-button>
                   <el-button type="primary" class="mgl10" v-if="currentData.cncvProgram && currentData.cncvProgram.designer && currentData.cncvProgram.designer == userName">完成</el-button>
+                  <el-button type="primary" class="mgl10" @click="showDialog('attachment', 'cncvProgram', '', 'CNCV')">编辑</el-button>
                 </el-col>
                 <el-col :span="24" v-if="currentData.cncvProgram && currentData.cncvProgram.designer">
                   <span>设计人员：{{currentData.cncvProgram.designer}}</span>
                   <span class="mgl20">完成时间：{{currentData.cncvProgram.completionDate}}</span>
+                  <div>
+                    <p>CNCV编程上传附件</p>
+                    <el-table
+                      :data="left.list"
+                      border
+                      size="mini"
+                      class="content-table"
+                      style="width: 100%">
+                      <el-table-column
+                        type="index"
+                        label="序号"
+                        width="80">
+                      </el-table-column>
+                      <el-table-column
+                        prop="fileName"
+                        label="资料名称"
+                        show-overflow-tooltip>
+                      </el-table-column>
+                      <el-table-column
+                        prop="fileName"
+                        label="版本号"
+                        show-overflow-tooltip>
+                      </el-table-column>
+                      <el-table-column
+                        prop="operator"
+                        label="操作"
+                        width="120"
+                        align="center"
+                        show-overflow-tooltip>
+                        <template slot-scope="scope">
+                          <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </div>
                 </el-col>
               </el-row>
               <el-row class="mgt10 mgb40">
                 <el-col :span="24">
                   <strong>CNCH编程任务</strong>
-                  <el-button type="primary" class="mgl10" v-if="currentData.cnchProgram && !currentData.cnchProgram.designer" @click="applySpareParts('eleProgram', '', 'CNCH编程任务')">申领</el-button>
+                  <el-button type="primary" class="mgl10" v-if="currentData.cnchProgram && !currentData.cnchProgram.designer" @click="showDialog('taskApply', 'eleProgram', currentData.cnchProgram.mrProgrammeTasksId, 'CNCH编程任务')">申领</el-button>
                   <el-button type="primary" class="mgl10" v-if="currentData.cnchProgram && currentData.cnchProgram.designer && currentData.cnchProgram.designer == userName">完成</el-button>
+                  <el-button type="primary" class="mgl10" @click="showDialog('attachment', 'cnchProgram', '', 'CNCH')">编辑</el-button>
                 </el-col>
                 <el-col :span="24" v-if="currentData.eleProgram && currentData.eleProgram.designer">
                   <span>设计人员：{{currentData.eleProgram.designer}}</span>
                   <span class="mgl20">完成时间：{{currentData.eleProgram.completionDate}}</span>
+                  <div>
+                    <p>CNCH编程上传附件</p>
+                    <el-table
+                      :data="left.list"
+                      border
+                      size="mini"
+                      class="content-table"
+                      style="width: 100%">
+                      <el-table-column
+                        type="index"
+                        label="序号"
+                        width="80">
+                      </el-table-column>
+                      <el-table-column
+                        prop="fileName"
+                        label="资料名称"
+                        show-overflow-tooltip>
+                      </el-table-column>
+                      <el-table-column
+                        prop="fileName"
+                        label="版本号"
+                        show-overflow-tooltip>
+                      </el-table-column>
+                      <el-table-column
+                        prop="operator"
+                        label="操作"
+                        width="120"
+                        align="center"
+                        show-overflow-tooltip>
+                        <template slot-scope="scope">
+                          <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </div>
                 </el-col>
               </el-row>
             </el-scrollbar>
@@ -206,7 +314,14 @@
                   <tbody>
                     <tr>
                       <td class="bge4e4e4">估工(H)</td>
-                      <th v-for="(itemc, index) in item.processes" :key="index">{{itemc.estimationWorkTime}}</th>
+                      <th v-for="(itemc, index) in item.processes" :key="index">
+                        <div class="edit">
+                          <div @click="showObjInput(itemc, 'estimationWorkTimeEdit')">
+                            <div class="ellipsis">{{ itemc.estimationWorkTime }}</div>
+                            <el-input size="mini" v-model="itemc.estimationWorkTime" @focus="showObjInput(itemc, 'estimationWorkTimeEdit')" @blur="itemc.estimationWorkTimeEdit = false" :style="{opacity: itemc.estimationWorkTimeEdit ? 1 : 0}"/>
+                          </div>
+                        </div>
+                      </th>
                       <th class="bge4e4e4">
                         {{item.processes | sum('estimationWorkTime')}}
                       </th>
@@ -270,6 +385,52 @@
         </div>
       </div>
     </el-dialog>
+
+    <el-dialog :title="`${handle.attachment.title}编程任务完成确认对话框`" align="center" width="500px" class="dialog-gray" :visible.sync="handle.attachment.dialogVisible">
+      <div v-loading="handle.attachment.isLoading" class="tl">
+        <div>
+          <p class="mgb10">
+            上传附件：
+            <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
+              <el-button size="mini" type="primary">上传附件</el-button>
+              <input type="file" name="file" ref="file" class="posFull opacity0" @change="uploadFile">
+            </span>
+          </p>
+          <el-table
+            :data="currentData.attachments"
+            border
+            size="mini"
+            max-height="200"
+            class="content-table"
+            style="width: 100%">
+            <el-table-column
+              prop="fileName"
+              label="本地文件名"
+              show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column
+              prop="fileName"
+              label="附件名称"
+              show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column
+              prop="operator"
+              label="操作"
+              width="120"
+              align="center"
+              show-overflow-tooltip>
+              <template slot-scope="scope">
+                <el-button type="text" @click="deleteFiles(scope.row.fileId, scope.row)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+        <div slot="footer" class="dialog-footer tr mgt30">
+          <el-button type="primary" @click="applyElectrode">申领</el-button>
+          <el-button type="primary" @click="handle.attachment.dialogVisible = false">返回</el-button>
+        </div>
+      </div>
+    </el-dialog>    
   </div>
 </template>
 
@@ -309,15 +470,19 @@
             dialogVisible: false,
             isLoading: false,
             data: {},
-            form: {
-              
-            }
+            form: {}
+          },
+          attachment: {
+            type: '',
+            dialogVisible: false,
+            isLoading: false,
+            data: []
           }
         }
       };
     },
     methods: {
-      getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
+      getLeftList(loadingKey = 'isLoading', isSetCurrentData = false) { //获取左侧列表数据
 
         let params = {
           parameter: '',
@@ -328,7 +493,7 @@
         }
         if(this.form.text) params.parameter = this.form.text;
 
-        this.getData(this.$utils.CONFIG.api.queryNoDealEleOrCNC, params, 'mrElectrodeProductionOrderId', loadingKey);
+        this.getData(this.$utils.CONFIG.api.queryNoDealEleOrCNC, params, 'mrElectrodeProductionOrderId', loadingKey, null, isSetCurrentData);
       },
       resetForm() {
       
@@ -402,31 +567,46 @@
         this.$utils.getJson(url, (res) => { 
 
           this.handle.add.isLoading = false;
+          this.handle.add.dialogVisible = false;
           this.$utils.showTip('success', 'success', '102');
           !saveAsDraft && this.search();
         }, () => this.handle.add.isLoading = false, params);
       },
-      applySpareParts(type, id, title) {
+      showDialog(formKey, type, id, title) {
         
-        this.handle.taskApply.type = type;
-        this.handle.taskApply.id = id;
-        this.handle.taskApply.title = title;
-        this.handle.taskApply.dialogVisible = true;
+        this.handle[formKey].type = type;
+        this.handle[formKey].id = id;
+        this.handle[formKey].title = title;
+        this.handle[formKey].dialogVisible = true;
       },
       applyElectrode() {
 
-        let params = {
-          mrElectrodeDesignTasksId: this.handle.taskApply.id,
-          designer: this.userName
+        let url = '';
+        let params = {}
+
+        if(this.handle.taskApply.type == 'design') {
+
+          url = this.$utils.CONFIG.api.applyElectrodeDesignTasks;
+          params = {
+            mrElectrodeDesignTasksId: this.handle.taskApply.id,
+            designer: this.userName
+          }
+        }else {
+
+          url = this.$utils.CONFIG.api.applyProgrammeTask;
+          params = {
+            mrProgrammeTasksId: this.handle.taskApply.id,
+            designer: this.userName
+          }
         }
 
-        let url = this.handle.taskApply.type == 'design' ? this.$utils.CONFIG.api.applyElectrodeDesignTasks : this.$utils.CONFIG.api.applyProgrammeTask;
         this.handle.taskApply.isLoading = true;
         this.$utils.getJson(url, (res) => { 
 
           this.handle.taskApply.isLoading = false;
           this.handle.taskApply.dialogVisible = false;
           this.$utils.showTip('success', 'success', '103');
+          this.getLeftList('isLoading', true);
         }, () => this.handle.taskApply.isLoading = false, params);
       },
       jump() {

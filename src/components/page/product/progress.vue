@@ -41,8 +41,8 @@
               </div>
               <div class="flex">
                 <div class="dflex">
-                  <p class="flex ellipsis">模具号：<span>{{ item.saleOrderOrigin | filterNull }}</span></p>
-                  <p class="flex ellipsis">类型：<span>{{ item.mouldNo | filterNull }}</span></p>
+                  <p class="flex ellipsis">模具号：<span>{{ item.mouldNo | filterNull }}</span></p>
+                  <p class="flex ellipsis">类型：<span>{{ item.orderTypeText | filterNull }}</span></p>
                 </div>
                 <div class="dflex">
                   <p class="ellipsis">客户：<span>{{ item.name | filterNull }}</span></p>
@@ -50,14 +50,14 @@
               </div>
             </div>
             <el-row>
-              <el-col :span="24">进度：<el-progress :percentage="50" color="rgba(0, 255, 0, 1)" style="width: 220px;display: inline-block;"></el-progress></el-col>
-              <el-col :span="12">状态：{{ item.reqTypeId | filterValueToLabel($dict.reqTypeValToLab) }}</el-col>
-              <el-col :span="12">延误时间累计(H)：{{ item.reqCompletionDate | filterNull }}</el-col>
+              <el-col :span="24">进度：<el-progress :percentage="(parseFloat(item.haveCompletionTotalTime) || 0)/(parseFloat(item.estimateTotalTime) || 1)" color="rgba(0, 255, 0, 1)" style="width: 220px;display: inline-block;"></el-progress></el-col>
+              <el-col :span="12">状态：{{ item.orderStatusText | filterNull }}</el-col>
+              <el-col :span="12">延误时间累计(H)：{{ item.delayTotalTime | filterNull(0) }}</el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="handle.add.dialogVisible = true">编辑</a>
-                <a href="javascript: void(0);" @click="handle.stop.dialogVisible = true">取消</a>
-                <router-link to="/sale/detail">暂停</router-link>
-                <a href="javascript: void(0);" @click="handle.order.dialogVisible = true">终止</a>
+                <a href="javascript: void(0);" v-if="item.orderStatusText == '未开始'" @click="handle.add.dialogVisible = true">编辑</a>
+                <a href="javascript: void(0);" v-if="item.orderStatusText == '未开始'" @click="handle.stop.dialogVisible = true">取消</a>
+                <router-link to="/sale/detail" v-if="item.orderStatusText != '未开始'">暂停</router-link>
+                <a href="javascript: void(0);" v-if="item.orderStatusText != '未开始'" @click="handle.order.dialogVisible = true">终止</a>
               </el-col>
             </el-row>
           </div>
@@ -186,21 +186,8 @@
           activeIndex: 0,
           list: [
             {
-              spList: [
-                {
-                  date: "2016-05-03",
-                  name: "",
-                  address: ""
-                }
-              ],
-              enclosureList: [
-                {
-                  date: "2016-05-03",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                }
-              ]
+              spList: [],
+              enclosureList: []
             }
           ]
         },
@@ -243,14 +230,15 @@
       getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
 
         let params = {
-          name: '',
-          type: '',
+          parameter: '',
+          type: this.filter.selectedValue,
+          sorting: `${this.filter.sort.sortField} ${this.filter.sort.sortType}`,
           pageNo: this.left.page.pageNo,
-          pageSize: this.left.page.pageSize,
+          pageSize: this.left.page.pageSize
         }
         if(this.form.text) params.name = this.form.text;
 
-        this.getData(this.$utils.CONFIG.api.queryRequirementDetail, params, 'id', loadingKey);
+        this.getData(this.$utils.CONFIG.api.trackProductionOrder, params, 'id', loadingKey);
       },
       handlePictureCardPreview(file) {
         this.faceUrl = file.url;
