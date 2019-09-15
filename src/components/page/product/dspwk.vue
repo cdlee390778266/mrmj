@@ -3,7 +3,7 @@
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-copy"></i>  <strong>当前位置：</strong> 生产订单跟踪->手动增加生产订单
+          <i class="el-icon-lx-copy"></i>  <strong>当前位置：</strong> 工序生产->工序派工
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -12,60 +12,97 @@
         <div class="main">
           <div class="msg">
             <div class="msg-wrapper">
-              <span class="mgr20">客户：{{component.mouldNo}}</span>
-              <span class="mgr20">模具号：{{component.components | concatString('componentNo')}}</span>
-              <span class="mgr20">要求交期：{{ component.requireDeliveryDate | filterNull }}</span>
-              <span class="mgr20">手动增加原因：{{component.components | concatString('quantity')}}</span>
+              <span class="mgr20">派工日期：</span>
+              <el-date-picker
+                v-model="right.page1.date"
+                type="date"
+                placeholder="选择日期">
+              </el-date-picker>
             </div>
           </div>
           <div class="content">
-            <h5 class="content-left-title">零件工艺版本列表</h5>
+            <h5 class="content-left-title">当前作业计划</h5>
             <div class="content-left" v-loading="left.isLoading">
-              <div class="tr mgt20">
-                <el-button type="primary" size="mini" @click="addVersion">增加零件</el-button>
-              </div>
-              <div class="list tc">
+              <div class="list tc posFull" style="width: 700px">
                 <div class="list-head dflex">
+                  <div class="flex">生产序号</div>
+                  <div style="width: 100px;">是否已派工</div>
+                  <div class="flex">工序</div>
+                  <div class="flex">状态</div>
+                  <div class="flex">模具号</div>
                   <div class="flex">零件号</div>
                   <div class="flex">数量</div>
-                  <div class="flex">操作</div>
+                  <div class="flex">剩余工时</div>
+                  <div style="width: 100px;">要求完成日期</div>
                 </div>
                 <div class="list-body">
-                  <div class="dflex" v-for="(item, index) in left.list" :key="index" :class="{active: left.activeId == index}" @click="handleSelect(item, index)">
+                  <div class="dflex" v-for="(item, index) in [1,2]" :key="index" :class="{active: left.activeId == index}" @click="handleSelect(item, index)">
                     <div class="flex">
-                      <div class="edit">
-                        <div @click="showObjInput(item, 'electrodeNoEdit')">
-                          <div class="ellipsis">{{ item.electrodeNo }}</div>
-                          <el-input size="mini" v-if="item.type == 'add'" v-model="item.electrodeNo" @focus="showObjInput(item, 'electrodeNoEdit')" @blur="item.electrodeNoEdit = false" :style="{opacity: item.electrodeNoEdit ? 1 : 0}"/>
-                        </div>
-                      </div>
+                      {{index + 1}}
+                    </div>
+                    <div style="width: 100px;">
+                      {{index}}
                     </div>
                     <div class="flex">
-                      <div class="edit">
-                        <div @click="showObjInput(item, 'quantityEdit')">
-                          <div class="ellipsis">{{ item.quantity }}</div>
-                          <el-input size="mini" v-if="item.type == 'add'" v-model="item.quantity" @focus="showObjInput(item, 'quantityEdit')" @blur="item.quantityEdit = false" :style="{opacity: item.quantityEdit ? 1 : 0}"/>
-                        </div>
-                      </div>
+                      {{index}}
                     </div>
                     <div class="flex">
-                      <el-button type="text" @click.stop="deleteVersion(index)">删除</el-button>
+                      {{index}}
+                    </div>
+                    <div class="flex">
+                      {{index}}
+                    </div>
+                    <div class="flex">
+                      {{index}}
+                    </div>
+                    <div class="flex">
+                      {{index}}
+                    </div>
+                    <div class="flex">
+                      {{index}}
+                    </div>
+                    <div style="width: 100px;">
+                      {{index}}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <h5 class="content-right-title">工艺信息明细</h5>
+            <h5 class="content-right-title">人员分配</h5>
             <div class="content-right">
-              <p><strong>基本信息</strong></p>
+              <p><strong>相关零件生产内容</strong></p>
               <p>
-                <span>零件号：</span> 
-                <el-input size="mini" v-model="currentData.electrodeNo" style="width: 100px" />
-                <span class="mgl20">数量：</span> 
-                <el-input size="mini" v-model="currentData.quantity" style="width: 100px" />
+                <span>模具号：M18480</span> 
+                <span class="mgl20">零件号：56/57</span> 
+                <span class="mgl20">数量：8+1EA</span> 
+                <span class="mgl20">材料：1.2343ESU</span> 
+                <span class="mgl20">要求完成日期：2018.08.06</span> 
+              </p>
+              <p class="ellipsis">
+                <span>零件工序及估工：（绿底标注工序为，当前所选派工任务对应工序）</span>
               </p>
               <p>
-                <strong>电极工序与估工</strong>
+                <table class="mrmj-table">
+                  <thead>
+                    <tr>
+                      <th class="bge4e4e4">工序顺序</th>
+                      <th v-for="(itemc, index) in right.page1.list" :key="index">{{itemc.name}}</th>
+                      <th class="bge4e4e4">工时合计</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="bge4e4e4">估工（H）</td>
+                      <th v-for="(itemc, index) in right.page1.list" :key="index">{{itemc.estimationWorkTime}}</th>
+                      <th class="bge4e4e4">
+                        {{right.page1.list | sum('estimationWorkTime')}}
+                      </th>
+                    </tr>
+                  </tbody>
+                </table>      
+              </p>
+              <p>
+                <strong>下载附件</strong>
                 <el-table
                   :data="currentData.processes"
                   border
@@ -74,87 +111,102 @@
                   class="content-table edit-table"
                   style="width: 100%">
                   <el-table-column
-                    type="index"
-                    label="工序序号"
-                    width="80">
-                  </el-table-column>
-                  <el-table-column
-                    label="工序名称"
-                    show-overflow-tooltip>
-                    <template scope="scope">
-                      <div>
-                        <div @click="showInput(currentData.processes, scope.$index, 'processNameEdit')">
-                          <div class="ellipsis">{{ scope.row.processName }}</div>
-                          <el-autocomplete
-                            class="inline-input"
-                            v-model="scope.row.processName"
-                            :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.process, 'name')"
-                            valueKey="name"
-                            value="name"
-                            placeholder="请输入内容"
-                            @focus="showInput(currentData.processes, scope.$index, 'processNameEdit')"
-                            @blur="scope.row.processNameEdit = false"
-                            :style="{opacity: scope.row.processNameEdit ? 1 : 0}"
-                          ></el-autocomplete>
-                        </div>
-                      </div>
-                    </template>
-                  </el-table-column>
-                  <el-table-column
-                    label="估工(H)"
-                    show-overflow-tooltip>
-                    <template scope="scope">
-                      <div>
-                        <div @click="showInput(currentData.processes, scope.$index, 'estimationWorkTimeEdit')">
-                          <div class="ellipsis">{{ scope.row.estimationWorkTime }}</div>
-                          <el-input size="mini" v-model="scope.row.estimationWorkTime" @focus="showInput(currentData.processes, scope.$index, 'estimationWorkTimeEdit')" @blur="scope.row.estimationWorkTimeEdit = false" :style="{opacity: scope.row.estimationWorkTimeEdit ? 1 : 0}"/>
-                        </div>
-                      </div>
-                    </template>
-                  </el-table-column>
-                </el-table>
-              </p>
-              <template v-if="currentData.mrElectrodeProductionListOrderId">
-                <p><strong>电极设计附件</strong></p>
-                <p>
-                  上传附件：
-                  <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
-                    <el-button size="mini" type="primary">上传附件</el-button>
-                    <input type="file" name="file" ref="file" class="posFull opacity0" @change="uploadFile">
-                  </span>
-                </p>
-                <el-table
-                  :data="currentData.attachments"
-                  border
-                  size="mini"
-                  class="content-table"
-                  style="width: 100%">
-                  <el-table-column
                     prop="fileName"
                     label="资料名称"
                     show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="operator"
                     label="操作"
-                    width="120"
-                    align="center"
                     show-overflow-tooltip>
-                    <template slot-scope="scope">
-                      <el-button type="text" @click="deleteFiles(scope.row.fileId, scope.row)">删除</el-button>
+                    <template scope="scope">
+                      <el-button type="text" @click="down(1)">下载</el-button>
                     </template>
                   </el-table-column>
                 </el-table>
-              </template>
+              </p>
+              <div>
+                <strong>加工人员安排</strong>
+                <p>
+                  排序：
+                  <el-select style="width: 100px;" v-model="right.page1.data">
+                    <el-option v-for="(itemc, index) in right.page1.data" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
+                  </el-select>
+                </p>
+                <el-row :gutter="20">
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
+                    <div class="people dflex mgt10">
+                      <div class="flex">
+                        <p class="ellipsis">
+                          <img :src="defaultPeopleImg">
+                          <span>人员姓名：E01</span>
+                        </p>
+                        <p class="mgt10">
+                          <strong>已分配任务：</strong>
+                        </p>
+                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                      </div>
+                      <div style="width: 100px;"></div>
+                    </div>
+                  </el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
+                    <div class="people dflex mgt10">
+                      <div class="flex">
+                        <p class="ellipsis">
+                          <img :src="defaultPeopleImg">
+                          <span>人员姓名：E01</span>
+                        </p>
+                        <p class="mgt10">
+                          <strong>已分配任务：</strong>
+                        </p>
+                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                      </div>
+                      <div style="width: 100px;"></div>
+                    </div>
+                  </el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
+                    <div class="people dflex mgt10">
+                      <div class="flex">
+                        <p class="ellipsis">
+                          <img :src="defaultPeopleImg">
+                          <span>人员姓名：E01</span>
+                        </p>
+                        <p class="mgt10">
+                          <strong>已分配任务：</strong>
+                        </p>
+                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                      </div>
+                      <div style="width: 100px;"></div>
+                    </div>
+                  </el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
+                    <div class="people dflex mgt10">
+                      <div class="flex">
+                        <p class="ellipsis">
+                          <img :src="defaultPeopleImg">
+                          <span>人员姓名：E01</span>
+                        </p>
+                        <p class="mgt10">
+                          <strong>已分配任务：</strong>
+                        </p>
+                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                      </div>
+                      <div style="width: 100px;"></div>
+                    </div>
+                  </el-col>
+                </el-row>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div class="detail-footer tr">
-      <el-button type="primary" @click="save">下达生产订单</el-button>
-      <el-button type="primary" @click="save">保存草稿</el-button>
-      <el-button type="primary" @click="$router.push('/product/progress')">返 回</el-button>
+      <el-button type="primary" @click="save">保存</el-button>
+      <el-button type="primary" @click="$router.push('/product/task')">返 回</el-button>
     </div>
   </div>
 </template>
@@ -165,6 +217,7 @@
     mixins: [leftMixin],
     data() {
       return {
+        defaultPeopleImg: require('../../../assets/img/people.svg'),
         time: '',
         component: {},
         defaultData: {
@@ -396,13 +449,13 @@
         top: 10px;
         bottom: 0;
         left: 0;
-        width: 210px;
+        width: 340px;
         overflow: auto;
         border: 1px solid #ddd;
         .list {
           .list-head {
             position: absolute;
-            top: 60px;
+            top: 20px;
             right: 0;
             left: 0;
             background: rgba(228, 228, 228, 1);
@@ -412,7 +465,7 @@
           }
           .list-body {
             position: absolute;
-            top: 80px;
+            top: 40px;
             right: 0;
             bottom: 0;
             left: 0;
@@ -434,7 +487,7 @@
       .content-right-title {
         position: absolute;
         top: 0px;
-        left: 230px;
+        left: 350px;
         font-weight: normal;
         font-size: 14px;
         background: #fff;
@@ -444,7 +497,7 @@
         position: absolute;
         top: 10px;
         bottom: 0;
-        left: 220px;
+        left: 350px;
         right: 0;
         padding: 10px;
         overflow: auto;

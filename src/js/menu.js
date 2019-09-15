@@ -128,7 +128,7 @@ const MENU = {
 				isSubPage: true
 			},
 			{
-				name: '生产进度跟踪',
+				name: '生产订单跟踪',
 				path: '/progress',
 				icon: 'el-icon-s-operation'
 			},
@@ -150,6 +150,20 @@ const MENU = {
 				name: '当日工序生产',
 				path: '/procedure',
 				icon: 'el-icon-paperclip'
+			},
+			{
+				name: '工序派工',
+				path: '/dspwk',
+				paramsPath: '/dspwk/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
+				name: '生产报工',
+				path: '/npwk',
+				paramsPath: '/npwk/:id?',
+				icon: '',
+				isSubPage: true
 			},
 			{
 				name: '设备管理',

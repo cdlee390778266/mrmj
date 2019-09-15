@@ -35,8 +35,8 @@
             <el-row>
               <el-col :span="24">当天工序进度：<el-progress :percentage="50" color="rgba(0, 255, 0, 1)" style="width: 180px;display: inline-block;"></el-progress></el-col>
               <el-col :span="24" class="tr">
-                <router-link to="/sale/detail">派工</router-link>
-                <router-link to="/sale/detail">报工</router-link>
+                <router-link to="/product/dspwk">派工</router-link>
+                <router-link to="/product/npwk">报工</router-link>
               </el-col>
             </el-row>
           </div>
@@ -66,14 +66,35 @@
                 </div>
                 <el-scrollbar class="main-content-scorll pdt10">
                   <el-row>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">模具号：{{ right.page1.mouldNo | filterNull }}</el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单类型：{{ right.page1.saleOrderType | filterNull }}</el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{ right.page1.customerPoNo | filterNull }}</el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ right.page1.name | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">报工日期：{{ right.page1.mouldNo | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">代报工人员：{{ right.page1.saleOrderType | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">估工工时合计(H)：{{ right.page1.customerPoNo | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">实际工时合计(H)：{{ right.page1.name | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">准时交货率：{{ right.page1.name | filterNull }}</el-col>
                   </el-row>
                   <el-row>
                     <el-col :span="24">
-                      <el-button type="primary">查看相关销售订单</el-button>
+                      <el-table
+                        :data="right.page1.componentOrders"
+                        border
+                        size="mini"
+                        class="content-table"
+                        style="width: 100%"
+                      >
+                        <el-table-column type="index" label="序号" width="50" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="componentNo" label="工作类型" width="180" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="customerNo" label="状态" width="180" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="requirementQuantity" label="工序" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="issuedOrderDate" label="模具号" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="requireDeliveryDate" label="零件号" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="description" label="数量" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="description" label="估工工时(H)" width="120" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="description" label="开始时间" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="description" label="要求完成日期" width="120" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="description" label="加工人人员" width="120" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="description" label="实际加工工时(H)" width="120" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="description" label="备  注" show-overflow-tooltip></el-table-column>
+                      </el-table>
                     </el-col>
                   </el-row>
                 </el-scrollbar>
@@ -81,11 +102,82 @@
               <el-carousel-item >
                 <div class="main-content-title">
                   <div>
-                    <i class="el-icon-lx-edit"></i> 不合格品情况
+                    <i class="el-icon-lx-edit"></i> 加工人员生产情况
                   </div>
                 </div>
                 <el-scrollbar class="main-content-scorll pdt10">
-                  
+                  <p>
+                    排序：
+                    <el-select style="width: 100px;" v-model="right.page1.data">
+                      <el-option v-for="(itemc, index) in right.page1.data" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
+                    </el-select>
+                  </p>
+                  <el-row :gutter="20">
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
+                      <div class="people dflex mgt10">
+                        <div class="flex">
+                          <p class="ellipsis">
+                            <img :src="defaultPeopleImg">
+                            <span>人员姓名：E01</span>
+                          </p>
+                          <p class="mgt10">
+                            <strong>已分配任务：</strong>
+                          </p>
+                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                        </div>
+                        <div style="width: 100px;"></div>
+                      </div>
+                    </el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
+                      <div class="people dflex mgt10">
+                        <div class="flex">
+                          <p class="ellipsis">
+                            <img :src="defaultPeopleImg">
+                            <span>人员姓名：E01</span>
+                          </p>
+                          <p class="mgt10">
+                            <strong>已分配任务：</strong>
+                          </p>
+                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                        </div>
+                        <div style="width: 100px;"></div>
+                      </div>
+                    </el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
+                      <div class="people dflex mgt10">
+                        <div class="flex">
+                          <p class="ellipsis">
+                            <img :src="defaultPeopleImg">
+                            <span>人员姓名：E01</span>
+                          </p>
+                          <p class="mgt10">
+                            <strong>已分配任务：</strong>
+                          </p>
+                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                        </div>
+                        <div style="width: 100px;"></div>
+                      </div>
+                    </el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
+                      <div class="people dflex mgt10">
+                        <div class="flex">
+                          <p class="ellipsis">
+                            <img :src="defaultPeopleImg">
+                            <span>人员姓名：E01</span>
+                          </p>
+                          <p class="mgt10">
+                            <strong>已分配任务：</strong>
+                          </p>
+                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                        </div>
+                        <div style="width: 100px;"></div>
+                      </div>
+                    </el-col>
+                  </el-row>
                 </el-scrollbar>
               </el-carousel-item>
             </el-carousel>
@@ -158,6 +250,7 @@
     data() {
       return {
         defaultImg: require('../../../assets/img/wp.svg'),
+        defaultPeopleImg: require('../../../assets/img/people.svg'),
         left: {
           list: [{}]
         },
@@ -264,12 +357,4 @@
 
 
 <style scoped lang="scss">
-  .el-row {
-    margin-bottom: 20px;
-  }
-  .main-left-search {
-    button {
-      width: 130px;
-    }
-  }
 </style>

@@ -62,6 +62,10 @@ body {
 	margin: 10px;
 }
 
+.mgl5 {
+	margin-left: 5px !important;
+}
+
 .mgl10 {
 	margin-left: 10px !important;
 }
@@ -356,6 +360,18 @@ body {
 	color: $c3375AB;
 }
 
+.fc-green {
+	color: #008000;
+}
+
+.fc-red {
+	color: #FF0000;
+}
+
+.fcfff {
+	color: #fff;
+}
+
 .bgfff {
 	background: #fff;
 }
@@ -364,6 +380,9 @@ body {
 	background: #e4e4e4 !important;
 }
 
+.bg-green {
+	background: #008000;
+}
 .dflex {
 	display: -webkit-box;
 	display: -ms-flexbox;
@@ -450,6 +469,10 @@ body {
 
 .borb {
 	border-bottom: 1px solid #f2f2f2;
+}
+
+.borb-green {
+	border-bottom: 1px solid #a3bf1f;
 }
 
 .rel {
@@ -875,4 +898,25 @@ body {
 	bottom: 0px;
 	padding: 10px 0;
 	border-top: 1px solid #a3bf1f;
+}
+.people {
+	padding: 10px;
+	color: #169BD5;
+	border: 1px solid #ddd;
+	p {
+	  span {
+	    text-decoration: underline;
+	  }
+	  img {
+	    position: relative;
+	    top: 7px;
+	    width: 32px;
+	    height: 32px;
+	    margin-right: 5px;
+	  }
+	  strong {
+	    color: #333;
+	    font-weight: normal;
+	  }
+	}
 }
