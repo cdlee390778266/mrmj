@@ -73,6 +73,7 @@
               overflow: auto;">
                 <el-table
                   :data="tableData3"
+                  :span-method="objectSpanMethod"
                   style="width: 100%">
                   <el-table-column
                     prop="date"
@@ -549,6 +550,21 @@
           localStorage.setItem(this.time, JSON.stringify(this.component));
           this.refresh();
         }, () => this.right.isLoading = false, params);
+      },
+      objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+        if (columnIndex === 0) {
+          if (rowIndex % 2 === 0) {
+            return {
+              rowspan: 2,
+              colspan: 1
+            };
+          } else {
+            return {
+              rowspan: 0,
+              colspan: 0
+            };
+          }
+        }
       },
       refresh() {
 
