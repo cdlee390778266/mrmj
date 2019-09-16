@@ -5,8 +5,8 @@
         <div class="main">
           <div class="msg" style="width: 100%;">
             <div class="msg-wrapper">
-              <el-button type="primary">制定作业计划</el-button>
-              <el-button type="primary">发货</el-button>
+              <el-button type="primary" @click="$router.push('/plan/edit/1')">制定作业计划</el-button>
+              <el-button type="primary" @click="handle.add.dialogVisible = true;">发货</el-button>
               <el-dropdown ref="sort" :hide-on-click="false">
                 <el-button type="primary" icon="el-icon-sort" class="mgl10"></el-button>
                 <el-dropdown-menu slot="dropdown" class="sort">
@@ -123,12 +123,12 @@
               </el-table>
             </div>
           </div>
-          <div class="detail-footer tr">
+          <div class="detail-footer">
             <div class="dflex" style="align-items: center;">
               <div class="pdlr10">模具号：18473</div>
               <div class="pdlr10">零件号：100-14/15</div>
+              <div class="pdl20">当前状态：</div>
               <div class="flex pdlr10">
-                <span>当前状态：</span>
                 <table class="mrmj-table">
                   <thead>
                     <tr>
@@ -161,85 +161,118 @@
         </div>
       </div>
     </div>
-    <el-dialog title="生产订单信息查看修改" class="dialog-gray" :visible.sync="handle.setting.dialogVisible" width="500px">
-      <el-form :model="handle.setting.form" label-width="100px">
-        <div class="dialog-content pdt10">
-          <el-row class="pdtb10" :gutter="20">
-            <el-col :span="12" class="pos-relative">
-              <div class="setting-item">
-                <h3>G工序日产能</h3>
-                <div>
-                  <p class="mgt10">
-                    <span>高产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                  <p class="mgt10">
-                    <span>低产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                </div>
-              </div>
-            </el-col>
-            <el-col :span="12" class="pos-relative">
-              <div class="setting-item">
-                <h3>G工序日产能</h3>
-                <div>
-                  <p class="mgt10">
-                    <span>高产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                  <p class="mgt10">
-                    <span>低产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                </div>
-              </div>
-            </el-col>
-            <el-col :span="12" class="pos-relative">
-              <div class="setting-item">
-                <h3>G工序日产能</h3>
-                <div>
-                  <p class="mgt10">
-                    <span>高产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                  <p class="mgt10">
-                    <span>低产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                </div>
-              </div>
-            </el-col>
-            <el-col :span="12" class="pos-relative">
-              <div class="setting-item">
-                <h3>G工序日产能</h3>
-                <div>
-                  <p class="mgt10">
-                    <span>高产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                  <p class="mgt10">
-                    <span>低产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                </div>
-              </div>
+    <el-dialog title="发货登记" class="dialog-gray" :visible.sync="handle.add.dialogVisible">
+      <div v-loading="handle.add.isLoading">
+        <el-form :model="handle.add.form" ref="form" label-width="100px">
+          <el-row class="pdtb10 borb">
+            <el-col :span="24">
+              <p>请勾选完工零件确认发货。发货后，表示该零件生产完成，将不再在计划表和跟踪表中显示。</p>
+              <p class="mgt5">已完工零件列表</p>
+              <p class="mgt5">
+                <el-radio v-model="handle.add.form" label="1">按照要求交期排序</el-radio>
+                <el-radio v-model="handle.add.form" label="2">按照订单是否完成排序</el-radio>
+                <el-radio v-model="handle.add.form" label="3">按照客户排序</el-radio>
+              </p>
             </el-col>
           </el-row>
-          <div slot="footer" class="dialog-footer tr pdb20 pdlr10">
-            <el-button type="primary" @click="handle.setting.dialogVisible = false">保 存</el-button>
-            <el-button @click="handle.setting.dialogVisible = false">返 回</el-button>
+          <div class="dialog-content pdt10 pdlr10 mglr10 bgfff">
+            <div class="mgb10 borb">
+              <div class="mgb20">
+                <el-table
+                  :data="tableData3"
+                  :span-method="objectSpanMethod"
+                  max-height="400"
+                  style="width: 100%">
+                  <el-table-column
+                    prop="date"
+                    label="模具号">
+                  </el-table-column>
+                  <el-table-column
+                    prop="date"
+                    label="出货日期">
+                  </el-table-column>
+                  <el-table-column
+                    prop="date"
+                    label="客户">
+                  </el-table-column>
+                  <el-table-column
+                    prop="date"
+                    label="要求交期">
+                  </el-table-column>
+                  <el-table-column
+                    prop="date"
+                    label="状态">
+                  </el-table-column>
+                  <el-table-column
+                    prop="date"
+                    label="零件号码">
+                  </el-table-column>
+                  <el-table-column
+                    prop="date"
+                    label="数量">
+                  </el-table-column>
+                  <el-table-column
+                    prop="date"
+                    label="版本">
+                  </el-table-column>
+                  <el-table-column
+                    prop="date"
+                    label="整体外协">
+                  </el-table-column>
+                  <el-table-column label="工艺时间" align="center">
+                    <el-table-column
+                      prop="name"
+                      label="M"
+                      align="center"
+                      width="66">
+                    </el-table-column>
+                    <el-table-column
+                      prop="name"
+                      label="M"
+                      align="center"
+                      width="66">
+                    </el-table-column>
+                    <el-table-column
+                      prop="name"
+                      label="M"
+                      align="center"
+                      width="66">
+                    </el-table-column>
+                    <el-table-column
+                      prop="name"
+                      label="M"
+                      align="center"
+                      width="66">
+                    </el-table-column>
+                    <el-table-column
+                      prop="name"
+                      label="M"
+                      align="center"
+                      width="66">
+                    </el-table-column>
+                    <el-table-column
+                      prop="name"
+                      label="M"
+                      align="center"
+                      width="66">
+                    </el-table-column>
+                    <el-table-column
+                      prop="name"
+                      label="M"
+                      align="center"
+                      width="66">
+                    </el-table-column>
+                  </el-table-column>
+                </el-table>
+              </div>
+            </div>
           </div>
+        </el-form>
+        <div slot="footer" class="dialog-footer tr pdtb20 pdlr10">
+          <el-button type="primary" @click="addOrder(false)">发货</el-button>
+          <el-button type="primary" @click="handle.add.dialogVisible = false">取消</el-button>
         </div>
-      </el-form>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -313,7 +346,7 @@
           zip: 200333
         }],
         handle: {
-          setting: {
+          add: {
             dialogVisible: false,
             data: {},
             form: {
@@ -576,6 +609,12 @@
     }
     .detail-footer {
       border: none;
+    }
+    .mrmj-table {
+      border-color: #333;
+      td, th {
+        border-color: #333;
+      }
     }
   }
   .setting-item {

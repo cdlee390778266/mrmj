@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div class="main-right-title"><slot name="pageName">需求明细</slot></div>
+    <div class="main-right-title" v-if="!hidePageName"><slot name="pageName">需求明细</slot></div>
     <div class="tc up" v-if="haveCarousel">
       <img src="../../../assets/img/up.png" height="12" width="60" class="pointer" @click="prev">
     </div>
-    <div class="main-content">
+    <div class="main-content" :style="{top: hidePageName ? '0' : '50px'}">
       <slot></slot>
     </div>
     <div class="tc down" v-if="haveCarousel">
@@ -15,7 +15,7 @@
 
 <script>
   export default {
-    props: ['rightList', 'haveCarousel'],
+    props: ['rightList', 'haveCarousel', 'hidePageName'],
     data() {
       return {
         height: 300

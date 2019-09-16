@@ -196,9 +196,30 @@ const MENU = {
 				icon: 'el-icon-s-operation'
 			},
 			{
+				name: '制定作业计划',
+				path: '/edit',
+				paramsPath: '/edit/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
 				name: '委托加工',
 				path: '/entrust',
 				icon: 'el-icon-potato-strips'
+			},
+			{
+				name: '达采购订单',
+				path: '/placeOrder',
+				paramsPath: '/placeOrder/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
+				name: '到货登记',
+				path: '/register',
+				paramsPath: '/register/:id?',
+				icon: '',
+				isSubPage: true
 			},
 			{
 				name: '信息查询与分析',
