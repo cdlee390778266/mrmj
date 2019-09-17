@@ -315,12 +315,7 @@
                     <tr>
                       <td class="bge4e4e4">估工(H)</td>
                       <th v-for="(itemc, index) in item.processes" :key="index">
-                        <div class="edit">
-                          <div @click="showObjInput(itemc, 'estimationWorkTimeEdit')">
-                            <div class="ellipsis">{{ itemc.estimationWorkTime }}</div>
-                            <el-input size="mini" v-model="itemc.estimationWorkTime" @focus="showObjInput(itemc, 'estimationWorkTimeEdit')" @blur="itemc.estimationWorkTimeEdit = false" :style="{opacity: itemc.estimationWorkTimeEdit ? 1 : 0}"/>
-                          </div>
-                        </div>
+                        {{itemc.estimationWorkTime}}
                       </th>
                       <th class="bge4e4e4">
                         {{item.processes | sum('estimationWorkTime')}}
@@ -559,7 +554,8 @@
       addOrder(saveAsDraft = false) {  //下达生产订单, saveAsDraft=false为下达电极生产订单;saveAsDraft=true为保存为草稿
 
         let params = {
-          mrElectrodeProductionOrderId: this.handle.add.order.mrElectrodeProductionOrderId
+          mrElectrodeProductionOrderId: this.handle.add.order.mrElectrodeProductionOrderId,
+          createBy: this.$utils.getStorage(this.$utils.CONFIG.storageNames.usernameName),
         }
 
         let url = saveAsDraft ? this.$utils.CONFIG.api.saveEleAsModify : this.$utils.CONFIG.api.releasedElectrodeProductionOrder;

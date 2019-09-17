@@ -66,10 +66,11 @@ const CONFIG = {
 		queryNoDealEleOrCNC: baseUrl + 'requirement/productionOrder/queryNoDealEleOrCNC', //生产--待设计电极与待处理CNC编程查询
 		queryElectrodeComponentInfo: baseUrl + 'requirement/electrodeOrder/queryElectrodeComponentInfo', //生产--电极设计完成页面查询
 		electrodeDesignCompletion: baseUrl + 'requirement/electrodeOrder/electrodeDesignCompletion', //生产--电极设计完成
+		saveEleAsModify: baseUrl + 'requirement/electrodeOrder/saveEleAsModify', //生产--将电极生产订单保存为草稿
 		applyElectrodeDesignTasks: baseUrl + 'requirement/electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
 		queryElectrodeNoById: baseUrl + 'requirement/electrodeOrder/queryElectrodeNoById', //生产--电极工艺版本列表查询
-		saveEleAsModify: baseUrl + 'requirement/electrodeOrder/saveEleAsModify', //生产--删除电极工艺版本
 		modifyEleInfo: baseUrl + 'requirement/electrodeOrder/modifyEleInfo', //生产--修改电极工艺版本列表信息
+		deleteElectrodeList: baseUrl + 'requirement/electrodeOrder/deleteElectrodeList', //生产--删除电极列表
 		designElectrodeDesignTasks: baseUrl + 'requirement/electrodeOrder/designElectrodeDesignTasks', //生产--设计电极任务
 		saveEleAttachment: baseUrl + 'requirement/electrodeOrder/saveEleAttachment', //生产--存储电极附件
 		deleteAttachment: baseUrl + 'requirement/attachment/deleteAttachment', //生产--删除本地电极附件
@@ -88,6 +89,7 @@ const CONFIG = {
 	},
 	error: {
 		'-1': '加载数据失败，请检查网络！',
+		'-2': '上传失败！',
 		'-1000': '数据出错，没有对应的部门！',
 		'-1010': '请输入客户名称！',
 		'-1011': '长度不得大于20位！',

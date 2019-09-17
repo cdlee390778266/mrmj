@@ -34,3 +34,11 @@ Vue.filter('sum', function (data = [], key) {	//字符串连接
   
   return sum;
 })
+
+Vue.filter('cpercentage', function (data, key1, key2) { //百分比
+  
+  let d1 = parseFloat(data[key1]) || 0;
+  let d2 = parseFloat(data[key2] || 1);
+ 
+  return parseInt(d1 / d2 * 100);
+})

@@ -371,6 +371,7 @@
       addOrder(saveAsDraft = false) {  //下达生产订单, saveAsDraft=false为下达生产订单;saveAsDraft=true为保存为草稿
 
         let params = {
+          createBy: this.$utils.getStorage(this.$utils.CONFIG.storageNames.usernameName),
           mrSaleOrderId: this.handle.add.order.mrSaleOrderId,
           versions: []
         }

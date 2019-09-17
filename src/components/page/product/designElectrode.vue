@@ -244,7 +244,7 @@
         }else {
 
           this.left.isLoading = true;
-          this.$utils.getJson(this.$utils.CONFIG.api.saveEleAsModify, (res) => { //版本详情 
+          this.$utils.getJson(this.$utils.CONFIG.api.deleteElectrodeList, (res) => { //版本详情 
 
             this.left.isLoading = false;
             this.$utils.showTip('success', 'success', '104');

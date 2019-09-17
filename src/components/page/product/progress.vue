@@ -50,9 +50,9 @@
               </div>
             </div>
             <el-row>
-              <el-col :span="24">进度：<el-progress :percentage="(parseFloat(item.haveCompletionTotalTime) || 0)/(parseFloat(item.estimateTotalTime) || 1)" color="rgba(0, 255, 0, 1)" style="width: 220px;display: inline-block;"></el-progress></el-col>
-              <el-col :span="12">状态：{{ item.orderStatusText | filterNull }}</el-col>
-              <el-col :span="12">延误时间累计(H)：{{ item.delayTotalTime | filterNull(0) }}</el-col>
+              <el-col :span="24">进度：<el-progress :percentage="item | cpercentage('haveCompletionTotalTime', 'estimateTotalTime')" color="rgba(0, 255, 0, 1)" style="width: 210px;display: inline-block;"></el-progress></el-col>
+              <el-col :span="11">状态：{{ item.orderStatusText | filterNull }}</el-col>
+              <el-col :span="13">延误时间累计(H)：{{ item.delayTotalTime | filterNull(0) }}</el-col>
               <el-col :span="24" class="tr">
                 <a href="javascript: void(0);" v-if="item.orderStatusText == '未开始'"  @click="edit(item)">编辑</a>
                 <a href="javascript: void(0);" v-if="item.orderStatusText == '未开始'" @click="confirm('cancel', '取消', item)">取消</a>
