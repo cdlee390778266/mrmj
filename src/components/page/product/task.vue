@@ -145,7 +145,7 @@
                   <strong>ELE编程任务</strong>
                   <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && !currentData.eleProgram.designer" @click="showDialog('taskApply', 'eleProgram', currentData.eleProgram.mrProgrammeTasksId, 'ELE编程任务')">申领</el-button>
                   <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && currentData.eleProgram.designer && currentData.eleProgram.designer == userName">完成</el-button>
-                  <el-button type="primary" class="mgl10" @click="showDialog('attachment', 'eleProgram', '', 'ELE')">编辑</el-button>
+                  <!-- <el-button type="primary" class="mgl10" @click="showDialog('attachment', 'eleProgram', '', 'ELE')">编辑</el-button> -->
                 </el-col>
                 <el-col :span="24" v-if="currentData.eleProgram && currentData.eleProgram.designer">
                   <span>设计人员：{{currentData.eleProgram.designer}}</span>
@@ -192,7 +192,7 @@
                   <strong>CNCV编程任务</strong>
                   <el-button type="primary" class="mgl10" v-if="currentData.cncvProgram && !currentData.cncvProgram.designer" @click="showDialog('taskApply', 'eleProgram', currentData.cncvProgram.mrProgrammeTasksId, 'CNCV编程任务')">申领</el-button>
                   <el-button type="primary" class="mgl10" v-if="currentData.cncvProgram && currentData.cncvProgram.designer && currentData.cncvProgram.designer == userName">完成</el-button>
-                  <el-button type="primary" class="mgl10" @click="showDialog('attachment', 'cncvProgram', '', 'CNCV')">编辑</el-button>
+                  <!-- <el-button type="primary" class="mgl10" @click="showDialog('attachment', 'cncvProgram', '', 'CNCV')">编辑</el-button> -->
                 </el-col>
                 <el-col :span="24" v-if="currentData.cncvProgram && currentData.cncvProgram.designer">
                   <span>设计人员：{{currentData.cncvProgram.designer}}</span>
@@ -239,7 +239,7 @@
                   <strong>CNCH编程任务</strong>
                   <el-button type="primary" class="mgl10" v-if="currentData.cnchProgram && !currentData.cnchProgram.designer" @click="showDialog('taskApply', 'eleProgram', currentData.cnchProgram.mrProgrammeTasksId, 'CNCH编程任务')">申领</el-button>
                   <el-button type="primary" class="mgl10" v-if="currentData.cnchProgram && currentData.cnchProgram.designer && currentData.cnchProgram.designer == userName">完成</el-button>
-                  <el-button type="primary" class="mgl10" @click="showDialog('attachment', 'cnchProgram', '', 'CNCH')">编辑</el-button>
+                  <!-- <el-button type="primary" class="mgl10" @click="showDialog('attachment', 'cnchProgram', '', 'CNCH')">编辑</el-button> -->
                 </el-col>
                 <el-col :span="24" v-if="currentData.eleProgram && currentData.eleProgram.designer">
                   <span>设计人员：{{currentData.eleProgram.designer}}</span>

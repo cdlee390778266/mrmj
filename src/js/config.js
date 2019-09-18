@@ -77,7 +77,10 @@ const CONFIG = {
 		applyProgrammeTask: baseUrl + 'requirement/electrodeOrder/applyProgrammeTask', //生产--申领编程任务
 		releasedElectrodeProductionOrder: baseUrl + 'requirement/electrodeOrder/releasedElectrodeProductionOrder', //生产--下达电极生产订单
 		trackProductionOrder: baseUrl + 'requirement/productionOrder/trackProductionOrder', //生产--生产订单跟踪查询
+		terminateOrPauseOrder: baseUrl + 'requirement/productionOrder/terminateOrPauseOrder', //生产--暂停与终止生产订单
+		querySaleOrderInfo: baseUrl + 'requirement/saleOrder/querySaleOrderInfo', //生产--查看相关销售订单
 		processAssignWork: baseUrl + 'requirement/operationalPlan/processAssignWork', //生产--工序派工
+		saveJobBooking: baseUrl + 'requirement/jobbooking/saveJobBooking', //生产--报工
 	
 	},
 	success: {
@@ -110,6 +113,7 @@ const CONFIG = {
 		'-1044': '输入工艺路线版本号已存在，请重新输入！',
 		'-1045': '输入工艺路线版本号与选中工艺路线版本号不一致',
 		'-1046': '未制定电极工艺，不能下达电极生产订单',
+		'-1047': '请输入材料！',
 		'-1050': '电极号不能为空'
 	}
 }

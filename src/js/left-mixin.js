@@ -85,160 +85,169 @@ let leftMixin = {
 	methods: {
 		getData(url, params, idKey="id", loadingKey = 'isLoading', success = null, isSetCurrentData = false) { //获取左侧列表数据
 
-      this.left[loadingKey] = true;
-      this.$utils.getJson(url, (res) => {
+	      this.left[loadingKey] = true;
+	      this.$utils.getJson(url, (res) => {
 
-        if(loadingKey == 'isLoadingMore') {
+	        if(loadingKey == 'isLoadingMore') {
 
-          this.left.list = this.left.list.concat(res.data.content || res.data);
-        }else {
-
-          this.left.list = res.data.content || res.data;
-        }
-        this.left.page.totalPages = res.data.totalPages;
-        
-        if(this.left.list.length) {
-
-        	if(!isSetCurrentData) {
-	          this.left.activeId = this.left.list[0][idKey];
-	          this.currentData = this.left.list[0];
-	          typeof success == 'function' && success(this.left.activeId);
+	          this.left.list = this.left.list.concat(res.data.content || res.data);
 	        }else {
 
-	        	let index = this.left.list.findIndex(item => item[idKey] == this.left.activeId);
-	        	this.currentData = this.left.list[index];
+	          this.left.list = res.data.content || res.data;
 	        }
-        }
-        this.left[loadingKey] = false;
-      }, () => this.left[loadingKey] = false, params)
-    },
-    getList(url, obj, key, params = {}) {
+	        this.left.page.totalPages = res.data.totalPages;
+	        
+	        if(this.left.list.length) {
 
-    	this.$utils.getJson(url, (res) => {
- 
-        obj[key] = res.data || [];
-      }, () => obj[key] = [], params)
-    },
-		selectType(item) {
+	        	if(!isSetCurrentData) {
+		          this.left.activeId = this.left.list[0][idKey];
+		          this.currentData = this.left.list[0];
+		          typeof success == 'function' && success(this.left.activeId);
+		        }else {
 
-			this.filter.selectedValue = item.value;
-			this.isShowList = true;
-			this.search && this.search();
-		},
-		handleSelect(item, idKey = 'id') {
-			
-      this.left.activeId = item[idKey];
-      this.currentData= item;
-    },
-    closeDialog(formKey = 'update') {
-        
-      this.handle[formKey].isLoading = false;
-      this.handle[formKey].dialogVisible = false;
-    },
-		resetUpload(ref = 'upload') {
+		        	let index = this.left.list.findIndex(item => item[idKey] == this.left.activeId);
+		        	this.currentData = this.left.list[index];
+		        }
+	        }
+	        this.left[loadingKey] = false;
+	      }, () => this.left[loadingKey] = false, params)
+	    },
+	    getList(url, obj, key, params = {}) {
 
-      this.$refs[ref] && this.$refs[ref].clearFiles();
-    },
-    resetForm(formName) {
+	    	this.$utils.getJson(url, (res) => {
+	 
+	        obj[key] = res.data || [];
+	      }, () => obj[key] = [], params)
+	    },
+			selectType(item) {
 
-      this.$refs[formName] && this.$refs[formName].resetFields();
-    },
-    uploadFile() {
-        
-      let formData = new FormData();
-      formData.append('files', this.$refs.file.files[0]);
+				this.filter.selectedValue = item.value;
+				this.isShowList = true;
+				this.search && this.search();
+			},
+			handleSelect(item, idKey = 'id') {
+				
+	      this.left.activeId = item[idKey];
+	      this.currentData= item;
+	    },
+	    closeDialog(formKey = 'update') {
+	        
+	      this.handle[formKey].isLoading = false;
+	      this.handle[formKey].dialogVisible = false;
+	    },
+			resetUpload(ref = 'upload') {
 
-      this.right.isLoading = true;
-      this.$utils.getJson(this.$utils.CONFIG.api.uploadFiles, (res) => { //版本详情 
+	      this.$refs[ref] && this.$refs[ref].clearFiles();
+	    },
+	    resetForm(formName) {
 
-        this.right.isLoading = false;
-        typeof this.uploadSuccess == 'function' && this.uploadSuccess(res);
-      }, () => {
+	      this.$refs[formName] && this.$refs[formName].resetFields();
+	    },
+	    uploadFile() {
+	        
+	      let formData = new FormData();
+	      formData.append('files', this.$refs.file.files[0]);
 
-      	this.right.isLoading = false;
-      	this.$refs.file && (this.$refs.file.value = '');
-      }, formData, 'post', true);
-    },
-    uploadSuccess(res, formKey = 'update') {
+	      this.right.isLoading = true;
+	      this.$utils.getJson(this.$utils.CONFIG.api.uploadFiles, (res) => { //版本详情 
 
-      this.handle.update.form.fileId = res.data[0].fileId;
-    },
-    uploadError(formKey = 'update') {
+	        this.right.isLoading = false;
+	        typeof this.uploadSuccess == 'function' && this.uploadSuccess(res);
+	      }, () => {
 
-      this.handle[formKey].form.fileId = '';
-    },
-    deleteFiles(fileId, deleteRow) {
+	      	this.right.isLoading = false;
+	      	this.$refs.file && (this.$refs.file.value = '');
+	      }, formData, 'post', true);
+	    },
+	    uploadSuccess(res, formKey = 'update') {
 
-    	this.right.isLoading = true;
-    	this.deleteRow = deleteRow;
-      this.$utils.getJson(this.$utils.CONFIG.api.deleteFiles, (res) => { //版本详情 
+	      this.handle.update.form.fileId = res.data[0].fileId;
+	    },
+	    uploadError(formKey = 'update') {
 
-        this.right.isLoading = false;
-        typeof this.deleteSuccess == 'function' && this.deleteSuccess();
-      }, () => this.right.isLoading = false, {fileId: fileId});
-    },
-    down(fileId) {
+	      this.handle[formKey].form.fileId = '';
+	    },
+	    deleteFiles(fileId, deleteRow) {
 
-    	window.open(`${this.$utils.CONFIG.api.download}?fileId=${fileId}`, "_blank")
-    },
-    saveFile(id, formKey = 'update') {
-        
-      let params = {
-        fileId: this.handle[formKey].form.fileId,
-        customerId: id
-      }
-      this.$utils.getJson(this.$utils.CONFIG.api.saveCustomerHeadPortraits, (res) => {
+	    	this.right.isLoading = true;
+	    	this.deleteRow = deleteRow;
+	      this.$utils.getJson(this.$utils.CONFIG.api.deleteFiles, (res) => { //版本详情 
 
-        this.closeDialog();
-        this.$utils.showTip('success', 'success', '102');
-        this.search();
-      }, () => this.handle.update.isLoading = false, params)
-    },
-    checkSort(sortType) {
+	        this.right.isLoading = false;
+	        typeof this.deleteSuccess == 'function' && this.deleteSuccess();
+	      }, () => this.right.isLoading = false, {fileId: fileId});
+	    },
+	    down(fileId) {
 
-    	this.filter.sort.sortType = sortType;
-    	this.$refs.sort.hide();
-    	this.search();
-    },
-    search() {
-      this.left.page.pageNo = 1;
-      this.getLeftList();
-    },
-    showInput(list, index, key, defaultObj = {}) {
-    	
-    	this.$set(list[index], key, true);
-      if(list.length -1 == index) list.push(Object.assign({}, defaultObj))
-    },
-  	showObjInput(obj, key) {
-    	
-    	this.$set(obj, key, true);
-    },
-  	querySearch(queryString, cb, list, valueKey = 'name') {
-  		
-      var restaurants = list;
-      var results = queryString ? restaurants.filter(this.createFilter(queryString, valueKey)) : restaurants;
-      // 调用 callback 返回建议列表的数据
+	    	window.open(`${this.$utils.CONFIG.api.download}?fileId=${fileId}`, "_blank")
+	    },
+	    saveFile(id, formKey = 'update') {
+	        
+	      let params = {
+	        fileId: this.handle[formKey].form.fileId,
+	        customerId: id
+	      }
+	      this.$utils.getJson(this.$utils.CONFIG.api.saveCustomerHeadPortraits, (res) => {
 
-      cb(results);
-    },
-    createFilter(queryString, valueKey) {
-      return (restaurant) => {
-        return (restaurant[valueKey] && restaurant[valueKey].toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-      };
-    },
-    isExistenceVersion(versionList, value, key) {	//版本列表中是否存在版本号
+	        this.closeDialog();
+	        this.$utils.showTip('success', 'success', '102');
+	        this.search();
+	      }, () => this.handle.update.isLoading = false, params)
+	    },
+	    checkSort(sortType) {
 
-    	return versionList.find(item => item[key] == value);
-    },
-    getSelectedVersionStuffNo(versions, selectedVersionNo) {
+	    	this.filter.sort.sortType = sortType;
+	    	this.$refs.sort.hide();
+	    	this.search();
+	    },
+	    search() {
+	      this.left.page.pageNo = 1;
+	      this.getLeftList();
+	    },
+	    showInput(list, index, key, defaultObj = {}) {
+	    	
+	    	this.$set(list[index], key, true);
+	      if(list.length -1 == index) list.push(Object.assign({}, defaultObj))
+	    },
+	  	showObjInput(obj, key) {
+	    	
+	    	this.$set(obj, key, true);
+	    },
+	  	querySearch(queryString, cb, list, valueKey = 'name') {
+	  		
+	      var restaurants = list;
+	      var results = queryString ? restaurants.filter(this.createFilter(queryString, valueKey)) : restaurants;
+	      // 调用 callback 返回建议列表的数据
 
-    	if(selectedVersionNo) {
-    		let selectedVersion = versions.find(itemc => itemc.versionNo == selectedVersionNo);
-    		return selectedVersion.stuffNo;
-    	}else {
-    		return '';
-    	} 	
-    }
+	      cb(results);
+	    },
+	    createFilter(queryString, valueKey) {
+	      return (restaurant) => {
+	        return (restaurant[valueKey] && restaurant[valueKey].toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+	      };
+	    },
+	    isExistenceVersion(versionList, value, key) {	//版本列表中是否存在版本号
+
+	    	return versionList.find(item => item[key] == value);
+	    },
+	    getSelectedVersion(versions, selectedVersionNo) {
+
+	    	if(selectedVersionNo) {
+	    		let selectedVersion = versions.find(itemc => itemc.versionNo == selectedVersionNo);
+	    		return selectedVersion;
+	    	}else {
+	    		return {};
+	    	} 	
+	    },
+	    getSelectedVersionStuffNo(versions, selectedVersionNo) {
+
+	    	if(selectedVersionNo) {
+	    		let selectedVersion = versions.find(itemc => itemc.versionNo == selectedVersionNo);
+	    		return selectedVersion.stuffNo;
+	    	}else {
+	    		return '';
+	    	} 	
+	    }
 	},
 	mounted() {
 		let _this = this;

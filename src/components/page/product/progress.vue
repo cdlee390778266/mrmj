@@ -27,12 +27,12 @@
             </el-dropdown>
           </div>
           <div>
-            <el-button type="primary" @click="$router.push(`/product/editOrder`)" style="width: 130px;">新增生产订单</el-button>
+            <el-button type="primary" @click="$router.push(`/product/processCard/6`)" style="width: 130px;">新增生产订单</el-button>
             <el-button type="primary" class="fr" @click="$router.push(`/product/detail`)" style="width: 130px;">查看当前订单及计划</el-button>
           </div>
         </div>
         <div class="list" ref="list">
-          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.id }" v-show="isShowList" @click="handleSelect(item)">
+          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.saleOrderNo }" v-show="isShowList" @click="handleSelect(item)">
             <div class="dflex">
               <div>
                 <div>
@@ -54,10 +54,9 @@
               <el-col :span="11">状态：{{ item.orderStatusText | filterNull }}</el-col>
               <el-col :span="13">延误时间累计(H)：{{ item.delayTotalTime | filterNull(0) }}</el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" v-if="item.orderStatusText == '未开始'"  @click="edit(item)">编辑</a>
-                <a href="javascript: void(0);" v-if="item.orderStatusText == '未开始'" @click="confirm('cancel', '取消', item)">取消</a>
-                <a href="javascript: void(0);" v-if="item.orderStatusText != '未开始'" @click="confirm('suspend', '暂停', item)">暂停</a>
-                <a href="javascript: void(0);" v-if="item.orderStatusText != '未开始'" @click="confirm('stop', '终止', item)">终止</a>
+                <a href="javascript: void(0);" @click="edit(item)">编辑</a>
+                <a href="javascript: void(0);" @click="saveHandle('suspend', item)">暂停</a>
+                <a href="javascript: void(0);" @click="saveHandle('stop', item)">终止</a>
               </el-col>
             </el-row>
           </div>
@@ -82,15 +81,15 @@
               <el-carousel-item >
                 <div class="main-content-title">
                   <div>
-                    <i class="el-icon-lx-edit"></i> 订单T-0034生产进度
+                    <i class="el-icon-lx-edit"></i> 订单{{currentData.saleOrderNo}}生产进度
                   </div>
                 </div>
                 <el-scrollbar class="main-content-scorll pdt10">
                   <el-row>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">模具号：{{ right.page1.mouldNo | filterNull }}</el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单类型：{{ right.page1.saleOrderType | filterNull }}</el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{ right.page1.customerPoNo | filterNull }}</el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ right.page1.name | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">模具号：{{ currentData.mouldNo | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单类型：{{ currentData.orderTypeText | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{ currentData.customerPoNo | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ currentData.name | filterNull }}</el-col>
                   </el-row>
                   <el-row>
                     <el-col :span="24">
@@ -98,13 +97,13 @@
                     </el-col>
                   </el-row>
                   <div class="progress-list">
-                    <div class="progress-item">
+                    <div class="progress-item" v-for="(item, index) in currentData.trackMessages">
                       <div class="process-left">
-                        <p><span>零件：A14656</span></p>
-                        <p><span>数量：5</span><span class="mgl10">备货数量：3</span></p>
-                        <p><span>生产订单下达时间：02.28</span></p>
-                        <p><span>计划时间：03.02 至 03.21</span></p>
-                        <p><span>当前成本累计：120.00元</span></p>
+                        <p><span>零件：{{item.components | concatString('componentNo')}}</span></p>
+                        <p><span>数量：{{item.components | concatString('quantity')}}</span><span class="mgl10">备货数量：{{item.components | concatString('stockingQuantity')}}</span></p>
+                        <p><span>生产订单下达时间：{{ currentData.issuedOrderDate | filterNull }}</span></p>
+                        <p><span>计划时间：{{ currentData.planStartDate | filterNull }} 至 {{ currentData.planEndDate | filterNull }}</span></p>
+                        <p><span>当前成本累计：{{ total(item) }}元</span></p>
                         <p>
                           <el-button type="text" @click="jump">编辑 查看 打印工艺卡</el-button>
                         </p>
@@ -114,189 +113,42 @@
                           <thead>
                             <tr>
                               <th class="tr">工序</th>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.name}}</th>
-                              <th class="fc-green"><span>H/T</span><img :src="progressImg1" class="mgl5"></th>
-                              <th class="fc-green"><span>G</span><img :src="progressImg1" class="mgl5"></th>
-                              <th><span>CNCH</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>G</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>EDM</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>CNCH</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>G</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>EDM</span><img :src="progressImg2" class="mgl5"></th>
-                              <th class="left"><span>字标</span></th>
+                              <th v-for="(itemc, index) in item.processes" :key="index">
+                                <span>{{itemc.processName}}</span>
+                                <img :src="progressImg1" class="mgl5" v-if="index != item.processes.length - 1">
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
                             <tr>
                               <td class="tr"><span class="bg-green fcfff">估工</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
+                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
+                                <span>{{itemc.estimationWorkTime}}</span>
+                              </td>
                             </tr>
                             <tr>
                               <td class="tr"><span class="bg-green fcfff">开始</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
+                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
+                                <span>{{itemc.startTime}}</span>
+                              </td>
                             </tr>
                             <tr>
                               <td class="tr"><span class="bg-green fcfff">结束</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
+                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
+                                <span>{{itemc.estimationWorkTime}}</span>
+                              </td>
                             </tr>
                             <tr>
                               <td class="tr"><span class="bg-green fcfff">耗时</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
+                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
+                                <span>{{itemc.consumeTime}}</span>
+                              </td>
                             </tr>
                             <tr>
                               <td class="tr"><span class="bg-green fcfff">人工成本</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                    <div class="progress-item">
-                      <div class="process-left">
-                        <p><span>零件：A14656</span></p>
-                        <p><span>数量：5</span><span class="mgl10">备货数量：3</span></p>
-                        <p><span>生产订单下达时间：02.28</span></p>
-                        <p><span>计划时间：03.02 至 03.21</span></p>
-                        <p><span>当前成本累计：120.00元</span></p>
-                        <p>
-                          <el-button type="text" @click="jump">编辑 查看 打印工艺卡</el-button>
-                        </p>
-                      </div>
-                      <div class="process-right">
-                        <table class="mrmj-table">
-                          <thead>
-                            <tr>
-                              <th class="tr">工序</th>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.name}}</th>
-                              <th class="fc-green"><span>H/T</span><img :src="progressImg1" class="mgl5"></th>
-                              <th class="fc-green"><span>G</span><img :src="progressImg1" class="mgl5"></th>
-                              <th><span>CNCH</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>G</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>EDM</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>CNCH</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>G</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>EDM</span><img :src="progressImg2" class="mgl5"></th>
-                              <th class="left"><span>字标</span></th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td class="tr"><span class="bg-green fcfff">估工</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
-                            </tr>
-                            <tr>
-                              <td class="tr"><span class="bg-green fcfff">开始</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
-                            </tr>
-                            <tr>
-                              <td class="tr"><span class="bg-green fcfff">结束</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
-                            </tr>
-                            <tr>
-                              <td class="tr"><span class="bg-green fcfff">耗时</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
-                            </tr>
-                            <tr>
-                              <td class="tr"><span class="bg-green fcfff">人工成本</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                    <div class="progress-item">
-                      <div class="process-left">
-                        <p><span>零件：A14656</span></p>
-                        <p><span>数量：5</span><span class="mgl10">备货数量：3</span></p>
-                        <p><span>生产订单下达时间：02.28</span></p>
-                        <p><span>计划时间：03.02 至 03.21</span></p>
-                        <p><span>当前成本累计：120.00元</span></p>
-                        <p>
-                          <el-button type="text" @click="jump">编辑 查看 打印工艺卡</el-button>
-                        </p>
-                      </div>
-                      <div class="process-right">
-                        <table class="mrmj-table">
-                          <thead>
-                            <tr>
-                              <th class="tr">工序</th>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.name}}</th>
-                              <th class="fc-green"><span>H/T</span><img :src="progressImg1" class="mgl5"></th>
-                              <th class="fc-green"><span>G</span><img :src="progressImg1" class="mgl5"></th>
-                              <th><span>CNCH</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>G</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>EDM</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>CNCH</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>G</span><img :src="progressImg2" class="mgl5"></th>
-                              <th><span>EDM</span><img :src="progressImg2" class="mgl5"></th>
-                              <th class="left"><span>字标</span></th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td class="tr"><span class="bg-green fcfff">估工</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
-                            </tr>
-                            <tr>
-                              <td class="tr"><span class="bg-green fcfff">开始</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
-                            </tr>
-                            <tr>
-                              <td class="tr"><span class="bg-green fcfff">结束</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
-                            </tr>
-                            <tr>
-                              <td class="tr"><span class="bg-green fcfff">耗时</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
-                            </tr>
-                            <tr>
-                              <td class="tr"><span class="bg-green fcfff">人工成本</span></td>
-                              <th v-for="(itemc, index) in currentData.processes" :key="index">{{itemc.estimationWorkTime}}</th>
-                              <th>
-                                {{currentData.processes | sum('estimationWorkTime')}}
-                              </th>
+                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
+                                <span>{{itemc.consumeTime * itemc.processPrice}}元</span>
+                              </td>
                             </tr>
                           </tbody>
                         </table>
@@ -396,7 +248,7 @@
             <el-col :span="8">客户：{{handle.edit.order && handle.edit.order.name}}</el-col>
             <el-col :span="8">交期：{{handle.edit.order && handle.edit.order.mouldNo}}</el-col>
           </el-row>
-          <div class="dialog-content pdt10 pdlr10 mglr10 bgfff">
+          <div class="dialog-content pd10 mglr10 bgfff">
             <div class="mgb10" :class="{borb: handle.edit.data && (index != handle.edit.data.length - 1)}" v-for="(item, index) in handle.edit.data" :key="index" >
               <el-row>
                 <el-col :span="24" class="mgb10">
@@ -450,94 +302,25 @@
       </div>
     </el-dialog>
 
-    <el-dialog :title="`${handle.handle.title}原因`" :visible.sync="handle.handle.dialogVisible">
-      <el-form :model="handle.handle.form" label-width="100px" v-loading="handle.handle.isLoading">
-        <el-form-item :label="`需求${handle.handle.title}原因`" class="mgt20">
-          <el-input v-model="handle.handle.form.reason"></el-input>
-        </el-form-item>
-        <el-form-item label="说明" class="mgt20">
-          <el-input type="textarea" v-model="handle.handle.form.dsc" class="v-textarea"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="saveHandle">确 定</el-button>
-        <el-button @click="handle.handle.dialogVisible = false">取 消</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="查看销售订单信息" center :visible.sync="handle.update.dialogVisible" width="800px" v-dialogDrag>
-      <el-form :model="handle.update.form" :rules="handle.update.rules" v-loading="handle.update.isLoading" label-width="100px" ref="updateForm">
+    <el-dialog title="查看销售订单信息" center :visible.sync="handle.orderInfo.dialogVisible" width="800px" v-dialogDrag>
+      <el-form :model="handle.orderInfo.data" v-loading="handle.orderInfo.isLoading" label-width="100px" ref="updateForm">
         <div class="dflex">
           <div class="flex">
-            <el-form-item label="客户名称" prop="customerName">
-              <el-input v-model="handle.update.form.customerName" auto-complete="off"></el-input>
+            <el-form-item label="客户名称">
+              <el-input v-model="handle.orderInfo.data.customerName" auto-complete="off" disabled></el-input>
             </el-form-item>
-            <el-form-item label="模具号" prop="abbreviation">
-              <el-input v-model="handle.update.form.abbreviation" auto-complete="off"></el-input>
+            <el-form-item label="模具号">
+              <el-input v-model="handle.orderInfo.data.abbreviation" auto-complete="off" disabled></el-input>
             </el-form-item>
             <div>
               <p>零件清单：</p>
-              <el-table :data="handle.update.form.liaisonManList" border size="mini" style="width: 100%" class="edit-table">
-                <el-table-column prop="liaisonManName" label="零件号"  width="100" show-overflow-tooltip>
-                  <template scope="scope">
-                    <div>
-                      <div @click="showInput(handle.update.form.liaisonManList, scope.$index, 'liaisonManNameEdit')">
-                        <el-input size="mini" v-model="scope.row.liaisonManName" @focus="showInput(handle.update.form.liaisonManList, scope.$index, 'liaisonManNameEdit')" @blur="scope.row.liaisonManNameEdit = false" :style="{opacity: scope.row.liaisonManNameEdit ? 1 : 0}"/>
-                        <div class="ellipsis">{{ scope.row.liaisonManName }}</div>
-                      </div>
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="name" label="数量" width="88" show-overflow-tooltip>
-                  <template scope="scope">
-                    <div>
-                      <div @click="showInput(handle.update.form.liaisonManList, scope.$index, 'genderEdit')">
-                        <el-input size="mini" v-model="scope.row.gender" @focus="showInput(handle.update.form.liaisonManList, scope.$index, 'genderEdit')" @blur="scope.row.genderEdit = false" :style="{opacity: scope.row.genderEdit ? 1 : 0}"/>
-                        <div class="ellipsis">{{ scope.row.gender }}</div>
-                      </div>
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="address" label="要求交期" show-overflow-tooltip>
-                  <template scope="scope">
-                    <div>
-                      <div @click="showInput(handle.update.form.liaisonManList, scope.$index, 'positionEdit')">
-                        <el-input size="mini" v-model="scope.row.position" @focus="showInput(handle.update.form.liaisonManList, scope.$index, 'positionEdit')" @blur="scope.row.positionEdit = false" :style="{opacity: scope.row.positionEdit ? 1 : 0}"/>
-                        <div class="ellipsis">{{ scope.row.position }}</div>
-                      </div>
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="address" label="单价" show-overflow-tooltip>
-                  <template scope="scope">
-                    <div>
-                      <div @click="showInput(handle.update.form.liaisonManList, scope.$index, 'phoneEdit')">
-                        <el-input size="mini" v-model="scope.row.phone" @focus="showInput(handle.update.form.liaisonManList, scope.$index, 'phoneEdit')" @blur="scope.row.phoneEdit = false" :style="{opacity: scope.row.phoneEdit ? 1 : 0}"/>
-                        <div class="ellipsis">{{ scope.row.phone }}</div>
-                      </div>
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="address" label="总价" show-overflow-tooltip>
-                  <template scope="scope">
-                    <div>
-                      <div @click="showInput(handle.update.form.liaisonManList, scope.$index, 'emailEdit')">
-                        <el-input size="mini" v-model="scope.row.email" @focus="showInput(handle.update.form.liaisonManList, scope.$index, 'emailEdit')" @blur="scope.row.emailEdit = false" :style="{opacity: scope.row.emailEdit ? 1 : 0}"/>
-                        <div class="ellipsis">{{ scope.row.email }}</div>
-                      </div>
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="address" label="说明" show-overflow-tooltip>
-                  <template scope="scope">
-                    <div>
-                      <div @click="showInput(handle.update.form.liaisonManList, scope.$index, 'remarkEdit')">
-                        <el-input size="mini" v-model="scope.row.remark" @focus="showInput(handle.update.form.liaisonManList, scope.$index, 'remarkEdit')" @blur="scope.row.remarkEdit = false" :style="{opacity: scope.row.remarkEdit ? 1 : 0}"/>
-                        <div class="ellipsis">{{ scope.row.remark }}</div>
-                      </div>
-                    </div>
-                  </template>
-                </el-table-column>
+              <el-table :data="handle.orderInfo.data.liaisonManList" border size="mini" style="width: 100%" class="edit-table">
+                <el-table-column prop="liaisonManName" label="零件号"  width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="name" label="数量" width="88" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="address" label="要求交期" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="address" label="单价" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="address" label="总价" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="address" label="说明" show-overflow-tooltip></el-table-column>
               </el-table>
             </div>
             <el-row class="mgt10">
@@ -548,47 +331,23 @@
               </el-col>
               <el-col :span="8">
                 <el-form-item label="结算货币" prop="currencyId" label-width="120px">
-                  <el-select v-model="handle.update.form.currencyId" style="width: 100%;">
-                    <el-option v-for="(item, index) in $dict.currencyList" :key="index" :label="item.name" :value="item.mrCurrencyId"></el-option>
-                  </el-select>
+                  人民币
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item label="结算货币总价" prop="accountPeriod" label-width="120px">
-                  <div class="dflex">
-                    <div class="flex">
-                      <el-input type="number" v-model="handle.update.form.accountPeriod" auto-complete="off" aria-placeholder="请输入结算货币总价"></el-input>
-                    </div>
-                  </div>
+                <el-form-item label="结算货币总价" label-width="120px">
+                  168
                 </el-form-item>
               </el-col>
             </el-row>
           </div>
-          <el-upload
-            list-type="picture-card"
-            class="v-upload pdl10"
-            name="files"
-            accept="jpg"
-            ref="upload"
-            :action="$utils.CONFIG.api.uploadFiles"
-            :customerId="$utils.getStorage('userId')"
-            :multiple="false"
-            :limit="1"
-            :on-success="(res) => uploadSuccess(res)"
-            :on-error="() => uploadError()"
-          >
-            <i class="el-icon-plus"></i>
-          </el-upload>
+          <div class="pd10">
+            <img :src="defaultImg" width="100px" height="100px">
+          </div>
         </div>
         <div>
-          <p class="mgb10">
-            上传附件：
-            <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
-              <el-button size="mini" type="primary">选择上传文件</el-button>
-              <input type="file" name="file" ref="file" class="posFull opacity0" @change="uploadFile">
-            </span>
-          </p>
-          <el-table :data="handle.update.form.liaisonManList" border size="mini" style="width: 100%" class="edit-table">
+          <p class="mgb10">上传附件：</p>
+          <el-table :data="handle.orderInfo.data.liaisonManList" border size="mini" style="width: 100%" class="edit-table">
             <el-table-column prop="fileName" label="上传文件"  show-overflow-tooltip>
             </el-table-column>
             <el-table-column prop="address" label="资料名称" show-overflow-tooltip></el-table-column>
@@ -600,13 +359,11 @@
           </el-table>
         </div>
         <el-form-item label="说明" prop="customerName" class="mgt10">
-          <el-input type="textarea" v-model="handle.update.form.customerName" auto-complete="off"></el-input>
+          <el-input type="textarea" v-model="handle.orderInfo.data.abbreviation" auto-complete="off" disabled></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer tr">
-        <el-button type="primary" @click="saveEdit('updateForm')">下单订单</el-button>
-        <el-button type="primary" @click="saveEdit('updateForm')">保存草稿</el-button>
-        <el-button @click="handle.update.dialogVisible = false">取 消</el-button>
+        <el-button @click="handle.orderInfo.dialogVisible = false">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -626,12 +383,7 @@
         },
         right: {
           activeIndex: 0,
-          list: [
-            {
-              spList: [],
-              enclosureList: []
-            }
-          ]
+          list: []
         },
         handle: {
           edit: {
@@ -649,65 +401,10 @@
               stockingQuantity: ''
             }
           },
-          handle: {
+          orderInfo: {
             dialogVisible: false,
             isLoading: false,
-            order: {},
-            form: {
-              reason: '',
-              dic: ''
-            }
-          },
-          update: {
-            dialogVisible: false,
-            isLoading: false,
-            handleType: 'add',
-            form: {
-              fileId: '',
-              customerName: '',
-              customerType: 10,
-              abbreviation: '',
-              countryId: '',
-              currencyId: '',
-              accountPeriod: '',
-              address: '',
-              industryNume: '',
-              phone: '',
-              valueScale: '',
-              province: '',
-              city: '',
-              distinct: '',
-              fax: '',
-              email: '',
-              personInCharge: '',
-              personScale: '',
-              liaisonManList: [],
-              remark: ''
-            },
-            rules: {
-              customerName: [
-                { required: true, message: this.$utils.getTipText('error', '-1010')},
-                { max: 20, message: this.$utils.getTipText('error', '-1011')}
-              ],
-              abbreviation: [
-                { required: true, message: this.$utils.getTipText('error', '-1012')}
-              ],
-              countryId: [
-                { required: true, message: this.$utils.getTipText('error', '-1013')}
-              ],
-              currencyId: [
-                { required: true, message: this.$utils.getTipText('error', '-1017')}
-              ],
-              accountPeriod: [
-                { required: true, message: this.$utils.getTipText('error', '-1018')}
-              ],
-              address: [
-                { required: true, message: this.$utils.getTipText('error', '-1014')}
-              ],
-              phone: [
-                { validator: this.$validator.checkPhone}
-              ],
-            }
+            data: {}
           }
         }
       };
@@ -724,44 +421,56 @@
         }
         if(this.form.text) params.name = this.form.text;
 
-        this.getData(this.$utils.CONFIG.api.trackProductionOrder, params, 'id', loadingKey);
+        this.getData(this.$utils.CONFIG.api.trackProductionOrder, params, 'saleOrderNo', loadingKey);
+      },
+      handleSelect(item) {
+
+        this.left.activeId = item.saleOrderNo;
+        this.currentData = item;
       },
       edit(item) {
 
         this.handle.edit.order = item;
         this.handle.edit.dialogVisible = true;
+
       },
       saveEdit() {
 
 
       },
-      confirm(type, title, item) {
+      saveHandle(type, item) {
 
-        this.handle.handle.type = type;
-        this.handle.handle.title = title;
-        this.handle.handle.order = item;
-        this.handle.handle.dialogVisible = true;
-      },
-      saveHandle() {
-
-        this.handle.handle.dialogVisible = false;
+        
       },
       orderDetail() {
 
-        this.handle.update.dialogVisible = true;
-      },
-      handlePictureCardPreview(file) {
-        this.faceUrl = file.url;
-        this.addDialog.dialogVisible = true;
+        this.handle.orderInfo.dialogVisible = true;
+        this.handle.orderInfo.isLoading = true;
+
+        this.$utils.getJson(this.$utils.CONFIG.api.querySaleOrderInfo, (res) => {
+
+          this.handle.orderInfo.isLoading = false;
+          this.handle.orderInfo.data = res.data || {};
+        }, () => this.handle.orderInfo.isLoading = false, {mrSaleOrderId: this.currentData.mrSaleOrderId});
       },
       jump() {
 
         this.$router.push(`/product/processCard/1`);
       },
-      del(index, row) {
-        console.log(index, row);
-      },
       refresh() {}
+    },
+    computed: {
+      total() {
+
+        return function(item) {
+
+          let total = 0;
+          item && item.processes.map(itemc => {
+            total += (itemc.consumeTime || 0) * itemc.processPrice;
+          })
+          return total || '-'
+        }
+      }
     },
     created() {
       this.filter.typeList = this.filter.listType.product;

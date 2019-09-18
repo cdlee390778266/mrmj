@@ -74,7 +74,7 @@
               <el-carousel-item >
                 <div class="main-content-title">
                   <div>
-                    <i class="el-icon-lx-edit"></i> 订单{{ right.page1.mrSaleOrderId }}信息
+                    <i class="el-icon-lx-edit"></i> 订单{{ right.page1.saleOrderNo }}信息
                   </div>
                 </div>
                 <el-scrollbar class="main-content-scorll pdt10">
@@ -227,7 +227,7 @@
                 </el-col>
               </el-row>
               <div class="mgb20">
-                <p>工序及估工：</p>
+                <p>工序及估工：{{item.versions.processes}}</p>
                 <table class="mrmj-table">
                   <thead>
                     <tr>

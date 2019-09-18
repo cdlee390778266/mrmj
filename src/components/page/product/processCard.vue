@@ -361,6 +361,11 @@
           return;
         }
 
+        if(!this.right.page1.stuffNo) { //如果没有输入材料
+          this.$utils.showTip('warning', 'error', '-1047');
+          return;
+        }
+
         if(this.isExistenceVersion(this.left.list, this.right.page1.craftVersionNo, 'craftVersionNo') && this.currentData.craftVersionNo != this.right.page1.craftVersionNo) { //输入工艺路线版本号与选中工艺路线版本号不一致
           this.$utils.showTip('warning', 'error', '-1045');
           return;
