@@ -227,19 +227,19 @@
                 </el-col>
               </el-row>
               <div class="mgb20">
-                <p>工序及估工：{{item.versions.processes}}</p>
+                <p>工序及估工：</p>
                 <table class="mrmj-table">
                   <thead>
                     <tr>
                       <th class="bge4e4e4">工序顺序</th>
-                      <th v-for="(itemc, index) in item.processes" :key="index">{{itemc.name}}</th>
+                      <th v-for="(itemc, index) in getSelectedProcesses(item.versions, item.selectedVersionNo)" :key="index">{{itemc.name}}</th>
                       <th class="bge4e4e4">工时合计</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td class="bge4e4e4">估工（H）</td>
-                      <th v-for="(itemc, index) in item.processes" :key="index">{{itemc.estimationWorkTime}}</th>
+                      <th v-for="(itemc, index) in getSelectedProcesses(item.versions, item.selectedVersionNo)" :key="index">{{itemc.estimationWorkTime}}</th>
                       <th class="bge4e4e4">
                         {{item.processes | sum('estimationWorkTime')}}
                       </th>
@@ -399,6 +399,7 @@
 
           this.handle.add.isLoading = false;
           this.handle.add.dialogVisible = false;
+          this.$utils.showTip('success', 'success', '102');
           !saveAsDraft && this.search();
         }, () => this.handle.add.isLoading = false, params);
       },

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="isLoading">
     <div class="crumbs" style="border: none;">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
@@ -268,10 +268,9 @@
       return {
         activeTab: "calc",
         time: '',
+        isLoading: false,
         component: {},
-        form: {
-
-        }
+        form: {}
       }
     },
     methods: {
@@ -442,15 +441,15 @@
           }
         })
 
-        this.right.isLoading = true;
+        this.isLoading = true;
         this.$utils.getJson(url, (res) => { //版本详情 
 
-          this.right.isLoading = false;
+          this.isLoading = false;
           this.$utils.showTip('success', 'success', '102');
           this.component.type = 'edit';
           localStorage.setItem(this.time, JSON.stringify(this.component));
           this.refresh();
-        }, () => this.right.isLoading = false, params);
+        }, () => this.isLoading = false, params);
       },
       refresh() {
 

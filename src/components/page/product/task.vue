@@ -144,16 +144,16 @@
                 <el-col :span="24">
                   <strong>ELE编程任务</strong>
                   <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && !currentData.eleProgram.designer" @click="showDialog('taskApply', 'eleProgram', currentData.eleProgram.mrProgrammeTasksId, 'ELE编程任务')">申领</el-button>
-                  <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && currentData.eleProgram.designer && currentData.eleProgram.designer == userName">完成</el-button>
-                  <!-- <el-button type="primary" class="mgl10" @click="showDialog('attachment', 'eleProgram', '', 'ELE')">编辑</el-button> -->
+                  <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && currentData.eleProgram.designer && currentData.eleProgram.designer == userName && (!currentData.eleProgram.attachments || !currentData.eleProgram.attachments.length)" @click="showDialog('attachment', 'eleProgram', currentData.eleProgram.mrProgrammeTasksId, 'ELE编程任务')">完成</el-button>
+                  <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && currentData.eleProgram.designer && currentData.eleProgram.designer == userName && currentData.eleProgram.attachments && currentData.eleProgram.attachments.length" @click="showDialog('attachment', 'eleProgram', currentData.eleProgram.mrProgrammeTasksId, 'ELE编程任务', currentData.eleProgram.attachments)">编辑</el-button>
                 </el-col>
                 <el-col :span="24" v-if="currentData.eleProgram && currentData.eleProgram.designer">
                   <span>设计人员：{{currentData.eleProgram.designer}}</span>
                   <span class="mgl20">完成时间：{{currentData.eleProgram.completionDate}}</span>
-                  <div>
+                  <div v-if="currentData.eleProgram.attachments && currentData.eleProgram.attachments.length">
                     <p>ELE编程上传附件</p>
                     <el-table
-                      :data="left.list"
+                      :data="currentData.eleProgram.attachments"
                       border
                       size="mini"
                       class="content-table"
@@ -169,12 +169,6 @@
                         show-overflow-tooltip>
                       </el-table-column>
                       <el-table-column
-                        prop="fileName"
-                        label="版本号"
-                        show-overflow-tooltip>
-                      </el-table-column>
-                      <el-table-column
-                        prop="operator"
                         label="操作"
                         width="120"
                         align="center"
@@ -213,11 +207,6 @@
                       <el-table-column
                         prop="fileName"
                         label="资料名称"
-                        show-overflow-tooltip>
-                      </el-table-column>
-                      <el-table-column
-                        prop="fileName"
-                        label="版本号"
                         show-overflow-tooltip>
                       </el-table-column>
                       <el-table-column
@@ -260,11 +249,6 @@
                       <el-table-column
                         prop="fileName"
                         label="资料名称"
-                        show-overflow-tooltip>
-                      </el-table-column>
-                      <el-table-column
-                        prop="fileName"
-                        label="版本号"
                         show-overflow-tooltip>
                       </el-table-column>
                       <el-table-column
@@ -382,26 +366,26 @@
     </el-dialog>
 
     <el-dialog :title="`${handle.attachment.title}编程任务完成确认对话框`" align="center" width="500px" class="dialog-gray" :visible.sync="handle.attachment.dialogVisible">
-      <div v-loading="handle.attachment.isLoading" class="tl">
+      <div v-loading="handle.attachment.isLoading" class="tl pdtb20">
         <div>
           <p class="mgb10">
             上传附件：
             <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
               <el-button size="mini" type="primary">上传附件</el-button>
-              <input type="file" name="file" ref="file" class="posFull opacity0" @change="uploadFile">
+              <input type="file" name="file" ref="file" class="posFull opacity0" @change="addAttachments">
             </span>
           </p>
           <el-table
-            :data="currentData.attachments"
+            :data="handle.attachment.data"
             border
             size="mini"
             max-height="200"
             class="content-table"
             style="width: 100%">
             <el-table-column
-              prop="fileName"
-              label="本地文件名"
-              show-overflow-tooltip>
+              type="index"
+              width="50"
+              label="序号">
             </el-table-column>
             <el-table-column
               prop="fileName"
@@ -415,14 +399,14 @@
               align="center"
               show-overflow-tooltip>
               <template slot-scope="scope">
-                <el-button type="text" @click="deleteFiles(scope.row.fileId, scope.row)">删除</el-button>
+                <el-button type="text" @click="removeAttachments(scope.row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
         </div>
         <div slot="footer" class="dialog-footer tr mgt30">
-          <el-button type="primary" @click="applyElectrode">申领</el-button>
-          <el-button type="primary" @click="handle.attachment.dialogVisible = false">返回</el-button>
+          <el-button type="primary" @click="saveProAttachment">完 成</el-button>
+          <el-button type="primary" @click="handle.attachment.dialogVisible = false">返 回</el-button>
         </div>
       </div>
     </el-dialog>    
@@ -471,6 +455,7 @@
             type: '',
             dialogVisible: false,
             isLoading: false,
+            addFiles: [],
             data: []
           }
         }
@@ -488,7 +473,19 @@
         }
         if(this.form.text) params.parameter = this.form.text;
 
-        this.getData(this.$utils.CONFIG.api.queryNoDealEleOrCNC, params, 'mrElectrodeProductionOrderId', loadingKey, null, isSetCurrentData);
+        this.getData(this.$utils.CONFIG.api.queryNoDealEleOrCNC, params, 'mrElectrodeProductionOrderId', loadingKey, this.getAttachments, isSetCurrentData);
+      },
+      getAttachments() {
+
+        if(this.currentData.eleProgram && this.currentData.eleProgram.mrProgrammeTasksId) {
+
+          this.right.isLoading = true;
+          this.$utils.getJson(this.$utils.CONFIG.api.queryAttInProgramme, (res) => { //ELE附件列表查询 
+
+            this.right.isLoading = false;
+            this.currentData.eleProgram.attachments = res.data || [];
+          }, () => this.right.isLoading = false, {mrProgrammeTasksId: this.currentData.eleProgram.mrProgrammeTasksId});
+        }
       },
       resetForm() {
       
@@ -568,11 +565,13 @@
           !saveAsDraft && this.search();
         }, () => this.handle.add.isLoading = false, params);
       },
-      showDialog(formKey, type, id, title) {
-        
+      showDialog(formKey, type, id, title, attachments) {
+        console.log(formKey, type, id, title)
         this.handle[formKey].type = type;
         this.handle[formKey].id = id;
         this.handle[formKey].title = title;
+        this.handle[formKey].data = attachments ? attachments.concat() : [];
+        this.handle[formKey].addFiles = [];
         this.handle[formKey].dialogVisible = true;
       },
       applyElectrode() {
@@ -610,6 +609,75 @@
         let time = new Date().getTime();
         this.$utils.setStorage(time, JSON.stringify(this.currentData));
         this.$router.push(`/product/designElectrode/${time}`);
+      },
+      addAttachments() {
+        
+        let fileId = new Date().getTime();
+        this.$refs.file.files[0].fileId = fileId;
+        this.handle.attachment.addFiles.push(this.$refs.file.files[0]);
+        this.handle.attachment.data.push({
+          type: 'add',
+          fileId: fileId,
+          fileName: this.$refs.file.files[0].name
+        })
+        this.$refs.file.value = '';
+      },
+      removeAttachments(file) {
+
+        this.handle.attachment.data = this.handle.attachment.data.filter(item => item.fileId != file.fileId);
+
+        if(file.type == 'add') {
+          this.handle.attachment.addFiles = this.handle.attachment.addFiles.filter(item => item.fileId != file.fileId);
+        }
+      },
+      saveProAttachment() { //保存编程任务附件
+
+        if(this.handle.attachment.addFiles.length) {
+
+          this.uploadFile(this.handle.attachment);
+        }else {
+
+          this.uploadSuccess();
+        }
+      },
+      uploadSuccess(res) {
+
+        let params = [];
+
+        this.handle.attachment.data.map(item => {
+
+          if(!item.type) {  //添加原有附件数据
+            params.push({
+              mrProgrammeTasksId: this.handle.attachment.id,
+              fileId: item.fileId,
+              fileName: item.fileName,
+              filePath: '',
+              versionNO: ''
+            })
+          }
+        })
+
+        if(res && res.data && res.data.length) { //如通有新增附件
+
+          res.data.map(item => {  //添加新增附件数据
+
+            params.push({
+              mrProgrammeTasksId: this.handle.attachment.id,
+              fileId: item.fileId,
+              fileName: item.fileName,
+              filePath: '',
+              versionNO: ''
+            })
+          })
+        }
+        
+        this.handle.attachment.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.saveProAttachment, (response) => { 
+
+          this.handle.attachment.isLoading = false;
+          this.handle.attachment.dialogVisible = false;
+
+        }, () => this.handle.attachment.isLoading = false, params);
       },
       refresh() {}
     },

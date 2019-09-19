@@ -75,6 +75,8 @@ const CONFIG = {
 		saveEleAttachment: baseUrl + 'requirement/electrodeOrder/saveEleAttachment', //生产--存储电极附件
 		deleteAttachment: baseUrl + 'requirement/attachment/deleteAttachment', //生产--删除本地电极附件
 		applyProgrammeTask: baseUrl + 'requirement/electrodeOrder/applyProgrammeTask', //生产--申领编程任务
+		saveProAttachment: baseUrl + 'requirement/electrodeOrder/saveProAttachment', //生产--编程任务附件存储
+		queryAttInProgramme: baseUrl + 'requirement/electrodeOrder/queryAttInProgramme', //生产--编程任务附件列表
 		releasedElectrodeProductionOrder: baseUrl + 'requirement/electrodeOrder/releasedElectrodeProductionOrder', //生产--下达电极生产订单
 		trackProductionOrder: baseUrl + 'requirement/productionOrder/trackProductionOrder', //生产--生产订单跟踪查询
 		terminateOrPauseOrder: baseUrl + 'requirement/productionOrder/terminateOrPauseOrder', //生产--暂停与终止生产订单

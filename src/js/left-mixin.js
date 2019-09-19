@@ -143,19 +143,29 @@ let leftMixin = {
 
 	      this.$refs[formName] && this.$refs[formName].resetFields();
 	    },
-	    uploadFile() {
+	    uploadFile(dialog = null) {
 	        
 	      let formData = new FormData();
-	      formData.append('files', this.$refs.file.files[0]);
+	      if(dialog && dialog.addFiles.length) {
 
-	      this.right.isLoading = true;
+	      	dialog.addFiles.map(item => {
+
+	      		formData.append('files', item);
+	      	})
+	      }else {
+
+	      	formData.append('files', this.$refs.file.files[0]);
+	      }
+	      
+
+	      dialog ? (dialog.isLoading = true) : (this.right.isLoading = true);
 	      this.$utils.getJson(this.$utils.CONFIG.api.uploadFiles, (res) => { //版本详情 
 
-	        this.right.isLoading = false;
+	        dialog ? (dialog.isLoading = false) : (this.right.isLoading = false);
 	        typeof this.uploadSuccess == 'function' && this.uploadSuccess(res);
 	      }, () => {
 
-	      	this.right.isLoading = false;
+	      	dialog ? (dialog.isLoading = false) : (this.right.isLoading = false);
 	      	this.$refs.file && (this.$refs.file.value = '');
 	      }, formData, 'post', true);
 	    },
@@ -230,13 +240,13 @@ let leftMixin = {
 
 	    	return versionList.find(item => item[key] == value);
 	    },
-	    getSelectedVersion(versions, selectedVersionNo) {
+	    getSelectedProcesses(versions, selectedVersionNo) {
 
 	    	if(selectedVersionNo) {
 	    		let selectedVersion = versions.find(itemc => itemc.versionNo == selectedVersionNo);
-	    		return selectedVersion;
+	    		return selectedVersion.processes || [];
 	    	}else {
-	    		return {};
+	    		return [];
 	    	} 	
 	    },
 	    getSelectedVersionStuffNo(versions, selectedVersionNo) {

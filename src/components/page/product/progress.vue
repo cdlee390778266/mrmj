@@ -7,8 +7,8 @@
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div class="main">
-      <div class="main-left" v-loading="left.isLoading">
+    <div class="main" v-loading="left.isLoading">
+      <div class="main-left">
         <div class="main-left-search pd10">
           <div class="mgb10">
             在产订单：
@@ -307,63 +307,60 @@
         <div class="dflex">
           <div class="flex">
             <el-form-item label="客户名称">
-              <el-input v-model="handle.orderInfo.data.customerName" auto-complete="off" disabled></el-input>
+              <el-input v-model="handle.orderInfo.data.name" auto-complete="off" disabled></el-input>
             </el-form-item>
             <el-form-item label="模具号">
-              <el-input v-model="handle.orderInfo.data.abbreviation" auto-complete="off" disabled></el-input>
+              <el-input v-model="handle.orderInfo.data.mouldNo" auto-complete="off" disabled></el-input>
             </el-form-item>
             <div>
               <p>零件清单：</p>
-              <el-table :data="handle.orderInfo.data.liaisonManList" border size="mini" style="width: 100%" class="edit-table">
-                <el-table-column prop="liaisonManName" label="零件号"  width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="name" label="数量" width="88" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="address" label="要求交期" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="address" label="单价" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="address" label="总价" show-overflow-tooltip></el-table-column>
+              <el-table :data="handle.orderInfo.data.componentOrders" border size="mini" style="width: 100%">
+                <el-table-column type="index" label="序号"  width="50" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="componentNo" label="零件号"  width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="componentNum" label="数量" width="88" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="deliveryDate" label="要求交期" width="160" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="componentPrice" label="单价" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="description" label="总价" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="address" label="说明" show-overflow-tooltip></el-table-column>
               </el-table>
             </div>
             <el-row class="mgt10">
               <el-col :span="8">
                 <el-form-item label="订单总价(RMB)" label-width="120px">
-                  231323.00
+                  {{handle.orderInfo.data.saleTotalPrice}}
                 </el-form-item>
               </el-col>
               <el-col :span="8">
                 <el-form-item label="结算货币" prop="currencyId" label-width="120px">
-                  人民币
+                  {{handle.orderInfo.data.settlementCurrency}}
                 </el-form-item>
               </el-col>
               <el-col :span="8">
                 <el-form-item label="结算货币总价" label-width="120px">
-                  168
+                  {{handle.orderInfo.data.settlementCurrencyTotalPrice}}
                 </el-form-item>
               </el-col>
             </el-row>
           </div>
           <div class="pd10">
-            <img :src="defaultImg" width="100px" height="100px">
+            <img :src="handle.orderInfo.data.fileId ? `${$utils.CONFIG.api.image}?fileId=${item.business.fileId}` : defaultImg" width="100px" height="100px">
           </div>
         </div>
         <div>
           <p class="mgb10">上传附件：</p>
-          <el-table :data="handle.orderInfo.data.liaisonManList" border size="mini" style="width: 100%" class="edit-table">
-            <el-table-column prop="fileName" label="上传文件"  show-overflow-tooltip>
+          <el-table :data="handle.orderInfo.data.attachments" border size="mini" style="width: 100%" class="edit-table">
+            <el-table-column type="index" label="序号"  width="50" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="filePath" label="上传文件"  show-overflow-tooltip>
             </el-table-column>
-            <el-table-column prop="address" label="资料名称" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="address" label="操作" show-overflow-tooltip>
-              <template scope="scope">
-                <el-button type="text">删除</el-button>
-              </template>
-            </el-table-column>
+            <el-table-column prop="fileName" label="资料名称" show-overflow-tooltip></el-table-column>
           </el-table>
         </div>
         <el-form-item label="说明" prop="customerName" class="mgt10">
-          <el-input type="textarea" v-model="handle.orderInfo.data.abbreviation" auto-complete="off" disabled></el-input>
+          <el-input type="textarea" v-model="handle.orderInfo.data.remark" auto-complete="off" disabled></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer tr">
-        <el-button @click="handle.orderInfo.dialogVisible = false">取 消</el-button>
+        <el-button @click="handle.orderInfo.dialogVisible = false">关 闭</el-button>
       </div>
     </el-dialog>
   </div>
@@ -486,6 +483,7 @@
     .progress-item {
       position: relative;
       display: table;
+      min-width: 100%;
       .process-left {
         position: absolute;
         left: 10px;
