@@ -104,9 +104,9 @@ let leftMixin = {
 		          this.currentData = this.left.list[0];
 		          typeof success == 'function' && success(this.left.activeId);
 		        }else {
-
 		        	let index = this.left.list.findIndex(item => item[idKey] == this.left.activeId);
 		        	this.currentData = this.left.list[index];
+		        	typeof success == 'function' && success(this.left.activeId);
 		        }
 	        }
 	        this.left[loadingKey] = false;
@@ -125,10 +125,11 @@ let leftMixin = {
 				this.isShowList = true;
 				this.search && this.search();
 			},
-			handleSelect(item, idKey = 'id') {
+			handleSelect(item, idKey = 'id', callback = null) {
 				
 	      this.left.activeId = item[idKey];
 	      this.currentData= item;
+	      typeof callback == 'function' && callback();
 	    },
 	    closeDialog(formKey = 'update') {
 	        

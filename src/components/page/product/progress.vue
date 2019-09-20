@@ -54,9 +54,9 @@
               <el-col :span="11">状态：{{ item.orderStatusText | filterNull }}</el-col>
               <el-col :span="13">延误时间累计(H)：{{ item.delayTotalTime | filterNull(0) }}</el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="edit(item)">编辑</a>
-                <a href="javascript: void(0);" @click="saveHandle('suspend', item)">暂停</a>
-                <a href="javascript: void(0);" @click="saveHandle('stop', item)">终止</a>
+                <a href="javascript: void(0);" @click.stop="edit(item)">编辑</a>
+                <a href="javascript: void(0);" @click.stop="terminateOrPauseOrder(60, item)">暂停</a>
+                <a href="javascript: void(0);" @click.stop="terminateOrPauseOrder(70, item)">终止</a>
               </el-col>
             </el-row>
           </div>
@@ -99,11 +99,30 @@
                   <div class="progress-list">
                     <div class="progress-item" v-for="(item, index) in currentData.trackMessages">
                       <div class="process-left">
-                        <p><span>零件：{{item.components | concatString('componentNo')}}</span></p>
-                        <p><span>数量：{{item.components | concatString('quantity')}}</span><span class="mgl10">备货数量：{{item.components | concatString('stockingQuantity')}}</span></p>
-                        <p><span>生产订单下达时间：{{ currentData.issuedOrderDate | filterNull }}</span></p>
-                        <p><span>计划时间：{{ currentData.planStartDate | filterNull }} 至 {{ currentData.planEndDate | filterNull }}</span></p>
-                        <p><span>当前成本累计：{{ total(item) }}元</span></p>
+                        <p class="ellipsis">
+                          <span>零件：
+                            <el-tooltip class="item" effect="dark" :content="item.components | concatString('componentNo')" placement="top">
+                              <span>{{item.components | concatString('componentNo')}}</span>
+                            </el-tooltip>
+                          </span>
+                        </p>
+                        <p class="ellipsis">
+                          <span>数量：
+                            <el-tooltip class="item" effect="dark" :content="item.components | concatString('quantity')" placement="top">
+                              <span>{{item.components | concatString('quantity')}}</span>
+                            </el-tooltip>
+                          </span>
+                        </p>
+                        <p class="ellipsis">
+                          <span>备货数量：
+                            <el-tooltip class="item" effect="dark" :content="item.components | concatString('stockingQuantity')" placement="top">
+                              <span>{{item.components | concatString('stockingQuantity')}}</span>
+                            </el-tooltip>
+                          </span>
+                        </p>
+                        <p class="ellipsis"><span>生产订单下达时间：{{ currentData.issuedOrderDate | filterNull }}</span></p>
+                        <p class="ellipsis"><span>计划时间：{{ currentData.planStartDate | filterNull }} 至 {{ currentData.planEndDate | filterNull }}</span></p>
+                        <p class="ellipsis"><span>当前成本累计：{{ total(item) }}元</span></p>
                         <p>
                           <el-button type="text" @click="jump">编辑 查看 打印工艺卡</el-button>
                         </p>
@@ -113,41 +132,42 @@
                           <thead>
                             <tr>
                               <th class="tr">工序</th>
-                              <th v-for="(itemc, index) in item.processes" :key="index">
+                              <th v-for="(itemc, index) in item.processes" :key="index" :class="{'fc-green': itemc.statusDescription == '已完成'}">
                                 <span>{{itemc.processName}}</span>
-                                <img :src="progressImg1" class="mgl5" v-if="index != item.processes.length - 1">
+                                <img :src="itemc.statusDescription == '已完成' ? progressImg1 : progressImg2" class="mgl5" v-if="index != item.processes.length - 1">
                               </th>
                             </tr>
                           </thead>
                           <tbody>
                             <tr>
                               <td class="tr"><span class="bg-green fcfff">估工</span></td>
-                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
+                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index" :class="{'fc-green': itemc.statusDescription == '已完成'}">
                                 <span>{{itemc.estimationWorkTime}}</span>
                               </td>
                             </tr>
                             <tr>
                               <td class="tr"><span class="bg-green fcfff">开始</span></td>
-                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
-                                <span>{{itemc.startTime}}</span>
+                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index" :class="{'fc-green': itemc.statusDescription == '已完成'}">
+                                <span>{{itemc.startTimeString}}</span>
                               </td>
                             </tr>
                             <tr>
                               <td class="tr"><span class="bg-green fcfff">结束</span></td>
-                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
-                                <span>{{itemc.estimationWorkTime}}</span>
+                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index" :class="{'fc-green': itemc.statusDescription == '已完成'}">
+                                <span>
+                                  {{itemc.endTimeString || (itemc.statusDescription == '进行中' && item.isOutsource ? '外协中' : itemc.statusDescription)}}</span>
                               </td>
                             </tr>
                             <tr>
                               <td class="tr"><span class="bg-green fcfff">耗时</span></td>
-                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
+                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index" :class="{'fc-green': itemc.statusDescription == '已完成'}">
                                 <span>{{itemc.consumeTime}}</span>
                               </td>
                             </tr>
                             <tr>
                               <td class="tr"><span class="bg-green fcfff">人工成本</span></td>
-                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
-                                <span>{{itemc.consumeTime * itemc.processPrice}}元</span>
+                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index" :class="{'fc-green': itemc.statusDescription == '已完成'}">
+                                <span>{{itemc.consumeTime ? `${(itemc.consumeTime * itemc.processPrice).toFixed(2)}元` : ''}}</span>
                               </td>
                             </tr>
                           </tbody>
@@ -165,66 +185,23 @@
                 </div>
                 <el-scrollbar class="main-content-scorll pdt10">
                   <div>不合格品检测结果</div>
-                  <div class="progress-list unqualified-list" style="margin-top: 10px;">
+                  <div class="progress-list unqualified-list" style="margin-top: 10px;" v-for="(item, index) in currentData.processInspections" :key="index">
                     <div class="progress-item">
                       <div class="progress-top">
                         <p>
-                          <span>时间：2019.04.25</span>
-                          <span class="mgl20">加工工序：<strong class="fc-red">G</strong></span>
-                          <span class="mgl20">零件号：405/406/426/425</span>
-                          <span class="mgl20">数量：8+1</span>
-                          <span class="mgl20">检测结果：<strong class="fc-red">返工</strong></span>
-                          <span class="mgl20">异常数量：2</span>
+                          <span>时间：{{item.inspectionDate | filterNull}}</span>
+                          <span class="mgl20">加工工序：<strong class="fc-red">{{item.processName}}</strong></span>
+                          <span class="mgl20">零件号：{{item.components | concatString('componentNo')}}</span>
+                          <span class="mgl20">数量：{{item.components | concatString('quantity')}}</span>
+                          <span class="mgl20">备货数量：{{item.components | concatString('stockingQuantity')}}</span>
+                          <span class="mgl20">检测结果：<strong class="fc-red">{{item.inspectionResultText | filterNull}}</strong></span>
+                          <span class="mgl20">异常数量：{{item.abnormalQuantity | filterNull}}</span>
                         </p>
                         <p class="ellipsis">
-                          异常概况：105#10.776-0.002实测-0.013；255-3#，,205-4#：-0.002公差均-0，105#10.776-105#10.776-105#105#10.776-0.002实测-0.013；255-3#，,205-4#：-0.002公差均-0，105#10.776-105#10.776-105#
+                          异常概况：{{item.abnormalOverview | filterNull}}
                         </p>
                         <p class="ellipsis">
-                          处理方式：返工：G光底部
-                        </p>
-                      </div>
-                      <div class="progress-bottom tr">
-                        <el-button type="text">附件下载</el-button>
-                        <el-button type="text">消除警告</el-button>
-                      </div>
-                    </div>
-                    <div class="progress-item">
-                      <div class="progress-top">
-                        <p>
-                          <span>时间：2019.04.25</span>
-                          <span class="mgl20">加工工序：<strong class="fc-red">G</strong></span>
-                          <span class="mgl20">零件号：405/406/426/425</span>
-                          <span class="mgl20">数量：8+1</span>
-                          <span class="mgl20">检测结果：<strong class="fc-red">返工</strong></span>
-                          <span class="mgl20">异常数量：2</span>
-                        </p>
-                        <p class="ellipsis">
-                          异常概况：105#10.776-0.002实测-0.013；255-3#，,205-4#：-0.002公差均-0，105#10.776-105#10.776-105#105#10.776-0.002实测-0.013；255-3#，,205-4#：-0.002公差均-0，105#10.776-105#10.776-105#
-                        </p>
-                        <p class="ellipsis">
-                          处理方式：返工：G光底部
-                        </p>
-                      </div>
-                      <div class="progress-bottom tr">
-                        <el-button type="text">附件下载</el-button>
-                        <el-button type="text">消除警告</el-button>
-                      </div>
-                    </div>
-                    <div class="progress-item">
-                      <div class="progress-top">
-                        <p>
-                          <span>时间：2019.04.25</span>
-                          <span class="mgl20">加工工序：<strong class="fc-red">G</strong></span>
-                          <span class="mgl20">零件号：405/406/426/425</span>
-                          <span class="mgl20">数量：8+1</span>
-                          <span class="mgl20">检测结果：<strong class="fc-red">返工</strong></span>
-                          <span class="mgl20">异常数量：2</span>
-                        </p>
-                        <p class="ellipsis">
-                          异常概况：105#10.776-0.002实测-0.013；255-3#，,205-4#：-0.002公差均-0，105#10.776-105#10.776-105#105#10.776-0.002实测-0.013；255-3#，,205-4#：-0.002公差均-0，105#10.776-105#10.776-105#
-                        </p>
-                        <p class="ellipsis">
-                          处理方式：返工：G光底部
+                          处理方式：{{item.dealWayText | filterNull}}
                         </p>
                       </div>
                       <div class="progress-bottom tr">
@@ -407,7 +384,7 @@
       };
     },
     methods: {
-      getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
+      getLeftList(loadingKey = 'isLoading', isSetCurrentData = false) { //获取左侧列表数据
 
         let params = {
           parameter: '',
@@ -418,7 +395,7 @@
         }
         if(this.form.text) params.name = this.form.text;
 
-        this.getData(this.$utils.CONFIG.api.trackProductionOrder, params, 'saleOrderNo', loadingKey);
+        this.getData(this.$utils.CONFIG.api.trackProductionOrder, params, 'saleOrderNo', loadingKey, null, isSetCurrentData);
       },
       handleSelect(item) {
 
@@ -429,21 +406,25 @@
 
         this.handle.edit.order = item;
         this.handle.edit.dialogVisible = true;
-
       },
       saveEdit() {
 
 
       },
-      saveHandle(type, item) {
-
+      terminateOrPauseOrder(status, item) { //staus 60：暂停 70：终止
         
+        this.left.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) => {
+
+          this.left.isLoading = false;
+          this.$utils.showTip('success', 'success', status == 60 ? '105' : '106');
+          this.getLeftList('isLoading', true);
+        }, () => this.left.isLoading = false, {mrProductionPlanTasksId: item.mrProductionPlanTasksId, status: status});
       },
       orderDetail() {
 
         this.handle.orderInfo.dialogVisible = true;
         this.handle.orderInfo.isLoading = true;
-
         this.$utils.getJson(this.$utils.CONFIG.api.querySaleOrderInfo, (res) => {
 
           this.handle.orderInfo.isLoading = false;
@@ -484,6 +465,7 @@
       position: relative;
       display: table;
       min-width: 100%;
+      box-sizing: border-box;
       .process-left {
         position: absolute;
         left: 10px;
@@ -498,6 +480,7 @@
         }
       }
       .process-right {
+        height: 193px;
         padding: 10px;
         padding-left: 210px;
         border-top: 1px solid rgba(188, 188, 188, 1);

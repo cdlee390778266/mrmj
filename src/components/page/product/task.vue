@@ -29,7 +29,7 @@
           </div>
         </div>
         <div class="list" ref="list" style="top: 65px;">
-          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrElectrodeProductionOrderId }" v-show="isShowList" @click="handleSelect(item, 'mrElectrodeProductionOrderId')">
+          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrElectrodeProductionOrderId }" v-show="isShowList" @click="handleSelect(item, 'mrElectrodeProductionOrderId', getAttachments)">
             <div class="dflex">
               <div>
                 <div>
@@ -143,9 +143,27 @@
               <el-row class="mgt10 mgb40">
                 <el-col :span="24">
                   <strong>ELE编程任务</strong>
-                  <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && !currentData.eleProgram.designer" @click="showDialog('taskApply', 'eleProgram', currentData.eleProgram.mrProgrammeTasksId, 'ELE编程任务')">申领</el-button>
-                  <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && currentData.eleProgram.designer && currentData.eleProgram.designer == userName && (!currentData.eleProgram.attachments || !currentData.eleProgram.attachments.length)" @click="showDialog('attachment', 'eleProgram', currentData.eleProgram.mrProgrammeTasksId, 'ELE编程任务')">完成</el-button>
-                  <el-button type="primary" class="mgl10" v-if="currentData.eleProgram && currentData.eleProgram.designer && currentData.eleProgram.designer == userName && currentData.eleProgram.attachments && currentData.eleProgram.attachments.length" @click="showDialog('attachment', 'eleProgram', currentData.eleProgram.mrProgrammeTasksId, 'ELE编程任务', currentData.eleProgram.attachments)">编辑</el-button>
+                  <el-button
+                    type="primary"
+                    class="mgl10"
+                    v-if="currentData.eleProgram && !currentData.eleProgram.designer"
+                    @click="showDialog('taskApply', 'eleProgram', currentData.eleProgram.mrProgrammeTasksId, 'ELE编程任务')">
+                    申领
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    class="mgl10"
+                    v-if="currentData.eleProgram && currentData.eleProgram.designer && currentData.eleProgram.designer == userName && (!currentData.eleProgram.attachments || !currentData.eleProgram.attachments.length)"
+                    @click="showDialog('attachment', 'eleProgram', currentData.eleProgram.mrProgrammeTasksId, 'ELE编程任务')">
+                    完成
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    class="mgl10"
+                    v-if="currentData.eleProgram && currentData.eleProgram.designer && currentData.eleProgram.designer == userName && currentData.eleProgram.attachments && currentData.eleProgram.attachments.length"
+                    @click="showDialog('attachment', 'eleProgram', currentData.eleProgram.mrProgrammeTasksId, 'ELE编程任务', currentData.eleProgram.attachments)">
+                    编辑
+                  </el-button>
                 </el-col>
                 <el-col :span="24" v-if="currentData.eleProgram && currentData.eleProgram.designer">
                   <span>设计人员：{{currentData.eleProgram.designer}}</span>
@@ -184,17 +202,35 @@
               <el-row class="mgt10 mgb40">
                 <el-col :span="24">
                   <strong>CNCV编程任务</strong>
-                  <el-button type="primary" class="mgl10" v-if="currentData.cncvProgram && !currentData.cncvProgram.designer" @click="showDialog('taskApply', 'eleProgram', currentData.cncvProgram.mrProgrammeTasksId, 'CNCV编程任务')">申领</el-button>
-                  <el-button type="primary" class="mgl10" v-if="currentData.cncvProgram && currentData.cncvProgram.designer && currentData.cncvProgram.designer == userName">完成</el-button>
-                  <!-- <el-button type="primary" class="mgl10" @click="showDialog('attachment', 'cncvProgram', '', 'CNCV')">编辑</el-button> -->
+                  <el-button
+                    type="primary"
+                    class="mgl10"
+                    v-if="currentData.cncvProgram && !currentData.cncvProgram.designer"
+                    @click="showDialog('taskApply', 'eleProgram', currentData.cncvProgram.mrProgrammeTasksId, 'CNCV编程任务')">
+                    申领
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    class="mgl10"
+                    v-if="currentData.cncvProgram && currentData.cncvProgram.designer && currentData.cncvProgram.designer == userName && (!currentData.cncvProgram.attachments || !currentData.cncvProgram.attachments.length)"
+                    @click="showDialog('attachment', 'eleProgram', currentData.cnchProgram.mrProgrammeTasksId, 'CNCV编程任务')">
+                      完成
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    class="mgl10"
+                    v-if="currentData.cncvProgram && currentData.cncvProgram.designer && currentData.cncvProgram.designer == userName && currentData.cncvProgram.attachments && currentData.cncvProgram.attachments.length"
+                    @click="showDialog('attachment', 'cncvProgram', currentData.cncvProgram.mrProgrammeTasksId, 'CNCV编程任务', currentData.cncvProgram.attachments)">
+                    编辑
+                  </el-button>
                 </el-col>
                 <el-col :span="24" v-if="currentData.cncvProgram && currentData.cncvProgram.designer">
                   <span>设计人员：{{currentData.cncvProgram.designer}}</span>
                   <span class="mgl20">完成时间：{{currentData.cncvProgram.completionDate}}</span>
-                  <div>
+                  <div v-if="currentData.cncvProgram.attachments && currentData.cncvProgram.attachments.length">
                     <p>CNCV编程上传附件</p>
                     <el-table
-                      :data="left.list"
+                      :data="currentData.cncvProgram.attachments"
                       border
                       size="mini"
                       class="content-table"
@@ -226,17 +262,35 @@
               <el-row class="mgt10 mgb40">
                 <el-col :span="24">
                   <strong>CNCH编程任务</strong>
-                  <el-button type="primary" class="mgl10" v-if="currentData.cnchProgram && !currentData.cnchProgram.designer" @click="showDialog('taskApply', 'eleProgram', currentData.cnchProgram.mrProgrammeTasksId, 'CNCH编程任务')">申领</el-button>
-                  <el-button type="primary" class="mgl10" v-if="currentData.cnchProgram && currentData.cnchProgram.designer && currentData.cnchProgram.designer == userName">完成</el-button>
-                  <!-- <el-button type="primary" class="mgl10" @click="showDialog('attachment', 'cnchProgram', '', 'CNCH')">编辑</el-button> -->
+                  <el-button
+                    type="primary"
+                    class="mgl10"
+                    v-if="currentData.cnchProgram && !currentData.cnchProgram.designer" @click="showDialog('taskApply', 'eleProgram', currentData.cnchProgram.mrProgrammeTasksId, 'CNCH编程任务')">
+                    申领
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    class="mgl10"
+                    v-if="currentData.cnchProgram && currentData.cnchProgram.designer && currentData.cnchProgram.designer == userName && (!currentData.cnchProgram.attachments || !currentData.cnchProgram.attachments.length)"
+                    @click="showDialog('attachment', 'cnchProgram', currentData.cnchProgram.mrProgrammeTasksId, 'CNCH编程任务')"
+                    >
+                    完成
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    class="mgl10"
+                    v-if="currentData.cnchProgram && currentData.cnchProgram.designer && currentData.cnchProgram.designer == userName && currentData.cnchProgram.attachments && currentData.cnchProgram.attachments.length"
+                    @click="showDialog('attachment', 'cnchProgram', currentData.cnchProgram.mrProgrammeTasksId, 'CNCH编程任务', currentData.cnchProgram.attachments)">
+                    编辑
+                  </el-button>
                 </el-col>
-                <el-col :span="24" v-if="currentData.eleProgram && currentData.eleProgram.designer">
-                  <span>设计人员：{{currentData.eleProgram.designer}}</span>
-                  <span class="mgl20">完成时间：{{currentData.eleProgram.completionDate}}</span>
-                  <div>
+                <el-col :span="24" v-if="currentData.cnchProgram && currentData.cnchProgram.designer">
+                  <span>设计人员：{{currentData.cnchProgram.designer}}</span>
+                  <span class="mgl20">完成时间：{{currentData.cnchProgram.completionDate}}</span>
+                  <div v-if="currentData.cnchProgram.attachments && currentData.cnchProgram.attachments.length">
                     <p>CNCH编程上传附件</p>
                     <el-table
-                      :data="left.list"
+                      :data="currentData.cnchProgram.attachments"
                       border
                       size="mini"
                       class="content-table"
@@ -476,15 +530,35 @@
         this.getData(this.$utils.CONFIG.api.queryNoDealEleOrCNC, params, 'mrElectrodeProductionOrderId', loadingKey, this.getAttachments, isSetCurrentData);
       },
       getAttachments() {
-
-        if(this.currentData.eleProgram && this.currentData.eleProgram.mrProgrammeTasksId) {
+        
+        if(this.currentData.eleProgram && this.currentData.eleProgram.mrProgrammeTasksId) { //ELE附件列表查询
 
           this.right.isLoading = true;
-          this.$utils.getJson(this.$utils.CONFIG.api.queryAttInProgramme, (res) => { //ELE附件列表查询 
+          this.$utils.getJson(this.$utils.CONFIG.api.queryAttInProgramme, (res) => {  
 
             this.right.isLoading = false;
-            this.currentData.eleProgram.attachments = res.data || [];
+            this.$set(this.currentData.eleProgram, 'attachments', res.data || []);
           }, () => this.right.isLoading = false, {mrProgrammeTasksId: this.currentData.eleProgram.mrProgrammeTasksId});
+        }
+
+        if(this.currentData.cncvProgram && this.currentData.cncvProgram.mrProgrammeTasksId) { //CNCV附件列表查询
+
+          this.right.isLoading = true;
+          this.$utils.getJson(this.$utils.CONFIG.api.queryAttInProgramme, (res) => {  
+
+            this.right.isLoading = false;
+            this.$set(this.currentData.cncvProgram, 'attachments', res.data || []);
+          }, () => this.right.isLoading = false, {mrProgrammeTasksId: this.currentData.cncvProgram.mrProgrammeTasksId});
+        }
+
+        if(this.currentData.cnchProgram && this.currentData.cnchProgram.mrProgrammeTasksId) { //CNCH附件列表查询
+
+          this.right.isLoading = true;
+          this.$utils.getJson(this.$utils.CONFIG.api.queryAttInProgramme, (res) => {  
+
+            this.right.isLoading = false;
+            this.$set(this.currentData.cnchProgram, 'attachments', res.data || []);
+          }, () => this.right.isLoading = false, {mrProgrammeTasksId: this.currentData.cnchProgram.mrProgrammeTasksId});
         }
       },
       resetForm() {
@@ -574,7 +648,7 @@
         this.handle[formKey].addFiles = [];
         this.handle[formKey].dialogVisible = true;
       },
-      applyElectrode() {
+      applyElectrode() {  //申领
 
         let url = '';
         let params = {}
@@ -676,7 +750,8 @@
 
           this.handle.attachment.isLoading = false;
           this.handle.attachment.dialogVisible = false;
-
+          this.$utils.showTip('success', 'success', '102');
+          this.getLeftList('isLoading', true);
         }, () => this.handle.attachment.isLoading = false, params);
       },
       refresh() {}
