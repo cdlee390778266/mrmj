@@ -55,8 +55,8 @@
               <el-col :span="13">延误时间累计(H)：{{ item.delayTotalTime | filterNull(0) }}</el-col>
               <el-col :span="24" class="tr">
                 <a href="javascript: void(0);" @click.stop="edit(item)">编辑</a>
-                <a href="javascript: void(0);" @click.stop="terminateOrPauseOrder(60, item)">暂停</a>
-                <a href="javascript: void(0);" @click.stop="terminateOrPauseOrder(70, item)">终止</a>
+                <!-- <a href="javascript: void(0);" @click.stop="terminateOrPauseOrder(60, item)">暂停</a>
+                <a href="javascript: void(0);" @click.stop="terminateOrPauseOrder(70, item)">终止</a> -->
               </el-col>
             </el-row>
           </div>
@@ -128,7 +128,8 @@
                         </p>
                       </div>
                       <div class="process-right">
-                        <table class="mrmj-table">
+                        <!-- 不整体外协 -->
+                        <!-- <table class="mrmj-table" v-if="!item.buy">  
                           <thead>
                             <tr>
                               <th class="tr">工序</th>
@@ -171,6 +172,39 @@
                               </td>
                             </tr>
                           </tbody>
+                        </table> -->
+                        <!-- 整体外协 -->
+                        <table class="mrmj-table" v-if="!item.buy">  
+                          <thead>
+                            <tr>
+                              <th class="tr">工序</th>
+                              <th v-for="(itemc, index) in item.processes" :key="index" :class="{'fc-green': itemc.statusDescription == '已完成'}">
+                                <span>{{itemc.processName}}</span>
+                                <img :src="itemc.statusDescription == '已完成' ? progressImg1 : progressImg2" class="mgl5" v-if="index != item.processes.length - 1">
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="tr"><span>整件外协完成</span></td>
+                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
+                                <span>{{itemc.estimationWorkTime}}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="tr"><span>外协订单下达时间：2019.03.05</span></td>
+                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
+                                <span>{{itemc.startTimeString}}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="tr"><span>外协价格（RMB）：90.00元</span></td>
+                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
+                                <span>
+                                  {{itemc.endTimeString || (itemc.statusDescription == '进行中' && item.isOutsource ? '外协中' : itemc.statusDescription)}}</span>
+                              </td>
+                            </tr>
+                          </tbody>
                         </table>
                       </div>
                     </div>
@@ -205,7 +239,6 @@
                         </p>
                       </div>
                       <div class="progress-bottom tr">
-                        <el-button type="text">附件下载</el-button>
                         <el-button type="text">消除警告</el-button>
                       </div>
                     </div>

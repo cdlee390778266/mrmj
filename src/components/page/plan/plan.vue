@@ -61,9 +61,6 @@
                     <el-input v-model="right.page1.data" style="width: 60px;" size="mini"></el-input>
                     小时，进行标红提示
                   </span>
-                  <span class="mgl20">
-                    <el-checkbox v-model="right.page1.data">筛选未计划零件</el-checkbox>
-                  </span>
                 </p>
                 <p class="mgt10">
                   表格操作说明：点击某订单，设置订单出货日期及外协采购等操作
