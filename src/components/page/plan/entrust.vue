@@ -7,8 +7,8 @@
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div class="main">
-      <div class="main-left" style="width: 148px;" v-loading="left.isLoading">
+    <div class="main" v-loading="left.isLoading">
+      <div class="main-left" style="width: 148px;">
         <div class="list" ref="list" style="top: 0px;">
           <div class="list-item pd10" :class="{ active: left.activeId == item.key }" v-for="item in left.tabs" :key="item.key" @click="handleSelect(item)">
             <div class="dflex" style="align-items: center;">
@@ -17,12 +17,6 @@
               </div>
               <div class="flex"><span class="mgl5">{{item.name}}</span></div>
             </div>
-          </div>
-          <div class="tc pd10" v-show="isShowList && left.isLoadingMore">
-            加载中<i class="el-icon-loading"></i>
-          </div>
-          <div class="filter" v-show="!isShowList">
-            <p v-for="(item, index) in filter.typeList" :key="index" @click="selectType(item)"><i class="el-icon-search"></i> {{ item.label }}</p>
           </div>
         </div>
       </div>
@@ -45,7 +39,7 @@
                 </el-col>
                 <el-col :span="24">
                   <el-table
-                    :data="right.page2.noMakeCraftList"
+                    :data="left.tabs[0].list"
                     border
                     size="mini"
                     class="content-table"
@@ -56,12 +50,23 @@
                     type="selection"
                     width="50">
                     </el-table-column>
-                    <el-table-column prop="componentNo" label="模具号" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="componentNo" label="零件号" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="requirementQuantity" label="数量" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="customerNo" label="外协工序" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="issuedOrderDate" label="下单日期" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="requireDeliveryDate" label="申请交期" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="mouldNo" label="模具号" width="180" show-overflow-tooltip></el-table-column>
+                    <el-table-column label="零件号" width="180" show-overflow-tooltip>
+                      <template scope="scope">
+                        {{scope.row.components | concatString('componentNo')}}
+                      </template>
+                    </el-table-column>
+                    <el-table-column label="数量" show-overflow-tooltip>
+                      <template scope="scope">
+                        {{scope.row.components | concatString('quantity')}}
+                      </template>
+                    </el-table-column>
+                    <el-table-column label="外协工序" width="180" show-overflow-tooltip>
+                      <template scope="scope">
+                        {{scope.row.components | concatString('quantity')}}
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="applyDate" label="申请交期" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="description" label="操作" show-overflow-tooltip>
                       <template scope="scope">
                         <el-button type="text">取消</el-button>
@@ -130,7 +135,7 @@
                 </el-col>
                 <el-col :span="24">
                   <el-table
-                    :data="[{}]"
+                    :data="left.tabs[1].list"
                     border
                     size="mini"
                     class="content-table"
@@ -171,7 +176,7 @@
                 </el-col>
                 <el-col :span="24">
                   <el-table
-                    :data="right.page2.noMakeCraftList"
+                    :data="left.tabs[2].list"
                     border
                     size="mini"
                     class="content-table"
@@ -302,21 +307,28 @@
     data() {
       return {
         left: {
+          isLoading: false,
           tabs: [
             {
               key:  'page1',
               name: '下达采购订单',
-              icon: require('../../../assets/img/icon8.svg')
+              icon: require('../../../assets/img/icon8.svg'),
+              list: []
             },
             {
               key:  'page2',
               name: '采购订单跟踪',
-              icon: require('../../../assets/img/icon9.svg')
+              icon: require('../../../assets/img/icon9.svg'),
+              filter: {
+
+              },
+              list: []
             },
             {
               key:  'page3',
               name: '供应商管理',
-              icon: require('../../../assets/img/icon10.svg')
+              icon: require('../../../assets/img/icon10.svg'),
+              list: []
             },
           ]
         },
@@ -331,7 +343,7 @@
         },
         handle: {
           supplier: {
-            dialogVisible: true,
+            dialogVisible: false,
             isLoading: false,
             data: {},
             form: {
@@ -346,11 +358,45 @@
       };
     },
     methods: {
-      getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
+      queryNoReleasedPurchase() { //获取外协零件列表
 
+        let params = {
+          offset: 0,
+          limit: 1000,
+          sorting: '_MrOutsourcePurchaseApply.applyDate'
+        }
         
+        this.left.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryNoReleasedPurchase, (res) => {
+   
+          this.left.isLoading = false;
+          this.left.tabs[0].list = res.data.content || [];
+        }, () => {
+
+          this.left.isLoading = false;
+          this.left.tabs[0].list = [];
+        }, params)
       },
-      getDetail(id) {
+      queryNoReleasedPurchase1() { //获取外协零件列表
+
+        let params = {
+          offset: 0,
+          limit: 1000,
+          sorting: '_MrOutsourcePurchaseApply.applyDate'
+        }
+        
+        this.left.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryNoReleasedPurchase, (res) => {
+   
+          this.left.isLoading = false;
+          this.left.tabs[0].list = res.data.content || [];
+        }, () => {
+
+          this.left.isLoading = false;
+          this.left.tabs[0].list = [];
+        }, params)
+      },
+      getDetail(i) {
 
         // let params = {
         //   mrSaleOrderId: id
@@ -371,125 +417,20 @@
         this.currentData= item;
         this.getDetail();
       },
-      getOrderDetail(item) {  //生产订单详情
+      addOrder(saveAsDraft = false) {
 
-        if(item.isCanIssued == 10) { //如果有未制定工艺的零件
-          this.$utils.showTip('warning', 'error', '-1041');
-          return;
-        }else if(item.isCanIssued == 20) { //还存在零件未制定工艺
-          this.$utils.showTip('warning', 'error', '-1042');
-          return;
-        }else if(item.isCanIssued == 30) {
-
-          let params = {
-            mrSaleOrderId: item.mrSaleOrderId
-          }
-
-          this.handle.supplier.order = item;
-          this.handle.supplier.dialogVisible = true;
-          this.handle.supplier.isLoading = true;
-          this.$utils.getJson(this.$utils.CONFIG.api.queryProductionOrderInfo, (res) => {
-
-            this.handle.supplier.isLoading = false;
-            this.handle.supplier.data = res.data;
-          }, () => this.handle.supplier.isLoading = false, params);
-        }
-      },
-      addOrder(saveAsDraft = false) {  //下达生产订单, saveAsDraft=false为下达生产订单;saveAsDraft=true为保存为草稿
-
-        let params = {
-          mrSaleOrderId: this.handle.supplier.order.mrSaleOrderId,
-          versions: []
-        }
-
-        this.handle.supplier.data.map(item => {  //取得选中的版本，如没选中则默认选中第一个
-
-          let obj = {
-            mrCraftRouteLineId: item.mrCraftRouteLineId
-          }
-          if(item.selectedVersionNo) {
-            obj.versionNo = item.selectedVersionNo;
-          }else {
-            if(item.versions && item.versions.length) {
-              obj.versionNo = item.versions[0].versionNo;
-            }else {
-              obj.versionNo = '';
-            }
-          }
-          params.versions.push(obj);
-        })
-        
-        let url = saveAsDraft ? this.$utils.CONFIG.api.saveAsDraft : this.$utils.CONFIG.api.releasedProductionOrder;
-        this.handle.supplier.isLoading = true;
-        this.$utils.getJson(url, (res) => {
-
-          this.handle.supplier.isLoading = false;
-          this.handle.supplier.dialogVisible = false;
-          !saveAsDraft && this.search();
-        }, () => this.handle.supplier.isLoading = false, params);
       },
       handleSelectionChange(val) {
 
         this.right.page2.selections = val;
       },
       jump(type = 'add', row = {}) {
-        
-        // if(type == 'add' && !this.right.page2.selections.length) {
-        //   this.$utils.showTip('warning', 'error', '-1040');
-        //   return;
-        // }
-        // let obj = {
-        //   type: type,
-        //   mrSaleOrderId: this.currentData.mrSaleOrderId,
-        //   customerId: this.currentData.customerId,
-        //   mouldNo: this.currentData.mouldNo,
-        //   name: this.currentData.name,
-        //   componentNos: '',
-        //   requirementQuantitys: '',
-        //   completionDate: this.currentData.completionDate,
-        //   customerPoNo: this.currentData.customerPoNo,
-        //   components: type == 'add' ? this.right.page2.selections : row
-        // };
-        
-        // if(type == 'add') {
-        //   this.right.page2.selections.map((item, index) => {
-
-        //     obj.componentNos += item.componentNo;
-        //     obj.requirementQuantitys += item.requirementQuantity;
-        //     if(index != this.right.page2.selections.length - 1) {
-        //       obj.componentNos+= '/';
-        //       obj.requirementQuantitys += '/';
-        //     }
-        //   });
-        // }else {
-        //   row.components && row.components.length && row.components.map((item, index) => {
-
-        //     obj.componentNos += item.componentNo;
-        //     obj.requirementQuantitys += item.quantity;
-        //     if(index != row.components.length - 1) {
-        //       obj.componentNos+= '/';
-        //       obj.requirementQuantitys += '/';
-        //     }
-        //   });
-        // }
-        let time = new Date().getTime();
-        //localStorage.setItem(time, JSON.stringify(obj));
-        this.$router.push(`/plan/placeOrder/${time}`);
-      },
-      deleteCraft(row) {  //删除工艺卡
-        
-        this.right.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.deleteCraftInfoById, (res) => {  
-
-          this.right.isLoading = false;
-          this.getCraftList();
-        }, () => this.right.isLoading = false, {mrCraftRouteLineId: row.mrCraftRouteLineId});
       },
       refresh() {}
     },
     created() {
       this.handleSelect(this.left.tabs[0]);
-      this.getLeftList();
+      this.queryNoReleasedPurchase();
     }
   };
 </script>

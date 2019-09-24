@@ -27,8 +27,8 @@
             </el-dropdown>
           </div>
           <div>
-            <el-button type="primary" @click="$router.push(`/product/processCard/6`)" style="width: 130px;">新增生产订单</el-button>
-            <el-button type="primary" class="fr" @click="$router.push(`/product/detail`)" style="width: 130px;">查看当前订单及计划</el-button>
+            <el-button type="primary" @click="jump" style="width: 130px;">下达重制订单</el-button>
+            <el-button type="primary" class="fr" @click="$router.push(`/product/detail`)" style="width: 130px;">查看当前计划</el-button>
           </div>
         </div>
         <div class="list" ref="list">
@@ -55,8 +55,6 @@
               <el-col :span="13">延误时间累计(H)：{{ item.delayTotalTime | filterNull(0) }}</el-col>
               <el-col :span="24" class="tr">
                 <a href="javascript: void(0);" @click.stop="edit(item)">编辑</a>
-                <!-- <a href="javascript: void(0);" @click.stop="terminateOrPauseOrder(60, item)">暂停</a>
-                <a href="javascript: void(0);" @click.stop="terminateOrPauseOrder(70, item)">终止</a> -->
               </el-col>
             </el-row>
           </div>
@@ -68,7 +66,7 @@
           </div>
         </div>
       </div>
-      <div class="main-right">
+      <div class="main-right" v-loading="right.isLoading">
         <page-wrapper @change="refresh" :haveCarousel="true">
           <template #pageName>订单明细</template>
             <el-carousel
@@ -129,7 +127,7 @@
                       </div>
                       <div class="process-right">
                         <!-- 不整体外协 -->
-                        <!-- <table class="mrmj-table" v-if="!item.buy">  
+                        <table class="mrmj-table" v-if="!item.buy">  
                           <thead>
                             <tr>
                               <th class="tr">工序</th>
@@ -172,37 +170,31 @@
                               </td>
                             </tr>
                           </tbody>
-                        </table> -->
+                        </table>
                         <!-- 整体外协 -->
-                        <table class="mrmj-table" v-if="!item.buy">  
+                        <table class="mrmj-table" v-else>  
                           <thead>
                             <tr>
-                              <th class="tr">工序</th>
-                              <th v-for="(itemc, index) in item.processes" :key="index" :class="{'fc-green': itemc.statusDescription == '已完成'}">
+                              <th class="tl">工序</th>
+                              <th v-for="(itemc, index) in item.processes" :key="index">
                                 <span>{{itemc.processName}}</span>
-                                <img :src="itemc.statusDescription == '已完成' ? progressImg1 : progressImg2" class="mgl5" v-if="index != item.processes.length - 1">
+                                <img :src="progressImg2" class="mgl5" v-if="index != item.processes.length - 1">
                               </th>
                             </tr>
                           </thead>
                           <tbody>
                             <tr>
-                              <td class="tr"><span>整件外协完成</span></td>
-                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
-                                <span>{{itemc.estimationWorkTime}}</span>
+                              <td class="tl" :colspan="item.processes.length"><span>{{item.buyText | filterNull}}</span></td>
+                            </tr>
+                            <tr>
+                              <td class="tl ellipsis" width="130px" :colspan="item.processes.length">
+                                <span>外协订单下达时间：{{item.issuedPurchaseOrderDate | filterNull}}</span>
+                                <span class="mgl20">要求到货日期：{{item.requireArrivalDate | filterNull}}</span>
+                                <span class="mgl20">实际到货日期：{{item.arrivalDate | filterNull}}</span>
                               </td>
                             </tr>
                             <tr>
-                              <td class="tr"><span>外协订单下达时间：2019.03.05</span></td>
-                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
-                                <span>{{itemc.startTimeString}}</span>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td class="tr"><span>外协价格（RMB）：90.00元</span></td>
-                              <td class="tc" v-for="(itemc, index) in item.processes" :key="index">
-                                <span>
-                                  {{itemc.endTimeString || (itemc.statusDescription == '进行中' && item.isOutsource ? '外协中' : itemc.statusDescription)}}</span>
-                              </td>
+                              <td class="tl" :colspan="item.processes.length"><span>外协价格(RMB)：{{item.outsourceTotalPrice | filterNull}}</span></td>
                             </tr>
                           </tbody>
                         </table>
@@ -239,7 +231,7 @@
                         </p>
                       </div>
                       <div class="progress-bottom tr">
-                        <el-button type="text">消除警告</el-button>
+                        <el-button type="text" @click="removeWarning(item)">消除警告</el-button>
                       </div>
                     </div>
                   </div>
@@ -250,7 +242,7 @@
       </div>
     </div>
 
-    <el-dialog title="生产订单信息查看修改" class="dialog-gray" :visible.sync="handle.edit.dialogVisible">
+    <el-dialog title="生产订单信息查看修改" class="dialog-gray" :visible.sync="handle.edit.dialogVisible" width="600px">
       <div v-loading="handle.edit.isLoading">
         <el-form :model="handle.edit.form" label-width="100px">
           <el-row class="pdtb10 borb">
@@ -306,7 +298,7 @@
           </div>
         </el-form>
         <div slot="footer" class="dialog-footer tr pdtb20 pdlr10">
-          <el-button type="primary" @click="saveEdit(true)">保存</el-button>
+          <el-button type="primary" @click="saveEdit">保存</el-button>
           <el-button type="primary" @click="handle.edit.dialogVisible = false">返回</el-button>
         </div>
       </div>
@@ -314,60 +306,52 @@
 
     <el-dialog title="查看销售订单信息" center :visible.sync="handle.orderInfo.dialogVisible" width="800px" v-dialogDrag>
       <el-form :model="handle.orderInfo.data" v-loading="handle.orderInfo.isLoading" label-width="100px" ref="updateForm">
-        <div class="dflex">
-          <div class="flex">
-            <el-form-item label="客户名称">
-              <el-input v-model="handle.orderInfo.data.name" auto-complete="off" disabled></el-input>
-            </el-form-item>
-            <el-form-item label="模具号">
-              <el-input v-model="handle.orderInfo.data.mouldNo" auto-complete="off" disabled></el-input>
-            </el-form-item>
-            <div>
-              <p>零件清单：</p>
-              <el-table :data="handle.orderInfo.data.componentOrders" border size="mini" style="width: 100%">
-                <el-table-column type="index" label="序号"  width="50" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="componentNo" label="零件号"  width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="componentNum" label="数量" width="88" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="deliveryDate" label="要求交期" width="160" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="componentPrice" label="单价" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="description" label="总价" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="address" label="说明" show-overflow-tooltip></el-table-column>
-              </el-table>
-            </div>
-            <el-row class="mgt10">
-              <el-col :span="8">
-                <el-form-item label="订单总价(RMB)" label-width="120px">
-                  {{handle.orderInfo.data.saleTotalPrice}}
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="结算货币" prop="currencyId" label-width="120px">
-                  {{handle.orderInfo.data.settlementCurrency}}
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="结算货币总价" label-width="120px">
-                  {{handle.orderInfo.data.settlementCurrencyTotalPrice}}
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </div>
-          <div class="pd10">
-            <img :src="handle.orderInfo.data.fileId ? `${$utils.CONFIG.api.image}?fileId=${item.business.fileId}` : defaultImg" width="100px" height="100px">
-          </div>
-        </div>
-        <div>
-          <p class="mgb10">上传附件：</p>
-          <el-table :data="handle.orderInfo.data.attachments" border size="mini" style="width: 100%" class="edit-table">
-            <el-table-column type="index" label="序号"  width="50" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="filePath" label="上传文件"  show-overflow-tooltip>
-            </el-table-column>
-            <el-table-column prop="fileName" label="资料名称" show-overflow-tooltip></el-table-column>
-          </el-table>
-        </div>
-        <el-form-item label="说明" prop="customerName" class="mgt10">
-          <el-input type="textarea" v-model="handle.orderInfo.data.remark" auto-complete="off" disabled></el-input>
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            客户名称：{{handle.orderInfo.data.name}}
+          </el-col>
+          <el-col :span="12">
+            客户PO.号：{{handle.orderInfo.data.customerPoNo}}
+          </el-col>
+          <el-col :span="8">
+            模具号：{{handle.orderInfo.data.mouldNo}}
+          </el-col>
+          <el-col :span="8">
+            订单类型：{{handle.orderInfo.data.saleOrderType}}
+          </el-col>
+          <el-col :span="8">
+            订单状态：{{'-'}}
+          </el-col>
+          <el-col :span="24">
+            <p class="mgt10">订单零件列表：</p>
+            <el-table :data="handle.orderInfo.data.componentOrders" border size="mini" style="width: 100%">
+              <el-table-column type="index" label="序号"  width="50" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="componentNo" label="零件号"  width="100" show-overflow-tooltip></el-table-column>
+              <el-table-column label="客户编号"  width="100" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="componentNum" label="数量" width="88" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="updateDtString" label="下单日期" width="140" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="deliveryDate" label="要求交期" width="140" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="description" label="说明" show-overflow-tooltip></el-table-column>
+            </el-table>
+          </el-col>
+          <el-col :span="24">
+            <p class="mgt10">订单附件：</p>
+            <el-table :data="handle.orderInfo.data.attachments" border size="mini" style="width: 100%" class="edit-table">
+              <el-table-column type="index" label="序号"  width="50" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="fileName" label="附件名称"  show-overflow-tooltip>
+              </el-table-column>
+              <el-table-column label="操作" width="100">
+                <template slot-scope="scope">
+                  <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-col>
+          <el-col :span="24" class="mgt10">
+            说明：
+            <el-input type="textarea" v-model="handle.orderInfo.data.remark" auto-complete="off" disabled />
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer tr">
         <el-button @click="handle.orderInfo.dialogVisible = false">关 闭</el-button>
@@ -397,7 +381,7 @@
             dialogVisible: false,
             isLoading: false,
             order: {},
-            data: [{},{}],
+            data: [],
             form: {
               faceUrl: "",
               name: "",
@@ -435,24 +419,35 @@
         this.left.activeId = item.saleOrderNo;
         this.currentData = item;
       },
-      edit(item) {
+      edit(item) {  //编辑
+
+        let params = {
+
+        };
+        let mockData = [{}, {}, {}]
 
         this.handle.edit.order = item;
         this.handle.edit.dialogVisible = true;
+        this.handle.edit.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.handle.edit.isLoading = false;
+          this.handle.edit.data = res.data || [];
+        }, () => this.handle.edit.isLoading = false, params, mockData)
       },
-      saveEdit() {
+      saveEdit() {  //保存编辑
 
+        let params = {
 
-      },
-      terminateOrPauseOrder(status, item) { //staus 60：暂停 70：终止
-        
-        this.left.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) => {
+        };
+  
+        this.handle.edit.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
 
-          this.left.isLoading = false;
-          this.$utils.showTip('success', 'success', status == 60 ? '105' : '106');
-          this.getLeftList('isLoading', true);
-        }, () => this.left.isLoading = false, {mrProductionPlanTasksId: item.mrProductionPlanTasksId, status: status});
+          this.$utils.showTip('success', 'success', '102');
+          this.handle.edit.isLoading = false;
+          this.handle.edit.dialogVisible = false;
+        }, () => this.handle.edit.isLoading = false, params)
       },
       orderDetail() {
 
@@ -464,9 +459,36 @@
           this.handle.orderInfo.data = res.data || {};
         }, () => this.handle.orderInfo.isLoading = false, {mrSaleOrderId: this.currentData.mrSaleOrderId});
       },
-      jump() {
+      removeWarning(item) {  //消除报警
 
-        this.$router.push(`/product/processCard/1`);
+        let params = {
+
+        };
+  
+        this.right.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.$utils.showTip('success', 'success', '107');
+          this.right.isLoading = false;
+        }, () => this.right.isLoading = false, params)
+      },
+      jump() {
+        let obj = {
+          type: 'remanufacture',
+          mrSaleOrderId: '',
+          customerId: '',
+          mouldNo: '',
+          name: '',
+          componentNos: '',
+          requirementQuantitys: '',
+          completionDate: '',
+          customerPoNo: '',
+          components: []
+        };
+        
+        let time = new Date().getTime();
+        localStorage.setItem(time, JSON.stringify(obj));
+        this.$router.push(`/product/processCard/${time}`);
       },
       refresh() {}
     },
@@ -547,6 +569,13 @@
           background: rgba(228, 228, 228, 1);
         }
       }
+    }
+  }
+  .mrmj-table {
+    td {
+      overflow: hidden;
+      text-overflow:ellipsis;
+      white-space: nowrap;
     }
   }
 </style>

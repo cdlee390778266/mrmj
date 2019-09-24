@@ -15,7 +15,7 @@
           </div>
         </div>
         <div class="list" ref="list" style="top: 52px;">
-          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.id }" v-show="isShowList" @click="handleSelect(item)">
+          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.name }" v-show="isShowList" @click="handleSelect(item)">
             <div class="dflex">
               <div>
                 <div>
@@ -24,16 +24,16 @@
               </div>
               <div class="flex">
                 <div class="dflex">
-                  <p class="flex ellipsis">工序：<span>{{ item.saleOrderOrigin | filterNull }}</span></p>
-                  <p class="flex ellipsis">状态：<span>{{ item.mouldNo | filterNull }}</span></p>
+                  <p class="flex ellipsis">工序：<span>{{ item.name | filterNull }}</span></p>
+                  <p class="flex ellipsis">状态：<span>{{ item.statusText | filterNull }}</span></p>
                 </div>
                 <div class="dflex">
-                  <p class="ellipsis">未处理不良：<span>{{ item.name | filterNull }}</span></p>
+                  <p class="ellipsis">未处理不良：<span>{{ item.rejectsNum | filterNull }}</span></p>
                 </div>
               </div>
             </div>
             <el-row>
-              <el-col :span="24">当天工序进度：<el-progress :percentage="50" color="rgba(0, 255, 0, 1)" style="width: 180px;display: inline-block;"></el-progress></el-col>
+              <el-col :span="24">当天工序进度：<el-progress :percentage="item | cpercentage('haveJobBookingWorkTime', 'processTotalWorkTime')" color="rgba(0, 255, 0, 1)" style="width: 160px;display: inline-block;"></el-progress></el-col>
               <el-col :span="24" class="tr">
                 <router-link to="/product/dspwk">派工</router-link>
                 <router-link to="/product/npwk">报工</router-link>
@@ -61,39 +61,52 @@
               <el-carousel-item >
                 <div class="main-content-title">
                   <div>
-                    <i class="el-icon-lx-edit"></i> G工序生产情况
+                    <i class="el-icon-lx-edit"></i> {{currentData.name | filterNull}}工序生产情况
                   </div>
                 </div>
                 <el-scrollbar class="main-content-scorll pdt10">
                   <el-row>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">报工日期：{{ right.page1.mouldNo | filterNull }}</el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">代报工人员：{{ right.page1.saleOrderType | filterNull }}</el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">估工工时合计(H)：{{ right.page1.customerPoNo | filterNull }}</el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">实际工时合计(H)：{{ right.page1.name | filterNull }}</el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">准时交货率：{{ right.page1.name | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">报工日期：{{ right.page1.jobBookingDate | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">代报工人员：{{ right.page1.jobBookingWorker | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">估工工时合计(H)：{{ right.page1.estimationTotalWorkTime | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">实际工时合计(H)：{{ right.page1.actualTotalWorkTime | filterNull }}</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">准时交货率：{{(right.page1.punctualDeliveryNum || 0)/((right.page1.punctualDeliveryNum + right.page1.delayDeliveryNum) || 1)}}%</el-col>
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">报废率：{{(right.page1.haveDumpingNum || 0)/((right.page1.haveDumpingNum + right.page1.noDumpingNum)  || 1)}}%</el-col>
                   </el-row>
                   <el-row>
                     <el-col :span="24">
                       <el-table
-                        :data="right.page1.componentOrders"
+                        :data="right.page1.planMsg"
                         border
                         size="mini"
                         class="content-table"
                         style="width: 100%"
                       >
                         <el-table-column type="index" label="序号" width="50" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="componentNo" label="工作类型" width="180" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="operationalTypeText" label="工作类型" width="180" show-overflow-tooltip></el-table-column>
                         <el-table-column prop="customerNo" label="状态" width="180" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="requirementQuantity" label="工序" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="issuedOrderDate" label="模具号" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="requireDeliveryDate" label="零件号" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="description" label="数量" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="description" label="估工工时(H)" width="120" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="description" label="开始时间" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="description" label="要求完成日期" width="120" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="description" label="加工人人员" width="120" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="description" label="实际加工工时(H)" width="120" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="description" label="备  注" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="name" label="工序" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="mouldNo" label="模具号" show-overflow-tooltip></el-table-column>
+                        <el-table-column label="零件号" show-overflow-tooltip>
+                          <template slot-scope="scope">
+                            {{scope.row.components | concatString('componentNo')}}
+                          </template>
+                        </el-table-column>
+                        <el-table-column label="数量" show-overflow-tooltip>
+                          <template slot-scope="scope">
+                            {{scope.row.components | concatString('quantity')}}
+                          </template>
+                        </el-table-column>
+                        <el-table-column prop="estimationWorkTime" label="估工工时(H)" width="120" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="startDateString" label="开始时间" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="requireCompletionDateString" label="要求完成日期" width="120" show-overflow-tooltip></el-table-column>
+                        <el-table-column label="加工人人员" width="120" show-overflow-tooltip>
+                          <template slot-scope="scope">
+                            {{scope.row.people ? scope.row.people.join('/') : ''}}
+                          </template>
+                        </el-table-column>
+                        <el-table-column prop="actualCompletionWorkTime" label="实际加工工时(H)" width="120" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="remark" label="备  注" show-overflow-tooltip></el-table-column>
                       </el-table>
                     </el-col>
                   </el-row>
@@ -113,7 +126,7 @@
                     </el-select>
                   </p>
                   <el-row :gutter="20">
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8" v-for="(item, index) in right.page2" :key="index">
                       <div class="people dflex mgt10">
                         <div class="flex">
                           <p class="ellipsis">
@@ -126,55 +139,9 @@
                           <p class="ellipsis"><span>1：M18480，56/57</span></p>
                           <p class="ellipsis"><span>1：M18480，56/57</span></p>
                         </div>
-                        <div style="width: 100px;"></div>
-                      </div>
-                    </el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                      <div class="people dflex mgt10">
-                        <div class="flex">
-                          <p class="ellipsis">
-                            <img :src="defaultPeopleImg">
-                            <span>人员姓名：E01</span>
-                          </p>
-                          <p class="mgt10">
-                            <strong>已分配任务：</strong>
-                          </p>
-                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
-                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                        <div style="width: 200px; height: 200px">
+                          <ve-pie :data="item.chartData" :colors="chart.colors" :settings="chart.settings" height="400px" width="100px" :legend-visible="false" style="position: relative;top: -140px; margin: auto;"></ve-pie>
                         </div>
-                        <div style="width: 100px;"></div>
-                      </div>
-                    </el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                      <div class="people dflex mgt10">
-                        <div class="flex">
-                          <p class="ellipsis">
-                            <img :src="defaultPeopleImg">
-                            <span>人员姓名：E01</span>
-                          </p>
-                          <p class="mgt10">
-                            <strong>已分配任务：</strong>
-                          </p>
-                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
-                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
-                        </div>
-                        <div style="width: 100px;"></div>
-                      </div>
-                    </el-col>
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                      <div class="people dflex mgt10">
-                        <div class="flex">
-                          <p class="ellipsis">
-                            <img :src="defaultPeopleImg">
-                            <span>人员姓名：E01</span>
-                          </p>
-                          <p class="mgt10">
-                            <strong>已分配任务：</strong>
-                          </p>
-                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
-                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
-                        </div>
-                        <div style="width: 100px;"></div>
                       </div>
                     </el-col>
                   </el-row>
@@ -251,30 +218,15 @@
       return {
         defaultImg: require('../../../assets/img/wp.svg'),
         defaultPeopleImg: require('../../../assets/img/people.svg'),
-        left: {
-          list: [{}]
-        },
-        right: {
-          activeIndex: 0,
-          list: [
-            {
-              spList: [
-                {
-                  date: "2016-05-03",
-                  name: "",
-                  address: ""
-                }
-              ],
-              enclosureList: [
-                {
-                  date: "2016-05-03",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                }
-              ]
+        chart: {
+          colors: ['#c0504d','#4f81bd', '#61a0a8', '#d48265', '#91c7ae','#749f83', '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
+          settings: {
+            legendLimit: 0,
+            radius: 40,
+            labelLine: {
+              show: false
             }
-          ]
+          }
         },
         handle: {
           add: {
@@ -285,20 +237,7 @@
               name: "",
               type: "0",
               id: "",
-              dsc: "",
-              detailList: [
-                {
-                  date: "2016-05-01",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                }
-              ],
-              enclosureList: [
-                {
-                  date: "2016-05-01",
-                  name: "王小虎"
-                }
-              ]
+              dsc: ""
             }
           },
           stop: {
@@ -314,34 +253,76 @@
     methods: {
       getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
 
-        let params = {
-          name: '',
-          type: '',
-          pageNo: this.left.page.pageNo,
-          pageSize: this.left.page.pageSize,
-        }
-        if(this.form.text) params.name = this.form.text;
+        this.getData(this.$utils.CONFIG.api.queryTodayProcess, {}, 'name', loadingKey, this.getDetail);
+      },
+      getDetail() {
 
-        this.getData(this.$utils.CONFIG.api.queryRequirementDetail, params, 'id', loadingKey);
-      },
-      handlePictureCardPreview(file) {
-        this.faceUrl = file.url;
-        this.addDialog.dialogVisible = true;
-      },
-      objectSpanMethod({ row, column, rowIndex, columnIndex }) { //合并
-        if (columnIndex === 0) {
-          if (rowIndex % 2 === 0) {
-            return {
-              rowspan: 2,
-              colspan: 1
-            };
-          } else {
-            return {
-              rowspan: 0,
-              colspan: 0
-            };
-          }
+        let params = {
+          name: this.currentData.name
         }
+
+        this.right.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryTodayProcessByName, (res) => { //详情
+
+          this.right.page1 = res.data || {};
+          this.right.isLoading = false;
+        }, () => this.right.isLoading = false, params);
+
+        this.getUserList();
+      },
+      getUserList() { //获取加工人员列表
+
+        let params = {
+
+        };
+        let mock = [
+          {
+            name: 'E01',
+            taskList: ['M18480，56/57', 'M18480，56/57'],
+            chartData: {
+              columns: ['日期', '访问用户'],
+              rows: [
+                { '日期': '1/1', '访问用户': 1393 },
+                { '日期': '1/2', '访问用户': 3530 }
+              ]
+            }
+          },
+          {
+            name: 'E01',
+            taskList: ['M18480，56/57', 'M18480，56/57'],
+            chartData: {
+              columns: ['日期', '访问用户'],
+              rows: [
+                { '日期': '1/1', '访问用户': 1393 },
+                { '日期': '1/2', '访问用户': 3530 }
+              ]
+            }
+          },
+          {
+            name: 'E01',
+            taskList: ['M18480，56/57', 'M18480，56/57'],
+            chartData: {
+              columns: ['日期', '访问用户'],
+              rows: [
+                { '日期': '1/1', '访问用户': 1393 },
+                { '日期': '1/2', '访问用户': 3530 }
+              ]
+            }
+          }
+        ];
+  
+        this.right.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.right.isLoading = false;
+          this.right.page2 = res.data || [];
+        }, () => this.right.isLoading = false, params, mock)        
+      },
+      handleSelect(item) {
+      
+        this.left.activeId = item.name;
+        this.currentData= item;
+        this.getDetail();
       },
       del(index, row) {
         console.log(index, row);

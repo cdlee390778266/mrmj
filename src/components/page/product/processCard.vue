@@ -21,15 +21,62 @@
           <div class="msg">
             <h4>订单信息</h4>
             <div class="msg-wrapper">
-              <span class="mgr20">模具号：{{component.mouldNo}}</span>
-              <span class="mgr20">零件号：{{component.componentNos}}</span>
-              <span class="mgr20">客户：{{component.name}}</span>
-              <span class="mgr20">要求交期：{{component.completionDate}}</span>
-              <span class="mgr20">数量：{{component.requirementQuantitys}}</span>
-              <span>客户PO.号：{{component.customerPoNo}}</span>
+              <!-- 重制订单 -->
+              <div class="mgt10" v-if="component.type == 'remanufacture'">
+                <span>客户：
+                  <el-autocomplete
+                    size="mini"
+                    style="width: 160px;"
+                    class="inline-input"
+                    v-model="right.page1.stuffNo"
+                    :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.stuff, 'stuffNo')"
+                    valueKey="stuffNo"
+                    value="stuffNo"
+                  ></el-autocomplete>
+                </span>
+                <span class="mgl20">模具号：
+                  <el-autocomplete
+                    size="mini"
+                    style="width: 160px;"
+                    class="inline-input"
+                    v-model="right.page1.stuffNo"
+                    :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.stuff, 'stuffNo')"
+                    valueKey="stuffNo"
+                    value="stuffNo"
+                  ></el-autocomplete>
+                </span>
+                <span class="mgl20">零件号：
+                  <el-autocomplete
+                    size="mini"
+                    style="width: 160px;"
+                    class="inline-input"
+                    v-model="right.page1.stuffNo"
+                    :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.stuff, 'stuffNo')"
+                    valueKey="stuffNo"
+                    value="stuffNo"
+                  ></el-autocomplete>
+                </span>
+                <span class="mgl20">手动增加原因：
+                  <el-select size="mini" v-model="right.page1.drawingVersionNo" placeholder="请选择" style="width: 77px;">
+                    <el-option label="重置" :value="0"></el-option>
+                    <el-option label="其它" :value="1"></el-option>
+                  </el-select>
+                </span>
+                <span class="mgl20">数量：
+                  <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 66px" />
+                </span>
+              </div>
+              <template v-else>
+                <span class="mgr20">模具号：{{component.mouldNo}}</span>
+                <span class="mgr20">零件号：{{component.componentNos}}</span>
+                <span class="mgr20">客户：{{component.name}}</span>
+                <span class="mgr20">要求交期：{{component.completionDate}}</span>
+                <span class="mgr20">数量：{{component.requirementQuantitys}}</span>
+                <span>客户PO.号：{{component.customerPoNo}}</span>
+            </template>
             </div>
           </div>
-          <div class="content">
+          <div class="content" :style="{top: component.type == 'remanufacture' ? '66px' : '40px'}">
             <h5 class="content-left-title">零件工艺版本列表</h5>
             <div class="content-left" v-loading="left.isLoading">
               <div class="list tc">
@@ -79,9 +126,9 @@
                 </span>
                 <span class="mgl20">下料尺寸(净尺寸mm)：
                   <el-input size="mini" v-model="right.page1.length" style="width: 70px" placeholder="长"/>
-                  X
+                  x
                   <el-input size="mini" v-model="right.page1.width" style="width: 70px" placeholder="宽"/>
-                  X
+                  x
                   <el-input size="mini" v-model="right.page1.height" style="width: 70px" placeholder="高"/>
                 </span>
               </p>
@@ -293,7 +340,7 @@
               this.getDetail(this.currentData);
             }
           }, () => this.left.isLoading = false, params)
-        }else { //如果是制定工艺
+        }else if(this.component.type == 'add') { //如果是制定工艺
           
           this.component.components.map(item => {
             item.quantity = item.requirementQuantity;
@@ -302,7 +349,12 @@
             components: this.$utils.deepCopy(this.component.components),
             processes: [{}]
           }
+        }else { //下达重制订单
 
+          this.right.page1 = {
+            components: this.$utils.deepCopy(this.component.components),
+            processes: [{}]
+          }
         }
       },
       getDetail(currentData) {

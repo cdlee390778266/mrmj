@@ -367,7 +367,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer tr pdtb20 pdlr10">
           <el-button type="primary" @click="addOrder(false)">下达生产订单</el-button>
-          <el-button type="primary" @click="addOrder(true)">保存草稿</el-button>
+          <!-- <el-button type="primary" @click="addOrder(true)">保存草稿</el-button> -->
           <el-button type="primary" @click="handle.add.dialogVisible = false">返回</el-button>
         </div>
       </div>
@@ -640,7 +640,7 @@
         }, () => this.handle.add.isLoading = false, params);
       },
       showDialog(formKey, type, id, title, attachments) {
-        console.log(formKey, type, id, title)
+        
         this.handle[formKey].type = type;
         this.handle[formKey].id = id;
         this.handle[formKey].title = title;

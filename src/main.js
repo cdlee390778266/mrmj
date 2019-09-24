@@ -6,6 +6,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 import './assets/css/icon.css';
 import './components/common/directives';
 import "babel-polyfill";
+import VePie from 'v-charts/lib/pie.common'
 import Filter from './js/filter'
 import Utils from './js/utils'
 import Dict from './js/dict'
@@ -13,6 +14,7 @@ import Validator from './js/validator'
 
 import pageWrapper from './components/page/common/page-wrapper'
 
+Vue.component(VePie.name, VePie)
 Vue.component('pageWrapper', pageWrapper)
 
 Vue.config.productionTip = false

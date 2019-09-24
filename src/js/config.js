@@ -81,9 +81,14 @@ const CONFIG = {
 		trackProductionOrder: baseUrl + 'requirement/productionOrder/trackProductionOrder', //生产--生产订单跟踪查询
 		terminateOrPauseOrder: baseUrl + 'requirement/productionOrder/terminateOrPauseOrder', //生产--暂停与终止生产订单
 		querySaleOrderInfo: baseUrl + 'requirement/saleOrder/querySaleOrderInfo', //生产--查看相关销售订单
+		queryPlanList: baseUrl + 'requirement/makeworkplan/queryPlanList', //生产--查看制定作业计划
+		queryTodayProcess: baseUrl + 'requirement/productionOrder/queryTodayProcess', //生产--工序生产列表
+		queryTodayProcessByName: baseUrl + 'requirement/jobbooking/queryTodayProcessByName', //生产--查找报工的工序
 		processAssignWork: baseUrl + 'requirement/operationalPlan/processAssignWork', //生产--工序派工
 		saveJobBooking: baseUrl + 'requirement/jobbooking/saveJobBooking', //生产--报工
-	
+		
+		/* 计划模块*/
+		queryNoReleasedPurchase: baseUrl + 'requirement/purchaseOrder/queryNoReleasedPurchase', //计划--查询外协任务
 	},
 	success: {
 		"1": "加载数据成功",
@@ -93,6 +98,7 @@ const CONFIG = {
 		'104': '删除成功',
 		'105': '暂停成功',
 		'106': '终止成功',
+		'107': '已消除警告',
 	},
 	error: {
 		'-1': '加载数据失败，请检查网络！',

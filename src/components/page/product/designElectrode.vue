@@ -350,7 +350,6 @@
       if(!component) return;
       this.component = JSON.parse(component);
       this.refresh();
-      console.log(this.component)
     }
   };
 </script>

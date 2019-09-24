@@ -225,4 +225,15 @@ Date.prototype.Format = function(fmt, hasWeek) {
 	return fmt + (hasWeek ? '&nbsp;&nbsp;&nbsp;&nbsp;' + weekday[this.getDay()] : '');
 }
 
+//模拟请求
+Utils.mock = function(url, success, error, params = {}, resData = {}) {
+
+	window.setTimeout(() => {
+		let res = {
+			data: resData
+		}
+		if (typeof success == 'function') success(res)
+	}, 1000)
+}
+
 export default Utils

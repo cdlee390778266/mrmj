@@ -126,7 +126,7 @@ let leftMixin = {
 				this.search && this.search();
 			},
 			handleSelect(item, idKey = 'id', callback = null) {
-				
+
 	      this.left.activeId = item[idKey];
 	      this.currentData= item;
 	      typeof callback == 'function' && callback();
@@ -145,9 +145,9 @@ let leftMixin = {
 	      this.$refs[formName] && this.$refs[formName].resetFields();
 	    },
 	    uploadFile(dialog = null) {
-	        
+	    
 	      let formData = new FormData();
-	      if(dialog && dialog.addFiles.length) {
+	      if(dialog && dialog.addFiles && dialog.addFiles.length) {
 
 	      	dialog.addFiles.map(item => {
 

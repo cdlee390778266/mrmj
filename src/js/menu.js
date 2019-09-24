@@ -140,7 +140,7 @@ const MENU = {
 				isSubPage: true
 			},
 			{
-				name: '查看当前全部订单',
+				name: '查看当前生产计划安排',
 				path: '/detail',
 				paramsPath: '/detail/:id?',
 				icon: '',
