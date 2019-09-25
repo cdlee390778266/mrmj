@@ -3,7 +3,10 @@
     <div class="crumbs" style="border: none;">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-copy"></i>  <strong>当前位置：</strong> 零件工艺设计->制定工艺卡
+          <i class="el-icon-lx-copy"></i>
+          <strong>当前位置：</strong>
+          <span v-if="component.type == 'remanufacture'">生产订单跟踪->下达重制订单</span>
+          <span v-else>零件工艺设计->制定工艺卡</span>
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -302,7 +305,7 @@
     </div>
     <div class="detail-footer tr">
       <el-button type="primary" @click="save">保存</el-button>
-      <el-button type="primary" @click="$router.push('/product/technology')">返 回</el-button>
+      <el-button type="primary" @click="$router.go(-1)">返 回</el-button>
     </div>
   </div>
 </template>
