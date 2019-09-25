@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="posFull" style="top: 36px; padding-left: 10px;" v-loading="isLoading">
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
@@ -7,15 +7,16 @@
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div class="detail-main" style="top: 68px;" v-loading="right.isLoading">
+    <div class="detail-main" style="top: 36px;">
       <div class="calc mgt10">
         <div class="main">
           <div class="msg">
             <div class="msg-wrapper">
-              <span class="mgr20">派工日期：</span>
+              <span>派工日期：</span>
               <el-date-picker
                 v-model="right.page1.date"
                 type="date"
+                :picker-options="pickerOptions"
                 placeholder="选择日期">
               </el-date-picker>
             </div>
@@ -23,7 +24,7 @@
           <div class="content">
             <h5 class="content-left-title">当前作业计划</h5>
             <div class="content-left" v-loading="left.isLoading">
-              <div class="list tc posFull" style="width: 700px">
+              <div class="list tc posFull" style="width: 700px; top: -4px;">
                 <div class="list-head dflex">
                   <div class="flex">生产序号</div>
                   <div style="width: 100px;">是否已派工</div>
@@ -33,46 +34,46 @@
                   <div class="flex">零件号</div>
                   <div class="flex">数量</div>
                   <div class="flex">剩余工时</div>
-                  <div style="width: 100px;">要求完成日期</div>
+                  <div style="width: 120px;">要求完成日期</div>
                 </div>
                 <div class="list-body">
-                  <div class="dflex" v-for="(item, index) in [1,2]" :key="index" :class="{active: left.activeId == index}" @click="handleSelect(item, index)">
+                  <div class="dflex" v-for="(item, index) in left.list" :key="index" :class="{active: left.activeId == index}" @click="handleSelect(item, index)">
                     <div class="flex">
                       {{index + 1}}
                     </div>
                     <div style="width: 100px;">
-                      {{index}}
+                      {{item.a}}
                     </div>
                     <div class="flex">
-                      {{index}}
+                      {{item.b}}
                     </div>
                     <div class="flex">
-                      {{index}}
+                      {{item.c}}
                     </div>
                     <div class="flex">
-                      {{index}}
+                      {{item.d}}
                     </div>
                     <div class="flex">
-                      {{index}}
+                      {{item.e}}
                     </div>
                     <div class="flex">
-                      {{index}}
+                      {{item.f}}
                     </div>
                     <div class="flex">
-                      {{index}}
+                      {{item.g}}
                     </div>
-                    <div style="width: 100px;">
-                      {{index}}
+                    <div style="width: 120px;">
+                      {{item.h}}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             <h5 class="content-right-title">人员分配</h5>
-            <div class="content-right">
+            <div class="content-right" v-loading="right.isLoading">
               <p><strong>相关零件生产内容</strong></p>
               <p>
-                <span>模具号：M18480</span> 
+                <span>模具号：{{currentData.d}}</span> 
                 <span class="mgl20">零件号：56/57</span> 
                 <span class="mgl20">数量：8+1EA</span> 
                 <span class="mgl20">材料：1.2343ESU</span> 
@@ -86,16 +87,16 @@
                   <thead>
                     <tr>
                       <th class="bge4e4e4">工序顺序</th>
-                      <th v-for="(itemc, index) in right.page1.list" :key="index">{{itemc.name}}</th>
+                      <th v-for="(itemc, index) in [{name: 'M99', estimationWorkTime: 88}, {name: 'HH', estimationWorkTime: 10}]" :key="index">{{itemc.name}}</th>
                       <th class="bge4e4e4">工时合计</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td class="bge4e4e4">估工（H）</td>
-                      <th v-for="(itemc, index) in right.page1.list" :key="index">{{itemc.estimationWorkTime}}</th>
+                      <th v-for="(itemc, index) in [{name: 'M99', estimationWorkTime: 88}, {name: 'HH', estimationWorkTime: 10}]" :key="index">{{itemc.estimationWorkTime}}</th>
                       <th class="bge4e4e4">
-                        {{right.page1.list | sum('estimationWorkTime')}}
+                        {{[{name: 'M99', estimationWorkTime: 88}, {name: 'HH', estimationWorkTime: 10}] | sum('estimationWorkTime')}}
                       </th>
                     </tr>
                   </tbody>
@@ -119,82 +120,60 @@
                     label="操作"
                     show-overflow-tooltip>
                     <template scope="scope">
-                      <el-button type="text" @click="down(1)">下载</el-button>
+                      <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
                     </template>
                   </el-table-column>
                 </el-table>
               </p>
               <div>
                 <strong>加工人员安排</strong>
-                <p>
+                <p class="mgt5" style="position: relative; z-index: 8;">
                   排序：
-                  <el-select style="width: 100px;" v-model="right.page1.data">
-                    <el-option v-for="(itemc, index) in right.page1.data" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
+                  <el-select size="mini" style="width: 100px;" v-model="right.page1.data">
+                    <el-option label="空闲" value="0" @click=""></el-option>
                   </el-select>
+                  <el-button v-popover:popover type="text" class="mgl10">设置</el-button>
+                  <el-popover
+                    ref="popover"
+                    placement="right"
+                    width="400"
+                    trigger="click">
+                    <p>
+                      <el-button type="primary" size="mini" class="mgr10">添加员工</el-button>
+                      <span class="mgl10">
+                        日工时：
+                        <el-input type="text" size="mini" style="width: 100px;" v-model="right.a"/>
+                      </span>
+                    </p>
+                     <p class="fs12">(日工时是生产人员每天工作的小时数，用于计算各加工人员的工作饱和度，以合理分配加工人员)</p>
+                  </el-popover>
                 </p>
                 <el-row :gutter="20">
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <div class="people dflex mgt10">
-                      <div class="flex">
-                        <p class="ellipsis">
-                          <img :src="defaultPeopleImg">
-                          <span>人员姓名：E01</span>
-                        </p>
-                        <p class="mgt10">
-                          <strong>已分配任务：</strong>
-                        </p>
-                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
-                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8" v-for="(item, index) in right.list" :key="index" class="mgb10">
+                    <div class="people pd10">
+                      <div style="position: relative; z-index: 8;">
+                        <el-checkbox v-model="right.checked">分配所选零件加工任务</el-checkbox>
+                        <div class="mgl10 dib" style="color: #333;">
+                          数量：
+                          <el-input type="text" size="mini" style="width: 44px;" v-model="right.b"/>
+                        </div>
                       </div>
-                      <div style="width: 100px;"></div>
-                    </div>
-                  </el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <div class="people dflex mgt10">
-                      <div class="flex">
-                        <p class="ellipsis">
-                          <img :src="defaultPeopleImg">
-                          <span>人员姓名：E01</span>
-                        </p>
-                        <p class="mgt10">
-                          <strong>已分配任务：</strong>
-                        </p>
-                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
-                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                      <div class="dflex mgt10">
+                        <div class="flex">
+                          <p class="ellipsis">
+                            <img :src="defaultPeopleImg">
+                            <span>人员姓名：E01</span>
+                          </p>
+                          <p class="mgt10">
+                            <strong>已分配任务：</strong>
+                          </p>
+                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                        </div>
+                        <div style="width: 200px; height: 200px">
+                          <ve-pie :data="item.chartData" :colors="chart.colors" :settings="chart.settings" height="400px" width="100px" :legend-visible="false" style="position: relative;top: -140px; margin: auto;"></ve-pie>
+                        </div>
                       </div>
-                      <div style="width: 100px;"></div>
-                    </div>
-                  </el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <div class="people dflex mgt10">
-                      <div class="flex">
-                        <p class="ellipsis">
-                          <img :src="defaultPeopleImg">
-                          <span>人员姓名：E01</span>
-                        </p>
-                        <p class="mgt10">
-                          <strong>已分配任务：</strong>
-                        </p>
-                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
-                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
-                      </div>
-                      <div style="width: 100px;"></div>
-                    </div>
-                  </el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
-                    <div class="people dflex mgt10">
-                      <div class="flex">
-                        <p class="ellipsis">
-                          <img :src="defaultPeopleImg">
-                          <span>人员姓名：E01</span>
-                        </p>
-                        <p class="mgt10">
-                          <strong>已分配任务：</strong>
-                        </p>
-                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
-                        <p class="ellipsis"><span>1：M18480，56/57</span></p>
-                      </div>
-                      <div style="width: 100px;"></div>
                     </div>
                   </el-col>
                 </el-row>
@@ -206,7 +185,7 @@
     </div>
     <div class="detail-footer tr">
       <el-button type="primary" @click="save">保存</el-button>
-      <el-button type="primary" @click="$router.push('/product/task')">返 回</el-button>
+      <el-button type="primary" @click="$router.go(-1)">返 回</el-button>
     </div>
   </div>
 </template>
@@ -220,190 +199,134 @@
         defaultPeopleImg: require('../../../assets/img/people.svg'),
         time: '',
         component: {},
-        defaultData: {
-          type: 'add',
-          mrElectrodeDesignTasksId: '',
-          mrElectrodeProductionListOrderId: '',
-          electrodeNo: '',
-          quantity: '',
-          processes: [{}],
-          attachments: [],
+        isLoading: false,
+        chart: {
+          colors: ['#c0504d','#4f81bd', '#61a0a8', '#d48265', '#91c7ae','#749f83', '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
+          settings: {
+            legendLimit: 0,
+            radius: 40,
+            labelLine: {
+              show: false
+            }
+          }
+        },
+        pickerOptions: { // 限制收货时间不让选择今天以前的
+        　　disabledDate(time) {
+        　　　　return time.getTime() < Date.now() - 24 * 60 * 60 * 1000
+        　　}
         }
       }
     },
     methods: {
-      getLeftList() { //获取版本列表
+      getLeftList() { //获取列表
         
         let params = {
-          mrElectrodeDesignTasksId: this.component.mrElectrodeDesignTasksId
-        }
+
+        };
+        let mock = [
+          {
+            a: '是',
+            b: 'G1',
+            c: '进行中',
+            d: 'M18480',
+            e: '56/57',
+            f: '8+1EA',
+            g: '4',
+            h: '2019年8月6日'
+          },
+          {
+            a: '否',
+            b: 'HH',
+            c: '完成',
+            d: '18089',
+            e: '88',
+            f: '11',
+            g: '10',
+            h: '2015年10月10日'
+          }
+        ]
+  
         this.left.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryElectrodeNoById, (res) => {
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
 
           this.left.isLoading = false;
           this.left.list = res.data || [];
-          if(this.left.list.length) {
+          this.getDetail();
+        }, () => this.left.isLoading = false, params, mock)
+      },
+      getDetail() {
 
-            this.left.activeId = 0;
-            this.currentData = this.left.list[0];
-            if(!this.currentData.processes || !this.currentData.processes.length) {
-              this.currentData.processes = [{}];
+        let params = {
+
+        };
+        let mock = [
+          {
+            name: 'E01',
+            taskList: ['M18480，56/57', 'M18480，56/57'],
+            chartData: {
+              columns: ['日期', '访问用户'],
+              rows: [
+                { '日期': '1/1', '访问用户': 1393 },
+                { '日期': '1/2', '访问用户': 3530 }
+              ]
             }
-          }else {
-
-            this.currentData = this.$utils.deepCopy(this.defaultData);
+          },
+          {
+            name: 'E01',
+            taskList: ['M18480，56/57', 'M18480，56/57'],
+            chartData: {
+              columns: ['日期', '访问用户'],
+              rows: [
+                { '日期': '1/1', '访问用户': 1393 },
+                { '日期': '1/2', '访问用户': 3530 }
+              ]
+            }
+          },
+          {
+            name: 'E01',
+            taskList: ['M18480，56/57', 'M18480，56/57'],
+            chartData: {
+              columns: ['日期', '访问用户'],
+              rows: [
+                { '日期': '1/1', '访问用户': 1393 },
+                { '日期': '1/2', '访问用户': 3530 }
+              ]
+            }
           }
-        }, () => {
+        ];
+  
+        this.right.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
 
-          this.left.isLoading = false;
-          this.currentData = this.$utils.deepCopy(this.defaultData);
-        }, params)
+          this.right.isLoading = false;
+          this.right.list = res.data || [];
+        }, () => this.right.isLoading = false, params, mock)
       },
       handleSelect(item, index) {
       
         this.left.activeId = index;
         this.currentData = item;
-        if(!this.currentData.processes || !this.currentData.processes.length) {
-          this.currentData.processes = [{}];
-        }
-      },
-      addVersion() {
-
-        let data = this.$utils.deepCopy(this.defaultData);
-        this.left.list.push(data);
-        this.currentData = data;
-        this.left.activeId = this.left.list.length - 1;
-      },
-      deleteVersionSuccess(index) {
-
-        this.left.list.splice(index, 1);
-        if(this.left.activeId > index) {
-          index = this.left.activeId - 1;
-          this.left.activeId = index;
-          this.currentData = this.left.list[index];
-        }else if(this.left.activeId == index) {
-          if(index == this.left.list.length) {
-            index = this.left.list.length - 1;
-          }
-          this.left.activeId = index;
-          this.currentData = this.left.list[index] || this.$utils.deepCopy(this.defaultData);
-        }
-      },
-      deleteVersion(index) {
-
-        if(this.left.list[index].type == 'add') {
-
-          this.deleteVersionSuccess(index);
-        }else {
-
-          this.left.isLoading = true;
-          this.$utils.getJson(this.$utils.CONFIG.api.saveEleAsModify, (res) => { //版本详情 
-
-            this.left.isLoading = false;
-            this.$utils.showTip('success', 'success', '104');
-            this.deleteVersionSuccess(index);
-          }, () => this.left.isLoading = false, {mrElectrodeProductionListOrderId: this.left.list[index].mrElectrodeProductionListOrderId}, 'post', true);
-        }
-      },
-      uploadSuccess(res) {
-
-        this.$refs.file.value = '';
-        let params = [{
-            fileId: res.data[0].fileId,
-            fileName: res.data[0].fileName,
-            mrElectrodeProductionListOrderId: this.currentData.mrElectrodeProductionListOrderId
-          }]
-        this.$utils.getJson(this.$utils.CONFIG.api.saveEleAttachment, (response) => { //存储电极附件
-
-          this.currentData.attachments.push({
-            fileId: res.data[0].fileId,
-            fileName: res.data[0].fileName,
-          });
-        }, () => this.right.isLoading = false, params);
-      },
-      deleteSuccess() {
-
-        this.$utils.getJson(this.$utils.CONFIG.api.deleteAttachment, (response) => { //删除附件
-          
-          this.currentData.attachments = this.currentData.attachments.filter(item => this.deleteRow.fileId != item.fileId);
-        }, () => this.right.isLoading = false, {fileId: this.deleteRow.fileId});
+        this.getDetail();
       },
       save() {
 
-        if(!this.currentData.electrodeNo) { //如果电极号为空
-          this.$utils.showTip('warning', 'error', '-1050');
-          return;
-        }
+        let params = {
 
-        let url = '';
-        let params = {}
+        };
+    
+        this.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
 
-        if(this.currentData.type == 'add') {
-
-          url = this.$utils.CONFIG.api.designElectrodeDesignTasks;
-          params = {
-            mrElectrodeDesignTasksId: this.component.mrElectrodeDesignTasksId,
-            electrodeNo: this.currentData.electrodeNo,
-            quantity: parseInt(this.currentData.quantity) || 0,
-            processes: [],
-            attachments: []
-          }
-        }else {
-
-          url = this.$utils.CONFIG.api.modifyEleInfo;
-          params = {
-            mrElectrodeProductionListOrderId: this.currentData.mrElectrodeProductionListOrderId,
-            electrodeNo: this.currentData.electrodeNo,
-            quantity: parseInt(this.currentData.quantity) || 0,
-            processes: [],
-            attachments: []
-          }
-        }
-
-        this.currentData.processes.map((item, index) => { //工艺列表
-
-          if(item.processName) {
-
-            let obj = {
-              processSequence: index + 1,
-              processName: item.processName,
-              estimationWorkTime: parseFloat(item.estimationWorkTime) || 0,
-            }
-            if(item.mrElectrodeProcessProductionOrderId) {
-              obj.mrElectrodeProcessProductionOrderId = item.mrElectrodeProcessProductionOrderId;
-            }
-            params.processes.push(obj);
-          }
-        })
-
-        this.right.isLoading = true;
-        this.$utils.getJson(url, (res) => {
-
-          this.right.isLoading = false;
           this.$utils.showTip('success', 'success', '102');
-          this.component.type = 'edit';
-          localStorage.setItem(this.time, JSON.stringify(this.component));
-          this.refresh();
-        }, () => this.right.isLoading = false, params);
-      },
-      refresh() {
-
-        this.getList(this.$utils.CONFIG.api.stuff, this.right, 'stuff'); //获取材料列表
-        this.getList(this.$utils.CONFIG.api.process, this.right, 'process'); //获取工序名称列表
-        this.getList(this.$utils.CONFIG.api.sysCode, this.right, 'sysCode', {otherWhereClause: "codeType = 'processContent'"}); //获取工序内容列表
-        this.getLeftList();
+          this.isLoading = false;
+        }, () => this.isLoading = false, params)
       }
     },
     
     created() {
 
       if(!this.$route.params.id) return;
-      this.time = this.$route.params.id;
-      let component = localStorage.getItem(this.time);
-      if(!component) return;
-      this.component = JSON.parse(component);
-      this.refresh();
-      console.log(this.component)
+      this.getLeftList();
     }
   };
 </script>

@@ -35,8 +35,8 @@
             <el-row>
               <el-col :span="24">当天工序进度：<el-progress :percentage="item | cpercentage('haveJobBookingWorkTime', 'processTotalWorkTime')" color="rgba(0, 255, 0, 1)" style="width: 160px;display: inline-block;"></el-progress></el-col>
               <el-col :span="24" class="tr">
-                <router-link to="/product/dspwk">派工</router-link>
-                <router-link to="/product/npwk">报工</router-link>
+                <router-link to="/product/dspwk/1">派工</router-link>
+                <router-link to="/product/npwk/1">报工</router-link>
               </el-col>
             </el-row>
           </div>
@@ -122,7 +122,7 @@
                   <p>
                     排序：
                     <el-select style="width: 100px;" v-model="right.page1.data">
-                      <el-option v-for="(itemc, index) in right.page1.data" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
+                      <el-option label="空闲" value="0"></el-option>
                     </el-select>
                   </p>
                   <el-row :gutter="20">

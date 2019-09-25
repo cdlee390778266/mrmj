@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="posFull" style="top: 36px; padding-left: 10px;" v-loading="isLoading">
     <div class="crumbs borb-green pdb10">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
@@ -106,7 +106,7 @@
     </div>
     <div class="detail-footer tr">
       <el-button type="primary" @click="save">保存</el-button>
-      <el-button type="primary" @click="$router.push('/product/task')">返 回</el-button>
+      <el-button type="primary" @click="$router.go(-1)">返 回</el-button>
     </div>
   </div>
 </template>
@@ -117,193 +117,41 @@
     mixins: [leftMixin],
     data() {
       return {
-        defaultPeopleImg: require('../../../assets/img/people.svg'),
-        time: '',
-        component: {},
-        defaultData: {
-          type: 'add',
-          mrElectrodeDesignTasksId: '',
-          mrElectrodeProductionListOrderId: '',
-          electrodeNo: '',
-          quantity: '',
-          processes: [{}],
-          attachments: [],
-        }
+        isLoading: false
       }
     },
     methods: {
-      getLeftList() { //获取版本列表
+      getLeftList() { //获取列表
         
         let params = {
-          mrElectrodeDesignTasksId: this.component.mrElectrodeDesignTasksId
-        }
-        this.left.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryElectrodeNoById, (res) => {
 
-          this.left.isLoading = false;
-          this.left.list = res.data || [];
-          if(this.left.list.length) {
+        };
+  
+        this.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
 
-            this.left.activeId = 0;
-            this.currentData = this.left.list[0];
-            if(!this.currentData.processes || !this.currentData.processes.length) {
-              this.currentData.processes = [{}];
-            }
-          }else {
-
-            this.currentData = this.$utils.deepCopy(this.defaultData);
-          }
-        }, () => {
-
-          this.left.isLoading = false;
-          this.currentData = this.$utils.deepCopy(this.defaultData);
-        }, params)
-      },
-      handleSelect(item, index) {
-      
-        this.left.activeId = index;
-        this.currentData = item;
-        if(!this.currentData.processes || !this.currentData.processes.length) {
-          this.currentData.processes = [{}];
-        }
-      },
-      addVersion() {
-
-        let data = this.$utils.deepCopy(this.defaultData);
-        this.left.list.push(data);
-        this.currentData = data;
-        this.left.activeId = this.left.list.length - 1;
-      },
-      deleteVersionSuccess(index) {
-
-        this.left.list.splice(index, 1);
-        if(this.left.activeId > index) {
-          index = this.left.activeId - 1;
-          this.left.activeId = index;
-          this.currentData = this.left.list[index];
-        }else if(this.left.activeId == index) {
-          if(index == this.left.list.length) {
-            index = this.left.list.length - 1;
-          }
-          this.left.activeId = index;
-          this.currentData = this.left.list[index] || this.$utils.deepCopy(this.defaultData);
-        }
-      },
-      deleteVersion(index) {
-
-        if(this.left.list[index].type == 'add') {
-
-          this.deleteVersionSuccess(index);
-        }else {
-
-          this.left.isLoading = true;
-          this.$utils.getJson(this.$utils.CONFIG.api.saveEleAsModify, (res) => { //版本详情 
-
-            this.left.isLoading = false;
-            this.$utils.showTip('success', 'success', '104');
-            this.deleteVersionSuccess(index);
-          }, () => this.left.isLoading = false, {mrElectrodeProductionListOrderId: this.left.list[index].mrElectrodeProductionListOrderId}, 'post', true);
-        }
-      },
-      uploadSuccess(res) {
-
-        this.$refs.file.value = '';
-        let params = [{
-            fileId: res.data[0].fileId,
-            fileName: res.data[0].fileName,
-            mrElectrodeProductionListOrderId: this.currentData.mrElectrodeProductionListOrderId
-          }]
-        this.$utils.getJson(this.$utils.CONFIG.api.saveEleAttachment, (response) => { //存储电极附件
-
-          this.currentData.attachments.push({
-            fileId: res.data[0].fileId,
-            fileName: res.data[0].fileName,
-          });
-        }, () => this.right.isLoading = false, params);
-      },
-      deleteSuccess() {
-
-        this.$utils.getJson(this.$utils.CONFIG.api.deleteAttachment, (response) => { //删除附件
-          
-          this.currentData.attachments = this.currentData.attachments.filter(item => this.deleteRow.fileId != item.fileId);
-        }, () => this.right.isLoading = false, {fileId: this.deleteRow.fileId});
+          this.isLoading = false;
+        }, () => this.isLoading = false, params)
       },
       save() {
 
-        if(!this.currentData.electrodeNo) { //如果电极号为空
-          this.$utils.showTip('warning', 'error', '-1050');
-          return;
-        }
+        let params = {
 
-        let url = '';
-        let params = {}
+        };
+  
+        this.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
 
-        if(this.currentData.type == 'add') {
-
-          url = this.$utils.CONFIG.api.designElectrodeDesignTasks;
-          params = {
-            mrElectrodeDesignTasksId: this.component.mrElectrodeDesignTasksId,
-            electrodeNo: this.currentData.electrodeNo,
-            quantity: parseInt(this.currentData.quantity) || 0,
-            processes: [],
-            attachments: []
-          }
-        }else {
-
-          url = this.$utils.CONFIG.api.modifyEleInfo;
-          params = {
-            mrElectrodeProductionListOrderId: this.currentData.mrElectrodeProductionListOrderId,
-            electrodeNo: this.currentData.electrodeNo,
-            quantity: parseInt(this.currentData.quantity) || 0,
-            processes: [],
-            attachments: []
-          }
-        }
-
-        this.currentData.processes.map((item, index) => { //工艺列表
-
-          if(item.processName) {
-
-            let obj = {
-              processSequence: index + 1,
-              processName: item.processName,
-              estimationWorkTime: parseFloat(item.estimationWorkTime) || 0,
-            }
-            if(item.mrElectrodeProcessProductionOrderId) {
-              obj.mrElectrodeProcessProductionOrderId = item.mrElectrodeProcessProductionOrderId;
-            }
-            params.processes.push(obj);
-          }
-        })
-
-        this.right.isLoading = true;
-        this.$utils.getJson(url, (res) => {
-
-          this.right.isLoading = false;
           this.$utils.showTip('success', 'success', '102');
-          this.component.type = 'edit';
-          localStorage.setItem(this.time, JSON.stringify(this.component));
-          this.refresh();
-        }, () => this.right.isLoading = false, params);
-      },
-      refresh() {
-
-        this.getList(this.$utils.CONFIG.api.stuff, this.right, 'stuff'); //获取材料列表
-        this.getList(this.$utils.CONFIG.api.process, this.right, 'process'); //获取工序名称列表
-        this.getList(this.$utils.CONFIG.api.sysCode, this.right, 'sysCode', {otherWhereClause: "codeType = 'processContent'"}); //获取工序内容列表
-        this.getLeftList();
+          this.isLoading = false;
+        }, () => this.isLoading = false, params)
       }
     },
     
     created() {
 
       if(!this.$route.params.id) return;
-      this.time = this.$route.params.id;
-      let component = localStorage.getItem(this.time);
-      if(!component) return;
-      this.component = JSON.parse(component);
-      this.refresh();
-      console.log(this.component)
+      this.getLeftList();
     }
   };
 </script>
