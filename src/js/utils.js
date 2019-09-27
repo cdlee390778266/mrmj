@@ -160,6 +160,22 @@ Utils.removeUserStorage = function() {
 }
 
 /**
+ * 取得sessionStorage值
+ */
+Utils.getSessionStorage = function(key) {
+
+	return key ? sessionStorage.getItem(key) : '';
+}
+
+/**
+ * 设置sessionStorage值
+ */
+Utils.setSessionStorage = function(key, value) {
+
+	return key ? sessionStorage.setItem(key, value) : '';
+}
+
+/**
  * 检查部门是否存在，并返回数据对象
  * orgCode 部门代码
  */

@@ -215,10 +215,10 @@ let leftMixin = {
 	      this.left.page.pageNo = 1;
 	      this.getLeftList();
 	    },
-	    showInput(list, index, key, defaultObj = {}) {
+	    showInput(list, index, key, defaultObj = {}, isAdd = true) {
 	    	
 	    	this.$set(list[index], key, true);
-	      if(list.length -1 == index) list.push(Object.assign({}, defaultObj))
+	      if(list.length -1 == index && isAdd) list.push(Object.assign({}, defaultObj))
 	    },
 	  	showObjInput(obj, key) {
 	    	
@@ -258,6 +258,10 @@ let leftMixin = {
 	    	}else {
 	    		return '';
 	    	} 	
+	    },
+	    back() {
+
+	    	this.$router.go(-1);
 	    }
 	},
 	mounted() {

@@ -9,12 +9,13 @@
         & > div {
           position: relative;
           height: 23px;
-          .el-input, .el-autocomplete, .el-select {
+          .el-input, .el-autocomplete, .el-select, .el-date-editor {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
+            width: auto;
             .el-input__inner {
               height: 23px;
               line-height: 23px;
@@ -22,6 +23,12 @@
           }
         }
       }
+    }
+  }
+  td.notEdit {
+    .cell {
+      padding-left: 10px !important;
+      padding-right: 10px !important;
     }
   }
 }

@@ -33,7 +33,7 @@
                 <el-col :span="24" class="mgb10 mgt10">
                   <p><strong>待采购申请</strong></p>
                   <p class="mgt10">
-                    <el-button type="primary" @click="jump('add')">下达采购订单</el-button>
+                    <el-button type="primary" @click="addOrder">下达采购订单</el-button>
                     <span>（勾选下表需要外协的零件，点击按钮，生成采购订单）</span>
                   </p>
                 </el-col>
@@ -69,7 +69,7 @@
                     <el-table-column prop="applyDate" label="申请交期" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="description" label="操作" show-overflow-tooltip>
                       <template scope="scope">
-                        <el-button type="text">取消</el-button>
+                        <el-button type="text" @click="deleteNoReleasedPurchase(scope.row, scope.$index)">删除</el-button>
                       </template>
                     </el-table-column>
                   </el-table>
@@ -87,50 +87,42 @@
               <el-row>
                 <el-col :span="24" class="mgb10 mgt10">
                   <div><strong>采购订单列表</strong></div>
-                  <div class="mgt10 dflex">
-                    <div>筛选条件</div>
-                    <div class="flex">
-                      <div class="filter-item">
-                        <span>供应商名称：</span> 
-                        <el-select style="width: 100px;" v-model="currentData">
-                          <el-option v-for="(itemc, index) in currentData" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
-                        </el-select>
-                      </div>
-                      <div class="filter-item">
-                        <span>下单日期：</span> 
-                        <el-date-picker
-                          v-model="currentData"
-                          type="daterange"
-                          range-separator="至"
-                          start-placeholder="开始日期"
-                          end-placeholder="结束日期">
-                        </el-date-picker>
-                      </div>
-                      <div class="filter-item">
-                        <span>要求交期：</span> 
-                        <el-date-picker
-                          v-model="currentData"
-                          type="daterange"
-                          range-separator="至"
-                          start-placeholder="开始日期"
-                          end-placeholder="结束日期">
-                        </el-date-picker>
-                      </div>
-                      <div class="filter-item">
-                        <span>总金额：</span> 
-                        <el-input v-model="currentData.key" style="width: 60px" />
-                        元
-                        <span class="mglr10">至</span>
-                        <el-input v-model="currentData.key" style="width: 60px" />
-                        元
-                      </div>
+                  <div class="mgt10 ">
+                    <div class="filter-item">
+                      <span>供应商名称：</span> 
+                      <el-select style="width: 100px;" v-model="left.tabs[1].form.supplier">
+                        <el-option v-for="(item, index) in left.tabs[1].filter.supplier" :key="index" :label="item.stuffNo" :value="item.stuffNo" @click=""></el-option>
+                      </el-select>
                     </div>
-                  </div>
-                  <div>
-                    排序:
-                    <el-button type="primary" size="mini">订单编号</el-button>
-                    <el-button type="primary" size="mini">下单日期</el-button>
-                    <el-button type="primary" size="mini">总金额</el-button>
+                    <div class="filter-item">
+                      <span>下单日期：</span> 
+                      <el-date-picker
+                        v-model="left.tabs[1].form.makeOrderDaterange"
+                        type="daterange"
+                        range-separator="至"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期">
+                      </el-date-picker>
+                    </div>
+                    <div class="filter-item">
+                      <span>要求交期：</span> 
+                      <el-date-picker
+                        v-model="left.tabs[1].form.requireDaterange"
+                        type="daterange"
+                        range-separator="至"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期">
+                      </el-date-picker>
+                    </div>
+                    <div class="filter-item">
+                      <span>总金额：</span> 
+                      <el-input v-model="left.tabs[1].form.minPrice" style="width: 60px" />
+                      元
+                      <span class="mglr10">至</span>
+                      <el-input v-model="left.tabs[1].form.maxPrice" style="width: 60px" />
+                      元
+                    </div>
+                    <el-button type="primary" class="mgl40" @click="queryOrder">搜 索</el-button>
                   </div>
                 </el-col>
                 <el-col :span="24">
@@ -138,22 +130,19 @@
                     :data="left.tabs[1].list"
                     border
                     size="mini"
-                    class="content-table"
-                    style="width: 100%"
-                    @selection-change="handleSelectionChange"
-                  >
-                    <el-table-column prop="componentNo" label="采购订单编号" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="componentNo" label="供应商" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="requirementQuantity" label="下单日期" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="customerNo" label="最近要求交期" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="issuedOrderDate" label="总金额(CNY)" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="description" label="操作" show-overflow-tooltip>
+                    class="content-table">
+                    <el-table-column prop="a" label="采购订单编号" sortable width="180" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="b" label="供应商"  show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="c" label="下单日期" sortable width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="d" label="最近要求交期" width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="e" label="总金额(CNY)" sortable width="120"  show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="description" label="操作" width="200">
                       <template scope="scope">
                         <el-button type="text" @click="$router.push('/plan/register/1')">到货</el-button>
-                        <el-button type="text" @click="jump('edit')">查看</el-button>
-                        <el-button type="text" @click="jump('edit')">编辑</el-button>
-                        <el-button type="text" @click="jump('edit')">完成</el-button>
-                        <el-button type="text">取消</el-button>
+                        <el-button type="text" @click="$router.push('/plan/order/1')">查看</el-button>
+                        <el-button type="text" @click="$router.push('/plan/placeOrder/1')">编辑</el-button>
+                        <el-button type="text"  @click="$router.push('/plan/order/1')">完成</el-button>
+                        <el-button type="text" @click="deleteOrder(scope.row, scope.$index)">删除</el-button>
                       </template>
                     </el-table-column>
                   </el-table>
@@ -171,7 +160,7 @@
               <el-row>
                 <el-col :span="24" class="mgb10 mgt10">
                   <p class="mgt10">
-                    <el-button type="primary" @click="jump('add')">添加供应商</el-button>
+                    <el-button type="primary" @click="showDialog('add', {})">添加供应商</el-button>
                   </p>
                 </el-col>
                 <el-col :span="24">
@@ -180,17 +169,16 @@
                     border
                     size="mini"
                     class="content-table"
-                    style="width: 100%"
-                    @selection-change="handleSelectionChange"
-                  >
-                    <el-table-column prop="componentNo" label="供应商名称" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="componentNo" label="供应商简称" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="requirementQuantity" label="联系电话" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="customerNo" label="传真" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="issuedOrderDate" label="电子邮件" show-overflow-tooltip></el-table-column>
+                    style="width: 100%">
+                    <el-table-column prop="a" label="供应商名称" width="180" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="b" label="供应商简称" width="180" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="c" label="详细地址" width="180" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="d" label="联系电话" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="e" label="传真" width="180" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="f" label="电子邮件" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="description" label="操作" show-overflow-tooltip>
                       <template scope="scope">
-                        <el-button type="text">编辑</el-button>
+                        <el-button type="text" @click="showDialog('edit', scope.row)">编辑</el-button>
                       </template>
                     </el-table-column>
                   </el-table>
@@ -204,25 +192,25 @@
 
     <el-dialog title="供应商信息" class="dialog-gray tc" :visible.sync="handle.supplier.dialogVisible">
       <div v-loading="handle.supplier.isLoading">
-        <el-form :model="handle.supplier.form" label-width="100px">
+        <el-form ref="supplierForm" :model="handle.supplier.form" :rules="handle.supplier.rules" label-width="100px">
           <div class="dialog-content pdt10 pdlr10 mglr10">
-            <el-form-item label="供应商名称" prop="customerName">
-              <el-input v-model="handle.supplier.form.customerName" auto-complete="off"></el-input>
+            <el-form-item label="供应商名称" prop="a">
+              <el-input v-model="handle.supplier.form.a" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="供应商简称" prop="customerName">
-              <el-input v-model="handle.supplier.form.customerName" auto-complete="off"></el-input>
+            <el-form-item label="供应商简称" prop="b">
+              <el-input v-model="handle.supplier.form.b" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="详细地址" prop="customerName">
-              <el-input v-model="handle.supplier.form.customerName" auto-complete="off"></el-input>
+            <el-form-item label="详细地址" prop="c">
+              <el-input v-model="handle.supplier.form.c" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="联系电话" prop="customerName">
-              <el-input v-model="handle.supplier.form.customerName" auto-complete="off"></el-input>
+            <el-form-item label="联系电话" prop="d">
+              <el-input v-model="handle.supplier.form.d" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="传真" prop="customerName">
-              <el-input v-model="handle.supplier.form.customerName" auto-complete="off"></el-input>
+            <el-form-item label="传真" prop="e">
+              <el-input v-model="handle.supplier.form.e" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="电子邮件" prop="customerName">
-              <el-input v-model="handle.supplier.form.customerName" auto-complete="off"></el-input>
+            <el-form-item label="电子邮件" prop="f">
+              <el-input v-model="handle.supplier.form.f" auto-complete="off"></el-input>
             </el-form-item>
             <div class="tl">
               <p>业务联系人：</p>
@@ -292,7 +280,7 @@
           </div>
         </el-form>
         <div slot="footer" class="dialog-footer tr pdtb20 pdlr10">
-          <el-button type="primary" @click="addOrder(true)">保存</el-button>
+          <el-button type="primary" @click="addUser">保存</el-button>
           <el-button type="primary" @click="handle.supplier.dialogVisible = false">取消</el-button>
         </div>
       </div>
@@ -313,6 +301,7 @@
               key:  'page1',
               name: '下达采购订单',
               icon: require('../../../assets/img/icon8.svg'),
+              selections: [],
               list: []
             },
             {
@@ -320,7 +309,21 @@
               name: '采购订单跟踪',
               icon: require('../../../assets/img/icon9.svg'),
               filter: {
-
+                supplier: [
+                  {
+                    stuffNo: 'A公司'
+                  },
+                  {
+                    stuffNo: 'B公司'
+                  },
+                ]
+              },
+              form: {
+                supplier: '',
+                makeOrderDaterange: '',
+                requireDaterange: '',
+                minPrice: '',
+                maxPrice: ''
               },
               list: []
             },
@@ -332,33 +335,31 @@
             },
           ]
         },
-        right: {
-          page1: {},
-          page2: {
-            selections: [],
-            noMakeCraftList: [],
-            haveMakeCraftList: []
-          },
-          list: []
-        },
         handle: {
           supplier: {
             dialogVisible: false,
             isLoading: false,
             data: {},
             form: {
-              mouldNo: "",
-              name: "",
-              type: "0",
-              id: "",
-              dsc: "",
+              a: '',
+              b: '',
+              c: '',
+              d: '',
+              e: '',
+              f: '',
+              liaisonManList: [{}]
+            },
+            rules: {
+              a: [
+                { required: true, message: '请输入供应商名称'}
+              ]
             }
           }
         }
       };
     },
     methods: {
-      queryNoReleasedPurchase() { //获取外协零件列表
+      queryNoReleasedPurchase() { //获取下达采购订单列表
 
         let params = {
           offset: 0,
@@ -377,60 +378,168 @@
           this.left.tabs[0].list = [];
         }, params)
       },
-      queryNoReleasedPurchase1() { //获取外协零件列表
+      deleteNoReleasedPurchase(item, index) {
 
         let params = {
-          offset: 0,
-          limit: 1000,
-          sorting: '_MrOutsourcePurchaseApply.applyDate'
-        }
-        
-        this.left.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryNoReleasedPurchase, (res) => {
-   
-          this.left.isLoading = false;
-          this.left.tabs[0].list = res.data.content || [];
-        }, () => {
 
-          this.left.isLoading = false;
-          this.left.tabs[0].list = [];
-        }, params)
+        };
+      
+        this.right.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.right.isLoading = false;
+          this.$utils.showTip('success', 'success', '104');
+          this.left.tabs[0].list.splice(index, 1);
+        }, () => this.right.isLoading = false, params)
       },
-      getDetail(i) {
+      queryOrder() { //获取采购订单跟踪列表
 
-        // let params = {
-        //   mrSaleOrderId: id
-        // }
+        let params = {
 
-        // this.right.isLoading = true;
-        // this.$utils.getJson(this.$utils.CONFIG.api.queryPendingSaleOrderDetail, (res) => { //订单详情 
+        };
+        let mock = [
+          {
+            a: 'MR2019-04-06',
+            b: '-',
+            c: '2019.04.06',
+            d: '2019.05.2',
+            e: '123123.00',
+          },
+          {
+            a: 'MR2019-04-08',
+            b: '-',
+            c: '2019.04.08',
+            d: '2019.05.30',
+            e: '1223.00',
+          }
+        ]
 
-        //   this.right.page1 = res.data[0] || {};
-        //   this.right.isLoading = false;
-        // }, () => this.right.isLoading = false, params);
+        this.left.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
 
+          this.left.isLoading = false;
+          this.left.tabs[1].list = res.data || [];
+        }, () => this.left.isLoading = false, params, mock)
+      },
+      deleteOrder(item, index) {
+
+        let params = {
+
+        };
+      
+        this.right.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.right.isLoading = false;
+          this.$utils.showTip('success', 'success', '104');
+          this.left.tabs[1].list.splice(index, 1);
+        }, () => this.right.isLoading = false, params)
+      },
+      queryUser() { //获取供应商列表
+
+        let params = {
+
+        };
+        let mock = [
+          {
+            id: '',
+            a: 'A公司',
+            b: 'A',
+            c: '四川成都高新区',
+            d: '12312312312',
+            e: '12312312312',
+            f: '12313@123123.com'
+          },
+          {
+            a: 'B公司',
+            b: 'B',
+            c: '北京',
+            d: '12312312312',
+            e: '12312312312',
+            f: '12313@qq.com'
+          }
+        ]
+
+        this.left.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.left.isLoading = false;
+          this.left.tabs[2].list = res.data || [];
+        }, () => this.left.isLoading = false, params, mock)
+      },
+      
+      addOrder() {
+
+        if(!this.left.tabs[0].selections.length) {
+          this.$utils.showTip('warning', 'error', '-1060');
+          return;
+        }
+
+        let time = new Date().getTime();
+        this.$utils.setSessionStorage(time, JSON.stringify(this.left.tabs[0].selections));
+        this.$router.push(`/plan/placeOrder/${time}`);
+      },
+      showDialog(type, row) {
+
+        this.handle.supplier.type = type;
+        if(type == 'add') { //新增
+
+          this.$refs.supplierForm && this.$refs.supplierForm.resetFields();
+          this.handle.supplier.dialogVisible = true;
+          this.handle.supplier.form.liaisonManList = [{}];
+        }else { //编辑
+
+          let params = {
+
+          };
+          let mock = Object.assign({}, row, {liaisonManList: [{}]})
+
+          this.handle.supplier.dialogVisible = true;
+          this.handle.supplier.isLoading = true;
+          this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+            this.handle.supplier.isLoading = false;
+            this.handle.supplier.form = res.data || {};
+          }, () => this.handle.supplier.isLoading = false, params, mock)
+        }
+      },
+      addUser() {
+
+        let params = {
+
+        };
        
+        this.handle.supplier.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.handle.supplier.isLoading = false;
+          this.handle.supplier.dialogVisible = false;
+          this.$utils.showTip('success', 'success', '102');console.log(this.handle.supplier.type)
+          if(this.handle.supplier.type == 'add') {  //如果新增
+            
+            this.left.tabs[2].list.push(Object.assign({}, this.handle.supplier.form));
+          }else { //如果编辑
+
+          }
+        }, () => this.handle.supplier.isLoading = false, params)
       },
       handleSelect(item) {
       
         this.left.activeId = item.key;
         this.currentData= item;
-        this.getDetail();
-      },
-      addOrder(saveAsDraft = false) {
-
       },
       handleSelectionChange(val) {
 
-        this.right.page2.selections = val;
-      },
-      jump(type = 'add', row = {}) {
+        this.left.tabs[0].selections = val;
       },
       refresh() {}
     },
     created() {
+
       this.handleSelect(this.left.tabs[0]);
       this.queryNoReleasedPurchase();
+      this.queryOrder();
+      this.queryUser();
     }
   };
 </script>
@@ -443,7 +552,7 @@
   }
   .filter-item {
     display: inline-block;
-    margin-left: 20px;
+    margin-right: 20px;
     margin-bottom: 10px;
   }
 </style>

@@ -152,7 +152,7 @@
                   border
                   size="mini"
                   max-height="200"
-                  class="content-table edit-table"
+                  class=" edit-table"
                   style="width: 100%">
                   <el-table-column
                     type="index"

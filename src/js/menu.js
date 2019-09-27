@@ -222,6 +222,13 @@ const MENU = {
 				isSubPage: true
 			},
 			{
+				name: '外协订单',
+				path: '/order',
+				paramsPath: '/order/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
 				name: '信息查询与分析',
 				path: '/query',
 				icon: 'el-icon-lx-rank'
