@@ -244,22 +244,50 @@ const MENU = {
 				icon: 'el-icon-lx-home'
 			},
 			{
-				name: '制定生产计划',
-				path: '/plan',
+				name: '质量检验',
+				path: '/test',
 				icon: 'el-icon-tickets'
 			},
 			{
-				name: '制定作业计划',
-				path: '/task',
+				name: '录入采购到货检验结果',
+				path: '/registerArrival',
+				paramsPath: '/registerArrival/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
+				name: '录入工序完工检验结果',
+				path: '/registerFinished',
+				paramsPath: '/registerFinished/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
+				name: '不良品处理',
+				path: '/rejects',
 				icon: 'el-icon-s-operation'
 			},
 			{
-				name: '跟踪生产进度',
+				name: '录入采购到货检验结果',
+				path: '/registerArrivalRejects',
+				paramsPath: '/registerArrivalRejects/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
+				name: '录入工序完工检验结果',
+				path: '/registerFinishedRejects',
+				paramsPath: '/registerFinishedRejects/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
+				name: '客户质量处理',
 				path: '/progress',
 				icon: 'el-icon-lx-service'
 			},
 			{
-				name: '信息查询与分析',
+				name: '质量情况分析',
 				path: '/query',
 				icon: 'el-icon-lx-rank'
 			}
