@@ -287,6 +287,13 @@ const MENU = {
 				icon: 'el-icon-lx-service'
 			},
 			{
+				name: '客户投诉回复',
+				path: '/reply',
+				paramsPath: '/reply/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
 				name: '质量情况分析',
 				path: '/query',
 				icon: 'el-icon-lx-rank'
