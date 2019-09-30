@@ -20,6 +20,16 @@ let leftMixin = {
 					}
 				],
 				listType: {
+					project: [
+						{
+							label: '按照客户名称搜索',
+							value: '1',
+						},
+						{
+							label: '按照模具号搜索',
+							value: '3',
+						}
+					],
 					product: [
 						{
 							label: '按照客户名称搜索',
@@ -33,7 +43,7 @@ let leftMixin = {
 							label: '按照零件号搜索',
 							value: '2',
 						}
-					]
+					],
 				},
 				sort: {
 					sortType: '',
@@ -54,6 +64,20 @@ let leftMixin = {
 							},
 							{
 								label: '按订单类型排序',
+								value: '_MrSaleOrder.saleOrderType',
+							},
+						],
+						project: [
+							{
+								label: '按客户名称排序',
+								value: '_MrCustomer.name',
+							},
+							{
+								label: '按订单金额排序',
+								value: '_MrSaleOrder.completionDate',
+							},
+							{
+								label: '按要求交期排序',
 								value: '_MrSaleOrder.saleOrderType',
 							},
 						]
@@ -144,6 +168,18 @@ let leftMixin = {
 
 	      this.$refs[formName] && this.$refs[formName].resetFields();
 	    },
+	    beforeAvatarUpload(file) {	//上传头像之前判断
+			const isJPG = file.type === 'image/jpeg';
+			const isLt2M = file.size / 1024 / 1024 < 2;
+
+			if (!isJPG) {
+				this.$message.error('上传头像图片只能是 JPG 格式!');
+			}
+			if (!isLt2M) {
+				this.$message.error('上传头像图片大小不能超过 2MB!');
+			}
+			return isJPG && isLt2M;
+		},
 	    uploadFile(dialog = null) {
 	    
 	      let formData = new FormData();

@@ -73,6 +73,13 @@ const MENU = {
 				icon: 'el-icon-folder-add'
 			},
 			{
+				name: '整体模具立项',
+				path: '/approval',
+				paramsPath: '/approval/:id',
+				icon: '',
+				isSubPage: true
+			},
+			{
 				name: '项目开展',
 				path: '/progress',
 				icon: 'el-icon-s-fold'
