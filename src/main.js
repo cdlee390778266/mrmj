@@ -11,6 +11,7 @@ import Filter from './js/filter'
 import Utils from './js/utils'
 import Dict from './js/dict'
 import Validator from './js/validator'
+import VuePreview from 'vue-preview'
 
 import pageWrapper from './components/page/common/page-wrapper'
 
@@ -25,6 +26,7 @@ Vue.prototype.$validator = Validator;
 Vue.use(ElementUI, {
     size: 'small'
 });
+Vue.use(VuePreview)
 
 //使用钩子函数对路由进行权限跳转
 // router.beforeEach((to, from, next) => {
