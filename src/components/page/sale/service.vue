@@ -371,7 +371,68 @@
 
 
 <style scoped lang="scss">
-  .main-left-search {
-    
+  .progress-list {
+    margin-top: 20px;
+    .progress-item {
+      position: relative;
+      display: table;
+      min-width: 100%;
+      box-sizing: border-box;
+      .process-left {
+        position: absolute;
+        left: 10px;
+        bottom: 10px;
+        top: 10px;
+        width: 200px;
+        padding-top: 5px;
+        line-height: 27px;
+        border-right: 1px solid #ddd;
+        .el-button {
+          font-size: 14px;
+        }
+      }
+      .process-right {
+        height: 193px;
+        padding: 10px;
+        padding-left: 210px;
+        border-top: 1px solid rgba(188, 188, 188, 1);
+        background: rgba(242, 242, 242, 1);
+        .mrmj-table {
+          border: none;
+          margin-bottom: 10px;
+          background: transparent;
+          th {
+            border: none;
+            min-width: 66px;
+            img {
+              position: relative;
+              top: 3px;
+            }
+          }
+          td {
+            border: none;
+          }
+        }
+      }
+      &:nth-child(even) .process-right {
+        background: rgba(228, 228, 228, 1);
+      }
+    }
+    &.unqualified-list {
+      .progress-item {
+        padding: 10px;
+        background: rgba(242, 242, 242, 1);
+        &:nth-child(even) {
+          background: rgba(228, 228, 228, 1);
+        }
+      }
+    }
+  }
+  .mrmj-table {
+    td {
+      overflow: hidden;
+      text-overflow:ellipsis;
+      white-space: nowrap;
+    }
   }
 </style>

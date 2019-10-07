@@ -58,3 +58,6 @@
   padding-top: 0;
   background: #ff0000;
 }
+.el-table__row.active td {
+  background: #d7d7d7 !important;
+}
