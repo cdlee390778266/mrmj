@@ -46,10 +46,10 @@
               <el-col :span="12" class="ellipsis" :title="item.e | filterNull">项目状态：{{ item.e | filterNull }}</el-col>
               <el-col :span="12" class="ellipsis" :title="item.f | filterNull">当前逾期：<span class="fc-red">{{ item.f | filterNull }}</span></el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="$router.push(`/project/approval/${item.id}`)">编辑</a>
-                <a href="javascript: void(0);" @click="getProductDetail(item)">提交零件生产</a>
-                <a href="javascript: void(0);" @click="getModify(item)">提交零件修模</a>
-                <a href="javascript: void(0);" @click="getNodeTerm(item)">结项</a>
+                <a href="javascript: void(0);" @click.stop="$router.push(`/project/approval/${item.id}`)">编辑</a>
+                <a href="javascript: void(0);" @click.stop="getProductDetail(item)">提交零件生产</a>
+                <a href="javascript: void(0);" @click.stop="getModify(item)">提交零件修模</a>
+                <a href="javascript: void(0);" @click.stop="getNodeTerm(item)">结项</a>
               </el-col>
             </el-row>
           </div>
@@ -83,44 +83,84 @@
                       <span class="mgl20">目前逾期：{{ right.page1.c | filterNull }}天</span>
                     </el-col>
                     <el-col :span="24">
-                      <table class="mrmj-table">
-                        <thead>
-                          <tr>
-                            <th class="bge4e4e4"></th>
-                            <th class="bge4e4e4">设计完成</th>
-                            <th class="bge4e4e4">标件到货</th>
-                            <th class="bge4e4e4">模板到货</th>
-                            <th class="bge4e4e4">零件加工完成</th>
-                            <th class="bge4e4e4">塑料到货</th>
-                            <th class="bge4e4e4">装模完成</th>
-                            <th class="bge4e4e4">T0 试模</th>
-                            <th class="bge4e4e4">FA测量完成</th>
-                            <th class="bge4e4e4">T0样品提交</th>
-                            <th class="bge4e4e4">移模</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td class="bge4e4e4">计划</td>
-                            <td v-for="(item, index) in right.page1.d" :key="index">{{item.a | filterNull('')}}</td>
-                          </tr>
-                          <tr>
-                            <td class="bge4e4e4">实际</td>
-                            <td v-for="(item, index) in right.page1.d" :key="index">{{item.b | filterNull('')}}</td>
-                          </tr>
-                          <tr>
-                            <td class="bge4e4e4">逾期天数</td>
-                            <td v-for="(item, index) in right.page1.d" :key="index">{{item.c | filterNull('')}}</td>
-                          </tr>
-                          <tr>
-                            <td class="bge4e4e4">说明</td>
-                            <td v-for="(item, index) in right.page1.d" :key="index">{{item.d | filterNull('')}}</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                      <div style="width: 100%; overflow-y: auto;">
+                        <table class="mrmj-table" style="min-width: 100%">
+                          <thead>
+                            <tr>
+                              <th class="bge4e4e4">
+                                <div style="min-width: 66px;"></div>
+                              </th>
+                              <th class="bge4e4e4">
+                                <div style="min-width: 88px;">
+                                  设计完成
+                                </div>
+                              </th>
+                              <th class="bge4e4e4">
+                                <div style="min-width: 88px;">
+                                  标件到货
+                                </div>
+                              </th>
+                              <th class="bge4e4e4">
+                                <div style="min-width: 88px;">
+                                  模板到货
+                                </div>
+                              </th>
+                              <th class="bge4e4e4" width="120">零件加工完成</th>
+                              <th class="bge4e4e4">
+                                <div style="min-width: 88px;">
+                                  塑料到货
+                                </div>
+                              </th>
+                              <th class="bge4e4e4">
+                                <div style="min-width: 88px;">
+                                  装模完成
+                                </div>
+                              </th>
+                              <th class="bge4e4e4">
+                                <div style="min-width: 88px;">
+                                  T0 试模
+                                </div>
+                              </th>
+                              <th class="bge4e4e4">
+                                <div style="min-width: 88px;">
+                                  FA测量完成
+                                </div>
+                              </th>
+                              <th class="bge4e4e4">
+                                <div style="min-width: 88px;">
+                                  T0样品提交
+                                </div>
+                              </th>
+                              <th class="bge4e4e4">
+                                <div style="min-width: 88px;">
+                                  移模
+                                </div>
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="bge4e4e4">计划</td>
+                              <td v-for="(item, index) in right.page1.d" :key="index">{{item.a | filterNull('')}}</td>
+                            </tr>
+                            <tr>
+                              <td class="bge4e4e4">实际</td>
+                              <td v-for="(item, index) in right.page1.d" :key="index">{{item.b | filterNull('')}}</td>
+                            </tr>
+                            <tr>
+                              <td class="bge4e4e4">逾期天数</td>
+                              <td v-for="(item, index) in right.page1.d" :key="index">{{item.c | filterNull('')}}</td>
+                            </tr>
+                            <tr>
+                              <td class="bge4e4e4">说明</td>
+                              <td v-for="(item, index) in right.page1.d" :key="index">{{item.d | filterNull('')}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </el-col>
                     <el-col :span="24" class="mgt10">
-                      <el-button type="primary">项目进度上报</el-button>
+                      <el-button type="primary" @click="getProgress">项目进度上报</el-button>
                     </el-col>
                   </el-row>
                   <el-row class="mgt20">
@@ -162,7 +202,7 @@
                             <span>样品需求数量：{{right.page1.r | filterNull}}</span>
                           </p>
                           <p>
-                            <el-button type="primary">查看订单明细</el-button>
+                            <el-button type="primary" @click="getOrder">查看订单明细</el-button>
                           </p>
                         </div>
                       </div>
@@ -203,7 +243,7 @@
                   <el-row>
                     <el-col :span="24" class="mgb10 mgt10">
                       <strong>当前图纸列表</strong>
-                      <el-button type="primary" class="mgl10">下图</el-button>
+                      <el-button type="primary" class="mgl10" @click="getFigure">下图</el-button>
                     </el-col>
                     <el-col :span="24">
                       <div class="mgb5">
@@ -244,13 +284,18 @@
                         <el-table-column prop="d" label="出图目的" show-overflow-tooltip></el-table-column>
                         <el-table-column prop="e" label="出图时间" show-overflow-tooltip></el-table-column>
                         <el-table-column prop="f" label="说明" show-overflow-tooltip></el-table-column>
+                        <el-table-column width="100" label="操作">
+                          <template slot-scope="scope">
+                            <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
+                          </template>
+                        </el-table-column>
                       </el-table>
                     </el-col>
                   </el-row>
                   <el-row>
                     <el-col :span="24" class="mgtb10">
                       <strong>设计模具零件列表</strong>
-                      <el-button type="primary" class="mgl10">增加整体模具零件</el-button>
+                      <el-button type="primary" class="mgl10" @click="getWhole">增加整体模具零件</el-button>
                     </el-col>
                     <el-col :span="24">
                       <el-table
@@ -271,7 +316,7 @@
                         <el-table-column prop="h" label="说明" show-overflow-tooltip></el-table-column>
                         <el-table-column width="100" label="操作">
                           <template slot-scope="scope">
-                            <el-button type="text" @click="deleteCraft(scope.row)">删除</el-button>
+                            <el-button type="text" @click="deleteComponent(scope.row, scope.$index)">删除</el-button>
                           </template>
                         </el-table-column>
                       </el-table>
@@ -399,7 +444,7 @@
               选择整体模具包含的零件，提交生产进行修模
             </el-col>
           </el-row>
-          <div class="dialog-content pdt10 pdlr10 mglr10 bgfff">
+          <div class="dialog-content pdt10">
             <div class="mgb10 borb">
               <el-table
                 :data="handle.modify.data"
@@ -591,8 +636,8 @@
             <el-col :span="8">
               穴数：{{ handle.nodeTerm.data.f | filterNull }}
             </el-col>
-            <el-col :span="24" class="mgt10">
-              成本估算
+            <el-col :span="24" class="mgt20">
+              <strong>成本估算</strong>
             </el-col>
             <el-col :span="8">
               <el-form-item label="新模零件加工">
@@ -669,6 +714,483 @@
         <div slot="footer" class="dialog-footer tr pdb20 pdlr10">
           <el-button type="primary" @click="saveNodeTerm">结项</el-button>
           <el-button type="primary" @click="handle.nodeTerm.dialogVisible = false">取消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="项目进度上报" class="dialog-gray" :visible.sync="handle.progress.dialogVisible" width="660px">
+      <div v-loading="handle.progress.isLoading">
+        <el-form label-width="100px">
+          <el-row class="pdt20 borb">
+            <el-col :span="24">
+              <span>当前状态：tooling 加工</span>
+              <span class="mgl20">目前逾期：4天</span>
+            </el-col>
+          </el-row>
+          <div class="dialog-content">
+            <div class="mgb10 borb">
+              <div style="width: 100%; overflow-y: auto;">
+                <table class="mrmj-table" style="min-width: 100%">
+                  <thead>
+                    <tr>
+                      <th class="bge4e4e4">
+                        <div style="min-width: 66px;">阶段</div>
+                      </th>
+                      <th class="bge4e4e4">
+                        <div style="min-width: 88px;">
+                          计划
+                        </div>
+                      </th>
+                      <th class="bge4e4e4">
+                        <div style="min-width: 88px;">
+                          实际
+                        </div>
+                      </th>
+                      <th class="bge4e4e4">
+                        <div style="min-width: 88px;">
+                          逾期天数
+                        </div>
+                      </th>
+                      <th class="bge4e4e4">
+                        <div style="min-width: 88px;">
+                          说明
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="bge4e4e4 tc" width="100px">
+                        <div>设计完成</div>
+                      </td>
+                      <td class="tc" v-for="(item, index) in handle.progress.data[0]" :key="index">
+                        <div style="min-width: 88px;">
+                          {{item | filterNull('')}}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="bge4e4e4 tc" style="width: 100px;">
+                        <div>标件到货</div>
+                      </td>
+                      <td class="tc" v-for="(item, index) in handle.progress.data[1]" :key="index">
+                        <div style="min-width: 88px;">
+                          {{item | filterNull('')}}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="bge4e4e4 tc" style="width: 100px;">
+                        <div>模板到货</div>
+                      </td>
+                      <td class="tc" v-for="(item, index) in handle.progress.data[2]" :key="index">
+                        <div style="min-width: 88px;">
+                          {{item | filterNull('')}}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="bge4e4e4 tc" style="width: 100px;">
+                        <div>零件加工完成</div>
+                      </td>
+                      <td class="tc" v-for="(item, index) in handle.progress.data[3]" :key="index">
+                        <div style="min-width: 88px;">
+                          {{item | filterNull('')}}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="bge4e4e4 tc" style="width: 100px;">
+                        <div>塑料到货</div>
+                      </td>
+                      <td class="tc" v-for="(item, index) in handle.progress.data[4]" :key="index">
+                        <div style="min-width: 88px;">
+                          {{item | filterNull('')}}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="bge4e4e4 tc" style="width: 100px;">
+                        <div>装模完成</div>
+                      </td>
+                      <td class="tc" v-for="(item, index) in handle.progress.data[5]" :key="index">
+                        <div style="min-width: 88px;">
+                          {{item | filterNull('')}}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="bge4e4e4 tc" style="width: 100px;">
+                        <div>T0 试模</div>
+                      </td>
+                      <td class="tc" v-for="(item, index) in handle.progress.data[6]" :key="index">
+                        <div style="min-width: 88px;">
+                          {{item | filterNull('')}}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="bge4e4e4 tc" style="width: 100px;">
+                        <div>FA测量完成</div>
+                      </td>
+                      <td class="tc" v-for="(item, index) in handle.progress.data[7]" :key="index">
+                        <div style="min-width: 88px;">
+                          {{item | filterNull('')}}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="bge4e4e4 tc" style="width: 100px;">
+                        <div>T0样品提交</div>
+                      </td>
+                      <td class="tc" v-for="(item, index) in handle.progress.data[8]" :key="index">
+                        <div style="min-width: 88px;">
+                          {{item | filterNull('')}}
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="bge4e4e4 tc" style="width: 100px;">
+                        <div>移模</div>
+                      </td>
+                      <td class="tc" v-for="(item, index) in handle.progress.data[9]" :key="index">
+                        <div style="min-width: 88px;">
+                          {{item | filterNull('')}}
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </el-form>
+        <div slot="footer" class="dialog-footer pdtb20 pdlr10">
+          <el-form>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="完成阶段">
+                  <el-select
+                    v-model="handle.progress.form.a"
+                    placeholder="请选择">
+                    <el-option
+                      v-for="item in $dict.progressList"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="完成时间">
+                  <el-date-picker
+                    type="date"
+                    size="mini"
+                    placeholder="选择日期"
+                    format="yyyy-MM-dd"
+                    value-format="yyyy-MM-dd"
+                    v-model="handle.progress.form.b">
+                  </el-date-picker>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="说明" class="mgt10">
+                  <el-input type="textarea" v-model="handle.progress.form.c" style="width: 560px;"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24" class="tr mgt20 mgb10">
+                <el-button type="primary" @click="saveProgress">上报进度</el-button>
+                <el-button type="primary" @click="handle.progress.dialogVisible = false">取消</el-button>
+              </el-col>
+            </el-row>
+          </el-form>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="查看销售订单详细信息" class="dialog-gray" :visible.sync="handle.order.dialogVisible" >
+      <div v-loading="handle.order.isLoading">
+        <el-form :model="handle.order.form" ref="form" label-width="100px">
+          <el-row class="pdt20 borb">
+            <el-col :span="8">
+              客户名称：{{ handle.order.data.a | filterNull }}
+            </el-col>
+            <el-col :span="8">
+              客户PO.号：{{ handle.order.data.b | filterNull }}
+            </el-col>
+            <el-col :span="8">
+              模具号：{{ handle.order.data.c | filterNull }}
+            </el-col>
+            <el-col :span="8">
+              订单类型：{{ handle.order.data.d | filterNull }}
+            </el-col>
+            <el-col :span="8">
+              要求交期号：{{ handle.order.data.e | filterNull }}
+            </el-col>
+            <el-col :span="8">
+              订单状态：{{ handle.order.data.f | filterNull }}
+            </el-col>
+            <el-col :span="8">
+              订单总价：{{ handle.order.data.g | filterNull }}
+            </el-col>
+            <el-col :span="8">
+              交易货币种类：{{ handle.order.data.h | filterNull }}
+            </el-col>
+            <el-col :span="8">
+              汇率：{{ handle.order.data.i | filterNull }}
+            </el-col>
+            <el-col :span="8">
+              订单总价(RMB)：{{ handle.order.data.j | filterNull }}
+            </el-col>
+            <el-col :span="24" class="mgt20">
+              <p>订单附件</p>
+              <el-table
+                :data="handle.order.data.k"
+                border
+                size="mini"
+                class="content-table"
+                style="width: 100%"
+              > 
+                <el-table-column type="index" width="50" label="序号"></el-table-column>
+                <el-table-column prop="fileName" label="附件名称" show-overflow-tooltip></el-table-column>
+                <el-table-column width="100" label="操作">
+                  <template slot-scope="scope">
+                    <a href="javascript:void(0);" style="color: #3375AB;" @click="down(scope.row.fileId)">下载</a>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-col>
+            <el-col :span="24" class="mgt20">
+              <p>订单说明：</p>
+              <p>{{ handle.order.data.l | filterNull }}</p>
+            </el-col>
+          </el-row>
+        </el-form>
+        <div slot="footer" class="dialog-footer tr pdb20 pdlr10">
+          <el-button type="primary" @click="handle.order.dialogVisible = false">关闭</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="下图" class="dialog-gray" :visible.sync="handle.figure.dialogVisible" >
+      <div v-loading="handle.figure.isLoading">
+        <el-form :model="handle.figure.form" ref="form" label-width="100px">
+          <el-row class="pdt20 borb">
+            <el-col :span="24">
+              <el-form-item label="图纸名称">
+                <el-autocomplete
+                  v-model="handle.figure.form.a"
+                  :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, filter.aa, 'codeName')"
+                  valueKey="codeName"
+                  value="codeName"
+                  placeholder="请输入内容"
+                  style="width: 100%;"></el-autocomplete>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="">
+                当前版本号：{{handle.figure.form.b}}
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="">
+                当前出图批次： {{handle.figure.form.c}}
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="版本号">
+                <el-input v-model="handle.figure.form.b"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="出图批次">
+                <el-input v-model="handle.figure.form.c"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="出图目的">
+                <el-select v-model="handle.figure.form.d"  placeholder="请选择" style="width: 100%;">
+                  <el-option label="Make new" value="Make new" />
+                  <el-option label="Modify" value="Modify" />
+                  <el-option label="Update" value="Update" />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24" class="mgtb20">
+              <div>
+                <p class="mgb10">
+                  上传附件：
+                  <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
+                    <el-button size="mini" type="primary">选择上传文件</el-button>
+                    <input type="file" name="file" ref="figure" class="posFull opacity0" @change="addAttachments">
+                  </span>
+                </p>
+                <el-table
+                  :data="handle.figure.form.e"
+                  border
+                  size="mini"
+                  class="content-table"
+                  style="width: 100%"
+                > 
+                  <el-table-column prop="fileName" label="资料名称" show-overflow-tooltip></el-table-column>
+                  <el-table-column width="100" label="操作">
+                    <template slot-scope="scope">
+                      <a href="javascript:void(0);" style="color: #3375AB;" @click="deleteAttachments(scope.row.id)">删除</a>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </div>
+            </el-col>
+          </el-row>
+        </el-form>
+        <div slot="footer" class="dialog-footer tr pdb20 pdlr10">
+          <el-button type="primary" @click="saveFigure">提交图纸附件</el-button>
+          <el-button type="primary" @click="handle.figure.dialogVisible = false">取消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="增加整体模具零件" class="dialog-gray" :visible.sync="handle.whole.dialogVisible" width="930px">
+      <div v-loading="handle.whole.isLoading">
+        <el-form :model="handle.whole.form" ref="form" label-width="100px">
+          <el-row class="pdt10 borb">
+            <el-col :span="24">
+              输入整体模具包含的零件清单
+            </el-col>
+          </el-row>
+          <div class="dialog-content pdt10">
+            <div class="mgb10 borb">
+              <el-table
+                :data="handle.whole.data"
+                max-height="400"
+                border
+                class="edit-table content-table"
+                style="width: 100%">
+                <el-table-column label="零件名称" width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div>
+                      <div @click="showInput(handle.whole.data, scope.$index, 'aaEdit')">
+                        <div class="ellipsis">
+                          {{scope.row.aa}}
+                        </div>
+                        <el-select
+                          v-model="scope.row.aa"
+                          placeholder="请选择"
+                          :style="{opacity: scope.row.aaEdit ? 1 : 0}"
+                          @focus="showInput(handle.whole.data, scope.$index, 'aaEdit')"
+                          @blur="scope.row.aaEdit = false">
+                          <el-option
+                            v-for="item in filter.aa"
+                            :key="item.codeName"
+                            :label="item.codeName"
+                            :value="item.codeName">
+                          </el-option>
+                        </el-select>
+                      </div>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column label="数量" width="66" show-overflow-tooltip>
+                  <template scope="scope">
+                    <div>
+                      <div @click="showInput(handle.whole.data, scope.$index, 'bbEdit', {})">
+                        <div class="ellipsis">{{ scope.row.bb }}</div>
+                        <el-input size="mini" v-model="scope.row.bb" @focus="showInput(handle.whole.data, scope.$index, 'bbEdit', {})" @blur="scope.row.bbEdit = false" :style="{opacity: scope.row.bbEdit ? 1 : 0}"/>
+                      </div>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column label="图纸名称" width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div>
+                      <div @click="showInput(handle.whole.data, scope.$index, 'ccEdit')">
+                        <div class="ellipsis">
+                          {{scope.row.cc}}
+                        </div>
+                        <el-select
+                          v-model="scope.row.cc"
+                          placeholder="请选择"
+                          :style="{opacity: scope.row.ccEdit ? 1 : 0}"
+                          @focus="showInput(handle.whole.data, scope.$index, 'ccEdit')"
+                          @blur="scope.row.ccEdit = false">
+                          <el-option
+                            v-for="item in filter.name"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                          </el-option>
+                        </el-select>
+                      </div>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column label="版本" width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div>
+                      <div @click="showInput(handle.whole.data, scope.$index, 'ddEdit')">
+                        <div class="ellipsis">
+                          {{scope.row.dd}}
+                        </div>
+                        <el-select
+                          v-model="scope.row.dd"
+                          placeholder="请选择"
+                          :style="{opacity: scope.row.ddEdit ? 1 : 0}"
+                          @focus="showInput(handle.whole.data, scope.$index, 'ddEdit')"
+                          @blur="scope.row.ddEdit = false">
+                          <el-option
+                            v-for="item in filter.dd"
+                            :key="item.codeName"
+                            :label="item.codeName"
+                            :value="item.codeName">
+                          </el-option>
+                        </el-select>
+                      </div>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column label="出图批次" width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div>
+                      <div @click="showInput(handle.whole.data, scope.$index, 'eeEdit')">
+                        <div class="ellipsis">
+                          {{scope.row.ee}}
+                        </div>
+                        <el-select
+                          v-model="scope.row.ee"
+                          placeholder="请选择"
+                          :style="{opacity: scope.row.eeEdit ? 1 : 0}"
+                          @focus="showInput(handle.whole.data, scope.$index, 'eeEdit')"
+                          @blur="scope.row.eeEdit = false">
+                          <el-option
+                            v-for="item in filter.batch"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                          </el-option>
+                        </el-select>
+                      </div>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="ff" label="出图目的" width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column label="说明" min-width="100" show-overflow-tooltip>
+                  <template scope="scope">
+                    <div>
+                      <div @click="showInput(handle.whole.data, scope.$index, 'iiEdit', {})">
+                        <div class="ellipsis">{{ scope.row.ii }}</div>
+                        <el-input size="mini" v-model="scope.row.ii" @focus="showInput(handle.whole.data, scope.$index, 'iiEdit', {})" @blur="scope.row.iiEdit = false" :style="{opacity: scope.row.iiEdit ? 1 : 0}"/>
+                      </div>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
+        </el-form>
+        <div slot="footer" class="dialog-footer tr pdtb20 pdlr10">
+          <el-button type="primary" @click="saveWhole">确定</el-button>
+          <el-button type="primary" @click="handle.whole.dialogVisible = false">取消</el-button>
         </div>
       </div>
     </el-dialog>
@@ -775,7 +1297,29 @@
             isLoading: false,
             data: {},
             form: {}
-          }
+          },
+          progress: {
+            dialogVisible: false,
+            isLoading: false,
+            data: [],
+            form: {}
+          },
+          order: {
+            dialogVisible: false,
+            isLoading: false,
+            data: []
+          },
+          figure: {
+            dialogVisible: false,
+            isLoading: false,
+            data: {},
+            form: {}
+          },
+          whole: {
+            dialogVisible: false,
+            isLoading: false,
+            data: [],
+          },
         }
       };
     },
@@ -937,7 +1481,6 @@
             ]
         }
         
-
         this.right.isLoading = true;
         this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
 
@@ -1094,16 +1637,14 @@
         let params = {
 
         };
-        let mock = [
-          {
-            aa: '202',
-            bb: '3',
-            cc: 'T029-202',
-            dd: 'A',
-            ee: '001',
-            ff: 'Make new'
-          }
-        ]
+        let mock = {
+          a: 'T045',
+          b: 'FEP',
+          c: '2018.05.20',
+          d: '350x600x400',
+          e: '2板模',
+          f: '8'
+        }
 
         this.handle.nodeTerm.dialogVisible = true;
         this.handle.nodeTerm.isLoading = true;
@@ -1125,7 +1666,295 @@
           this.$utils.showTip('success', 'success', '109');
           this.handle.nodeTerm.isLoading = false;
           this.handle.nodeTerm.dialogVisible = false;
+          this.getLeftList();
         }, () => this.handle.nodeTerm.isLoading = false, params)
+      },
+      getProgress(item) {
+
+        let params = {
+
+        };
+        let mock = [
+          [
+            '2018-05-20',
+            '2018-05-30',
+            '-2',
+            ''
+          ],
+          [
+            '2018-05-18',
+            '2018-05-31',
+            '1',
+            ''
+          ],
+          [
+            '2018-06-02',
+            '2018-06-06',
+            '4',
+            ''
+          ],
+          [
+            '2018-06-10',
+            '正在进行中',
+            '',
+            ''
+          ],
+          [
+            '2018-06-20',
+            '未开始',
+            '',
+            ''
+          ],
+          [
+            '2018-06-25',
+            '未开始',
+            '',
+            ''
+          ],
+          [
+            '2018-06-28',
+            '未开始',
+            '',
+            ''
+          ],
+          [
+            '2018-07-01',
+            '未开始',
+            '',
+            ''
+          ],
+          [
+            '2018-07-11',
+            '未开始',
+            '',
+            ''
+          ],
+          [
+            '2018-07-20',
+            '未开始',
+            '',
+            ''
+          ],
+        ]
+
+        this.handle.progress.dialogVisible = true;
+        this.handle.progress.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.handle.progress.isLoading = false;
+          this.handle.progress.data = res.data || [];
+        }, () => this.handle.progress.isLoading = false, params, mock)
+      },
+      saveProgress() {
+
+        let params = {
+
+        };
+        
+        this.handle.progress.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.$utils.showTip('success', 'success', '110');
+          this.handle.progress.isLoading = false;
+          this.handle.progress.dialogVisible = false;
+        }, () => this.handle.progress.isLoading = false, params)
+      },
+      getOrder(item) {
+
+        let params = {
+
+        };
+        let mock = {
+          a: 'AA公司',
+          b: '12334567',
+          c: 'T-0034',
+          d: '整体模具',
+          e: '2019.03.31',
+          f: '已立项',
+          g: '12301.00',
+          h: '欧元',
+          i: '7.0',
+          j: '12301.00',
+          k: [
+            {
+              fileName: '172988图纸',
+              fileId: 'crQhc2flTyetPwbJ'
+            },
+            {
+              fileName: '172988图纸',
+              fileId: 'crQhc2flTyetPwbJ'
+            },
+            {
+              fileName: '172988图纸',
+              fileId: 'crQhc2flTyetPwbJ'
+            },
+          ],
+          l: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc eget.'
+        }
+
+        this.handle.order.dialogVisible = true;
+        this.handle.order.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.handle.order.isLoading = false;
+          this.handle.order.data = res.data || [];
+        }, () => this.handle.order.isLoading = false, params, mock)
+      },
+      getFigure(item) {
+
+        let params = {
+
+        };
+        let mock = [
+          [
+            '2018-05-20',
+            '2018-05-30',
+            '-2',
+            ''
+          ],
+          [
+            '2018-05-18',
+            '2018-05-31',
+            '1',
+            ''
+          ],
+          [
+            '2018-06-02',
+            '2018-06-06',
+            '4',
+            ''
+          ],
+          [
+            '2018-06-10',
+            '正在进行中',
+            '',
+            ''
+          ],
+          [
+            '2018-06-20',
+            '未开始',
+            '',
+            ''
+          ],
+          [
+            '2018-06-25',
+            '未开始',
+            '',
+            ''
+          ],
+          [
+            '2018-06-28',
+            '未开始',
+            '',
+            ''
+          ],
+          [
+            '2018-07-01',
+            '未开始',
+            '',
+            ''
+          ],
+          [
+            '2018-07-11',
+            '未开始',
+            '',
+            ''
+          ],
+          [
+            '2018-07-20',
+            '未开始',
+            '',
+            ''
+          ],
+        ]
+
+        this.handle.figure.dialogVisible = true;
+        this.handle.figure.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.handle.figure.isLoading = false;
+          this.handle.figure.data = res.data || [];
+        }, () => this.handle.figure.isLoading = false, params, mock)
+      },
+      addAttachments() {
+
+        let id = new Date().getTime();
+        this.$set(this.handle.figure.form, 'e', this.handle.figure.form.e || []);
+        this.handle.figure.form.e.push({
+          id: id,
+          fileName: this.$refs.figure.files[0].name
+        })
+        this.$refs.figure.value = '';
+      },
+      deleteAttachments(id) {
+
+        this.handle.figure.form.e = this.handle.figure.form.e.filter(item => item.id != id);
+      },
+      saveFigure() {
+
+        let params = {
+
+        };
+        
+        this.handle.figure.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.$utils.showTip('success', 'success', '109');
+          this.handle.figure.isLoading = false;
+          this.handle.figure.dialogVisible = false;
+        }, () => this.handle.figure.isLoading = false, params)
+      },
+      getWhole() {
+
+        let params = {
+
+        };
+        let mock = [
+          {
+            aa: '202',
+            bb: '3',
+            cc: 'T029-202',
+            dd: 'A',
+            ee: '001',
+            ff: 'Make new'
+          }
+        ]
+
+        this.handle.whole.dialogVisible = true;
+        this.handle.whole.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.handle.whole.isLoading = false;
+          this.handle.whole.data = res.data || [];
+
+        }, () => this.handle.whole.isLoading = false, params, mock)
+      },
+      saveWhole() {
+
+        let params = {
+
+        };
+        
+        this.handle.whole.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.$utils.showTip('success', 'success', '111');
+          this.handle.whole.isLoading = false;
+          this.handle.whole.dialogVisible = false;
+        }, () => this.handle.whole.isLoading = false, params)
+      },
+      deleteComponent(row, itemIndex) {  //删除零件
+        
+        let params = {
+
+        };
+
+        this.right.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.deleteCraftInfoById, (res) => {  
+
+          this.right.isLoading = false;
+          this.right.page2.c = this.right.page2.c.filter((item, index) => index != itemIndex);
+        }, () => this.right.isLoading = false, params);
       },
       refresh() {}
     },
@@ -1140,9 +1969,6 @@
 
 
 <style scoped lang="scss">
-  .el-row {
-    margin-bottom: 20px;
-  }
   .main-left-search {
     button {
       width: 130px;
@@ -1155,5 +1981,11 @@
     background-size: cover;
     cursor: pointer;
     overflow: hidden;
+  }
+  .mrmj-table th {
+    white-space: nowrap;
+  }
+  .el-form-item--small {
+    margin-bottom: 5px;
   }
 </style>

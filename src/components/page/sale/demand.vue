@@ -171,7 +171,7 @@
           </p>
           <el-table
             :data="handle.add.form.enclosureList"
-            height="160"
+            max-height="160"
             border
             size="mini"
             style="width: 100%"

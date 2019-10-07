@@ -50,6 +50,48 @@ let Dict = {
 			value: 0
 		}
 	],
+	progressList: [	//完成阶段列表
+		{
+			label: '设计完成',
+			value: 0
+		},
+		{
+			label: '标件到货',
+			value: 1
+		},
+		{
+			label: '模板到货',
+			value: 2
+		},
+		{
+			label: '零件加工完成',
+			value: 3
+		},
+		{
+			label: '塑料到货',
+			value: 4
+		},
+		{
+			label: '装模完成',
+			value: 5
+		},
+		{
+			label: 'T0试模完成',
+			value: 6
+		},
+		{
+			label: 'FA测量完成',
+			value: 7
+		},
+		{
+			label: 'T0样品提交',
+			value: 8
+		},
+		{
+			label: '移模',
+			value: 9
+		},
+	],
 }
 
 function getCurrency() {	//获取币种列表

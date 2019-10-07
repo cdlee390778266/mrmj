@@ -11,18 +11,18 @@
       <div class="main-left" v-loading="left.isLoading">
         <div class="main-left-search pd10">
           <div class="mgb10">
-            客户信息：
-            <el-input v-model="form.text" style="width: 100px" prefix-icon="el-icon-search" @focus="isShowList = false" />
+            客户：
+            <el-input v-model="form.text" style="width: 140px" prefix-icon="el-icon-search" @focus="isShowList = false" />
             <el-button type="primary" @click="edit('add', 'updateForm')" style="width: 80px; margin-left: 10px;">新增客户</el-button>
           </div>
         </div>
         <div class="list" style="top: 64px;" ref="list">
           <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrCustomerId }" v-show="isShowList" @click="handleSelect(item)">
-            <div class="dflex">
+            <div class="dflex" style="align-items:center">
               <div>
                 <img :src="item.business && item.business.fileId ? `${$utils.CONFIG.api.image}?fileId=${item.business.fileId}` : defaultImg" width="30" class="mgr10 mgt10" />
               </div>
-              <div class="flex">
+              <div class="flex ellipsis">
                 <p>{{ item.name }}</p>
               </div>
             </div>
@@ -334,7 +334,7 @@
                 { required: true, message: this.$utils.getTipText('error', '-1014')}
               ],
               phone: [
-                { validator: this.$validator.checkPhone}
+                
               ],
             }
           }
@@ -345,11 +345,13 @@
       getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
 
         let params = {
+          customerType: 10,
           type: this.filter.selectedValue,
-          offset: this.left.page.offset,
-          limit: this.left.page.limit,
+          offset: this.left.page.offset || 0,
+          limit: this.left.page.limit || 1000,
           sorting: '_MrCustomer.name'
         }
+        console.log(params)
         if(this.form.text) params.name = this.form.text;
 
         this.getData(this.$utils.CONFIG.api.customerQcip, params, 'mrCustomerId', loadingKey);
