@@ -107,6 +107,29 @@ let leftMixin = {
 		}
 	},
 	methods: {
+		setCurrentData(idKey, success) {
+
+			if(this.left.activeId) {
+
+				let currentData = {};
+				this.left.list.map(item => {
+
+					if(item[idKey] == this.left.activeId) this.currentData = item;
+				})
+
+				if(!this.currentData[idKey]) {
+
+					this.left.activeId = this.left.list[0][idKey];
+      		this.currentData = this.left.list[0];
+				}
+			}else {
+
+				this.left.activeId = this.left.list[0][idKey];
+      	this.currentData = this.left.list[0];
+			}
+			
+      typeof success == 'function' && success(this.left.activeId);
+		},
 		getData(url, params, idKey="id", loadingKey = 'isLoading', success = null, isSetCurrentData = false) { //获取左侧列表数据
 
 	      this.left[loadingKey] = true;
@@ -124,9 +147,8 @@ let leftMixin = {
 	        if(this.left.list.length) {
 
 	        	if(!isSetCurrentData) {
-		          this.left.activeId = this.left.list[0][idKey];
-		          this.currentData = this.left.list[0];
-		          typeof success == 'function' && success(this.left.activeId);
+		          
+		          this.setCurrentData(idKey, success);
 		        }else {
 		        	let index = this.left.list.findIndex(item => item[idKey] == this.left.activeId);
 		        	this.currentData = this.left.list[index];

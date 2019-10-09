@@ -10,7 +10,7 @@
     <div class="main">
       <div class="main-left" v-loading="left.isLoading">
         <div class="main-left-search pd10">
-          <div class="mgb10">
+          <div>
             待处理订单：
             <el-input v-model="form.text" style="width: 130px" prefix-icon="el-icon-search" @focus="isShowList = false" />
             
@@ -26,9 +26,12 @@
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
+            <div>
+              <el-button type="primary" style="width: 100%; margin-top: 10px;" @click="showUpdateDialog">手动增加生产订单</el-button>
+            </div>
           </div>
         </div>
-        <div class="list" ref="list" style="top: 65px;">
+        <div class="list" ref="list" style="top: 96px;">
           <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrSaleOrderId }" v-show="isShowList" @click="handleSelect(item, 'mrSaleOrderId')">
             <div class="dflex">
               <div>
@@ -201,6 +204,133 @@
       </div>
     </div>
 
+    <el-dialog title="新增生产订单草稿" :visible.sync="handle.update.dialogVisible" width="700px">
+      <div v-loading="handle.update.isLoading">
+        <el-form ref="updateForm" :model="handle.update.form" :rules="handle.update.rules" label-width="88px">
+          <div class="dflex">
+            <div class="flex">
+              <el-form-item label="客户:" prop="a">
+                <el-autocomplete
+                  v-model="handle.update.form.a"
+                  :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, filter.aa, 'supplier')"
+                  valueKey="supplier"
+                  value="supplier"
+                  placeholder="请输入客户"
+                  style="width: 100%;"></el-autocomplete>
+              </el-form-item>
+              <el-form-item label="客户PO.号:">
+                <el-input v-model="handle.update.form.b" auto-complete="off" aria-placeholder="请输入客户PO.号"></el-input>
+              </el-form-item>
+              <el-form-item label="模具号" prop="c">
+                <el-input v-model="handle.update.form.c" auto-complete="off" aria-placeholder="请输入模具号"></el-input>
+              </el-form-item>
+            </div>
+          </div>
+          <div>
+            <p class="mgb5">零件清单：</p>
+            <el-table
+              :data="handle.update.form.d"
+              max-height="160"
+              border
+              size="mini"
+              style="width: 100%"
+              class="edit-table">
+              <el-table-column label="零件号" min-width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div>
+                    <div @click="showInput(handle.update.form.d, scope.$index, 'aaEdit')">
+                      <div class="eaaipsis">{{ scope.row.aa }}</div>
+                      <el-input size="mini" v-model="scope.row.aa" @focus="showInput(handle.update.form.d, scope.$index, 'aaEdit', {}, false)" @blur="scope.row.aaEdit = false" :style="{opacity: scope.row.aaEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="数量" min-width="88" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div>
+                    <div @click="showInput(handle.update.form.d, scope.$index, 'bbEdit')">
+                      <div class="eaaipsis">{{ scope.row.bb }}</div>
+                      <el-input size="mini" v-model="scope.row.bb" @focus="showInput(handle.update.form.d, scope.$index, 'bbEdit', {}, false)" @blur="scope.row.bbEdit = false" :style="{opacity: scope.row.bbEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="客户编号" min-width="88" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div>
+                    <div @click="showInput(handle.update.form.d, scope.$index, 'ccEdit')">
+                      <div class="eaaipsis">{{ scope.row.cc }}</div>
+                      <el-input size="mini" v-model="scope.row.cc" @focus="showInput(handle.update.form.d, scope.$index, 'ccEdit', {}, false)" @blur="scope.row.ccEdit = false" :style="{opacity: scope.row.ccEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="要求交期" min-width="100" show-overflow-tooltip>
+                <template scope="scope">
+                  <div>
+                    <div @click="showInput(handle.update.form.d, scope.$index, 'ddEdit', {})">
+                      <div class="ellipsis">{{ scope.row.dd }}</div>
+                      <el-date-picker
+                        type="date"
+                        size="mini"
+                        placeholder="选择日期"
+                        format="yyyy-MM-dd"
+                        value-format="yyyy-MM-dd"
+                        v-model="scope.row.dd"
+                        @focus="showInput(handle.update.form.d, scope.$index, 'ddEdit', {})"
+                        @blur="scope.row.ddEdit = false"
+                        :style="{opacity: scope.row.ddEdit ? 1 : 0}">
+                      </el-date-picker>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="说明" min-width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div>
+                    <div @click="showInput(handle.update.form.d, scope.$index, 'eeEdit')">
+                      <div class="eaaipsis">{{ scope.row.ee }}</div>
+                      <el-input size="mini" v-model="scope.row.ee" @focus="showInput(handle.update.form.d, scope.$index, 'eeEdit', {}, false)" @blur="scope.row.eeEdit = false" :style="{opacity: scope.row.eeEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <div>
+            <p class="mgtb10">
+              上传附件：
+              <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
+                <el-button size="mini" type="primary">选择上传文件</el-button>
+                <input type="file" name="file" ref="fileUpdate" class="posFull opacity0" @change="() => addAttachments()">
+              </span>
+            </p>
+            <el-table
+              :data="handle.update.form.e"
+              max-height="160"
+              border
+              size="mini"
+              style="width: 100%"
+            >
+              <el-table-column prop="fileName" label="资料名称"></el-table-column>
+              <el-table-column label="操作">
+                <template slot-scope="scope">
+                  <el-button size="mini" type="text" @click="() => deleteAttachments(scope.row.id)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <el-form-item label="说明:" class="mgt20">
+            <el-input type="textarea" v-model="handle.update.form.f"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer mgt20 tr">
+          <el-button type="primary" @click="saveUpdate">保存</el-button>
+          <el-button @click="handle.update.dialogVisible = false">取 消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
     <el-dialog title="下达生产订单" class="dialog-gray" :visible.sync="handle.add.dialogVisible">
       <div v-loading="handle.add.isLoading">
         <el-form :model="handle.add.form" label-width="100px">
@@ -275,7 +405,47 @@
           },
           list: []
         },
+        filter: {
+          aa: [
+            {
+              codeName: 'M2019-08-01',
+              supplier: 'A公司'
+            },
+            {
+              codeName: 'M2019-09-09',
+              supplier: 'B公司'
+            },
+            {
+              codeName: 'M2019-01-01',
+              supplier: 'C公司'
+            },
+            {
+              codeName: 'M2019-06-23',
+              supplier: 'D公司'
+            }
+          ]
+        },
         handle: {
+          update: {
+            dialogVisible: false,
+            isLoading: false,
+            form: {
+              a: '',
+              b: '',
+              c: '',
+              d: [{}],
+              e: [],
+              f: ''
+            },
+            rules: {
+              a: [
+                { required: true, message: '请输入客户名称'},
+              ],
+              c: [
+                { required: true, message: '请输入模具号'},
+              ]
+            }
+          },
           add: {
             dialogVisible: false,
             isLoading: false,
@@ -343,6 +513,54 @@
         this.left.activeId = item[idKey];
         this.currentData= item;
         this.getDetail(this.left.activeId);
+      },
+      showUpdateDialog() {
+
+        this.handle.update.form = {
+          a: '',
+          b: '',
+          c: '',
+          d: [{}],
+          e: [],
+          f: ''
+        }
+        this.handle.update.dialogVisible = true;
+      },
+      addAttachments() {
+
+        let id = new Date().getTime();
+        this.$set(this.handle.update.form, 'e', this.handle.update.form.e || []);
+        this.handle.update.form.e.push({
+          id: id,
+          fileName: this.$refs.fileUpdate.files[0].name
+        })
+        this.$refs.fileUpdate.value = '';
+      },
+      deleteAttachments(id) {
+
+        this.handle.update.form.e = this.handle.update.form.e.filter(item => item.id != id);
+      },
+      saveUpdate() {
+
+        this.$refs.updateForm.validate((valid) => {
+          if (valid) {
+            
+            let params = {
+
+            };
+            
+            this.handle.update.isLoading = true;
+            this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+              this.handle.update.isLoading = false;
+              this.handle.update.dialogVisible = false;
+              this.$utils.showTip('success', 'success', '102');
+            }, () => this.handle.update.isLoading = false, params)
+          } else {
+  
+            return false;
+          }
+        });
       },
       getOrderDetail(item) {  //生产订单详情
 
@@ -423,7 +641,8 @@
           requirementQuantitys: '',
           completionDate: this.currentData.completionDate,
           customerPoNo: this.currentData.customerPoNo,
-          components: type == 'add' ? this.right.page2.selections : row
+          components: type == 'add' ? this.right.page2.selections : row,
+          activeId: this.left.activeId
         };
         
         if(type == 'add') {
@@ -463,6 +682,7 @@
       refresh() {}
     },
     created() {
+      this.left.activeId = this.$route.params.id || '';
       this.filter.typeList = this.filter.listType.product;
       this.getLeftList();
     }

@@ -120,6 +120,7 @@ const MENU = {
 			{
 				name: '工艺设计与估工',
 				path: '/technology',
+				paramsPath: '/technology/:id?',
 				icon: 'el-icon-edit'
 			},
 			{

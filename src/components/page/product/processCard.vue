@@ -305,7 +305,7 @@
     </div>
     <div class="detail-footer tr">
       <el-button type="primary" @click="save">保存</el-button>
-      <el-button type="primary" @click="$router.go(-1)">返 回</el-button>
+      <el-button type="primary" @click="back">返 回</el-button>
     </div>
   </div>
 </template>
@@ -408,6 +408,16 @@
           this.right.page1.attachments = this.right.page1.attachments.filter(item => this.deleteRow.fileId != item.fileId);
         }, () => this.right.isLoading = false, {fileId: this.deleteRow.fileId});
       },
+      back() {
+
+        if(this.component.activeId) {
+
+          this.$router.push(`/product/technology/${this.component.activeId}`);
+        }else {
+          
+          this.$router.go(-1);
+        }
+      },
       save() {
 
         if(!this.right.page1.craftVersionNo) { //如果没有输入工艺路线版本号
@@ -478,12 +488,12 @@
 
         this.right.page1.processes.map((item, index) => { //工艺列表
 
-          if(item.name && item.processContentText) {
+          if(item.name) {
 
             let obj = {
               processSequence: index + 1,
               name: item.name,
-              processContentText: item.processContentText,
+              processContentText: item.processContentText || '',
               isOutsource: item.isOutsource,
               estimationWorkTime: parseFloat(item.estimationWorkTime) || 0,
               operator: item.operator
@@ -503,7 +513,8 @@
           this.$utils.showTip('success', 'success', '102');
           this.component.type = 'edit';
           localStorage.setItem(this.time, JSON.stringify(this.component));
-          this.refresh();
+
+          this.back();
         }, () => this.isLoading = false, params);
       },
       refresh() {
