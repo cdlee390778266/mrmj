@@ -50,6 +50,16 @@ let Dict = {
 			value: 0
 		}
 	],
+	outsourceLabelList: [	//是否委外列表
+		{
+			label: '外协',
+			value: 1
+		},
+		{
+			label: '非外协',
+			value: 0
+		}
+	],
 	progressList: [	//完成阶段列表
 		{
 			label: '设计完成',

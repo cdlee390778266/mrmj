@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="detail-main" style="top: 48px;bottom: 10px;" v-loading="right.isLoading">
+    <div class="detail-main" style="top: 48px;bottom: 10px;" v-loading="isLoading">
       <div class="calc mgt10">
         <div class="main">
           <div class="msg" style="width: 100%;">
@@ -34,23 +34,23 @@
             <div class="content-left" v-loading="left.isLoading">
               <div>
                 <p>
-                  <el-button type="primary" size="mini">查找符合条件记录</el-button>
+                  <el-button type="primary" size="mini" @click="getData">查找符合条件记录</el-button>
                   <span class="mgl20">查找条件</span>
                   <span class="mgl20">
                     客户：
-                    <el-select size="mini" style="width: 100px;" v-model="right.page1.data">
+                    <el-select size="mini" style="width: 100px;" v-model="form.customer">
                       <el-option v-for="(itemc, index) in right.page1.data" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
                     </el-select>
                   </span>
                   <span class="mgl20">
                     模具号：
-                    <el-select size="mini" style="width: 100px;" v-model="right.page1.data">
+                    <el-select size="mini" style="width: 100px;" v-model="form.moduleNo">
                       <el-option v-for="(itemc, index) in right.page1.data" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
                     </el-select>
                   </span>
                   <span class="mgl20">
                     零件号：
-                    <el-select size="mini" style="width: 100px;" v-model="right.page1.data">
+                    <el-select size="mini" style="width: 100px;" v-model="form.componentNo">
                       <el-option v-for="(itemc, index) in right.page1.data" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
                     </el-select>
                   </span>
@@ -58,7 +58,7 @@
                 <p class="mgt10">
                   <span>
                     工序估工时间超过
-                    <el-input v-model="right.page1.data" style="width: 60px;" size="mini"></el-input>
+                    <el-input v-model="form.time" style="width: 60px;" size="mini"></el-input>
                     小时，进行标红提示
                   </span>
                 </p>
@@ -69,87 +69,165 @@
               <div class="posFull" style="top: 125px;
               overflow: auto;">
                 <el-table
-                  :data="tableData3"
-                  :span-method="objectSpanMethod"
-                  style="width: 100%">
+                  :data="tableData"
+                  size="mini"
+                  style="width: 100%"
+                  class="edit-table">
                   <el-table-column
-                    prop="date"
-                    label="模具号">
+                    prop="a"
+                    label="模具号"
+                    width="120"
+                    class-name="notEdit"
+                    show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="date"
-                    label="出货日期">
+                    prop="b"
+                    label="下图日期"
+                    width="100"
+                    align="center"
+                    label-class-name="fc-el-table-head"
+                    class-name="fc-blue"
+                    show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="date"
-                    label="客户">
+                    prop="c"
+                    label="出货日期"
+                    width="100"
+                    align="center"
+                    label-class-name="fc-el-table-head"
+                    class-name="fc-red"
+                    show-overflow-tooltip>
+                    <template scope="scope">
+                      <div>
+                        <div @click="showInput(tableData, scope.$index, 'cEdit', {})">
+                          <div class="ellipsis tc">{{ scope.row.c }}</div>
+                          <el-date-picker
+                            type="date"
+                            size="mini"
+                            placeholder="选择日期"
+                            format="yyyy-MM-dd"
+                            value-format="yyyy-MM-dd"
+                            v-model="scope.row.c"
+                            @focus="showInput(tableData, scope.$index, 'cEdit', {})"
+                            @blur="scope.row.cEdit = false"
+                            :style="{opacity: scope.row.cEdit ? 1 : 0}">
+                          </el-date-picker>
+                        </div>
+                      </div>
+                    </template>
                   </el-table-column>
                   <el-table-column
-                    prop="date"
-                    label="要求交期">
+                    prop="d"
+                    label="客户"
+                    min-width="100"
+                    align="center"
+                    label-class-name="fc-el-table-head"
+                    class-name="fc-blue"
+                    show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="date"
-                    label="状态">
+                    prop="e"
+                    label="要求交期"
+                    width="100"
+                    align="center"
+                    label-class-name="fc-el-table-head"
+                    class-name="fc-blue"
+                    show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="date"
-                    label="零件号码">
+                    prop="f"
+                    label="状态"
+                    width="100"
+                    align="center"
+                    show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="date"
-                    label="数量">
+                    prop="g"
+                    label="零件号码"
+                    min-width="100"
+                    align="center"
+                    show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="date"
-                    label="版本">
+                    prop="h"
+                    label="数量"
+                    min-width="100"
+                    align="center"
+                    show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="date"
-                    label="整体外协">
+                    prop="i"
+                    label="版本"
+                    width="100"
+                    align="center"
+                    show-overflow-tooltip>
                   </el-table-column>
-                  <el-table-column label="工艺时间" align="center">
+                  <el-table-column
+                    prop="j"
+                    label="整体外协"
+                    width="100"
+                    align="center"
+                    show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      <div>
+                        <div @click="showInput(tableData, scope.$index, 'jEdit')">
+                          <div class="ellipsis">
+                            {{ 
+                              scope.row.j == 1 ? '是' : (
+                                 scope.row.j == 0 ? '否' : ''
+                              )
+                            }}
+                          </div>
+                          <el-select
+                            v-model="scope.row.j"
+                            placeholder="请选择"
+                            :style="{opacity: scope.row.jEdit ? 1 : 0}"
+                            @focus="showInput(tableData, scope.$index, 'jEdit')"
+                            @blur="scope.row.jEdit = false">
+                            <el-option
+                              v-for="itemc in $dict.outsourceList"
+                              :key="itemc.value"
+                              :label="itemc.label"
+                              :value="itemc.value">
+                            </el-option>
+                          </el-select>
+                        </div>
+                      </div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="工艺时间" align="center" min-width="100">
                     <el-table-column
-                      prop="name"
-                      label="M"
+                      v-for="(item, index) in procedureList"
+                      :key="index"
+                      :label="item.name"
                       align="center"
-                      width="66">
-                    </el-table-column>
-                    <el-table-column
-                      prop="name"
-                      label="M"
-                      align="center"
-                      width="66">
-                    </el-table-column>
-                    <el-table-column
-                      prop="name"
-                      label="M"
-                      align="center"
-                      width="66">
-                    </el-table-column>
-                    <el-table-column
-                      prop="name"
-                      label="M"
-                      align="center"
-                      width="66">
-                    </el-table-column>
-                    <el-table-column
-                      prop="name"
-                      label="M"
-                      align="center"
-                      width="66">
-                    </el-table-column>
-                    <el-table-column
-                      prop="name"
-                      label="M"
-                      align="center"
-                      width="66">
-                    </el-table-column>
-                    <el-table-column
-                      prop="name"
-                      label="M"
-                      align="center"
-                      width="66">
+                      min-width="70"
+                      label-class-name="fc-red"
+                      show-overflow-tooltip>
+                      <template slot-scope="scope">
+                        <div :class="{'fc-red': (scope.row[item.key] > form.time) && !scope.row[`${item.key}-isOut`]}" v-if="scope.row[item.key]">
+                          <div @click="showInput(tableData, scope.$index, `${item.key}Edit`)">
+                            <div class="ellipsis">
+                              {{ 
+                                scope.row[`${item.key}-isOut`] == 1 ? '外协' : scope.row[item.key]
+                              }}
+                            </div>
+                            <el-select
+                              v-model="scope.row[`${item.key}-isOut`]"
+                              placeholder="请选择"
+                              :style="{opacity: scope.row[`${item.key}Edit`] ? 1 : 0}"
+                              @focus="showInput(tableData, scope.$index, `${item.key}Edit`)"
+                              @blur="scope.row[`${item.key}Edit`] = false">
+                              <el-option
+                                v-for="itemc in $dict.outsourceLabelList"
+                                :key="itemc.value"
+                                :label="itemc.label"
+                                :value="itemc.value">
+                              </el-option>
+                            </el-select>
+                          </div>
+                        </div>
+                      </template>
                     </el-table-column>
                   </el-table-column>
                 </el-table>
@@ -303,250 +381,220 @@
     mixins: [leftMixin],
     data() {
       return {
-        defaultPeopleImg: require('../../../assets/img/people.svg'),
-        time: '',
-        component: {},
-        defaultData: {
-          type: 'add',
-          mrElectrodeDesignTasksId: '',
-          mrElectrodeProductionListOrderId: '',
-          electrodeNo: '',
-          quantity: '',
-          processes: [{}],
-          attachments: [],
+        isLoading: false,
+        form: {
+          customer: '',
+          moduleNo: '',
+          componentNo: '',
+          time: '50'
         },
-        tableData3: [{
-          date: '2016-05-03',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-02',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-08',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-06',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-07',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }],
+        procedurePrefix: 'procedure',
+        procedureList: [],
+        tableData: [],
         handle: {
           setting: {
-            dialogVisible: true,
-            data: {},
-            form: {
-              faceUrl: "",
-              name: "",
-              type: "0",
-              id: "",
-              dsc: "",
-              detailList: [
-                {
-                  date: "2016-05-01",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                }
-              ],
-              enclosureList: [
-                {
-                  date: "2016-05-01",
-                  name: "王小虎"
-                }
-              ]
-            }
+            dialogVisible: false,
+            data: {}
           }
         }
       }
     },
     methods: {
-      getLeftList() { //获取版本列表
-        
+      getProcedureList() {  //获取工序列表
+
         let params = {
-          mrElectrodeDesignTasksId: this.component.mrElectrodeDesignTasksId
-        }
-        this.left.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryElectrodeNoById, (res) => {
 
-          this.left.isLoading = false;
-          this.left.list = res.data || [];
-          if(this.left.list.length) {
+        };
+        let mock = [
+          {
+            name: 'M',
+            max: 1
+          },
+          {
+            name: 'H\WC',
+            max: 1
+          },
+          {
+            name: 'H/T',
+            max: 1
+          },
+          {
+            name: 'G',
+            max: 2
+          },
+          {
+            name: 'EDM',
+            max: 2
+          },
+          {
+            name: 'CNC',
+            max: 1
+          },
+          {
+            name: 'EDB',
+            max: 1
+          },
+          {
+            name: 'W/C',
+            max: 1
+          },
+          {
+            name: 'PL',
+            max: 1
+          },
+          {
+            name: 'ENG',
+            max: 2
+          },
+          {
+            name: 'other',
+            max: 1
+          },
+        ]
 
-            this.left.activeId = 0;
-            this.currentData = this.left.list[0];
-            if(!this.currentData.processes || !this.currentData.processes.length) {
-              this.currentData.processes = [{}];
+        this.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.isLoading = false;
+          let procedureList = [];
+          if(res.data.length) {
+            
+            res.data.map(item => {
+
+              if(item.max > 1) {
+
+                for(let i = 1; i <= item.max; i++) {
+
+                  let newItem = Object.assign({}, item);
+                  newItem.name = `${newItem.name}${i}`;
+                  newItem.key = `${this.procedurePrefix}-${newItem.name}`;
+                  newItem.index = i;
+                  procedureList.push(newItem);
+                }
+              }else {
+
+                item.key = `${this.procedurePrefix}-${item.name}1`;
+                procedureList.push(item);
+              }
+            })
+          }
+          this.procedureList = procedureList;
+        }, () => this.isLoading = false, params, mock)
+      },
+      getData() { //获取订单列表
+
+        let params = {
+
+        };
+        let mock = [
+          {
+            id: 0,
+            a: 'M19536',
+            b: '4月7日',
+            c: '5月1日',
+            d: 'KL-D',
+            e: '5月7日',
+            f: '',
+            g: '200',
+            h: '8+1',
+            i: 'v1',
+            j: '是',
+            k: [
+              {
+                name: 'M',
+                value: 50,
+                index: 1
+              },
+              {
+                name: 'W/C',
+                value: 100,
+                index: 1
+              },
+              {
+                name: 'G',
+                value: 369,
+                index: 2
+              }
+            ]
+          },
+          {
+            id: 0,
+            a: 'M19575',
+            b: '4月7日',
+            c: '5月1日',
+            d: 'KL-D',
+            e: '5月7日',
+            f: '',
+            g: '200',
+            h: '4+1',
+            i: 'v1',
+            j: '是',
+            k: [
+              {
+                name: 'HWC',
+                value: 42,
+                index: 1
+              },
+              {
+                name: 'HT',
+                value: 36,
+                index: 1
+              },
+              {
+                name: 'PL',
+                value: 11,
+                index: 2
+              }
+            ]
+          },
+          {
+            id: 0,
+            a: 'M1988',
+            b: '4月7日',
+            c: '5月1日',
+            d: 'KL-D',
+            e: '5月7日',
+            f: '',
+            g: '200',
+            h: '18+1',
+            i: 'v1',
+            j: '是',
+            k: [
+              {
+                name: 'CNC',
+                value: 110,
+                index: 1
+              },
+              {
+                name: 'ENG',
+                value: 6,
+                index: 2
+              },
+              {
+                name: 'G',
+                value: 62,
+                index: 2
+              }
+            ]
+          }
+        ]
+
+        this.isLoading = true;
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+
+          this.isLoading = false;
+          res.data.map(item => {
+
+            if(item.k.length) {
+
+              item.k.map(itemc => {
+
+                item[`${this.procedurePrefix}-${itemc.name}${itemc.index}`] = itemc.value;
+              })
             }
-          }else {
-
-            this.currentData = this.$utils.deepCopy(this.defaultData);
-          }
-        }, () => {
-
-          this.left.isLoading = false;
-          this.currentData = this.$utils.deepCopy(this.defaultData);
-        }, params)
-      },
-      handleSelect(item, index) {
-      
-        this.left.activeId = index;
-        this.currentData = item;
-        if(!this.currentData.processes || !this.currentData.processes.length) {
-          this.currentData.processes = [{}];
-        }
-      },
-      addVersion() {
-
-        let data = this.$utils.deepCopy(this.defaultData);
-        this.left.list.push(data);
-        this.currentData = data;
-        this.left.activeId = this.left.list.length - 1;
-      },
-      deleteVersionSuccess(index) {
-
-        this.left.list.splice(index, 1);
-        if(this.left.activeId > index) {
-          index = this.left.activeId - 1;
-          this.left.activeId = index;
-          this.currentData = this.left.list[index];
-        }else if(this.left.activeId == index) {
-          if(index == this.left.list.length) {
-            index = this.left.list.length - 1;
-          }
-          this.left.activeId = index;
-          this.currentData = this.left.list[index] || this.$utils.deepCopy(this.defaultData);
-        }
-      },
-      deleteVersion(index) {
-
-        if(this.left.list[index].type == 'add') {
-
-          this.deleteVersionSuccess(index);
-        }else {
-
-          this.left.isLoading = true;
-          this.$utils.getJson(this.$utils.CONFIG.api.saveEleAsModify, (res) => { //版本详情 
-
-            this.left.isLoading = false;
-            this.$utils.showTip('success', 'success', '104');
-            this.deleteVersionSuccess(index);
-          }, () => this.left.isLoading = false, {mrElectrodeProductionListOrderId: this.left.list[index].mrElectrodeProductionListOrderId}, 'post', true);
-        }
-      },
-      uploadSuccess(res) {
-
-        this.$refs.file.value = '';
-        let params = [{
-            fileId: res.data[0].fileId,
-            fileName: res.data[0].fileName,
-            mrElectrodeProductionListOrderId: this.currentData.mrElectrodeProductionListOrderId
-          }]
-        this.$utils.getJson(this.$utils.CONFIG.api.saveEleAttachment, (response) => { //存储电极附件
-
-          this.currentData.attachments.push({
-            fileId: res.data[0].fileId,
-            fileName: res.data[0].fileName,
-          });
-        }, () => this.right.isLoading = false, params);
-      },
-      deleteSuccess() {
-
-        this.$utils.getJson(this.$utils.CONFIG.api.deleteAttachment, (response) => { //删除附件
-          
-          this.currentData.attachments = this.currentData.attachments.filter(item => this.deleteRow.fileId != item.fileId);
-        }, () => this.right.isLoading = false, {fileId: this.deleteRow.fileId});
-      },
-      save() {
-
-        if(!this.currentData.electrodeNo) { //如果电极号为空
-          this.$utils.showTip('warning', 'error', '-1050');
-          return;
-        }
-
-        let url = '';
-        let params = {}
-
-        if(this.currentData.type == 'add') {
-
-          url = this.$utils.CONFIG.api.designElectrodeDesignTasks;
-          params = {
-            mrElectrodeDesignTasksId: this.component.mrElectrodeDesignTasksId,
-            electrodeNo: this.currentData.electrodeNo,
-            quantity: parseInt(this.currentData.quantity) || 0,
-            processes: [],
-            attachments: []
-          }
-        }else {
-
-          url = this.$utils.CONFIG.api.modifyEleInfo;
-          params = {
-            mrElectrodeProductionListOrderId: this.currentData.mrElectrodeProductionListOrderId,
-            electrodeNo: this.currentData.electrodeNo,
-            quantity: parseInt(this.currentData.quantity) || 0,
-            processes: [],
-            attachments: []
-          }
-        }
-
-        this.currentData.processes.map((item, index) => { //工艺列表
-
-          if(item.processName) {
-
-            let obj = {
-              processSequence: index + 1,
-              processName: item.processName,
-              estimationWorkTime: parseFloat(item.estimationWorkTime) || 0,
-            }
-            if(item.mrElectrodeProcessProductionOrderId) {
-              obj.mrElectrodeProcessProductionOrderId = item.mrElectrodeProcessProductionOrderId;
-            }
-            params.processes.push(obj);
-          }
-        })
-
-        this.right.isLoading = true;
-        this.$utils.getJson(url, (res) => {
-
-          this.right.isLoading = false;
-          this.$utils.showTip('success', 'success', '102');
-          this.component.type = 'edit';
-          localStorage.setItem(this.time, JSON.stringify(this.component));
-          this.refresh();
-        }, () => this.right.isLoading = false, params);
+          })
+          this.tableData = res.data || [];
+        }, () => this.isLoading = false, params, mock)
       },
       objectSpanMethod({ row, column, rowIndex, columnIndex }) {
         if (columnIndex === 0) {
@@ -563,24 +611,19 @@
           }
         }
       },
-      refresh() {
+      getList() {
 
-        this.getList(this.$utils.CONFIG.api.stuff, this.right, 'stuff'); //获取材料列表
-        this.getList(this.$utils.CONFIG.api.process, this.right, 'process'); //获取工序名称列表
-        this.getList(this.$utils.CONFIG.api.sysCode, this.right, 'sysCode', {otherWhereClause: "codeType = 'processContent'"}); //获取工序内容列表
+        this.getList(this.$utils.CONFIG.api.stuff, this.right, 'stuff'); //获取客户列表
+        this.getList(this.$utils.CONFIG.api.process, this.right, 'process'); //获取模具号列表
+        this.getList(this.$utils.CONFIG.api.sysCode, this.right, 'sysCode', {otherWhereClause: "codeType = 'processContent'"}); //获取零件号列表
         this.getLeftList();
       }
     },
     
     created() {
-
-      if(!this.$route.params.id) return;
-      this.time = this.$route.params.id;
-      let component = localStorage.getItem(this.time);
-      if(!component) return;
-      this.component = JSON.parse(component);
-      this.refresh();
-      console.log(this.component)
+      
+      this.getProcedureList();
+      this.getData();      
     }
   };
 </script>
