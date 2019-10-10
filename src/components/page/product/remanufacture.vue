@@ -5,8 +5,7 @@
         <el-breadcrumb-item>
           <i class="el-icon-lx-copy"></i>
           <strong>当前位置：</strong>
-          <span v-if="component.type == 'remanufacture'">生产订单跟踪->下达重制订单</span>
-          <span v-else>零件工艺设计->制定工艺卡</span>
+          <span>生产订单跟踪->下达重制订单</span>
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -25,61 +24,37 @@
             <h4>订单信息</h4>
             <div class="msg-wrapper">
               <!-- 重制订单 -->
-              <div class="mgt10" v-if="component.type == 'remanufacture'">
+              <div class="mgt10">
                 <span>客户：
-                  <el-autocomplete
-                    size="mini"
-                    style="width: 160px;"
-                    class="inline-input"
-                    v-model="right.page1.stuffNo"
-                    :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.stuff, 'stuffNo')"
-                    valueKey="stuffNo"
-                    value="stuffNo"
-                  ></el-autocomplete>
+                  <el-select size="mini" v-model="right.page1.name" placeholder="请选择客户" style="width: 160px;">
+                    <el-option v-for="(item, index) in filter.customer" :key="index" :label="item.name" :value="item.name"></el-option>
+                  </el-select>
                 </span>
                 <span class="mgl20">模具号：
-                  <el-autocomplete
-                    size="mini"
-                    style="width: 160px;"
-                    class="inline-input"
-                    v-model="right.page1.stuffNo"
-                    :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.stuff, 'stuffNo')"
-                    valueKey="stuffNo"
-                    value="stuffNo"
-                  ></el-autocomplete>
+                  <el-select size="mini" v-model="right.page1.qwm" value-key="mouldNo" placeholder="请选择模具号" style="width: 160px;" @change="$set(right.page1, 'componentNo', '')">
+                    <el-option v-for="(item, index) in filter.qwm" :key="item.mouldNo" :label="item.mouldNo" :value="item"></el-option>
+                  </el-select>
                 </span>
                 <span class="mgl20">零件号：
-                  <el-autocomplete
-                    size="mini"
-                    style="width: 160px;"
-                    class="inline-input"
-                    v-model="right.page1.stuffNo"
-                    :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.stuff, 'stuffNo')"
-                    valueKey="stuffNo"
-                    value="stuffNo"
-                  ></el-autocomplete>
+                  <el-select size="mini" v-model="right.page1.componentNo" placeholder="请选择模具号" style="width: 160px;">
+                    <template v-if="right.page1.qwm">
+                      <el-option v-for="(item, index) in right.page1.qwm.componentOrders" :key="index" :label="item.componentNo" :value="item.componentNo"></el-option>
+                    </template>
+                  </el-select>
                 </span>
                 <span class="mgl20">手动增加原因：
-                  <el-select size="mini" v-model="right.page1.drawingVersionNo" placeholder="请选择" style="width: 77px;">
-                    <el-option label="重置" :value="0"></el-option>
-                    <el-option label="其它" :value="1"></el-option>
+                  <el-select size="mini" v-model="right.page1.origin" placeholder="请选择" style="width: 77px;">
+                    <el-option label="重置" :value="20"></el-option>
+                    <el-option label="其它" :value="30"></el-option>
                   </el-select>
                 </span>
                 <span class="mgl20">数量：
-                  <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 66px" />
+                  <el-input size="mini" v-model="right.page1.quantity" style="width: 66px" />
                 </span>
               </div>
-              <template v-else>
-                <span class="mgr20">模具号：{{component.mouldNo}}</span>
-                <span class="mgr20">零件号：{{component.componentNos}}</span>
-                <span class="mgr20">客户：{{component.name}}</span>
-                <span class="mgr20">要求交期：{{component.completionDate}}</span>
-                <span class="mgr20">数量：{{component.requirementQuantitys}}</span>
-                <span>客户PO.号：{{component.customerPoNo}}</span>
-            </template>
             </div>
           </div>
-          <div class="content" :style="{top: component.type == 'remanufacture' ? '66px' : '40px'}">
+          <div class="content" :style="{top: '66px'}">
             <h5 class="content-left-title">零件工艺版本列表</h5>
             <div class="content-left" v-loading="left.isLoading">
               <div class="list tc">
@@ -320,40 +295,43 @@
         time: '',
         isLoading: false,
         component: {},
-        form: {}
+        form: {},
+        filter: {
+          customer: [],
+          qwm: []
+        },
+        right: {
+          page1: {
+            name: '',
+            qwm: {
+              componentOrders: []
+            },
+            componentNo: '',
+            origin: 20,
+            components: [],
+            processes: [{}]
+          }
+        }
       }
     },
     methods: {
       getLeftList() { //获取版本列表
-        if(this.component.type == 'edit') {  //如果是编辑
-          let params = {
-            componentNo: this.component.componentNos
-          }
-          this.left.isLoading = true;
-          this.$utils.getJson(this.$utils.CONFIG.api.queryComponentVersion, (res) => {
-            this.left.isLoading = false;
-            this.left.list = res.data || [];
-            if(this.left.list.length) {
-              this.left.activeId = this.left.list[0].mrCraftRouteLineVersionId;
-              this.currentData = this.left.list[0];
-              this.getDetail(this.currentData);
-            }
-          }, () => this.left.isLoading = false, params)
-        }else if(this.component.type == 'add') { //如果是制定工艺
-          
-          this.component.components.map(item => {
-            item.quantity = item.requirementQuantity;
-          })
-          this.right.page1 = {
-            components: this.$utils.deepCopy(this.component.components),
-            processes: [{}]
-          }
-        }else { //下达重制订单
-          this.right.page1 = {
-            components: this.$utils.deepCopy(this.component.components),
-            processes: [{}]
-          }
+
+        let params = {
+          componentNo: this.component.componentNos
         }
+        this.left.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryComponentVersion, (res) => {
+
+          this.left.isLoading = false;
+          this.left.list = res.data || [];
+          if(this.left.list.length) {
+
+            this.left.activeId = this.left.list[0].mrCraftRouteLineVersionId;
+            this.currentData = this.left.list[0];
+            this.getDetail(this.currentData);
+          }
+        }, () => this.left.isLoading = false, params)
       },
       getDetail(currentData) {
         
@@ -361,8 +339,10 @@
           mrCraftRouteLineId: currentData.mrCraftRouteLineId,
           versionNo: currentData.craftVersionNo,
         }
+
         this.right.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryVersionDetail, (res) => { //版本详情 
+
           this.right.isLoading = false;
           this.right.page1 = res.data || {};
           if(!this.right.page1.processes || !this.right.page1.processes.length) {
@@ -377,6 +357,7 @@
         this.getDetail(this.currentData);
       },
       uploadSuccess(res) {
+
         this.$refs.file.value = '';
         let params = [{
             fileId: res.data[0].fileId,
@@ -384,6 +365,7 @@
             mrCraftRouteLineVersionId: this.currentData.mrCraftRouteLineVersionId
           }]
         this.$utils.getJson(this.$utils.CONFIG.api.saveCraftAttachment, (response) => { //版本详情 
+
           this.right.page1.attachments.push({
             fileId: res.data[0].fileId,
             fileName: res.data[0].fileName,
@@ -393,78 +375,71 @@
         }, () => this.right.isLoading = false, params);
       },
       deleteSuccess() {
+
         this.$utils.getJson(this.$utils.CONFIG.api.deleteCraftAttachment, (response) => { //版本详情 
           
           this.right.page1.attachments = this.right.page1.attachments.filter(item => this.deleteRow.fileId != item.fileId);
         }, () => this.right.isLoading = false, {fileId: this.deleteRow.fileId});
       },
-      back() {
-        if(this.component.activeId) {
-          this.$router.push(`/product/technology/${this.component.activeId}`);
-        }else {
-          
-          this.$router.go(-1);
-        }
-      },
       save() {
+
+        if(!this.right.page1.name) { //如果没有选择用户
+          this.$utils.showTip('warning', 'error', '-1070');
+          return;
+        }
+
+        if(!this.right.page1.qwm.mouldNo) { //如果没有选择模具号
+          this.$utils.showTip('warning', 'error', '-1071');
+          return;
+        }
+
+        if(!this.right.page1.componentNo) { //如果没有选择零件号
+          this.$utils.showTip('warning', 'error', '-1072');
+          return;
+        }
+
         if(!this.right.page1.craftVersionNo) { //如果没有输入工艺路线版本号
           this.$utils.showTip('warning', 'error', '-1043');
           return;
         }
+
         if(!this.right.page1.stuffNo) { //如果没有输入材料
           this.$utils.showTip('warning', 'error', '-1047');
           return;
         }
-        if(this.isExistenceVersion(this.left.list, this.right.page1.craftVersionNo, 'craftVersionNo') && this.currentData.craftVersionNo != this.right.page1.craftVersionNo) { //输入工艺路线版本号与选中工艺路线版本号不一致
-          this.$utils.showTip('warning', 'error', '-1045');
-          return;
+
+        let params = {
+          name: this.right.page1.name,
+          mouldNo: this.right.page1.mouldNo,
+          origin: this.right.page1.origin,
+          quantity: parseFloat(this.right.page1.quantity) || 0,
+          versionNo: this.right.page1.craftVersionNo,
+          drawingVersionNo: this.right.page1.drawingVersionNo || '',
+          stuffNo: this.right.page1.stuffNo || '',
+          length: parseFloat(this.right.page1.length) || 0,
+          width: parseFloat(this.right.page1.width) || 0,
+          height: parseFloat(this.right.page1.height) || 0,
+          remark: this.right.page1.remark || '',
+          processDescription: this.right.page1.processDescription || '',
+          components: [],
+          processes: []
         }
-        let url = '';
-        let params = {}
-        if((this.component.type == 'edit') && this.isExistenceVersion(this.left.list, this.right.page1.craftVersionNo, 'craftVersionNo')) {
-          url = this.$utils.CONFIG.api.modifyCraftRouteLine;
-          params = {
-            mrCraftRouteLineVersionId: this.right.page1.mrCraftRouteLineVersionId,
-            versionNo: this.right.page1.craftVersionNo,
-            stuffNo: this.right.page1.stuffNo || '',
-            length: parseFloat(this.right.page1.length) || 0,
-            width: parseFloat(this.right.page1.width) || 0,
-            height: parseFloat(this.right.page1.height) || 0,
-            remark: this.right.page1.remark || '',
-            processDescription: this.right.page1.processDescription || '',
-            components: [],
-            processes: []
-          }
-        }else {
-          url = this.$utils.CONFIG.api.designCraftRouteLine;
-          params = {
-            saleOrderId: this.component.mrSaleOrderId,
-            customerId: this.component.customerId,
-            versionNo: this.right.page1.craftVersionNo,
-            drawingVersionNo: this.right.page1.drawingVersionNo || '',
-            stuffNo: this.right.page1.stuffNo || '',
-            length: parseFloat(this.right.page1.length) || 0,
-            width: parseFloat(this.right.page1.width) || 0,
-            height: parseFloat(this.right.page1.height) || 0,
-            remark: this.right.page1.remark || '',
-            processDescription: this.right.page1.processDescription || '',
-            components: [],
-            processes: []
-          }
-        }
+
         this.right.page1.components.map(item => { //零件列表
+
           let obj = {
             componentNo: item.componentNo,
             quantity: parseInt(item.quantity) || 0,
             stockingQuantity: parseInt(item.stockingQuantity) || 0,
           }
-          if((this.component.type == 'edit') && this.isExistenceVersion(this.left.list, this.right.page1.craftVersionNo, 'craftVersionNo')) {
-            obj.mrComponentCraftId = item.mrComponentCraftId
-          }
+          
           params.components.push(obj);
         })
+
         this.right.page1.processes.map((item, index) => { //工艺列表
+
           if(item.name) {
+
             let obj = {
               processSequence: index + 1,
               name: item.name,
@@ -474,35 +449,31 @@
               operator: item.operator
             }
             
-            if((this.component.type == 'edit') && this.isExistenceVersion(this.left.list, this.right.page1.craftVersionNo, 'craftVersionNo') && item.mrComponentCraftProcessId) {
-              obj.mrComponentCraftProcessId = item.mrComponentCraftProcessId
-            }
             params.processes.push(obj);
           }
         })
+
         this.isLoading = true;
-        this.$utils.getJson(url, (res) => { //版本详情 
+        this.$utils.getJson(this.$utils.CONFIG.api.designCraftRouteLine, (res) => { //版本详情 
+
           this.isLoading = false;
           this.$utils.showTip('success', 'success', '102');
-          this.component.type = 'edit';
-          localStorage.setItem(this.time, JSON.stringify(this.component));
           this.back();
         }, () => this.isLoading = false, params);
       },
       refresh() {
+
+        this.getList(this.$utils.CONFIG.api.customer, this.filter, 'customer', {otherWhereClause:'customerType !=20'}); //获取客户列表
+        this.getList(this.$utils.CONFIG.api.qwm, this.filter, 'qwm'); //获取工序名称列表
+
         this.getList(this.$utils.CONFIG.api.stuff, this.right, 'stuff'); //获取材料列表
         this.getList(this.$utils.CONFIG.api.process, this.right, 'process'); //获取工序名称列表
         this.getList(this.$utils.CONFIG.api.sysCode, this.right, 'sysCode', {otherWhereClause: "codeType = 'processContent'"}); //获取工序内容列表
-        this.getLeftList();
       }
     },
     
     created() {
-      if(!this.$route.params.id) return;
-      this.time = this.$route.params.id;
-      let component = localStorage.getItem(this.time);
-      if(!component) return;
-      this.component = JSON.parse(component);
+
       this.refresh();
     }
   };
@@ -519,6 +490,7 @@
     box-shadow: none;
     .msg {
       h4 {
+
       }
       .msg-wrapper {
         span {

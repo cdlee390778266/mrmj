@@ -158,11 +158,12 @@ let leftMixin = {
 	        this.left[loadingKey] = false;
 	      }, () => this.left[loadingKey] = false, params)
 	    },
-	    getList(url, obj, key, params = {}) {
+	    getList(url, obj, key, params = {}, success = null) {
 
 	    	this.$utils.getJson(url, (res) => {
 	 
 	        obj[key] = res.data || [];
+	        if (typeof success == 'function') success(res.data)
 	      }, () => obj[key] = [], params)
 	    },
 			selectType(item) {

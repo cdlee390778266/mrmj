@@ -27,7 +27,7 @@
             </el-dropdown>
           </div>
           <div>
-            <el-button type="primary" @click="jump" style="width: 130px;">下达重制订单</el-button>
+            <el-button type="primary" @click="$router.push('/product/remanufacture')" style="width: 130px;">下达重制订单</el-button>
             <el-button type="primary" class="fr" @click="$router.push(`/product/detail`)" style="width: 130px;">查看当前计划</el-button>
           </div>
         </div>
@@ -54,7 +54,7 @@
               <el-col :span="11">状态：{{ item.orderStatusText | filterNull }}</el-col>
               <el-col :span="13">延误时间累计(H)：{{ item.delayTotalTime | filterNull(0) }}</el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click.stop="edit(item)">编辑</a>
+                <a href="javascript: void(0);" @click.stop="getOrderDetail(item)">编辑</a>
               </el-col>
             </el-row>
           </div>
@@ -122,7 +122,7 @@
                         <p class="ellipsis"><span>计划时间：{{ currentData.planStartDate | filterNull }} 至 {{ currentData.planEndDate | filterNull }}</span></p>
                         <p class="ellipsis"><span>当前成本累计：{{ total(item) }}元</span></p>
                         <p>
-                          <el-button type="text" @click="jump">编辑 查看 打印工艺卡</el-button>
+                          <el-button type="text" @click="jump(item)">编辑 查看 打印工艺卡</el-button>
                         </p>
                       </div>
                       <div class="process-right">
@@ -242,7 +242,7 @@
       </div>
     </div>
 
-    <el-dialog title="生产订单信息查看修改" class="dialog-gray" :visible.sync="handle.edit.dialogVisible" width="600px">
+    <el-dialog title="生产订单信息查看修改" class="dialog-gray" :visible.sync="handle.edit.dialogVisible" width="800px">
       <div v-loading="handle.edit.isLoading">
         <el-form :model="handle.edit.form" label-width="100px">
           <el-row class="pdtb10 borb">
@@ -257,19 +257,19 @@
                   <span class="mgr40">序号：{{index + 1}}</span>
                   <span class="mgr40">零件号码：{{item.components | concatString('componentNo')}}</span></span>
                   <span class="mgr40">版本：
-                    <el-select style="width: 100px;" v-model="item.selectedVersionNo">
+                    <el-select size="mini" style="width: 100px;" v-model="item.selectedVersionNo">
                       <el-option v-for="(itemc, index) in item.versions" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
                     </el-select>
                   </span>
                   <span>材料：{{getSelectedVersionStuffNo(item.versions, item.selectedVersionNo)}}</span>
                 </el-col>
                 <el-col :span="24">
-                  <p v-for="(item, index) in [1, 2]" :key="index" class="mgb10">
-                    <span>零件号码：{{handle.edit.form.componentNo}}</span>
+                  <p v-for="(itemc, index) in item.components" :key="index" class="mgb5">
+                    <span>零件号码：{{itemc.componentNo}}</span>
                     <span class="mgl20">数量： 
-                    <el-input size="mini" v-model="handle.edit.form.quantity" style="width: 100px" /></span>
+                    <el-input size="mini" v-model="itemc.quantity" style="width: 100px" /></span>
                     <span class="mgl20">备货数量： 
-                    <el-input size="mini" v-model="handle.edit.form.stockingQuantity" style="width: 100px" /></span>
+                    <el-input size="mini" v-model="itemc.stockingQuantity" style="width: 100px" /></span>
                   </p>
                 </el-col>
               </el-row>
@@ -279,14 +279,14 @@
                   <thead>
                     <tr>
                       <th class="bge4e4e4">工序顺序</th>
-                      <th v-for="(itemc, index) in item.processes" :key="index">{{itemc.name}}</th>
+                      <th v-for="(itemc, index) in getSelectedProcesses(item.versions, item.selectedVersionNo)" :key="index">{{itemc.name}}</th>
                       <th class="bge4e4e4">工时合计</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td class="bge4e4e4">估工（H）</td>
-                      <th v-for="(itemc, index) in item.processes" :key="index">{{itemc.estimationWorkTime}}</th>
+                      <th v-for="(itemc, index) in getSelectedProcesses(item.versions, item.selectedVersionNo)" :key="index">{{itemc.estimationWorkTime}}</th>
                       <th class="bge4e4e4">
                         {{item.processes | sum('estimationWorkTime')}}
                       </th>
@@ -298,19 +298,20 @@
           </div>
         </el-form>
         <div slot="footer" class="dialog-footer tr pdtb20 pdlr10">
-          <el-button type="primary" @click="saveEdit">保存</el-button>
+          <el-button type="primary" @click="editOrder">保存</el-button>
           <el-button type="primary" @click="handle.edit.dialogVisible = false">返回</el-button>
         </div>
       </div>
     </el-dialog>
 
-    <el-dialog title="查看销售订单信息" center :visible.sync="handle.orderInfo.dialogVisible" width="800px" v-dialogDrag>
+    <el-dialog title="查看销售订单信息" center :visible.sync="handle.orderInfo.dialogVisible" width="800px">
       <el-form :model="handle.orderInfo.data" v-loading="handle.orderInfo.isLoading" label-width="100px" ref="updateForm">
         <el-row>
-          <el-col :span="12">
+          <el-col :span="8">
             客户名称：{{handle.orderInfo.data.name}}
           </el-col>
-          <el-col :span="12">
+          <el-col :span="8">&nbsp;</el-col>
+          <el-col :span="8">
             客户PO.号：{{handle.orderInfo.data.customerPoNo}}
           </el-col>
           <el-col :span="8">
@@ -327,9 +328,9 @@
             <el-table :data="handle.orderInfo.data.componentOrders" border size="mini" style="width: 100%">
               <el-table-column type="index" label="序号"  width="50" show-overflow-tooltip></el-table-column>
               <el-table-column prop="componentNo" label="零件号"  width="100" show-overflow-tooltip></el-table-column>
-              <el-table-column label="客户编号"  width="100" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="customerNo" label="客户编号"  width="100" show-overflow-tooltip></el-table-column>
               <el-table-column prop="componentNum" label="数量" width="88" show-overflow-tooltip></el-table-column>
-              <el-table-column prop="updateDtString" label="下单日期" width="140" show-overflow-tooltip></el-table-column>
+              <!-- <el-table-column prop="" label="下单日期" width="140" show-overflow-tooltip></el-table-column> -->
               <el-table-column prop="deliveryDate" label="要求交期" width="140" show-overflow-tooltip></el-table-column>
               <el-table-column prop="description" label="说明" show-overflow-tooltip></el-table-column>
             </el-table>
@@ -380,16 +381,13 @@
           edit: {
             dialogVisible: false,
             isLoading: false,
-            order: {},
-            data: [],
+            data: {},
             form: {
-              faceUrl: "",
+              mouldNo: "",
               name: "",
               type: "0",
               id: "",
               dsc: "",
-              quantity: '',
-              stockingQuantity: ''
             }
           },
           orderInfo: {
@@ -419,35 +417,60 @@
         this.left.activeId = item.saleOrderNo;
         this.currentData = item;
       },
-      edit(item) {  //编辑
-
+      getOrderDetail(item) {  //生产订单详情
+        
         let params = {
-
-        };
-        let mockData = [{}, {}, {}]
+          mrSaleOrderId: item.mrSaleOrderId
+        }
 
         this.handle.edit.order = item;
         this.handle.edit.dialogVisible = true;
         this.handle.edit.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.queryProductionOrderInfo, (res) => {
 
           this.handle.edit.isLoading = false;
-          this.handle.edit.data = res.data || [];
-        }, () => this.handle.edit.isLoading = false, params, mockData)
+          this.handle.edit.data = res.data;
+        }, () => this.handle.edit.isLoading = false, params);
       },
-      saveEdit() {  //保存编辑
+      editOrder() { //编辑保存
 
         let params = {
+          mrCraftRouteLineVersionId: this.right.page1.mrCraftRouteLineVersionId,
+          versionNo: this.right.page1.craftVersionNo,
+          stuffNo: this.right.page1.stuffNo || '',
+          length: parseFloat(this.right.page1.length) || 0,
+          width: parseFloat(this.right.page1.width) || 0,
+          height: parseFloat(this.right.page1.height) || 0,
+          remark: this.right.page1.remark || '',
+          processDescription: this.right.page1.processDescription || '',
+          components: [],
+          processes: []
+        }
 
-        };
-  
+        this.handle.edit.data.map(item => {  //取得选中的版本，如没选中则默认选中第一个
+
+          let obj = {
+            mrCraftRouteLineId: item.mrCraftRouteLineId
+          }
+          if(item.selectedVersionNo) {
+            obj.versionNo = item.selectedVersionNo;
+          }else {
+            if(item.versions && item.versions.length) {
+              obj.versionNo = item.versions[0].versionNo;
+            }else {
+              obj.versionNo = '';
+            }
+          }
+          params.versions.push(obj);
+        })
+        
         this.handle.edit.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.modifyCraftRouteLine, (res) => {
 
-          this.$utils.showTip('success', 'success', '102');
           this.handle.edit.isLoading = false;
           this.handle.edit.dialogVisible = false;
-        }, () => this.handle.edit.isLoading = false, params)
+          this.$utils.showTip('success', 'success', '102');
+        }, () => this.handle.edit.isLoading = false, params);
       },
       orderDetail() {
 
@@ -472,20 +495,31 @@
           this.right.isLoading = false;
         }, () => this.right.isLoading = false, params)
       },
-      jump() {
+      jump(row) {
+        console.log(row)
         let obj = {
-          type: 'remanufacture',
-          mrSaleOrderId: '',
-          customerId: '',
-          mouldNo: '',
-          name: '',
+          type: 'edit',
+          mrSaleOrderId: this.currentData.mrSaleOrderId,
+          customerId: this.currentData.customerId,
+          mouldNo: this.currentData.mouldNo,
+          name: this.currentData.name,
           componentNos: '',
           requirementQuantitys: '',
-          completionDate: '',
-          customerPoNo: '',
-          components: []
+          completionDate: this.currentData.completionDate,
+          customerPoNo: this.currentData.customerPoNo,
+          components: row.components,
         };
         
+        row.components && row.components.length && row.components.map((item, index) => {
+
+            obj.componentNos += item.componentNo;
+            obj.requirementQuantitys += item.quantity;
+            if(index != row.components.length - 1) {
+              obj.componentNos+= '/';
+              obj.requirementQuantitys += '/';
+            }
+          })
+
         let time = new Date().getTime();
         localStorage.setItem(time, JSON.stringify(obj));
         this.$router.push(`/product/processCard/${time}`);

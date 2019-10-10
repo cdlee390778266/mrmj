@@ -148,6 +148,13 @@ const MENU = {
 				icon: 'el-icon-s-operation'
 			},
 			{
+				name: '下达重制订单',
+				path: '/remanufacture',
+				paramsPath: '/remanufacture/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
 				name: '手动增加生产订单',
 				path: '/editOrder',
 				paramsPath: '/editOrder/:id?',

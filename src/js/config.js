@@ -24,6 +24,8 @@ const CONFIG = {
 		deleteFiles: baseUrl + 'fc/deleteFiles', //生产--删除服务器端的文件
 		download: baseUrl + 'fc/downloadFiles', //下载文件
 		image: baseUrl + 'fc/imgStreamOther	', //图片接口
+		customer: baseUrl + 'requirement/customer/qc', //客户名称查询接口
+		qwm: baseUrl + 'requirement/saleOrder/qwm', //模具与零件号联动查询接口
 
 		login: baseUrl + 'authMR/login', //登录
 
@@ -83,7 +85,8 @@ const CONFIG = {
 		querySaleOrderInfo: baseUrl + 'requirement/saleOrder/querySaleOrderInfo', //生产--查看相关销售订单
 		queryPlanList: baseUrl + 'requirement/makeworkplan/queryPlanList', //生产--查看制定作业计划
 		queryTodayProcess: baseUrl + 'requirement/productionOrder/queryTodayProcess', //生产--工序生产列表
-		queryTodayProcessByName: baseUrl + 'requirement/jobbooking/queryTodayProcessByName', //生产--查找报工的工序
+		queryTodayProcess: baseUrl + 'requirement/productionOrder/queryTodayProcess', //生产--工序生产列表
+		queryRestartComponent: baseUrl + 'requirement/productionOrder/queryRestartComponent', //生产--查看零件重置的版本信息
 		processAssignWork: baseUrl + 'requirement/operationalPlan/processAssignWork', //生产--工序派工
 		saveJobBooking: baseUrl + 'requirement/jobbooking/saveJobBooking', //生产--报工
 		
@@ -134,7 +137,10 @@ const CONFIG = {
 		'-1046': '未制定电极工艺，不能下达电极生产订单',
 		'-1047': '请输入材料！',
 		'-1050': '电极号不能为空',
-		'-1060': '请选择一个或多个需要外协的零件'
+		'-1060': '请选择一个或多个需要外协的零件',
+		'-1070': '请选择客户',
+		'-1071': '请选择模具号',
+		'-1072': '请选择零件号'
 	}
 }
 
