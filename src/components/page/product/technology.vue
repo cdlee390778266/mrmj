@@ -27,7 +27,7 @@
               </el-dropdown-menu>
             </el-dropdown>
             <div>
-              <el-button type="primary" style="width: 100%; margin-top: 10px;" @click="showUpdateDialog">手动增加生产订单</el-button>
+              <el-button type="primary" style="width: 100%; margin-top: 10px;" @click="showUpdateDialog">新增订单</el-button>
             </div>
           </div>
         </div>

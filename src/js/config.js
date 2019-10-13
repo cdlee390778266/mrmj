@@ -44,6 +44,7 @@ const CONFIG = {
 		sysCodeQc: baseUrl + 'requirement/sysCode/qc', //需求--需求终止类型查询
 		inputDemand: baseUrl + 'requirement/demand/inputDemand', //需求--终止类型联想匹配
 		saveComponentOfferRecord: baseUrl + 'requirement/componentOfferRecord/saveComponentOfferRecord', //需求--零件报价
+		saveSaleOrder: baseUrl + 'requirement/saleOrder/saveSaleOrder', //需求--零件报价
 
 		/* 生产模块*/
 		queryPendingSaleOrder: baseUrl + 'requirement/saleOrder/queryPendingSaleOrder', //生产--待处理的销售订单列表
@@ -84,9 +85,12 @@ const CONFIG = {
 		terminateOrPauseOrder: baseUrl + 'requirement/productionOrder/terminateOrPauseOrder', //生产--暂停与终止生产订单
 		querySaleOrderInfo: baseUrl + 'requirement/saleOrder/querySaleOrderInfo', //生产--查看相关销售订单
 		queryPlanList: baseUrl + 'requirement/makeworkplan/queryPlanList', //生产--查看制定作业计划
+		queryRestartComponent: baseUrl + 'requirement/productionOrder/queryRestartComponent', //生产--零件重置版本信息查询
 		queryTodayProcess: baseUrl + 'requirement/productionOrder/queryTodayProcess', //生产--工序生产列表
-		queryTodayProcess: baseUrl + 'requirement/productionOrder/queryTodayProcess', //生产--工序生产列表
-		queryRestartComponent: baseUrl + 'requirement/productionOrder/queryRestartComponent', //生产--查看零件重置的版本信息
+		queryTodayProcessByName: baseUrl + 'requirement/jobbooking/queryTodayProcessByName', //生产--报工工序查找
+		queryProcessorById: baseUrl + 'requirement/productionOrder/queryProcessorById', //生产--派工加工人员信息查找
+		queryOperationalProcess: baseUrl + 'requirement/operationalPlan/queryOperationalProcess', //生产--派工工序查找
+		queryAssignWorkInfo: baseUrl + 'requirement/productionOrder/queryAssignWorkInfo', //生产--派工页面详细信息
 		processAssignWork: baseUrl + 'requirement/operationalPlan/processAssignWork', //生产--工序派工
 		saveJobBooking: baseUrl + 'requirement/jobbooking/saveJobBooking', //生产--报工
 		

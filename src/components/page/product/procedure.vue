@@ -24,7 +24,7 @@
               </div>
               <div class="flex">
                 <div class="dflex">
-                  <p class="flex ellipsis">工序：<span>{{ item.name | filterNull }}</span></p>
+                  <p class="flex ellipsis">工序：<strong>{{ item.name | filterNull }}</strong></p>
                   <p class="flex ellipsis">状态：<span>{{ item.statusText | filterNull }}</span></p>
                 </div>
                 <div class="dflex">
@@ -35,8 +35,8 @@
             <el-row>
               <el-col :span="24">当天工序进度：<el-progress :percentage="item | cpercentage('haveJobBookingWorkTime', 'processTotalWorkTime')" color="rgba(0, 255, 0, 1)" style="width: 160px;display: inline-block;"></el-progress></el-col>
               <el-col :span="24" class="tr">
-                <router-link to="/product/dspwk/1">派工</router-link>
-                <router-link to="/product/npwk/1">报工</router-link>
+                <router-link :to="`/product/dspwk/${item.name}`">派工</router-link>
+                <router-link :to="`/product/npwk/${item.name}`">报工</router-link>
               </el-col>
             </el-row>
           </div>
@@ -48,7 +48,7 @@
           </div>
         </div>
       </div>
-      <div class="main-right">
+      <div class="main-right" v-loading="right.isLoading">
         <page-wrapper @change="refresh" :haveCarousel="true">
           <template #pageName>工序生产情况明细</template>
             <el-carousel
@@ -79,15 +79,15 @@
                         :data="right.page1.planMsg"
                         border
                         size="mini"
-                        class="content-table"
+                        class="content-table mgt10"
                         style="width: 100%"
                       >
                         <el-table-column type="index" label="序号" width="50" show-overflow-tooltip></el-table-column>
                         <el-table-column prop="operationalTypeText" label="工作类型" width="180" show-overflow-tooltip></el-table-column>
-                        <el-table-column prop="customerNo" label="状态" width="180" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="operationalStatusText" label="状态" width="180" show-overflow-tooltip></el-table-column>
                         <el-table-column prop="name" label="工序" show-overflow-tooltip></el-table-column>
                         <el-table-column prop="mouldNo" label="模具号" show-overflow-tooltip></el-table-column>
-                        <el-table-column label="零件号" show-overflow-tooltip>
+                        <el-table-column label="零件号" min-width="130" show-overflow-tooltip>
                           <template slot-scope="scope">
                             {{scope.row.components | concatString('componentNo')}}
                           </template>
@@ -121,23 +121,22 @@
                 <el-scrollbar class="main-content-scorll pdt10">
                   <p>
                     排序：
-                    <el-select style="width: 100px;" v-model="right.page1.data">
-                      <el-option label="空闲" value="0"></el-option>
+                    <el-select style="width: 100px;" v-model="right.page2.sort">
+                      <el-option label="空闲" value="1"></el-option>
                     </el-select>
                   </p>
                   <el-row :gutter="20">
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8" v-for="(item, index) in right.page2" :key="index">
+                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8" v-for="(item, index) in right.page2.data" :key="index">
                       <div class="people dflex mgt10">
                         <div class="flex">
                           <p class="ellipsis">
                             <img :src="defaultPeopleImg">
-                            <span>人员姓名：E01</span>
+                            <span>人员姓名：{{item.userName}}</span>
                           </p>
                           <p class="mgt10">
                             <strong>已分配任务：</strong>
                           </p>
-                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
-                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                          <p class="ellipsis" v-for="(itemc, index) in item.tasks"><span>{{index + 1}}：{{itemc.mouldNo}}，{{itemc.components | concatString('componentNo')}}</span></p>
                         </div>
                         <div style="width: 200px; height: 200px">
                           <ve-pie :data="item.chartData" :colors="chart.colors" :settings="chart.settings" height="400px" width="100px" :legend-visible="false" style="position: relative;top: -140px; margin: auto;"></ve-pie>
@@ -228,6 +227,13 @@
             }
           }
         },
+        right: {
+          page1: {},
+          page2: {
+            sort: '',
+            data: ''
+          }
+        },
         handle: {
           add: {
             dialogVisible: false,
@@ -267,65 +273,27 @@
           this.right.page1 = res.data || {};
           this.right.isLoading = false;
         }, () => this.right.isLoading = false, params);
-
         this.getUserList();
       },
       getUserList() { //获取加工人员列表
 
         let params = {
-
+          productionPlanProcessId: this.right.page1.productionPlanProcessId,
+          sorting: this.right.page2.sort ? '_SysUser.isIdle = 0' : ''
         };
-        let mock = [
-          {
-            name: 'E01',
-            taskList: ['M18480，56/57', 'M18480，56/57'],
-            chartData: {
-              columns: ['日期', '访问用户'],
-              rows: [
-                { '日期': '1/1', '访问用户': 1393 },
-                { '日期': '1/2', '访问用户': 3530 }
-              ]
-            }
-          },
-          {
-            name: 'E01',
-            taskList: ['M18480，56/57', 'M18480，56/57'],
-            chartData: {
-              columns: ['日期', '访问用户'],
-              rows: [
-                { '日期': '1/1', '访问用户': 1393 },
-                { '日期': '1/2', '访问用户': 3530 }
-              ]
-            }
-          },
-          {
-            name: 'E01',
-            taskList: ['M18480，56/57', 'M18480，56/57'],
-            chartData: {
-              columns: ['日期', '访问用户'],
-              rows: [
-                { '日期': '1/1', '访问用户': 1393 },
-                { '日期': '1/2', '访问用户': 3530 }
-              ]
-            }
-          }
-        ];
-  
+        
         this.right.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.queryProcessorById, (res) =>  {
 
           this.right.isLoading = false;
-          this.right.page2 = res.data || [];
-        }, () => this.right.isLoading = false, params, mock)        
+          this.right.page2.data = res.data || [];
+        }, () => this.right.isLoading = false, params)        
       },
       handleSelect(item) {
       
         this.left.activeId = item.name;
         this.currentData= item;
         this.getDetail();
-      },
-      del(index, row) {
-        console.log(index, row);
       },
       refresh() {}
     },

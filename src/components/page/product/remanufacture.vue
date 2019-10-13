@@ -31,12 +31,12 @@
                   </el-select>
                 </span>
                 <span class="mgl20">模具号：
-                  <el-select size="mini" v-model="right.page1.qwm" value-key="mouldNo" placeholder="请选择模具号" style="width: 160px;" @change="$set(right.page1, 'componentNo', '')">
+                  <el-select size="mini" v-model="right.page1.qwm" value-key="mouldNo" placeholder="请选择模具号" style="width: 160px;" @change="right.page1.componentNo = ''">
                     <el-option v-for="(item, index) in filter.qwm" :key="item.mouldNo" :label="item.mouldNo" :value="item"></el-option>
                   </el-select>
                 </span>
                 <span class="mgl20">零件号：
-                  <el-select size="mini" v-model="right.page1.componentNo" placeholder="请选择模具号" style="width: 160px;">
+                  <el-select size="mini" v-model="right.page1.componentNo" placeholder="请选择模具号" style="width: 160px;" @change="getDetail">
                     <template v-if="right.page1.qwm">
                       <el-option v-for="(item, index) in right.page1.qwm.componentOrders" :key="index" :label="item.componentNo" :value="item.componentNo"></el-option>
                     </template>
@@ -315,40 +315,22 @@
       }
     },
     methods: {
-      getLeftList() { //获取版本列表
-
-        let params = {
-          componentNo: this.component.componentNos
-        }
-        this.left.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryComponentVersion, (res) => {
-
-          this.left.isLoading = false;
-          this.left.list = res.data || [];
-          if(this.left.list.length) {
-
-            this.left.activeId = this.left.list[0].mrCraftRouteLineVersionId;
-            this.currentData = this.left.list[0];
-            this.getDetail(this.currentData);
-          }
-        }, () => this.left.isLoading = false, params)
-      },
-      getDetail(currentData) {
+      getDetail(val) {
         
+        console.log(val)
         let params = {
-          mrCraftRouteLineId: currentData.mrCraftRouteLineId,
-          versionNo: currentData.craftVersionNo,
+          mrProductionOrderId: '',
         }
 
-        this.right.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryVersionDetail, (res) => { //版本详情 
+        this.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryRestartComponent, (res) => { //版本详情 
 
-          this.right.isLoading = false;
-          this.right.page1 = res.data || {};
+          this.isLoading = false;
+          this.right.page1 = res.data || [];
           if(!this.right.page1.processes || !this.right.page1.processes.length) {
             this.right.page1.processes = [{}]
           }
-        }, () => this.right.isLoading = false, params);
+        }, () => this.isLoading = false, params);
       },
       handleSelect(item) {
       
@@ -410,9 +392,8 @@
 
         let params = {
           name: this.right.page1.name,
-          mouldNo: this.right.page1.mouldNo,
+          mouldNo: this.right.page1.qwm.mouldNo,
           origin: this.right.page1.origin,
-          quantity: parseFloat(this.right.page1.quantity) || 0,
           versionNo: this.right.page1.craftVersionNo,
           drawingVersionNo: this.right.page1.drawingVersionNo || '',
           stuffNo: this.right.page1.stuffNo || '',
@@ -421,20 +402,12 @@
           height: parseFloat(this.right.page1.height) || 0,
           remark: this.right.page1.remark || '',
           processDescription: this.right.page1.processDescription || '',
-          components: [],
+          components: [{
+            componentNo: this.right.page1.componentNo,
+            quantity: parseFloat(this.right.page1.quantity) || 0
+          }],
           processes: []
         }
-
-        this.right.page1.components.map(item => { //零件列表
-
-          let obj = {
-            componentNo: item.componentNo,
-            quantity: parseInt(item.quantity) || 0,
-            stockingQuantity: parseInt(item.stockingQuantity) || 0,
-          }
-          
-          params.components.push(obj);
-        })
 
         this.right.page1.processes.map((item, index) => { //工艺列表
 

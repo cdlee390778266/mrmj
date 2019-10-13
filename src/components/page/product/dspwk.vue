@@ -14,8 +14,9 @@
             <div class="msg-wrapper">
               <span>派工日期：</span>
               <el-date-picker
-                v-model="right.page1.date"
+                v-model="assignWorkDate"
                 type="date"
+                value-format="yyyy-MM-dd"
                 :picker-options="pickerOptions"
                 placeholder="选择日期">
               </el-date-picker>
@@ -42,28 +43,28 @@
                       {{index + 1}}
                     </div>
                     <div style="width: 100px;">
-                      {{item.a}}
+                      {{item.hasAssignWork ? '是' : '否'}}
                     </div>
                     <div class="flex">
-                      {{item.b}}
+                      {{item.name}}
                     </div>
                     <div class="flex">
-                      {{item.c}}
+                      {{item.operationalStatusText}}
                     </div>
                     <div class="flex">
-                      {{item.d}}
+                      {{item.mouldNo}}
                     </div>
                     <div class="flex">
-                      {{item.e}}
+                      {{item.components | concatString('componentNo')}}
                     </div>
                     <div class="flex">
-                      {{item.f}}
+                      {{item.components | concatString('quantity')}}
                     </div>
                     <div class="flex">
-                      {{item.g}}
+                      {{item.estimationWorkTime}}
                     </div>
                     <div style="width: 120px;">
-                      {{item.h}}
+                      {{item.requireCompletionDateString}}
                     </div>
                   </div>
                 </div>
@@ -73,30 +74,30 @@
             <div class="content-right" v-loading="right.isLoading">
               <p><strong>相关零件生产内容</strong></p>
               <p>
-                <span>模具号：{{currentData.d}}</span> 
-                <span class="mgl20">零件号：56/57</span> 
-                <span class="mgl20">数量：8+1EA</span> 
-                <span class="mgl20">材料：1.2343ESU</span> 
-                <span class="mgl20">要求完成日期：2018.08.06</span> 
+                <span>模具号：{{right.page1.mouldNo}}</span> 
+                <span class="mgl20">零件号：{{right.page1.components | concatString('componentNo')}}</span> 
+                <span class="mgl20">数量：{{right.page1.components | concatString('quantity')}}</span> 
+                <span class="mgl20">材料：{{right.page1.stuffNo}}</span> 
+                <span class="mgl20">要求完成日期：{{right.page1.requireCompletionDateString}}</span> 
               </p>
               <p class="ellipsis">
-                <span>零件工序及估工：（绿底标注工序为，当前所选派工任务对应工序）</span>
+                <span>零件工序及估工：（绿底标注工序为当前所选派工任务对应工序）</span>
               </p>
               <p>
                 <table class="mrmj-table">
                   <thead>
                     <tr>
                       <th class="bge4e4e4">工序顺序</th>
-                      <th v-for="(itemc, index) in [{name: 'M99', estimationWorkTime: 88}, {name: 'HH', estimationWorkTime: 10}]" :key="index">{{itemc.name}}</th>
+                      <th v-for="(itemc, index) in right.page1.processes" :key="index" :class="{'bg-green fcfff': currentData.mrProductionPlanTasksId == itemc.mrProductionPlanProcessId}">{{itemc.name}}</th>
                       <th class="bge4e4e4">工时合计</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td class="bge4e4e4">估工（H）</td>
-                      <th v-for="(itemc, index) in [{name: 'M99', estimationWorkTime: 88}, {name: 'HH', estimationWorkTime: 10}]" :key="index">{{itemc.estimationWorkTime}}</th>
+                      <th v-for="(itemc, index) in right.page1.processes" :key="index" :class="{'bg-green fcfff': currentData.mrProductionPlanTasksId == itemc.mrProductionPlanProcessId}">{{itemc.estimationWorkTime}}</th>
                       <th class="bge4e4e4">
-                        {{[{name: 'M99', estimationWorkTime: 88}, {name: 'HH', estimationWorkTime: 10}] | sum('estimationWorkTime')}}
+                        {{right.page1.processes | sum('estimationWorkTime')}}
                       </th>
                     </tr>
                   </tbody>
@@ -105,7 +106,7 @@
               <p>
                 <strong>下载附件</strong>
                 <el-table
-                  :data="currentData.processes"
+                  :data="right.page1.attachments"
                   border
                   size="mini"
                   max-height="200"
@@ -129,7 +130,7 @@
                 <strong>加工人员安排</strong>
                 <p class="mgt5" style="position: relative; z-index: 8;">
                   排序：
-                  <el-select size="mini" style="width: 100px;" v-model="right.page1.data">
+                  <el-select size="mini" style="width: 100px;" v-model="right.page2.sort">
                     <el-option label="空闲" value="0" @click=""></el-option>
                   </el-select>
                   <el-button v-popover:popover type="text" class="mgl10">设置</el-button>
@@ -149,26 +150,25 @@
                   </el-popover>
                 </p>
                 <el-row :gutter="20">
-                  <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8" v-for="(item, index) in right.list" :key="index" class="mgb10">
+                  <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8" v-for="(item, index) in right.page2.list" :key="index" class="mgb10">
                     <div class="people pd10">
                       <div style="position: relative; z-index: 8;">
-                        <el-checkbox v-model="right.checked">分配所选零件加工任务</el-checkbox>
+                        <el-checkbox v-model="right.page2.checked">分配所选零件加工任务</el-checkbox>
                         <div class="mgl10 dib" style="color: #333;">
                           数量：
-                          <el-input type="text" size="mini" style="width: 44px;" v-model="right.b"/>
+                          <el-input type="text" size="mini" style="width: 44px;" v-model="right.page2.quantity"/>
                         </div>
                       </div>
                       <div class="dflex mgt10">
                         <div class="flex">
                           <p class="ellipsis">
                             <img :src="defaultPeopleImg">
-                            <span>人员姓名：E01</span>
+                            <span>人员姓名：{{item.userName}}</span>
                           </p>
                           <p class="mgt10">
                             <strong>已分配任务：</strong>
                           </p>
-                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
-                          <p class="ellipsis"><span>1：M18480，56/57</span></p>
+                          <p class="ellipsis" v-for="(itemc, index) in item.tasks"><span>{{index + 1}}：{{itemc.mouldNo}}，{{itemc.components | concatString('componentNo')}}</span></p>
                         </div>
                         <div style="width: 200px; height: 200px">
                           <ve-pie :data="item.chartData" :colors="chart.colors" :settings="chart.settings" height="400px" width="100px" :legend-visible="false" style="position: relative;top: -140px; margin: auto;"></ve-pie>
@@ -197,7 +197,8 @@
     data() {
       return {
         defaultPeopleImg: require('../../../assets/img/people.svg'),
-        time: '',
+        name: '',
+        assignWorkDate: new Date().Format('yyyy-MM-dd'),
         component: {},
         isLoading: false,
         chart: {
@@ -210,97 +211,69 @@
             }
           }
         },
-        pickerOptions: { // 限制收货时间不让选择今天以前的
+        pickerOptions: { // 限制派工时间不让选择今天以前的
         　　disabledDate(time) {
         　　　　return time.getTime() < Date.now() - 24 * 60 * 60 * 1000
         　　}
+        },
+        right: {
+          page1: {},
+          page2: {
+            sort: '',
+            list: []
+          }
         }
       }
     },
     methods: {
-      getLeftList() { //获取列表
-        
+      getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
+
         let params = {
+          name: this.name,
+          assignWorkDate: this.assignWorkDate
+        }
 
-        };
-        let mock = [
-          {
-            a: '是',
-            b: 'G1',
-            c: '进行中',
-            d: 'M18480',
-            e: '56/57',
-            f: '8+1EA',
-            g: '4',
-            h: '2019年8月6日'
-          },
-          {
-            a: '否',
-            b: 'HH',
-            c: '完成',
-            d: '18089',
-            e: '88',
-            f: '11',
-            g: '10',
-            h: '2015年10月10日'
-          }
-        ]
-  
         this.left.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.queryOperationalProcess, (res) => { //详情
 
+          this.left.list = res.data || {};
           this.left.isLoading = false;
-          this.left.list = res.data || [];
-          this.getDetail();
-        }, () => this.left.isLoading = false, params, mock)
+          if(this.left.list.length) {
+
+            this.currentData = this.left.list[0];
+            this.left.activeId = 0;
+            this.getDetail();
+          }
+        }, () => this.left.isLoading = false, params);
       },
       getDetail() {
 
         let params = {
-
+          productionPlanProcessId: this.currentData.mrProductionPlanTasksId
         };
-        let mock = [
-          {
-            name: 'E01',
-            taskList: ['M18480，56/57', 'M18480，56/57'],
-            chartData: {
-              columns: ['日期', '访问用户'],
-              rows: [
-                { '日期': '1/1', '访问用户': 1393 },
-                { '日期': '1/2', '访问用户': 3530 }
-              ]
-            }
-          },
-          {
-            name: 'E01',
-            taskList: ['M18480，56/57', 'M18480，56/57'],
-            chartData: {
-              columns: ['日期', '访问用户'],
-              rows: [
-                { '日期': '1/1', '访问用户': 1393 },
-                { '日期': '1/2', '访问用户': 3530 }
-              ]
-            }
-          },
-          {
-            name: 'E01',
-            taskList: ['M18480，56/57', 'M18480，56/57'],
-            chartData: {
-              columns: ['日期', '访问用户'],
-              rows: [
-                { '日期': '1/1', '访问用户': 1393 },
-                { '日期': '1/2', '访问用户': 3530 }
-              ]
-            }
-          }
-        ];
-  
+      
         this.right.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.queryAssignWorkInfo, (res) =>  {
 
           this.right.isLoading = false;
-          this.right.list = res.data || [];
-        }, () => this.right.isLoading = false, params, mock)
+          this.right.page1 = res.data || {};
+        }, () => this.right.isLoading = false, params)
+
+        this.getUserList();
+      },
+      getUserList() { //获取加工人员列表
+
+        let params = {
+          productionPlanProcessId: this.currentData.mrProductionPlanTasksId,
+          sorting: this.right.page2.sort ? '_SysUser.isIdle = 0' : ''
+        };
+        
+        this.right.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryProcessorById, (res) =>  {
+
+          this.right.isLoading = false;
+          this.right.page2.list = res.data || [];
+        }, () => this.right.isLoading = false, params)        
       },
       handleSelect(item, index) {
       
@@ -310,15 +283,19 @@
       },
       save() {
 
-        let params = {
+        if(!this.currentData.mrProductionPlanTasksId) return;
 
+        let params = {
+          mrOperationalPlanId: this.currentData.mrProductionPlanTasksId,
+          processes: []
         };
     
         this.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.processAssignWork, (res) =>  {
 
           this.$utils.showTip('success', 'success', '102');
           this.isLoading = false;
+          this.back();
         }, () => this.isLoading = false, params)
       }
     },
@@ -326,6 +303,7 @@
     created() {
 
       if(!this.$route.params.id) return;
+      this.name = this.$route.params.id;
       this.getLeftList();
     }
   };
