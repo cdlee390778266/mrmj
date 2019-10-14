@@ -12,33 +12,34 @@
         <div class="main">
           <div class="msg" style="width: 100%;">
             <div class="msg-wrapper">
-              <h2 class="tc pdtb10">G工序报工</h2>
+              <h2 class="tc pdtb10">{{name}}工序报工</h2>
               <p>
                 <span class="mgr20">报工日期：</span>
                 <el-date-picker
-                  v-model="right.page1.date"
+                  v-model="form.jobBookingDate"
                   type="date"
                   size="mini"
+                  value-format="yyyy-MM-dd"
                   placeholder="选择日期"
                   style="width: 140px;">
                 </el-date-picker>
                 <span class="mgl20">报工人员：</span>
-                <el-select size="mini" style="width: 140px;" v-model="right.page1.data">
+                <el-select size="mini" style="width: 140px;" v-model="form.jobBookingWorkerId">
                   <el-option v-for="(itemc, index) in right.page1.data" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
                 </el-select>
               </p>
               <p class="mgt10">
-                <span>估工工时合计(H)：463</span>
-                <span class="mgl20">实际工时合计(H)：463</span>
-                <span class="mgl20">准时交货率：85%</span>
-                <span class="mgl20">报废率：5%</span>
+                <span>估工工时合计(H)：{{ currentData.estimationTotalWorkTime | filterNull }}</span>
+                <span class="mgl20">实际工时合计(H)：{{ currentData.actualTotalWorkTime | filterNull }}</span>
+                <span class="mgl20">准时交货率：{{(currentData.punctualDeliveryNum || 0)/((currentData.punctualDeliveryNum + currentData.delayDeliveryNum) || 1)}}%</span>
+                <span class="mgl20">报废率：{{(currentData.haveDumpingNum || 0)/((currentData.haveDumpingNum + currentData.noDumpingNum)  || 1)}}%</span>
               </p>
             </div>
           </div>
           <div class="content">
             <div class="content-right">
               <el-table
-                :data="currentData.processes"
+                :data="currentData.planMsg"
                 border
                 size="mini"
                 class="content-table edit-table"
@@ -49,52 +50,109 @@
                   width="50">
                 </el-table-column>
                 <el-table-column
-                  prop="fileName"
+                  prop="operationalTypeText"
                   label="工作类型"
+                  width="100"
+                  class-name="notEdit"
+                  align="center"
                   show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column
-                  prop="fileName"
+                  prop="name"
                   label="工序"
+                  width="100"
+                  class-name="notEdit"
+                  align="center"
                   show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column
-                  prop="fileName"
+                  prop="mouldNo"
                   label="模具号"
+                  min-width="100"
+                  class-name="notEdit"
+                  align="center"
                   show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column
-                  prop="fileName"
-                  label="数量"
-                  show-overflow-tooltip>
+                <el-table-column label="零件号" min-width="130" 
+                class-name="notEdit"
+                show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.components | concatString('componentNo')}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="数量" min-width="100"
+                class-name="notEdit"
+                show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.components | concatString('quantity')}}
+                  </template>
                 </el-table-column>
                 <el-table-column
-                  prop="fileName"
+                  prop="estimationWorkTime"
                   label="估工工时(H)"
+                  width="100"
+                  class-name="notEdit"
+                  align="center"
                   show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column
-                  prop="fileName"
+                  prop="startDateString"
                   label="开始时间"
+                  width="100"
+                  class-name="notEdit"
+                  align="center"
                   show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column
-                  prop="fileName"
+                  prop="requireCompletionDateString"
                   label="要求完成日期"
+                  width="100"
+                  class-name="notEdit"
+                  align="center"
                   show-overflow-tooltip>
                 </el-table-column>
-                <el-table-column
-                  prop="fileName"
-                  label="加工人人员"
-                  show-overflow-tooltip>
+                <el-table-column label="加工人人员" min-width="120" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div>
+                      <div @click="showInput(currentData.planMsg, scope.$index, 'peopleEdit', {}, false)">
+                        <div class="ellipsis">
+                          {{scope.row.ll | concatString('name')}}
+                        </div>
+                        <el-select
+                          v-model="scope.row.ll"
+                          placeholder="请选择"
+                          multiple
+                          value-key="mrUserIdleRecordId"
+                          :style="{opacity: scope.row.peopleEdit ? 1 : 0}"
+                          @focus="showInput(currentData.planMsg, scope.$index, 'peopleEdit', {}, false)"
+                          @blur="scope.row.peopleEdit = false">
+                          <el-option
+                            v-for="item in filter.idle"
+                            :key="item.mrUserIdleRecordId"
+                            :label="item.name"
+                            :value="item">
+                          </el-option>
+                        </el-select>
+                      </div>
+                    </div>
+                  </template>
                 </el-table-column>
                 <el-table-column
-                  prop="fileName"
+                  prop="actualCompletionWorkTime"
                   label="实际加工工时(H)"
+                  width="120"
                   show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div>
+                      <div @click="showInput(currentData.planMsg, scope.$index, 'actualCompletionWorkTimeEdit', {}, false)">
+                        <div class="ellipsis">{{ scope.row.actualCompletionWorkTime }}</div>
+                        <el-input size="mini" v-model="scope.row.actualCompletionWorkTime" @focus="showInput(currentData.planMsg, scope.$index, 'actualCompletionWorkTimeEdit', {}, false)" @blur="scope.row.actualCompletionWorkTimeEdit = false" :style="{opacity: scope.row.actualCompletionWorkTimeEdit ? 1 : 0}"/>
+                      </div>
+                    </div>
+                  </template>
                 </el-table-column>
                 <el-table-column
-                  prop="fileName"
+                  prop="remark"
                   label="备  注"
                   show-overflow-tooltip>
                 </el-table-column>
@@ -117,41 +175,140 @@
     mixins: [leftMixin],
     data() {
       return {
-        isLoading: false
+        isLoading: false,
+        name: '',
+        form: {
+          jobBookingDate: '',
+          jobBookingWorkerId: ''
+        },
+        filter: {
+
+        }
       }
     },
     methods: {
-      getLeftList() { //获取列表
+      getData() { //获取列表
         
         let params = {
+          name: this.name
+        }
 
-        };
-  
         this.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.queryTodayProcessByName, (res) => { //详情
 
+          this.currentData = res.data || {};
           this.isLoading = false;
-        }, () => this.isLoading = false, params)
+          if(this.currentData.planMsg && this.currentData.planMsg.length) {
+
+            this.currentData.planMsg.map(item => {
+
+              !item.selectPeople && (item.selectPeople = []);
+              if(item.people && item.people.length) {
+
+                item.people.map(itemc => {
+
+                  if(itemc.name) {
+
+                    item.selectPeople.push({
+                      name: itemc.name,
+                      mrUserIdleRecordId: itemc.mrUserIdleRecordId
+                    })
+                  }
+                })
+              }
+            })
+          }
+        }, () => this.isLoading = false, params);
+        //this.getUserList();
+      },
+      getUserList() { //获取加工人员列表
+
+        let params = {
+          type: 2,
+          name: this.name,
+          assignWorkDate: new Date().Format('yyyy-MM-dd'),
+          sorting: this.right.page2.sort ? '_MrUserIdleRecord.isIdle' : ''
+        };
+        
+        this.right.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryProcessorById, (res) =>  {
+
+          this.right.isLoading = false;
+          this.right.page2.data = res.data || [];
+        }, () => this.right.isLoading = false, params)        
+      },
+      getDropDownList() {
+        
+        this.getList(this.$utils.CONFIG.api.idle, this.filter, 'idle', {}, (list) => {
+          this.filter.idle = [];
+          if(list && list.length) {
+
+            list.map(item => {
+
+              this.filter.idle.push({
+                name: item.name, 
+                mrUserIdleRecordId: item.mrUserIdleRecordId
+              })
+            })
+          }
+        }); //获取加工人人员列表
       },
       save() {
 
-        let params = {
+        if(!this.currentData.planMsg || !this.currentData.planMsg.length) {
 
+          this.$utils.showTip('warning', 'error', '-1075');
+          return;
+        }
+
+        if(!this.form.jobBookingDate) {
+
+          this.$utils.showTip('warning', 'error', '-1073');
+          return;
+        }
+        if(!this.form.jobBookingWorkerId) {
+
+          this.$utils.showTip('warning', 'error', '-1074');
+          return;
+        }
+
+        let params = {
+          jobBookingDate: this.form.jobBookingDate,
+          jobBookingWorkerId: this.form.jobBookingWorkerId,
+          jobBookingList: []
         };
+
+        this.currentData.planMsg.map(item => {
+
+          let data = {
+            mrOperationalPlanId: item.mrOperationalPlanId,
+            actualCompletionWorkTime: item.actualCompletionWorkTime,
+            workerList: []
+          }
+
+          item.selectPeople.map(itemc => {
+
+            data.workerList.push(itemc.mrUserIdleRecordId)
+          })
+
+          params.jobBookingList.push(data);
+        })
   
         this.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.saveJobBooking, (res) =>  {
 
           this.$utils.showTip('success', 'success', '102');
           this.isLoading = false;
+          this.back();
         }, () => this.isLoading = false, params)
       }
     },
-    
     created() {
 
       if(!this.$route.params.id) return;
-      this.getLeftList();
+      this.name = this.$route.params.id;
+      this.getData();
+      this.getDropDownList();
     }
   };
 </script>

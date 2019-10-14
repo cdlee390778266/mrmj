@@ -89,9 +89,11 @@ const CONFIG = {
 		queryTodayProcess: baseUrl + 'requirement/productionOrder/queryTodayProcess', //生产--工序生产列表
 		queryTodayProcessByName: baseUrl + 'requirement/jobbooking/queryTodayProcessByName', //生产--报工工序查找
 		queryProcessorById: baseUrl + 'requirement/productionOrder/queryProcessorById', //生产--派工加工人员信息查找
+		addProcessor: baseUrl + 'requirement/productionOrder/addProcessor', //生产--添加加工人员
 		queryOperationalProcess: baseUrl + 'requirement/operationalPlan/queryOperationalProcess', //生产--派工工序查找
 		queryAssignWorkInfo: baseUrl + 'requirement/productionOrder/queryAssignWorkInfo', //生产--派工页面详细信息
 		processAssignWork: baseUrl + 'requirement/operationalPlan/processAssignWork', //生产--工序派工
+		idle: baseUrl + 'requirement/idle/qc', //生产--报工处加工人员下拉框
 		saveJobBooking: baseUrl + 'requirement/jobbooking/saveJobBooking', //生产--报工
 		
 		/* 计划模块*/
@@ -144,7 +146,10 @@ const CONFIG = {
 		'-1060': '请选择一个或多个需要外协的零件',
 		'-1070': '请选择客户',
 		'-1071': '请选择模具号',
-		'-1072': '请选择零件号'
+		'-1072': '请选择零件号',
+		'-1073': '请选择报工日期',
+		'-1074': '请选择报工人员',
+		'-1075': '没有可报工的工序'
 	}
 }
 

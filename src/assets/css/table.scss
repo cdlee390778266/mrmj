@@ -31,6 +31,25 @@
       padding-right: 10px !important;
     }
   }
+  td .el-select__tags {
+    position: absolute;
+    top: 9px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 23px;
+    max-width: auto !important;
+    & > span {
+      display: block;
+      overflow: hidden;
+      text-overflow:ellipsis;
+      white-space: nowrap;
+      .el-tag--info {
+        position: relative;
+        top: 3px;
+      }
+    }
+  }
 }
 .edit {
   position: relative;

@@ -52,13 +52,19 @@
                       {{item.operationalStatusText}}
                     </div>
                     <div class="flex">
-                      {{item.mouldNo}}
+                      <span :title="item.mouldNo">
+                        {{item.mouldNo}}
+                      </span>
                     </div>
                     <div class="flex">
-                      {{item.components | concatString('componentNo')}}
+                      <span :title="item.components | concatString('componentNo')">
+                        {{item.components | concatString('componentNo')}}
+                      </span>
                     </div>
                     <div class="flex">
-                      {{item.components | concatString('quantity')}}
+                      <span :title="item.components | concatString('quantity')">
+                        {{item.components | concatString('quantity')}}
+                      </span>
                     </div>
                     <div class="flex">
                       {{item.estimationWorkTime}}
@@ -130,8 +136,9 @@
                 <strong>加工人员安排</strong>
                 <p class="mgt5" style="position: relative; z-index: 8;">
                   排序：
-                  <el-select size="mini" style="width: 100px;" v-model="right.page2.sort">
-                    <el-option label="空闲" value="0" @click=""></el-option>
+                  <el-select size="mini" style="width: 100px;" v-model="right.page2.sort" @change="getUserList">
+                    <el-option label="全部" value="" @click=""></el-option>
+                    <el-option label="空闲" value="1" @click=""></el-option>
                   </el-select>
                   <el-button v-popover:popover type="text" class="mgl10">设置</el-button>
                   <el-popover
@@ -140,7 +147,7 @@
                     width="400"
                     trigger="click">
                     <p>
-                      <el-button type="primary" size="mini" class="mgr10">添加员工</el-button>
+                      <el-button type="primary" size="mini" class="mgr10" @click="showAddDialog">添加员工</el-button>
                       <span class="mgl10">
                         日工时：
                         <el-input type="text" size="mini" style="width: 100px;" v-model="right.a"/>
@@ -153,10 +160,10 @@
                   <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8" v-for="(item, index) in right.page2.list" :key="index" class="mgb10">
                     <div class="people pd10">
                       <div style="position: relative; z-index: 8;">
-                        <el-checkbox v-model="right.page2.checked">分配所选零件加工任务</el-checkbox>
+                        <el-checkbox v-model="item.checked">分配所选零件加工任务</el-checkbox>
                         <div class="mgl10 dib" style="color: #333;">
                           数量：
-                          <el-input type="text" size="mini" style="width: 44px;" v-model="right.page2.quantity"/>
+                          <el-input type="text" size="mini" style="width: 44px;" v-model="item.quantity"/>
                         </div>
                       </div>
                       <div class="dflex mgt10">
@@ -168,7 +175,7 @@
                           <p class="mgt10">
                             <strong>已分配任务：</strong>
                           </p>
-                          <p class="ellipsis" v-for="(itemc, index) in item.tasks"><span>{{index + 1}}：{{itemc.mouldNo}}，{{itemc.components | concatString('componentNo')}}</span></p>
+                          <p class="ellipsis" v-for="(item, index) in item.tasks"><span>{{index + 1}}：{{item.mouldNo}}，{{item.components | concatString('componentNo')}}</span></p>
                         </div>
                         <div style="width: 200px; height: 200px">
                           <ve-pie :data="item.chartData" :colors="chart.colors" :settings="chart.settings" height="400px" width="100px" :legend-visible="false" style="position: relative;top: -140px; margin: auto;"></ve-pie>
@@ -187,6 +194,21 @@
       <el-button type="primary" @click="save">保存</el-button>
       <el-button type="primary" @click="$router.go(-1)">返 回</el-button>
     </div>
+
+    <el-dialog :title="`增加${name}工序生产人员`" :visible.sync="handle.add.dialogVisible" class="dialog-gray" width="360px">
+      <el-form ref="addForm" :model="handle.add.form" :rules="handle.add.rules" label-width="88px" class="pdt20 pdr10" v-loading="handle.add.isLoading">
+        <el-form-item label="员工编号" prop="number">
+          <el-input v-model="handle.add.form.number"></el-input>
+        </el-form-item>
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="handle.add.form.name"></el-input>
+        </el-form-item>
+        <div class="dialog-footer tr pdb20">
+          <el-button type="primary" @click="addProcessor">保 存</el-button>
+          <el-button @click="handle.add.dialogVisible = false">取 消</el-button>
+        </div>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -222,6 +244,24 @@
             sort: '',
             list: []
           }
+        },
+        handle: {
+          add: {
+            dialogVisible: false,
+            data: {},
+            form: {
+              number: "",
+              name: "",
+            },
+            rules: {
+              number: [
+                { required: true, message: '请输入员工编号'}
+              ],
+              name: [
+                { required: true, message: '请输入姓名'}
+              ]
+            }
+          },
         }
       }
     },
@@ -230,7 +270,7 @@
 
         let params = {
           name: this.name,
-          assignWorkDate: this.assignWorkDate
+          assignWorkDate: ''
         }
 
         this.left.isLoading = true;
@@ -264,16 +304,51 @@
       getUserList() { //获取加工人员列表
 
         let params = {
-          productionPlanProcessId: this.currentData.mrProductionPlanTasksId,
-          sorting: this.right.page2.sort ? '_SysUser.isIdle = 0' : ''
+          type: 1,
+          productionPlanProcessId: this.currentData.productionPlanProcessId,
+          sorting: this.right.page2.sort ? '_MrUserIdleRecord.isIdle' : ''
         };
         
+        this.right.page2.list = [];
         this.right.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryProcessorById, (res) =>  {
 
           this.right.isLoading = false;
           this.right.page2.list = res.data || [];
+          this.right.page2.list.map(item => {
+            let rows = 
+            item.chartData = {
+              columns: ['a', 'b'],
+              rows: [
+                { 'a': '1/1', 'b': 1393 },
+                { 'a': '1/2', 'b': 3530 },
+              ]
+            }
+          })
         }, () => this.right.isLoading = false, params)        
+      },
+      showAddDialog() {
+
+        this.handle.add.dialogVisible = true;
+        this.$refs.addForm && this.$refs.addForm.resetFields();
+      },
+      addProcessor() {
+        this.$refs.addForm.validate((valid) => {
+          if (valid) {
+            
+            this.handle.add.isLoading = true;
+            this.$utils.getJson(this.$utils.CONFIG.api.addProcessor, (res) =>  {
+
+              this.handle.add.isLoading = false;
+              this.handle.add.dialogVisible = false;
+              this.$utils.showTip('success', 'success', '111');
+              this.getUserList();
+            }, () => this.handle.add.isLoading = false, this.handle.add.form)
+          } else {
+            
+            return false;
+          }
+        });
       },
       handleSelect(item, index) {
       
@@ -283,19 +358,15 @@
       },
       save() {
 
-        if(!this.currentData.mrProductionPlanTasksId) return;
-
         let params = {
-          mrOperationalPlanId: this.currentData.mrProductionPlanTasksId,
-          processes: []
+
         };
     
         this.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.processAssignWork, (res) =>  {
+        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
 
           this.$utils.showTip('success', 'success', '102');
           this.isLoading = false;
-          this.back();
         }, () => this.isLoading = false, params)
       }
     },

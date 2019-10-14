@@ -102,7 +102,7 @@
                         <el-table-column prop="requireCompletionDateString" label="要求完成日期" width="120" show-overflow-tooltip></el-table-column>
                         <el-table-column label="加工人人员" width="120" show-overflow-tooltip>
                           <template slot-scope="scope">
-                            {{scope.row.people ? scope.row.people.join('/') : ''}}
+                            {{scope.row.people | concatString('name')}}
                           </template>
                         </el-table-column>
                         <el-table-column prop="actualCompletionWorkTime" label="实际加工工时(H)" width="120" show-overflow-tooltip></el-table-column>
@@ -121,7 +121,8 @@
                 <el-scrollbar class="main-content-scorll pdt10">
                   <p>
                     排序：
-                    <el-select style="width: 100px;" v-model="right.page2.sort">
+                    <el-select style="width: 100px;" v-model="right.page2.sort" @change="getUserList">
+                      <el-option label="全部" value=""></el-option>
                       <el-option label="空闲" value="1"></el-option>
                     </el-select>
                   </p>
@@ -150,62 +151,6 @@
         </page-wrapper>
       </div>
     </div>
-
-    <el-dialog title="生产订单信息查看修改" :visible.sync="handle.add.dialogVisible">
-      <el-form :model="handle.add.form" label-width="100px">
-        <el-row class="pdtb10 borb">
-          <el-col :span="8">模具号：{{handle.add.data.mouldNo}}</el-col>
-          <el-col :span="8">客户：{{handle.add.data.name}}</el-col>
-          <el-col :span="8">交期：{{handle.add.data.deliveryDate}}</el-col>
-        </el-row>
-        <div class="dialog-content pdt10">
-          <div class="mgb10 borb" v-for="(item, index) in handle.add.data" :key="index">
-            <el-row>
-              <el-col :span="24" class="mgb10">
-                <span class="mgr40">序号：1</span>
-                <span class="mgr40">零件号码：407/408</span>
-              </el-col>
-              <el-col :span="24" class="mgb10">
-                <span class="mgr40">版本：
-                  <el-select style="width: 100px;">
-                    <el-option v-for="(item, index) in $dict.countryList" :key="index" :label="item.name" :value="item.mrCountryId"></el-option>
-                  </el-select>
-                </span>
-                <span>材料：1.2343ESU</span>
-              </el-col>
-            </el-row>
-            <div>
-              <p>工序及估工：</p>
-              <el-table :data="handle.add.form.detailList"  border size="mini" style="width: 100%">
-                <el-table-column prop="date" label="零件号" width="100"></el-table-column>
-                <el-table-column prop="name" label="数量" width="88"></el-table-column>
-                <el-table-column prop="address" label="要求交期"></el-table-column>
-                <el-table-column prop="address" label="说明"></el-table-column>
-              </el-table>
-            </div>
-          </div>
-        </div>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.add.dialogVisible = false">保 存</el-button>
-        <el-button @click="handle.add.dialogVisible = false">取 消</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="终止原因" :visible.sync="handle.stop.dialogVisible">
-      <el-form :model="handle.stop.form" label-width="100px">
-        <el-form-item label="需求终止原因" class="mgt20">
-          <el-input v-model="handle.stop.form.reason"></el-input>
-        </el-form-item>
-        <el-form-item label="说明" class="mgt20">
-          <el-input type="textarea" v-model="handle.stop.form.dsc" class="v-textarea"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.stop.dialogVisible = false">确 定</el-button>
-        <el-button @click="handle.stop.dialogVisible = false">取 消</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -278,8 +223,10 @@
       getUserList() { //获取加工人员列表
 
         let params = {
-          productionPlanProcessId: this.right.page1.productionPlanProcessId,
-          sorting: this.right.page2.sort ? '_SysUser.isIdle = 0' : ''
+          type: 2,
+          name: this.currentData.name,
+          assignWorkDate: new Date().Format('yyyy-MM-dd'),
+          sorting: this.right.page2.sort ? '_MrUserIdleRecord.isIdle' : ''
         };
         
         this.right.isLoading = true;
