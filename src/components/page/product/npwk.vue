@@ -24,9 +24,7 @@
                   style="width: 140px;">
                 </el-date-picker>
                 <span class="mgl20">报工人员：</span>
-                <el-select size="mini" style="width: 140px;" v-model="form.jobBookingWorkerId">
-                  <el-option v-for="(itemc, index) in right.page1.data" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
-                </el-select>
+                <el-input size="mini" style="width: 140px;" v-model="form.jobBookingWorker" disabled></el-input>
               </p>
               <p class="mgt10">
                 <span>估工工时合计(H)：{{ currentData.estimationTotalWorkTime | filterNull }}</span>
@@ -114,20 +112,20 @@
                 <el-table-column label="加工人人员" min-width="120" show-overflow-tooltip>
                   <template slot-scope="scope">
                     <div>
-                      <div @click="showInput(currentData.planMsg, scope.$index, 'peopleEdit', {}, false)">
+                      <div @click="showInput(currentData.planMsg, scope.$index, 'selectPeopleEdit', {}, false)">
                         <div class="ellipsis">
-                          {{scope.row.ll | concatString('name')}}
+                          {{scope.row.selectPeople | concatString('name')}}
                         </div>
                         <el-select
-                          v-model="scope.row.ll"
+                          v-model="scope.row.selectPeople"
                           placeholder="请选择"
                           multiple
                           value-key="mrUserIdleRecordId"
-                          :style="{opacity: scope.row.peopleEdit ? 1 : 0}"
-                          @focus="showInput(currentData.planMsg, scope.$index, 'peopleEdit', {}, false)"
-                          @blur="scope.row.peopleEdit = false">
+                          :style="{opacity: scope.row.selectPeopleEdit ? 1 : 0}"
+                          @focus="showInput(currentData.planMsg, scope.$index, 'selectPeopleEdit', {}, false)"
+                          @blur="scope.row.selectPeopleEdit = false">
                           <el-option
-                            v-for="item in filter.idle"
+                            v-for="(item, index) in filter.idle"
                             :key="item.mrUserIdleRecordId"
                             :label="item.name"
                             :value="item">
@@ -179,7 +177,8 @@
         name: '',
         form: {
           jobBookingDate: '',
-          jobBookingWorkerId: ''
+          jobBookingWorkerId: this.$utils.getStorage(this.$utils.CONFIG.storageNames.useridName),
+          jobBookingWorker: this.$utils.getStorage(this.$utils.CONFIG.storageNames.usernameName)
         },
         filter: {
 
@@ -196,28 +195,28 @@
         this.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryTodayProcessByName, (res) => { //详情
 
-          this.currentData = res.data || {};
           this.isLoading = false;
-          if(this.currentData.planMsg && this.currentData.planMsg.length) {
+          if(res.data && res.data.planMsg && res.data.planMsg.length) {
 
-            this.currentData.planMsg.map(item => {
+            res.data.planMsg.map(item => {
 
               !item.selectPeople && (item.selectPeople = []);
               if(item.people && item.people.length) {
 
                 item.people.map(itemc => {
 
-                  if(itemc.name) {
+                  if(itemc.userName) {
 
                     item.selectPeople.push({
-                      name: itemc.name,
-                      mrUserIdleRecordId: itemc.mrUserIdleRecordId
+                      name: itemc.userName,
+                      mrUserIdleRecordId: itemc.userIdleRecordId
                     })
                   }
                 })
               }
             })
           }
+          this.currentData = res.data || {};
         }, () => this.isLoading = false, params);
         //this.getUserList();
       },
@@ -282,13 +281,15 @@
 
           let data = {
             mrOperationalPlanId: item.mrOperationalPlanId,
-            actualCompletionWorkTime: item.actualCompletionWorkTime,
+            actualCompletionWorkTime: parseFloat(item.actualCompletionWorkTime) || 0,
             workerList: []
           }
 
           item.selectPeople.map(itemc => {
 
-            data.workerList.push(itemc.mrUserIdleRecordId)
+            data.workerList.push({
+              mrUserIdleRecordId: itemc.mrUserIdleRecordId
+            })
           })
 
           params.jobBookingList.push(data);

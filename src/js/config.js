@@ -26,6 +26,7 @@ const CONFIG = {
 		image: baseUrl + 'fc/imgStreamOther	', //图片接口
 		customer: baseUrl + 'requirement/customer/qc', //客户名称查询接口
 		qwm: baseUrl + 'requirement/saleOrder/qwm', //模具与零件号联动查询接口
+		workTimeDays: baseUrl + 'requirement/workTimeDays/qc', //日工时查询
 
 		login: baseUrl + 'authMR/login', //登录
 
@@ -89,6 +90,7 @@ const CONFIG = {
 		queryTodayProcess: baseUrl + 'requirement/productionOrder/queryTodayProcess', //生产--工序生产列表
 		queryTodayProcessByName: baseUrl + 'requirement/jobbooking/queryTodayProcessByName', //生产--报工工序查找
 		queryProcessorById: baseUrl + 'requirement/productionOrder/queryProcessorById', //生产--派工加工人员信息查找
+		checkNumber: baseUrl + 'requirement/idle/checkNumber', //生产-- 工序加工人员编号验重
 		addProcessor: baseUrl + 'requirement/productionOrder/addProcessor', //生产--添加加工人员
 		queryOperationalProcess: baseUrl + 'requirement/operationalPlan/queryOperationalProcess', //生产--派工工序查找
 		queryAssignWorkInfo: baseUrl + 'requirement/productionOrder/queryAssignWorkInfo', //生产--派工页面详细信息
@@ -149,7 +151,9 @@ const CONFIG = {
 		'-1072': '请选择零件号',
 		'-1073': '请选择报工日期',
 		'-1074': '请选择报工人员',
-		'-1075': '没有可报工的工序'
+		'-1075': '没有可报工的工序',
+		'-1076': '请输入员工编号',
+		'-1077': '员工编号重复'
 	}
 }
 

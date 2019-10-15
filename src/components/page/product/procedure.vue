@@ -102,7 +102,7 @@
                         <el-table-column prop="requireCompletionDateString" label="要求完成日期" width="120" show-overflow-tooltip></el-table-column>
                         <el-table-column label="加工人人员" width="120" show-overflow-tooltip>
                           <template slot-scope="scope">
-                            {{scope.row.people | concatString('name')}}
+                            {{scope.row.people | concatString('userName', ',')}}
                           </template>
                         </el-table-column>
                         <el-table-column prop="actualCompletionWorkTime" label="实际加工工时(H)" width="120" show-overflow-tooltip></el-table-column>

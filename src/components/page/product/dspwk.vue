@@ -150,7 +150,7 @@
                       <el-button type="primary" size="mini" class="mgr10" @click="showAddDialog">添加员工</el-button>
                       <span class="mgl10">
                         日工时：
-                        <el-input type="text" size="mini" style="width: 100px;" v-model="right.a"/>
+                        <el-input type="text" size="mini" style="width: 100px;" v-model="workTimeDays"/>
                       </span>
                     </p>
                      <p class="fs12">(日工时是生产人员每天工作的小时数，用于计算各加工人员的工作饱和度，以合理分配加工人员)</p>
@@ -217,12 +217,30 @@
   export default {
     mixins: [leftMixin],
     data() {
+
+      var checkNumber = (rule, value, callback) => {
+        if (!value) {
+          return callback(new Error(this.$utils.getTipText('error', '-1076')));
+        }
+        
+        this.$utils.getJson(this.$utils.CONFIG.api.checkNumber, (res) => {
+
+          if(res.data != 1) { //如果编号重复
+
+            callback(new Error(this.$utils.getTipText('error', '-1077')));
+          }else {
+            callback();
+          }
+        }, null, {number: value})
+      };
+
       return {
         defaultPeopleImg: require('../../../assets/img/people.svg'),
         name: '',
         assignWorkDate: new Date().Format('yyyy-MM-dd'),
         component: {},
         isLoading: false,
+        workTimeDays: 8,
         chart: {
           colors: ['#c0504d','#4f81bd', '#61a0a8', '#d48265', '#91c7ae','#749f83', '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
           settings: {
@@ -255,7 +273,7 @@
             },
             rules: {
               number: [
-                { required: true, message: '请输入员工编号'}
+                { validator: checkNumber, trigger: 'blur' }
               ],
               name: [
                 { required: true, message: '请输入姓名'}
@@ -266,6 +284,12 @@
       }
     },
     methods: {
+      getWorkTimeDays() {  //获取日工时
+        this.$utils.getJson(this.$utils.CONFIG.api.workTimeDays, (res) => {
+
+         this.workTimeDays = res.data && res.data.length ? res.data[0].dayWorkTime : 8;
+        })
+      },
       getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
 
         let params = {
@@ -329,6 +353,7 @@
       },
       showAddDialog() {
 
+        if(!this.currentData.mrOperationalPlanId) return;
         this.handle.add.dialogVisible = true;
         this.$refs.addForm && this.$refs.addForm.resetFields();
       },
@@ -336,6 +361,7 @@
         this.$refs.addForm.validate((valid) => {
           if (valid) {
             
+            this.handle.add.form.mrOperationalPlanId = this.currentData.mrOperationalPlanId;
             this.handle.add.isLoading = true;
             this.$utils.getJson(this.$utils.CONFIG.api.addProcessor, (res) =>  {
 
@@ -372,9 +398,10 @@
     },
     
     created() {
-
+      
       if(!this.$route.params.id) return;
       this.name = this.$route.params.id;
+      this.getWorkTimeDays();
       this.getLeftList();
     }
   };
