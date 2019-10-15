@@ -22,6 +22,7 @@ Vue.config.productionTip = false
 Vue.prototype.$utils = Utils;
 Vue.prototype.$dict = Dict;
 Vue.prototype.$validator = Validator;
+Vue.prototype.$filters = Vue.options.filters
 
 Vue.use(ElementUI, {
     size: 'small'

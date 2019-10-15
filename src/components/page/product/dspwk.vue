@@ -34,7 +34,7 @@
                   <div class="flex">模具号</div>
                   <div class="flex">零件号</div>
                   <div class="flex">数量</div>
-                  <div class="flex">剩余工时</div>
+                  <div class="flex">估工工时</div>
                   <div style="width: 120px;">要求完成日期</div>
                 </div>
                 <div class="list-body">
@@ -78,113 +78,125 @@
             </div>
             <h5 class="content-right-title">人员分配</h5>
             <div class="content-right" v-loading="right.isLoading">
-              <p><strong>相关零件生产内容</strong></p>
-              <p>
-                <span>模具号：{{right.page1.mouldNo}}</span> 
-                <span class="mgl20">零件号：{{right.page1.components | concatString('componentNo')}}</span> 
-                <span class="mgl20">数量：{{right.page1.components | concatString('quantity')}}</span> 
-                <span class="mgl20">材料：{{right.page1.stuffNo}}</span> 
-                <span class="mgl20">要求完成日期：{{right.page1.requireCompletionDateString}}</span> 
-              </p>
-              <p class="ellipsis">
-                <span>零件工序及估工：（绿底标注工序为当前所选派工任务对应工序）</span>
-              </p>
-              <p>
-                <table class="mrmj-table">
-                  <thead>
-                    <tr>
-                      <th class="bge4e4e4">工序顺序</th>
-                      <th v-for="(itemc, index) in right.page1.processes" :key="index" :class="{'bg-green fcfff': currentData.mrProductionPlanTasksId == itemc.mrProductionPlanProcessId}">{{itemc.name}}</th>
-                      <th class="bge4e4e4">工时合计</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td class="bge4e4e4">估工（H）</td>
-                      <th v-for="(itemc, index) in right.page1.processes" :key="index" :class="{'bg-green fcfff': currentData.mrProductionPlanTasksId == itemc.mrProductionPlanProcessId}">{{itemc.estimationWorkTime}}</th>
-                      <th class="bge4e4e4">
-                        {{right.page1.processes | sum('estimationWorkTime')}}
-                      </th>
-                    </tr>
-                  </tbody>
-                </table>      
-              </p>
-              <p>
-                <strong>下载附件</strong>
-                <el-table
-                  :data="right.page1.attachments"
-                  border
-                  size="mini"
-                  max-height="200"
-                  class="content-table edit-table"
-                  style="width: 100%">
-                  <el-table-column
-                    prop="fileName"
-                    label="资料名称"
-                    show-overflow-tooltip>
-                  </el-table-column>
-                  <el-table-column
-                    label="操作"
-                    show-overflow-tooltip>
-                    <template scope="scope">
-                      <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
-                    </template>
-                  </el-table-column>
-                </el-table>
-              </p>
-              <div>
-                <strong>加工人员安排</strong>
-                <p class="mgt5" style="position: relative; z-index: 8;">
-                  排序：
-                  <el-select size="mini" style="width: 100px;" v-model="right.page2.sort" @change="getUserList">
-                    <el-option label="全部" value="" @click=""></el-option>
-                    <el-option label="空闲" value="1" @click=""></el-option>
-                  </el-select>
-                  <el-button v-popover:popover type="text" class="mgl10">设置</el-button>
-                  <el-popover
-                    ref="popover"
-                    placement="right"
-                    width="400"
-                    trigger="click">
-                    <p>
-                      <el-button type="primary" size="mini" class="mgr10" @click="showAddDialog">添加员工</el-button>
-                      <span class="mgl10">
-                        日工时：
-                        <el-input type="text" size="mini" style="width: 100px;" v-model="workTimeDays"/>
-                      </span>
-                    </p>
-                     <p class="fs12">(日工时是生产人员每天工作的小时数，用于计算各加工人员的工作饱和度，以合理分配加工人员)</p>
-                  </el-popover>
+              <template v-if="currentData.page1">
+                <p><strong>相关零件生产内容</strong></p>
+                <p>
+                  <span>模具号：{{currentData.page1.mouldNo}}</span> 
+                  <span class="mgl20">零件号：{{currentData.page1.components | concatString('componentNo')}}</span> 
+                  <span class="mgl20">数量：{{currentData.page1.components | concatString('quantity')}}</span> 
+                  <span class="mgl20">材料：{{currentData.page1.stuffNo}}</span> 
+                  <span class="mgl20">要求完成日期：{{currentData.page1.requireCompletionDateString}}</span> 
                 </p>
-                <el-row :gutter="20">
-                  <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8" v-for="(item, index) in right.page2.list" :key="index" class="mgb10">
-                    <div class="people pd10">
-                      <div style="position: relative; z-index: 8;">
-                        <el-checkbox v-model="item.checked">分配所选零件加工任务</el-checkbox>
-                        <div class="mgl10 dib" style="color: #333;">
-                          数量：
-                          <el-input type="text" size="mini" style="width: 44px;" v-model="item.quantity"/>
+                <p class="ellipsis">
+                  <span>零件工序及估工：（绿底标注工序为当前所选派工任务对应工序）</span>
+                </p>
+                <p>
+                  <table class="mrmj-table">
+                    <thead>
+                      <tr>
+                        <th class="bge4e4e4">工序顺序</th>
+                        <th v-for="(itemc, index) in currentData.page1.processes" :key="index" :class="{'bg-green fcfff': currentData.mrProductionPlanTasksId == itemc.mrProductionPlanProcessId}">{{itemc.name}}</th>
+                        <th class="bge4e4e4">工时合计</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="bge4e4e4">估工（H）</td>
+                        <th v-for="(itemc, index) in currentData.page1.processes" :key="index" :class="{'bg-green fcfff': currentData.mrProductionPlanTasksId == itemc.mrProductionPlanProcessId}">{{itemc.estimationWorkTime}}</th>
+                        <th class="bge4e4e4">
+                          {{currentData.page1.processes | sum('estimationWorkTime')}}
+                        </th>
+                      </tr>
+                    </tbody>
+                  </table>      
+                </p>
+                <p>
+                  <strong>下载附件</strong>
+                  <el-table
+                    :data="currentData.page1.attachments"
+                    border
+                    size="mini"
+                    max-height="200"
+                    class="content-table edit-table"
+                    style="width: 100%">
+                    <el-table-column
+                      prop="fileName"
+                      label="资料名称"
+                      show-overflow-tooltip>
+                    </el-table-column>
+                    <el-table-column
+                      label="操作"
+                      show-overflow-tooltip>
+                      <template scope="scope">
+                        <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </p>
+                <div>
+                  <strong>加工人员安排</strong>
+                  <p class="mgt5" style="position: relative; z-index: 8;">
+                    排序：
+                    <el-select size="mini" style="width: 100px;" v-model="currentData.sort" @change="getUserList">
+                      <el-option label="全部" value="" @click=""></el-option>
+                      <el-option label="空闲" value="1" @click=""></el-option>
+                    </el-select>
+                    <el-button v-popover:popover type="text" class="mgl10">设置</el-button>
+                    <el-popover
+                      ref="popover"
+                      placement="right"
+                      width="400"
+                      trigger="click">
+                      <p>
+                        <el-button type="primary" size="mini" class="mgr10" @click="showAddDialog">添加员工</el-button>
+                        <span class="mgl10">
+                          日工时：
+                          <el-input type="text" size="mini" style="width: 100px;" v-model="workTimeDays"/>
+                        </span>
+                      </p>
+                       <p class="fs12">(日工时是生产人员每天工作的小时数，用于计算各加工人员的工作饱和度，以合理分配加工人员)</p>
+                    </el-popover>
+                  </p>
+                  <el-row :gutter="20">
+                    <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8" v-for="(item, index) in currentData.userList" :key="index" class="mgb10">
+                      <div class="people pd10">
+                        <div style="position: relative; z-index: 8;">
+                          <el-checkbox v-model="item.checked">分配所选零件加工任务</el-checkbox>
+                          <div class="mgl10 dib" style="color: #333;">
+                            数量：
+                            <el-input type="text" size="mini" style="width: 44px;" v-model="item.nums"/>
+                          </div>
+                        </div>
+                        <div class="dflex mgt10">
+                          <div class="flex">
+                            <p class="ellipsis">
+                              <img :src="defaultPeopleImg">
+                              <span>人员姓名：{{item.userName}}</span>
+                            </p>
+                            <p class="mgt10">
+                              <strong>已分配任务：</strong>
+                            </p>
+                            <p class="ellipsis" v-for="(item, index) in item.tasks"><span>{{index + 1}}：{{item.mouldNo}}，{{item.components | concatString('componentNo')}}</span></p>
+                          </div>
+                          {{saturation(item)}}
+                          <div style="width: 200px; height: 200px">
+                            <ve-pie
+                            height="400px"
+                            width="100px"
+                            :data="item.chartData"
+                            :colors="chart.colors"
+                            :settings="chart.settings"
+                            :extend="chart.chartExtend"
+                            :legend-visible="false"
+                            style="position: relative;top: -140px; margin: auto;">
+                            </ve-pie>
+                          </div>
                         </div>
                       </div>
-                      <div class="dflex mgt10">
-                        <div class="flex">
-                          <p class="ellipsis">
-                            <img :src="defaultPeopleImg">
-                            <span>人员姓名：{{item.userName}}</span>
-                          </p>
-                          <p class="mgt10">
-                            <strong>已分配任务：</strong>
-                          </p>
-                          <p class="ellipsis" v-for="(item, index) in item.tasks"><span>{{index + 1}}：{{item.mouldNo}}，{{item.components | concatString('componentNo')}}</span></p>
-                        </div>
-                        <div style="width: 200px; height: 200px">
-                          <ve-pie :data="item.chartData" :colors="chart.colors" :settings="chart.settings" height="400px" width="100px" :legend-visible="false" style="position: relative;top: -140px; margin: auto;"></ve-pie>
-                        </div>
-                      </div>
-                    </div>
-                  </el-col>
-                </el-row>
-              </div>
+                    </el-col>
+                  </el-row>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -246,8 +258,21 @@
           settings: {
             legendLimit: 0,
             radius: 40,
+            label: {
+              show: false
+            },
             labelLine: {
               show: false
+            }
+          },
+          chartExtend: {
+            tooltip (v) {
+
+              v.formatter = function (params) {
+          
+                return params.name;
+              }
+              return v
             }
           }
         },
@@ -255,13 +280,6 @@
         　　disabledDate(time) {
         　　　　return time.getTime() < Date.now() - 24 * 60 * 60 * 1000
         　　}
-        },
-        right: {
-          page1: {},
-          page2: {
-            sort: '',
-            list: []
-          }
         },
         handle: {
           add: {
@@ -312,15 +330,18 @@
       },
       getDetail() {
 
+        if(this.currentData.page1) return;
+
         let params = {
           productionPlanProcessId: this.currentData.mrProductionPlanTasksId
         };
-      
+        
+        this.currentData.page1 = {};
         this.right.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryAssignWorkInfo, (res) =>  {
 
           this.right.isLoading = false;
-          this.right.page1 = res.data || {};
+          this.currentData.page1 = res.data || {};
         }, () => this.right.isLoading = false, params)
 
         this.getUserList();
@@ -330,25 +351,24 @@
         let params = {
           type: 1,
           productionPlanProcessId: this.currentData.productionPlanProcessId,
-          sorting: this.right.page2.sort ? '_MrUserIdleRecord.isIdle' : ''
+          sorting: this.currentData.sort ? '_MrUserIdleRecord.isIdle' : ''
         };
         
-        this.right.page2.list = [];
         this.right.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryProcessorById, (res) =>  {
 
           this.right.isLoading = false;
-          this.right.page2.list = res.data || [];
-          this.right.page2.list.map(item => {
-            let rows = 
-            item.chartData = {
-              columns: ['a', 'b'],
-              rows: [
-                { 'a': '1/1', 'b': 1393 },
-                { 'a': '1/2', 'b': 3530 },
-              ]
-            }
-          })
+          if(res.data && res.data.length) {
+
+            res.data.map(item => {
+              
+              item.chartData = {
+                columns: ['a', 'b'],
+                rows: []
+              }
+            })
+          }
+          this.$set(this.currentData, 'userList', res.data || [])
         }, () => this.right.isLoading = false, params)        
       },
       showAddDialog() {
@@ -382,21 +402,76 @@
         this.currentData = item;
         this.getDetail();
       },
-      save() {
+      save() { //派工
 
-        let params = {
+        if(!this.left.list && !this.left.list.length) return;
+        
+        let params = [];
 
-        };
-    
+        this.left.list.map(item => {
+
+          item.userList && item.userList.map(itemc => {
+
+            params.push({
+              mrAssignWorkMiddleId: itemc.mrAssignWorkMiddleId,
+              isAssignWorkSelected: itemc.checked ? 1 : 0,
+              quantity: itemc.nums || 0
+            })
+          })
+        })
+
         this.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.processAssignWork, (res) =>  {
 
           this.$utils.showTip('success', 'success', '102');
           this.isLoading = false;
+          this.back();
         }, () => this.isLoading = false, params)
       }
     },
-    
+    computed: {
+      saturation() { //计算饱和度显示饼图
+        return (people) => {
+
+          let componentNums = 0; //零件总数
+          this.currentData.components && this.currentData.components.map(item => {
+
+            let quantity = item.quantity || 0;
+            componentNums += item.quantity;
+          })
+
+          let rate = (this.currentData.estimationWorkTime || 0) / (componentNums || 1); //单个零件加工时间
+          let totalTime = (parseInt(people.nums) || 0) * rate; //加工总时间;
+          let todayTotalTime = (people.processTotalTime || 0) + totalTime;
+          let percentage = todayTotalTime / (this.workTimeDays || 1) ; //工作饱和度
+          if(percentage > 1) percentage = 1;
+
+          let tooltip = '';
+          
+          people.tasks && people.tasks.map((item, index) => {
+
+            let html = `<p>
+                        ${index + 1}:
+                        模具号：${item.mouldNo},
+                        零件号：${this.$filters.concatString(item.components, 'componentNo')},
+                        零件数量：${this.$filters.concatString(item.components, 'quantity')}
+                       </p>`
+            tooltip += html;
+          })
+
+          let saturation = parseInt(percentage*100);
+          tooltip += `<p>已分配任务总时长：${people.processTotalTime.toFixed(1)} h</p>`;
+          tooltip += `<p>当前工序${this.name}计划派工时长：${totalTime.toFixed(1)} h</p>`;
+          tooltip += `<p>总时长：${todayTotalTime.toFixed(1)} h</p>`;
+          tooltip += `<p>工作饱和度：${saturation}%</p>`;
+
+          people.chartData.rows = [
+            {a: percentage && tooltip ? tooltip : '', b: percentage},
+            {a: `空闲度：${100 - saturation}%`, b: 1 - percentage},
+          ]
+        }
+      }
+    },
     created() {
       
       if(!this.$route.params.id) return;
