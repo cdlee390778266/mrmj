@@ -158,13 +158,13 @@
                     </el-popover>
                   </p>
                   <el-row :gutter="20">
-                    <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8" v-for="(item, index) in currentData.userList" :key="index" class="mgb10">
+                    <el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="8" v-for="(item, index) in currentData.userList" :key="index" class="mgb10">
                       <div class="people pd10">
                         <div style="position: relative; z-index: 8;">
-                          <el-checkbox v-model="item.checked">分配所选零件加工任务</el-checkbox>
+                          <el-checkbox v-model="item.isAssignWorkSelected" :checked="!!item.isAssignWorkSelected">分配所选零件加工任务</el-checkbox>
                           <div class="mgl10 dib" style="color: #333;">
                             数量：
-                            <el-input type="text" size="mini" style="width: 44px;" v-model="item.nums"/>
+                            <el-input type="text" size="mini" style="width: 60px;" v-model="item.quantity"/>
                           </div>
                         </div>
                         <div class="dflex mgt10">
@@ -305,7 +305,7 @@
       getWorkTimeDays() {  //获取日工时
         this.$utils.getJson(this.$utils.CONFIG.api.workTimeDays, (res) => {
 
-         this.workTimeDays = res.data && res.data.length ? res.data[0].dayWorkTime : 8;
+         this.workTimeDays = res.data && res.data.length && res.data[0].dayWorkTime ? res.data[0].dayWorkTime : 8;
         })
       },
       getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
@@ -414,8 +414,8 @@
 
             params.push({
               mrAssignWorkMiddleId: itemc.mrAssignWorkMiddleId,
-              isAssignWorkSelected: itemc.checked ? 1 : 0,
-              quantity: itemc.nums || 0
+              isAssignWorkSelected: itemc.isAssignWorkSelected ? 1 : 0,
+              quantity: itemc.quantity || 0
             })
           })
         })
@@ -425,8 +425,13 @@
 
           this.$utils.showTip('success', 'success', '102');
           this.isLoading = false;
+          this.setWorkTimeDays();
           this.back();
         }, () => this.isLoading = false, params)
+      },
+      setWorkTimeDays() { //设置日工时
+
+        this.$utils.getJson(this.$utils.CONFIG.api.setWorkTimeDays, (res) =>  {}, () => this.isLoading = false, {dayWorkTime: parseInt(this.workTimeDays) || 8})
       }
     },
     computed: {
@@ -441,12 +446,12 @@
           })
 
           let rate = (this.currentData.estimationWorkTime || 0) / (componentNums || 1); //单个零件加工时间
-          let totalTime = (parseInt(people.nums) || 0) * rate; //加工总时间;
+          let totalTime = (parseInt(people.quantity) || 0) * rate; //加工总时间;
           let todayTotalTime = (people.processTotalTime || 0) + totalTime;
           let percentage = todayTotalTime / (this.workTimeDays || 1) ; //工作饱和度
           if(percentage > 1) percentage = 1;
 
-          let tooltip = '';
+          let tooltip = '<div style="max-width: 200px;    white-space: normal;">';
           
           people.tasks && people.tasks.map((item, index) => {
 
@@ -464,6 +469,7 @@
           tooltip += `<p>当前工序${this.name}计划派工时长：${totalTime.toFixed(1)} h</p>`;
           tooltip += `<p>总时长：${todayTotalTime.toFixed(1)} h</p>`;
           tooltip += `<p>工作饱和度：${saturation}%</p>`;
+          tooltip += '</div>';
 
           people.chartData.rows = [
             {a: percentage && tooltip ? tooltip : '', b: percentage},

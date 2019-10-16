@@ -437,7 +437,7 @@
       refresh() {
 
         this.getList(this.$utils.CONFIG.api.customer, this.filter, 'customer', {otherWhereClause:'customerType !=20'}); //获取客户列表
-        this.getList(this.$utils.CONFIG.api.qwm, this.filter, 'qwm'); //获取工序名称列表
+        this.getList(this.$utils.CONFIG.api.qwm, this.filter, 'qwm'); //获取模具与零件号联动列表
 
         this.getList(this.$utils.CONFIG.api.stuff, this.right, 'stuff'); //获取材料列表
         this.getList(this.$utils.CONFIG.api.process, this.right, 'process'); //获取工序名称列表

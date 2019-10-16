@@ -34,31 +34,33 @@
             <div class="content-left" v-loading="left.isLoading">
               <div>
                 <p>
-                  <el-button type="primary" size="mini" @click="getData">查找符合条件记录</el-button>
-                  <span class="mgl20">查找条件</span>
-                  <span class="mgl20">
+                  <el-button type="primary" size="mini" class="mgb10" @click="getData">查找符合条件记录</el-button>
+                  <span class="mgl20 mgb10">查找条件</span>
+                  <span class="mgl20 mgb10 dib">
                     客户：
-                    <el-select size="mini" style="width: 100px;" v-model="form.customer">
-                      <el-option v-for="(itemc, index) in right.page1.data" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
+                    <el-select size="mini" v-model="form.customer" placeholder="请选择客户" style="width: 120px;">
+                      <el-option v-for="(item, index) in filter.customer" :key="index" :label="item.name" :value="item.name"></el-option>
                     </el-select>
                   </span>
-                  <span class="mgl20">
+                  <span class="mgl20 mgb10 dib">
                     模具号：
-                    <el-select size="mini" style="width: 100px;" v-model="form.moduleNo">
-                      <el-option v-for="(itemc, index) in right.page1.data" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
+                    <el-select size="mini" v-model="form.module" value-key="mouldNo" placeholder="请选择模具号" style="width: 120px;" @change="(module) => { form.moduleNo = ''; form.componentNo = ''; }">
+                      <el-option v-for="(item, index) in filter.qwm" :key="item.mouldNo" :label="item.mouldNo" :value="item"></el-option>
                     </el-select>
                   </span>
-                  <span class="mgl20">
+                  <span class="mgl20 mgb10 dib">
                     零件号：
-                    <el-select size="mini" style="width: 100px;" v-model="form.componentNo">
-                      <el-option v-for="(itemc, index) in right.page1.data" :key="index" :label="itemc.versionNo" :value="itemc.versionNo" @click=""></el-option>
+                    <el-select size="mini" v-model="form.componentNo" placeholder="请选择模具号" style="width: 120px;">
+                      <template v-if="form.module">
+                        <el-option v-for="(item, index) in form.module.componentOrders" :key="index" :label="item.componentNo" :value="item.componentNo"></el-option>
+                      </template>
                     </el-select>
                   </span>
                 </p>
                 <p class="mgt10">
                   <span>
                     工序估工时间超过
-                    <el-input v-model="form.time" style="width: 60px;" size="mini"></el-input>
+                    <el-input v-model="maxWorkTime" style="width: 60px;" size="mini"></el-input>
                     小时，进行标红提示
                   </span>
                 </p>
@@ -66,7 +68,7 @@
                   表格操作说明：点击某订单，设置订单出货日期及外协采购等操作
                 </p>
               </div>
-              <div class="posFull" style="top: 125px;
+              <div class="posFull" style="top: 140px;
               overflow: auto;">
                 <el-table
                   :data="tableData"
@@ -74,14 +76,14 @@
                   style="width: 100%"
                   class="edit-table">
                   <el-table-column
-                    prop="a"
+                    prop="mouldNo"
                     label="模具号"
                     width="120"
                     class-name="notEdit"
                     show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="b"
+                    prop="releaseProductionOrderDate"
                     label="下图日期"
                     width="100"
                     align="center"
@@ -90,7 +92,6 @@
                     show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="c"
                     label="出货日期"
                     width="100"
                     align="center"
@@ -99,25 +100,25 @@
                     show-overflow-tooltip>
                     <template scope="scope">
                       <div>
-                        <div @click="showInput(tableData, scope.$index, 'cEdit', {})">
-                          <div class="ellipsis tc">{{ scope.row.c }}</div>
+                        <div @click="showInput(tableData, scope.$index, 'shipmentDateEdit', {})">
+                          <div class="ellipsis tc">{{ scope.row.shipmentDate }}</div>
                           <el-date-picker
                             type="date"
                             size="mini"
                             placeholder="选择日期"
                             format="yyyy-MM-dd"
                             value-format="yyyy-MM-dd"
-                            v-model="scope.row.c"
-                            @focus="showInput(tableData, scope.$index, 'cEdit', {})"
-                            @blur="scope.row.cEdit = false"
-                            :style="{opacity: scope.row.cEdit ? 1 : 0}">
+                            v-model="scope.row.shipmentDate"
+                            @focus="showInput(tableData, scope.$index, 'shipmentDateEdit', {})"
+                            @blur="scope.row.shipmentDateEdit = false"
+                            :style="{opacity: scope.row.shipmentDateEdit ? 1 : 0}">
                           </el-date-picker>
                         </div>
                       </div>
                     </template>
                   </el-table-column>
                   <el-table-column
-                    prop="d"
+                    prop="abbreviation"
                     label="客户"
                     min-width="100"
                     align="center"
@@ -126,7 +127,7 @@
                     show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="e"
+                    prop="requireCompletionDate"
                     label="要求交期"
                     width="100"
                     align="center"
@@ -135,28 +136,32 @@
                     show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="f"
+                    prop="productionTasksStatus"
                     label="状态"
                     width="100"
                     align="center"
                     show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="g"
                     label="零件号码"
                     min-width="100"
                     align="center"
                     show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      {{scope.row.components | concatString('componentNo')}}
+                    </template>
                   </el-table-column>
                   <el-table-column
-                    prop="h"
                     label="数量"
                     min-width="100"
                     align="center"
                     show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      {{scope.row.components | concatString('quantity')}}
+                    </template>
                   </el-table-column>
                   <el-table-column
-                    prop="i"
+                    prop="versionNo"
                     label="版本"
                     width="100"
                     align="center"
@@ -170,20 +175,20 @@
                     show-overflow-tooltip>
                     <template slot-scope="scope">
                       <div>
-                        <div @click="showInput(tableData, scope.$index, 'jEdit')">
+                        <div @click="showInput(tableData, scope.$index, 'buyEdit')">
                           <div class="ellipsis">
                             {{ 
-                              scope.row.j == 1 ? '是' : (
-                                 scope.row.j == 0 ? '否' : ''
+                              scope.row.buy == 1 ? '是' : (
+                                 scope.row.buy == 0 ? '否' : ''
                               )
                             }}
                           </div>
                           <el-select
-                            v-model="scope.row.j"
+                            v-model="scope.row.buy"
                             placeholder="请选择"
-                            :style="{opacity: scope.row.jEdit ? 1 : 0}"
-                            @focus="showInput(tableData, scope.$index, 'jEdit')"
-                            @blur="scope.row.jEdit = false">
+                            :style="{opacity: scope.row.buyEdit ? 1 : 0}"
+                            @focus="showInput(tableData, scope.$index, 'buyEdit')"
+                            @blur="scope.row.buyEdit = false">
                             <el-option
                               v-for="itemc in $dict.outsourceList"
                               :key="itemc.value"
@@ -197,7 +202,7 @@
                   </el-table-column>
                   <el-table-column label="工艺时间" align="center" min-width="100">
                     <el-table-column
-                      v-for="(item, index) in procedureList"
+                      v-for="(item, index) in allProcessOfIndex"
                       :key="index"
                       :label="item.name"
                       align="center"
@@ -205,7 +210,7 @@
                       label-class-name="fc-red"
                       show-overflow-tooltip>
                       <template slot-scope="scope">
-                        <div :class="{'fc-red': (scope.row[item.key] > form.time) && !scope.row[`${item.key}-isOut`]}" v-if="scope.row[item.key]">
+                        <div :class="{'fc-red': (scope.row[item.key] > maxWorkTime) && !scope.row[`${item.key}-isOut`]}" v-if="scope.row[item.key]">
                           <div @click="showInput(tableData, scope.$index, `${item.key}Edit`)">
                             <div class="ellipsis">
                               {{ 
@@ -382,14 +387,19 @@
     data() {
       return {
         isLoading: false,
+        maxWorkTime: this.$dict.maxWorkTime,
+        filter: {
+          customer: [],
+          qwm: []
+        },
         form: {
           customer: '',
+          module: '',
           moduleNo: '',
-          componentNo: '',
-          time: '50'
+          componentNo: ''
         },
         procedurePrefix: 'procedure',
-        procedureList: [],
+        allProcessOfIndex: [],
         tableData: [],
         handle: {
           setting: {
@@ -400,63 +410,13 @@
       }
     },
     methods: {
-      getProcedureList() {  //获取工序列表
-
-        let params = {
-
-        };
-        let mock = [
-          {
-            name: 'M',
-            max: 1
-          },
-          {
-            name: 'H\WC',
-            max: 1
-          },
-          {
-            name: 'H/T',
-            max: 1
-          },
-          {
-            name: 'G',
-            max: 2
-          },
-          {
-            name: 'EDM',
-            max: 2
-          },
-          {
-            name: 'CNC',
-            max: 1
-          },
-          {
-            name: 'EDB',
-            max: 1
-          },
-          {
-            name: 'W/C',
-            max: 1
-          },
-          {
-            name: 'PL',
-            max: 1
-          },
-          {
-            name: 'ENG',
-            max: 2
-          },
-          {
-            name: 'other',
-            max: 1
-          },
-        ]
+      getAllProcessOfIndex() {  //获取工序列表
 
         this.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.getAllProcessOfIndex, (res) =>  {
 
           this.isLoading = false;
-          let procedureList = [];
+          let allProcessOfIndex = [];
           if(res.data.length) {
             
             res.data.map(item => {
@@ -469,17 +429,17 @@
                   newItem.name = `${newItem.name}${i}`;
                   newItem.key = `${this.procedurePrefix}-${newItem.name}`;
                   newItem.index = i;
-                  procedureList.push(newItem);
+                  allProcessOfIndex.push(newItem);
                 }
               }else {
 
                 item.key = `${this.procedurePrefix}-${item.name}1`;
-                procedureList.push(item);
+                allProcessOfIndex.push(item);
               }
             })
           }
-          this.procedureList = procedureList;
-        }, () => this.isLoading = false, params, mock)
+          this.allProcessOfIndex = allProcessOfIndex;
+        }, () => this.isLoading = false)
       },
       getData() { //获取订单列表
 
@@ -516,85 +476,22 @@
                 index: 2
               }
             ]
-          },
-          {
-            id: 0,
-            a: 'M19575',
-            b: '4月7日',
-            c: '5月1日',
-            d: 'KL-D',
-            e: '5月7日',
-            f: '',
-            g: '200',
-            h: '4+1',
-            i: 'v1',
-            j: '是',
-            k: [
-              {
-                name: 'HWC',
-                value: 42,
-                index: 1
-              },
-              {
-                name: 'HT',
-                value: 36,
-                index: 1
-              },
-              {
-                name: 'PL',
-                value: 11,
-                index: 2
-              }
-            ]
-          },
-          {
-            id: 0,
-            a: 'M1988',
-            b: '4月7日',
-            c: '5月1日',
-            d: 'KL-D',
-            e: '5月7日',
-            f: '',
-            g: '200',
-            h: '18+1',
-            i: 'v1',
-            j: '是',
-            k: [
-              {
-                name: 'CNC',
-                value: 110,
-                index: 1
-              },
-              {
-                name: 'ENG',
-                value: 6,
-                index: 2
-              },
-              {
-                name: 'G',
-                value: 62,
-                index: 2
-              }
-            ]
           }
         ]
 
         this.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.queryPlanList, (res) =>  {
 
           this.isLoading = false;
-          res.data.map(item => {
+          res.data && res.data.map(item => {
 
-            if(item.k.length) {
+            item.processes && item.processes.map(itemc => {
 
-              item.k.map(itemc => {
-
-                item[`${this.procedurePrefix}-${itemc.name}${itemc.index}`] = itemc.value;
-              })
-            }
+              item[`${this.procedurePrefix}-${itemc.name}${itemc.processSequence}`] = itemc.workTime;
+            })
           })
           this.tableData = res.data || [];
-        }, () => this.isLoading = false, params, mock)
+        }, () => this.isLoading = false, params)
       },
       objectSpanMethod({ row, column, rowIndex, columnIndex }) {
         if (columnIndex === 0) {
@@ -611,18 +508,17 @@
           }
         }
       },
-      getList() {
+      getDropDownList() { //客户、模具号、零件号下拉列表
 
-        this.getList(this.$utils.CONFIG.api.stuff, this.right, 'stuff'); //获取客户列表
-        this.getList(this.$utils.CONFIG.api.process, this.right, 'process'); //获取模具号列表
-        this.getList(this.$utils.CONFIG.api.sysCode, this.right, 'sysCode', {otherWhereClause: "codeType = 'processContent'"}); //获取零件号列表
-        this.getLeftList();
+        this.getList(this.$utils.CONFIG.api.customer, this.filter, 'customer', {otherWhereClause:'customerType !=20'}); //获取客户列表
+        this.getList(this.$utils.CONFIG.api.qwm, this.filter, 'qwm'); //获取模具与零件号联动列表
       }
     },
     
     created() {
       
-      this.getProcedureList();
+      this.getDropDownList();
+      this.getAllProcessOfIndex();
       this.getData();      
     }
   };

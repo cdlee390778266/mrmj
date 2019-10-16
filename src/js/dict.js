@@ -102,23 +102,32 @@ let Dict = {
 			value: 9
 		},
 	],
+	maxWorkTime: 100,
 }
 
-function getCurrency() {	//获取币种列表
+Dict.getCurrency = () => {	//获取币种列表
 	Utils.getJson(Utils.CONFIG.api.currencyList, (res) => {
 		Dict.currencyList = res.data;
 	})
 }
 
-function getCountry() {	//获取国家列表
+Dict.getCountry = () => {	//获取国家列表
 	Utils.getJson(Utils.CONFIG.api.countryList, (res) => {
 		Dict.countryList = res.data;
 	})
 }
 
+
+Dict.getMaxWorkTime = () => {	//查询工序估工阈值
+	Utils.getJson(Utils.CONFIG.api.maxWorkTime, (res) => {
+		Dict.maxWorkTime = res.data && res.data.length && res.data[0].maxWorkTime ? res.data[0].maxWorkTime : 100;
+	})
+}
+
 function init() {	//初始化
-	getCurrency();
-	getCountry();
+	Dict.getCurrency();
+	Dict.getCountry();
+	Dict.getMaxWorkTime();
 }
 
 init();

@@ -26,8 +26,8 @@ const CONFIG = {
 		image: baseUrl + 'fc/imgStreamOther	', //图片接口
 		customer: baseUrl + 'requirement/customer/qc', //客户名称查询接口
 		qwm: baseUrl + 'requirement/saleOrder/qwm', //模具与零件号联动查询接口
-		workTimeDays: baseUrl + 'requirement/workTimeDays/qc', //日工时查询
-
+		maxWorkTime: baseUrl + 'requirement/threshold/qc', //生产--查询工序估工阈值
+		
 		login: baseUrl + 'authMR/login', //登录
 
 		/* 销售模块*/
@@ -92,6 +92,8 @@ const CONFIG = {
 		queryProcessorById: baseUrl + 'requirement/productionOrder/queryProcessorById', //生产--派工加工人员信息查找
 		checkNumber: baseUrl + 'requirement/idle/checkNumber', //生产-- 工序加工人员编号验重
 		addProcessor: baseUrl + 'requirement/productionOrder/addProcessor', //生产--添加加工人员
+		workTimeDays: baseUrl + 'requirement/workTimeDays/qc', //日工时查询
+		setWorkTimeDays: baseUrl + 'requirement/workTimeDays/sou', //生产--设置日工时
 		queryOperationalProcess: baseUrl + 'requirement/operationalPlan/queryOperationalProcess', //生产--派工工序查找
 		queryAssignWorkInfo: baseUrl + 'requirement/productionOrder/queryAssignWorkInfo', //生产--派工页面详细信息
 		processAssignWork: baseUrl + 'requirement/operationalPlan/processAssignWork', //生产--工序派工
@@ -99,6 +101,9 @@ const CONFIG = {
 		saveJobBooking: baseUrl + 'requirement/jobbooking/saveJobBooking', //生产--报工
 		
 		/* 计划模块*/
+		setMaxWorkTime: baseUrl + 'requirement/threshold/sou', //计划--工序估工阈值设置
+		getAllProcessOfIndex: baseUrl + 'requirement/productionOrder/getAllProcessOfIndex', //计划--获取计划表表头工序
+		queryPlanList: baseUrl + 'requirement/makeworkplan/queryPlanList', //计划--当前生产计划列表
 		queryNoReleasedPurchase: baseUrl + 'requirement/purchaseOrder/queryNoReleasedPurchase', //计划--查询外协任务
 	},
 	success: {
