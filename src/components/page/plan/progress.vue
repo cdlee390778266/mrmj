@@ -27,11 +27,11 @@
             </div>
             <div class="mgt5 fs12 legend">
               表格图例说明：
-              <span><i></i>下道工序</span>
-              <span class="mgl20"><i></i>工件位置</span>
-              <span class="mgl20"><i></i>正在加工</span>
-              <span class="mgl20"><i></i>暂停加工</span>
-              <span class="mgl20"><i></i>工件完成</span>
+              <span><i class="bg00B051"></i>下道工序</span>
+              <span class="mgl20"><i class="bgffff00"></i>工件位置</span>
+              <span class="mgl20"><i class="bg00b0f0"></i>正在加工</span>
+              <span class="mgl20"><i class="bge46d0a"></i>暂停加工</span>
+              <span class="mgl20"><i class="bg8db4e3"></i>工件完成</span>
             </div>
           </div>
           <div class="content">
@@ -40,20 +40,31 @@
                 :data="tableData"
                 size="mini"
                 style="width: 100%"
-                class="edit-table">
+                class="edit-table"
+                :highlight-current-row="true"
+                :row-class-name="setRowClass"
+                @row-click="handleSelect">
                 <el-table-column
-                  prop="shipmentDate"
                   label="出货日期"
                   width="120"
-                  class-name="notEdit"
+                  label-class-name="fc-el-table-head"
+                  class-name="notEdit fc-red"
                   show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                      {{scope.row.shipmentDate | filterNull(' ')}}
+                    </div>
+                  </template>
                 </el-table-column>
                 <el-table-column
-                  prop="mouldNo"
                   label="模具号"
                   width="120"
-                  class-name="notEdit"
                   show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                      {{scope.row.mouldNo | filterNull(' ')}}
+                    </div>
+                  </template>
                 </el-table-column>
                 <el-table-column
                   label="零件号码"
@@ -61,7 +72,9 @@
                   align="center"
                   show-overflow-tooltip>
                   <template slot-scope="scope">
-                    {{scope.row.components | concatString('componentNo')}}
+                    <div :class="{'bg8db4e3': scope.row.productionTasksStatus == 80}" @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                      {{scope.row.components | concatString('componentNo')}}
+                    </div>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -70,7 +83,9 @@
                   align="center"
                   show-overflow-tooltip>
                   <template slot-scope="scope">
-                    {{scope.row.components | concatString('quantity')}}
+                    <div :class="{'bg8db4e3': scope.row.productionTasksStatus == 80}" @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                      {{scope.row.components | concatString('quantity')}}
+                    </div>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -79,6 +94,11 @@
                   width="100"
                   align="center"
                   show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                      {{scope.row.versionNo | filterNull(' ')}}
+                    </div>
+                  </template>
                 </el-table-column>
                 <el-table-column
                   label="整体外协"
@@ -86,11 +106,13 @@
                   align="center"
                   show-overflow-tooltip>
                   <template slot-scope="scope">
-                    {{ 
-                      scope.row.buy == 1 ? '是' : (
-                         scope.row.buy == 0 ? '否' : ''
-                      )
-                    }}
+                    <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                      {{ 
+                        scope.row.buy == 1 ? '是' : (
+                           scope.row.buy == 0 ? '否' : ''
+                        )
+                      }}
+                    </div>
                   </template>
                 </el-table-column>
                 <el-table-column label="工艺时间" align="center" min-width="100">
@@ -103,63 +125,96 @@
                     label-class-name="fc-red"
                     show-overflow-tooltip>
                     <template slot-scope="scope">
-                      <div :class="{'fc-red': (scope.row[item.key] > maxWorkTime) && !scope.row[`${item.key}-isOut`]}" v-if="scope.row[item.key]">
-                        <div @click="showInput(tableData, scope.$index, `${item.key}Edit`)">
-                          <div class="ellipsis">
-                            {{ 
-                              scope.row[`${item.key}-isOut`] == 1 ? '外协' : scope.row[item.key]
-                            }}
-                          </div>
-                          <el-select
-                            v-model="scope.row[`${item.key}-isOut`]"
-                            placeholder="请选择"
-                            :style="{opacity: scope.row[`${item.key}Edit`] ? 1 : 0}"
-                            @focus="showInput(tableData, scope.$index, `${item.key}Edit`)"
-                            @blur="scope.row[`${item.key}Edit`] = false">
-                            <el-option
-                              v-for="itemc in $dict.outsourceLabelList"
-                              :key="itemc.value"
-                              :label="itemc.label"
-                              :value="itemc.value">
-                            </el-option>
-                          </el-select>
-                        </div>
+                      <div
+                      :class="{
+                        'fc-red': scope.row[item.key] > maxWorkTime,
+                        'bg00b0f0': scope.row.nowPlanProcessId == scope.row[item.key+'-id'],
+                        'bg-green': scope.row.nextPlanProcessId == scope.row[item.key+'-id']}"
+                        v-if="scope.row[item.key]"
+                        @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                        {{scope.row[item.key]}}
+                      </div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    label="PL"
+                    align="center"
+                    min-width="70"
+                    label-class-name="fc-blue"
+                    show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                        11
+                      </div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    label="ENG"
+                    align="center"
+                    min-width="70"
+                    label-class-name="fc-blue"
+                    show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                        11
+                      </div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    label="Else"
+                    align="center"
+                    min-width="70"
+                    label-class-name="fc-blue"
+                    show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                        11
                       </div>
                     </template>
                   </el-table-column>
                 </el-table-column>
                 <el-table-column
-                  prop="requireCompletionDate"
                   label="要求交期"
                   min-width="100"
                   align="center"
                   label-class-name="fc-el-table-head"
                   class-name="fc-blue"
                   show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                      {{scope.row.requireCompletionDate | filterNull(' ')}}
+                    </div>
+                  </template>
                 </el-table-column>
                 <el-table-column
-                  prop="abbreviation"
                   label="客户"
                   min-width="100"
                   align="center"
-                  label-class-name="fc-el-table-head"
                   class-name="fc-blue"
                   show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                      {{scope.row.abbreviation | filterNull(' ')}}
+                    </div>
+                  </template>
                 </el-table-column>
                 <el-table-column
                   label="交期剩余(天)"
                   min-width="100"
                   align="center"
                   label-class-name="fc-el-table-head"
-                  class-name="fc-blue"
                   show-overflow-tooltip>
                   <template slot-scope="scope">
-                    11
+                    <div :style="{background: dateMinusBgColor(dateMinus(scope.row.requireCompletionDate))}"
+                      @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)"
+                    >
+                      {{dateMinus(scope.row.requireCompletionDate)}}
+                    </div>
                   </template>
                 </el-table-column>
-                <el-table-column label="现状" class-name="notEdit" min-width="180" show-overflow-tooltip>
-                  <template scope="scope">
-                    <div>
+                <el-table-column label="现状" class-name="fc800000" min-width="180" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
                       <div @click="showInput(tableData, scope.$index, 'currentSituationEdit', {}, false)">
                         <div class="ecurrentSituationipsis">{{ scope.row.currentSituation }}</div>
                         <el-input size="mini" v-model="scope.row.currentSituation" @focus="showInput(tableData, scope.$index, 'currentSituationEdit', {}, false)" @blur="scope.row.currentSituationEdit = false" :style="{opacity: scope.row.currentSituationEdit ? 1 : 0}"/>
@@ -168,55 +223,60 @@
                   </template>
                 </el-table-column>
                 <el-table-column
-                  prop="electrode"
                   label="电极"
                   min-width="100"
                   align="center"
                   label-class-name="fc-el-table-head"
                   class-name="fc-blue"
                   show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                      {{scope.row.electrode | filterNull(' ')}}
+                    </div>
+                  </template>
                 </el-table-column>
                 <el-table-column
-                  prop="residueWorkTime"
                   label="剩余工时"
-                  min-width="100"
+                  min-width="88"
                   align="center"
                   label-class-name="fc-el-table-head"
-                  class-name="fc-blue"
                   show-overflow-tooltip>
+                  <template scope="scope">
+                    <div :class="{bgRed: scope.row.residueWorkTime > 200}" @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">{{scope.row.residueWorkTime | filterNull(' ')}}</div>
+                  </template>
                 </el-table-column>
               </el-table>
             </div>
           </div>
           <div class="detail-footer">
             <div class="dflex" style="align-items: center;">
-              <div class="pdlr10">模具号：18473</div>
-              <div class="pdlr10">零件号：100-14/15</div>
+              <div class="pdlr10">模具号：{{selectedRow.mouldNo}}</div>
+              <div class="pdlr10">零件号：{{selectedRow.components | concatString('componentNo')}}</div>
               <div class="pdl20">当前状态：</div>
               <div class="flex pdlr10">
                 <table class="mrmj-table">
                   <thead>
                     <tr>
                       <th></th>
-                      <th v-for="(itemc, index) in right.page1.data" :key="index">{{itemc.name}}</th>
-                      <th>66</th>
+                      <th v-for="(itemc, index) in selectedRow.processes" :key="index">{{itemc.name}}</th>
+                      <th>EMG</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td>状态</td>
-                      <td v-for="(itemc, index) in right.page1.data" :key="index">{{itemc.estimationWorkTime}}</td>
-                      <th>66</th>
+                      <td v-for="(itemc, index) in selectedRow.processes" :key="index">{{itemc.estimationWorkTime}}</td>
+                      <th></th>
                     </tr>
                     <tr>
                       <td>估工工时</td>
-                      <td v-for="(itemc, index) in right.page1.data" :key="index">{{itemc.estimationWorkTime}}</td>
-                      <th>66</th>
+                      <td v-for="(itemc, index) in selectedRow.processes" :key="index">{{itemc.estimationWorkTime}}</td>
+                      <th></th>
                     </tr>
                     <tr>
                       <td>实际工时</td>
-                      <td v-for="(itemc, index) in right.page1.data" :key="index">{{itemc.estimationWorkTime}}</td>
-                      <th>66</th>
+                      <td v-for="(itemc, index) in selectedRow.processes" :key="index">{{itemc.workTime}}</td>
+                      <th></th>
                     </tr>
                   </tbody>
                 </table>
@@ -342,7 +402,7 @@
     </el-dialog>
 
     <!-- 右键 -->
-    <right-menu />
+    <right-menu :show="rightMenu.show" :top="rightMenu.top" :left="rightMenu.left" @hide="rightMenu.show = false"/>
   </div>
 </template>
 
@@ -361,6 +421,15 @@
         procedurePrefix: 'procedure',
         allProcessOfIndex: [],
         tableData: [],
+        rightMenu: {
+          show: false,
+          top: 0,
+          left: 0,
+          row: {}
+        },
+        selectedRow: {
+          processes: []
+        },
         handle: {
           add: {
             dialogVisible: false,
@@ -448,23 +517,39 @@
 
                   itemc.haveSort = true;
                   itemc.processesIndex = index + 1;
-                  itemc[`${this.procedurePrefix}-${itemcc.name}${itemcc.processesIndex}`] = itemcc.workTime;
+                  itemc.webName = `${itemcc.name}${itemcc.processesIndex}`;
+
+                  item[`${this.procedurePrefix}-${itemcc.name}${itemcc.processesIndex}`] = itemcc.workTime;
+                  item[`${this.procedurePrefix}-${itemcc.name}${itemcc.processesIndex}-id`] = itemcc.mrProductionPlanProcessId;
                 })
-                itemc.webProcesses = processes;
+                item.webProcesses = processes;
               }
             })
           })
           this.tableData = res.data || [];
-          console.log(this.tableData)
         }, () => this.isLoading = false, params)
       },
-      handleSelect(item, index) {
-      
-        this.left.activeId = index;
-        this.currentData = item;
-        if(!this.currentData.processes || !this.currentData.processes.length) {
-          this.currentData.processes = [{}];
+      setRowClass(row) {
+
+        let rowClass = '';
+
+        if(row.row.productionTasksStatus == 60) {
+
+          rowClass = 'rowTermination'
         }
+
+        return rowClass
+      },
+      showRightMenu(e, row) {
+
+        this.rightMenu.show = true;
+        this.rightMenu.top = e.clientY + 'px';
+        this.rightMenu.left = e.clientX + 'px';
+        console.log(this.rightMenu)
+      },
+      handleSelect(row, event, column) {
+        
+        this.selectedRow = row || {processes: []};
       },
       save() {
       },
@@ -488,7 +573,41 @@
         
       }
     },
+    computed: {
+      dateMinus() { //交期剩余天数
+
+        return function(dateString) {
+
+          let t1 = new Date(dateString).getTime();
+          let t0 = new Date().getTime();
     
+          return parseInt((t1 - t0) / (1000 * 60 * 60 * 24))
+        }
+      },
+      dateMinusBgColor() { //交期剩余天数颜色
+
+        return function(time) {
+
+          let bgColor = '';
+
+          if(time > 10) {
+
+            bgColor = '#0070c0'
+          }else if(time >= 5) {
+
+            bgColor = '#ffff00'
+          }else if(time >= 0) {
+
+            bgColor = '#ffc000'
+          }else if(time < 0) {
+
+            bgColor = '#ff0000'
+          }
+    
+          return bgColor
+        }
+      }
+    },
     created() {
 
       this.getAllProcessOfIndex();
@@ -515,21 +634,6 @@
           width: 14px;
           height: 14px;
           margin-right: 2px;
-        }
-        &:nth-child(5n+1) i {
-          background: rgba(0, 176, 80, 1);
-        }
-        &:nth-child(5n+2) i {
-          background: rgba(255, 255, 0, 1);
-        }
-        &:nth-child(5n+3) i {
-          background: rgba(0, 176, 240, 1);
-        }
-        &:nth-child(5n+4) i {
-          background: rgba(228, 109, 10, 1);
-        }
-        &:nth-child(5n+5) i {
-          background: rgba(141, 180, 227, 1);
         }
       }
     }
@@ -562,6 +666,7 @@
       }
     }
   }
+
   .setting-item {
     margin-bottom: 10px;
     h3 {

@@ -50,6 +50,10 @@
       }
     }
   }
+  .rowTermination td, .rowTermination td div {
+    background: #e46d0a !important;
+    color: #0000ff;
+  }
 }
 .edit {
   position: relative;
