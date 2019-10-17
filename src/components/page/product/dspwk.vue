@@ -151,7 +151,7 @@
                         <el-button type="primary" size="mini" class="mgr10" @click="showAddDialog">添加员工</el-button>
                         <span class="mgl10">
                           日工时：
-                          <el-input type="text" size="mini" style="width: 100px;" v-model="workTimeDays"/>
+                          <el-input type="text" size="mini" style="width: 100px;" v-model="workTimeDays"></el-input>
                         </span>
                       </p>
                        <p class="fs12">(日工时是生产人员每天工作的小时数，用于计算各加工人员的工作饱和度，以合理分配加工人员)</p>
@@ -164,7 +164,7 @@
                           <el-checkbox v-model="item.isAssignWorkSelected" :checked="!!item.isAssignWorkSelected">分配所选零件加工任务</el-checkbox>
                           <div class="mgl10 dib" style="color: #333;">
                             数量：
-                            <el-input type="text" size="mini" style="width: 60px;" v-model="item.quantity"/>
+                            <el-input type="text" size="mini" style="width: 60px;" v-model="item.quantity"></el-input>
                           </div>
                         </div>
                         <div class="dflex mgt10">
@@ -457,9 +457,9 @@
 
             let html = `<p>
                         ${index + 1}:
-                        模具号：${item.mouldNo},
-                        零件号：${this.$filters.concatString(item.components, 'componentNo')},
-                        零件数量：${this.$filters.concatString(item.components, 'quantity')}
+                        ${item.mouldNo},
+                        ${this.$filters.concatString(item.components, 'componentNo')}
+                        (${this.$filters.concatString(item.components, 'quantity')})
                        </p>`
             tooltip += html;
           })

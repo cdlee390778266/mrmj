@@ -127,20 +127,32 @@
                     </el-select>
                   </p>
                   <el-row :gutter="20">
-                    <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8" v-for="(item, index) in right.page2.data" :key="index">
-                      <div class="people dflex mgt10">
-                        <div class="flex">
-                          <p class="ellipsis">
-                            <img :src="defaultPeopleImg">
-                            <span>人员姓名：{{item.userName}}</span>
-                          </p>
-                          <p class="mgt10">
-                            <strong>已分配任务：</strong>
-                          </p>
-                          <p class="ellipsis" v-for="(itemc, index) in item.tasks"><span>{{index + 1}}：{{itemc.mouldNo}}，{{itemc.components | concatString('componentNo')}}</span></p>
-                        </div>
-                        <div style="width: 200px; height: 200px">
-                          <ve-pie :data="item.chartData" :colors="chart.colors" :settings="chart.settings" height="400px" width="100px" :legend-visible="false" style="position: relative;top: -140px; margin: auto;"></ve-pie>
+                    <el-col :xs="24" :sm="24" :md="24" :lg="12" :xl="8" v-for="(item, index) in currentData.userList" :key="index" class="mgtb10">
+                      <div class="people pd10">
+                        <div class="dflex mgt10">
+                          <div class="flex">
+                            <p class="ellipsis">
+                              <img :src="defaultPeopleImg">
+                              <span>人员姓名：{{item.userName}}</span>
+                            </p>
+                            <p class="mgt10">
+                              <strong>已分配任务：</strong>
+                            </p>
+                            <p class="ellipsis" v-for="(item, index) in item.tasks"><span>{{index + 1}}：{{item.mouldNo}}，{{item.components | concatString('componentNo')}}</span></p>
+                          </div>
+                          {{saturation(item)}}
+                          <div style="width: 200px; height: 200px">
+                            <ve-pie
+                            height="400px"
+                            width="100px"
+                            :data="item.chartData"
+                            :colors="chart.colors"
+                            :settings="chart.settings"
+                            :extend="chart.chartExtend"
+                            :legend-visible="false"
+                            style="position: relative;top: -140px; margin: auto;">
+                            </ve-pie>
+                          </div>
                         </div>
                       </div>
                     </el-col>
@@ -167,8 +179,21 @@
           settings: {
             legendLimit: 0,
             radius: 40,
+            label: {
+              show: false
+            },
             labelLine: {
               show: false
+            }
+          },
+          chartExtend: {
+            tooltip (v) {
+
+              v.formatter = function (params) {
+          
+                return params.name;
+              }
+              return v
             }
           }
         },
@@ -202,6 +227,12 @@
       };
     },
     methods: {
+      getWorkTimeDays() {  //获取日工时
+        this.$utils.getJson(this.$utils.CONFIG.api.workTimeDays, (res) => {
+
+         this.workTimeDays = res.data && res.data.length && res.data[0].dayWorkTime ? res.data[0].dayWorkTime : 8;
+        })
+      },
       getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
 
         this.getData(this.$utils.CONFIG.api.queryTodayProcess, {}, 'name', loadingKey, this.getDetail);
@@ -209,7 +240,9 @@
       getDetail() {
 
         let params = {
-          name: this.currentData.name
+          type: 1,
+          name: this.currentData.name,
+          jobBookingDate: new Date().Format('yyyy-MM-dd')
         }
 
         this.right.isLoading = true;
@@ -228,12 +261,22 @@
           assignWorkDate: new Date().Format('yyyy-MM-dd'),
           sorting: this.right.page2.sort ? '_MrUserIdleRecord.isIdle' : ''
         };
-        
+
         this.right.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryProcessorById, (res) =>  {
 
           this.right.isLoading = false;
-          this.right.page2.data = res.data || [];
+          if(res.data && res.data.length) {
+
+            res.data.map(item => {
+              
+              item.chartData = {
+                columns: ['a', 'b'],
+                rows: []
+              }
+            })
+          }
+          this.$set(this.currentData, 'userList', res.data || [])
         }, () => this.right.isLoading = false, params)        
       },
       handleSelect(item) {
@@ -244,8 +287,42 @@
       },
       refresh() {}
     },
+    computed: {
+      saturation() { //计算饱和度显示饼图
+        return (people) => {
+
+          let todayTotalTime = people.processTotalTime || 0;
+          let percentage = todayTotalTime / (this.workTimeDays || 1) ; //工作饱和度
+          if(percentage > 1) percentage = 1;
+
+          let tooltip = '<div style="max-width: 200px;    white-space: normal;">';
+          
+          people.tasks && people.tasks.map((item, index) => {
+
+            let html = `<p>
+                        ${index + 1}:
+                        ${item.mouldNo},
+                        ${this.$filters.concatString(item.components, 'componentNo')},
+                        (${this.$filters.concatString(item.components, 'quantity')})
+                       </p>`
+            tooltip += html;
+          })
+
+          let saturation = parseInt(percentage*100);
+          tooltip += `<p>已分配任务总时长：${people.processTotalTime.toFixed(1)} h</p>`;
+          tooltip += `<p>工作饱和度：${saturation}%</p>`;
+          tooltip += '</div>';
+
+          people.chartData.rows = [
+            {a: percentage && tooltip ? tooltip : '', b: percentage},
+            {a: `空闲度：${100 - saturation}%`, b: 1 - percentage},
+          ]
+        }
+      }
+    },
     created() {
       this.filter.typeList = this.filter.listType.product;
+      this.getWorkTimeDays();
       this.getLeftList();
     }
   };

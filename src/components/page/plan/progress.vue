@@ -340,79 +340,27 @@
         </div>
       </div>
     </el-dialog>
+
+    <!-- 右键 -->
+    <right-menu />
   </div>
 </template>
 
 <script>
+  import RightMenu from '../../common/rightMenu'
   import leftMixin from '../../../js/left-mixin'
   export default {
     mixins: [leftMixin],
+    components: {
+      RightMenu
+    },
     data() {
       return {
         defaultPeopleImg: require('../../../assets/img/people.svg'),
         maxWorkTime: this.$dict.maxWorkTime,
-        component: {},
-        defaultData: {
-          type: 'add',
-          mrElectrodeDesignTasksId: '',
-          mrElectrodeProductionListOrderId: '',
-          electrodeNo: '',
-          quantity: '',
-          processes: [{}],
-          attachments: [],
-        },
         procedurePrefix: 'procedure',
         allProcessOfIndex: [],
-        tableData: [{
-          date: '2016-05-03',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-02',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-08',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-06',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }, {
-          date: '2016-05-07',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }],
+        tableData: [],
         handle: {
           add: {
             dialogVisible: false,
@@ -429,6 +377,24 @@
       }
     },
     methods: {
+      compare(propertyName) { //对象排序比较器
+
+        return function(object1, object2) {
+
+          var value1 = object1[propertyName];
+          var value2 = object2[propertyName];
+          if (value2 < value1) {
+
+            return 1;
+          } else if (value2 > value1) {
+
+            return -1;
+          } else {
+
+            return 0;
+          }
+        }
+      },
       getAllProcessOfIndex() {  //获取工序列表
 
         this.isLoading = true;
@@ -450,7 +416,7 @@
                   newItem.index = i;
                   allProcessOfIndex.push(newItem);
                 }
-              }else {
+              }else if(item.max == 1) {
 
                 item.key = `${this.procedurePrefix}-${item.name}1`;
                 allProcessOfIndex.push(item);
@@ -465,39 +431,6 @@
         let params = {
 
         };
-        let mock = [
-          {
-            id: 0,
-            a: 'M19536',
-            b: '4月7日',
-            c: '5月1日',
-            d: 'KL-D',
-            e: '5月7日',
-            f: '',
-            g: '200',
-            h: '8+1',
-            i: 'v1',
-            j: '是',
-            k: [
-              {
-                name: 'M',
-                value: 50,
-                index: 1
-              },
-              {
-                name: 'W/C',
-                value: 100,
-                index: 1
-              },
-              {
-                name: 'G',
-                value: 369,
-                index: 2
-              }
-            ]
-          }
-        ]
-
         this.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryPlanList, (res) =>  {
 
@@ -506,10 +439,23 @@
 
             item.processes && item.processes.map(itemc => {
 
-              item[`${this.procedurePrefix}-${itemc.name}${itemc.processSequence}`] = itemc.workTime;
+              if(itemc.name && !itemc.haveSort) {
+
+                let processes = item.processes.filter(itemcc => itemcc.name == itemc.name);
+                processes.sort(this.compare('processSequence'));
+                
+                processes.map((itemcc, index) => {
+
+                  itemc.haveSort = true;
+                  itemc.processesIndex = index + 1;
+                  itemc[`${this.procedurePrefix}-${itemcc.name}${itemcc.processesIndex}`] = itemcc.workTime;
+                })
+                itemc.webProcesses = processes;
+              }
             })
           })
           this.tableData = res.data || [];
+          console.log(this.tableData)
         }, () => this.isLoading = false, params)
       },
       handleSelect(item, index) {

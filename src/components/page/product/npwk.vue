@@ -144,7 +144,7 @@
                     <div>
                       <div @click="showInput(currentData.planMsg, scope.$index, 'actualCompletionWorkTimeEdit', {}, false)">
                         <div class="ellipsis">{{ scope.row.actualCompletionWorkTime }}</div>
-                        <el-input size="mini" v-model="scope.row.actualCompletionWorkTime" @focus="showInput(currentData.planMsg, scope.$index, 'actualCompletionWorkTimeEdit', {}, false)" @blur="scope.row.actualCompletionWorkTimeEdit = false" :style="{opacity: scope.row.actualCompletionWorkTimeEdit ? 1 : 0}"/>
+                        <el-input size="mini" v-model="scope.row.actualCompletionWorkTime" @focus="showInput(currentData.planMsg, scope.$index, 'actualCompletionWorkTimeEdit', {}, false)" @blur="scope.row.actualCompletionWorkTimeEdit = false" :style="{opacity: scope.row.actualCompletionWorkTimeEdit ? 1 : 0}"></el-input>
                       </div>
                     </div>
                   </template>
@@ -189,6 +189,7 @@
       getData() { //获取列表
         
         let params = {
+          type: 2,
           name: this.name
         }
 
