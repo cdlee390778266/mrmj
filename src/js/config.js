@@ -105,6 +105,7 @@ const CONFIG = {
 		getAllProcessOfIndex: baseUrl + 'requirement/productionOrder/getAllProcessOfIndex', //计划--获取计划表表头工序
 		queryPlanList: baseUrl + 'requirement/makeworkplan/queryPlanList', //计划--当前生产计划列表
 		queryNoReleasedPurchase: baseUrl + 'requirement/purchaseOrder/queryNoReleasedPurchase', //计划--查询外协任务
+		processTransferRegister: baseUrl + 'requirement/plan/processTransferRegister', //计划--工件流转登记
 	},
 	success: {
 		"1": "加载数据成功",
@@ -123,11 +124,13 @@ const CONFIG = {
 		'113': '下达订单成功',
 		'114': '已暂停',
 		'115': '已终止',
-		'116': '删除成功'
+		'116': '删除成功',
+		'117': '操作成功'
 	},
 	error: {
 		'-1': '加载数据失败，请检查网络！',
 		'-2': '上传失败！',
+		'-3': '操作失败！',
 		'-1000': '数据出错，没有对应的部门！',
 		'-1010': '请输入客户名称！',
 		'-1011': '长度不得大于20位！',

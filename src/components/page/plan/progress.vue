@@ -72,7 +72,7 @@
                   align="center"
                   show-overflow-tooltip>
                   <template slot-scope="scope">
-                    <div :class="{'bg8db4e3': scope.row.productionTasksStatus == 80}" @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                    <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
                       {{scope.row.components | concatString('componentNo')}}
                     </div>
                   </template>
@@ -83,7 +83,7 @@
                   align="center"
                   show-overflow-tooltip>
                   <template slot-scope="scope">
-                    <div :class="{'bg8db4e3': scope.row.productionTasksStatus == 80}" @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                    <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
                       {{scope.row.components | concatString('quantity')}}
                     </div>
                   </template>
@@ -128,35 +128,12 @@
                       <div
                       :class="{
                         'fc-red': scope.row[item.key] > maxWorkTime,
-                        'bg00b0f0': scope.row.nowPlanProcessId == scope.row[item.key+'-id'],
-                        'bg-green': scope.row.nextPlanProcessId == scope.row[item.key+'-id']}"
-                        v-if="scope.row[item.key]"
-                        @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
+                        'bg00b0f0 fcfff': scope.row.currentPlanProcessId == scope.row[item.key+'-id'],
+                        'bg-green fcfff': scope.row.nextPlanProcessId == scope.row[item.key+'-id'],
+                        'bgffff00': scope.row.workpieceLocationId == scope.row[item.key+'-id']}"
+                        v-if="scope.row[item.key] || scope.row[item.key] == 0"
+                        @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row, scope.row[item.key+'-id'], true)">
                         {{scope.row[item.key]}}
-                      </div>
-                    </template>
-                  </el-table-column>
-                  <el-table-column
-                    label="PL"
-                    align="center"
-                    min-width="70"
-                    label-class-name="fc-blue"
-                    show-overflow-tooltip>
-                    <template slot-scope="scope">
-                      <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
-                        11
-                      </div>
-                    </template>
-                  </el-table-column>
-                  <el-table-column
-                    label="ENG"
-                    align="center"
-                    min-width="70"
-                    label-class-name="fc-blue"
-                    show-overflow-tooltip>
-                    <template slot-scope="scope">
-                      <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
-                        11
                       </div>
                     </template>
                   </el-table-column>
@@ -167,8 +144,23 @@
                     label-class-name="fc-blue"
                     show-overflow-tooltip>
                     <template slot-scope="scope">
-                      <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
-                        11
+                      <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row, '', true)">
+                        <div @click="showInput(tableData, scope.$index, 'buyEdit')">
+                          <div class="ellipsis">
+                            {{scope.row.else}}
+                          </div>
+                          <el-select
+                            v-model="scope.row.else"
+                            placeholder="请选择"
+                            :style="{opacity: scope.row.elseEdit ? 1 : 0}"
+                            @focus="showInput(tableData, scope.$index, 'elseEdit')"
+                            @blur="scope.row.elseEdit = false">
+                            <el-option label="请选择" value="">
+                            </el-option>
+                            <el-option label="QC" value="QC">
+                            </el-option>
+                          </el-select>
+                        </div>
                       </div>
                     </template>
                   </el-table-column>
@@ -205,7 +197,7 @@
                   label-class-name="fc-el-table-head"
                   show-overflow-tooltip>
                   <template slot-scope="scope">
-                    <div :style="{background: dateMinusBgColor(dateMinus(scope.row.requireCompletionDate))}"
+                    <div :class="{fcfff: dateMinusBgColor(dateMinus(scope.row.requireCompletionDate))}" :style="{background: dateMinusBgColor(dateMinus(scope.row.requireCompletionDate))}"
                       @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)"
                     >
                       {{dateMinus(scope.row.requireCompletionDate)}}
@@ -217,7 +209,7 @@
                     <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
                       <div @click="showInput(tableData, scope.$index, 'currentSituationEdit', {}, false)">
                         <div class="ecurrentSituationipsis">{{ scope.row.currentSituation }}</div>
-                        <el-input size="mini" v-model="scope.row.currentSituation" @focus="showInput(tableData, scope.$index, 'currentSituationEdit', {}, false)" @blur="scope.row.currentSituationEdit = false" :style="{opacity: scope.row.currentSituationEdit ? 1 : 0}"/>
+                        <el-input size="mini" v-model="scope.row.currentSituationInput" @focus="showInput(tableData, scope.$index, 'currentSituationEdit', {}, false)" @blur="() => setCurrentSituation(scope.row)" :style="{opacity: scope.row.currentSituationEdit ? 1 : 0}"/>
                       </div>
                     </div>
                   </template>
@@ -242,7 +234,7 @@
                   label-class-name="fc-el-table-head"
                   show-overflow-tooltip>
                   <template scope="scope">
-                    <div :class="{bgRed: scope.row.residueWorkTime > 200}" @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">{{scope.row.residueWorkTime | filterNull(' ')}}</div>
+                    <div :class="{'bgRed fcfff': scope.row.residueWorkTime > 200}" @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">{{scope.row.residueWorkTime | filterNull(' ')}}</div>
                   </template>
                 </el-table-column>
               </el-table>
@@ -254,29 +246,25 @@
               <div class="pdlr10">零件号：{{selectedRow.components | concatString('componentNo')}}</div>
               <div class="pdl20">当前状态：</div>
               <div class="flex pdlr10">
-                <table class="mrmj-table">
+                <table class="mrmj-table tc">
                   <thead>
-                    <tr>
+                    <tr height="24">
                       <th></th>
                       <th v-for="(itemc, index) in selectedRow.processes" :key="index">{{itemc.name}}</th>
-                      <th>EMG</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td>状态</td>
-                      <td v-for="(itemc, index) in selectedRow.processes" :key="index">{{itemc.estimationWorkTime}}</td>
-                      <th></th>
+                      <td v-for="(itemc, index) in selectedRow.processes" :key="index">{{itemc.statusDescription}}</td>
                     </tr>
                     <tr>
                       <td>估工工时</td>
                       <td v-for="(itemc, index) in selectedRow.processes" :key="index">{{itemc.estimationWorkTime}}</td>
-                      <th></th>
                     </tr>
                     <tr>
                       <td>实际工时</td>
-                      <td v-for="(itemc, index) in selectedRow.processes" :key="index">{{itemc.workTime}}</td>
-                      <th></th>
+                      <td v-for="(itemc, index) in selectedRow.processes" :key="index">{{itemc.actualCompletionWorkTime}}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -306,7 +294,6 @@
               <div class="mgb20">
                 <el-table
                   :data="tableData"
-                  :span-method="objectSpanMethod"
                   max-height="400"
                   style="width: 100%">
                   <el-table-column
@@ -402,7 +389,7 @@
     </el-dialog>
 
     <!-- 右键 -->
-    <right-menu :show="rightMenu.show" :top="rightMenu.top" :left="rightMenu.left" @hide="rightMenu.show = false"/>
+    <right-menu v-bind={...rightMenu} @rightMenuHandle="handleTable" @hide="rightMenu.show = false"/>
   </div>
 </template>
 
@@ -417,12 +404,14 @@
     data() {
       return {
         defaultPeopleImg: require('../../../assets/img/people.svg'),
+        isLoading: false,
         maxWorkTime: this.$dict.maxWorkTime,
         procedurePrefix: 'procedure',
         allProcessOfIndex: [],
         tableData: [],
         rightMenu: {
           show: false,
+          isProcesses: false,
           top: 0,
           left: 0,
           row: {}
@@ -472,7 +461,14 @@
           this.isLoading = false;
           let allProcessOfIndex = [];
           if(res.data.length) {
-            
+
+            // res.data.push({ //追加ENG工序
+            //   max: 1,
+            //   min: 0,
+            //   mrProcessId: "",
+            //   name: "ENG"
+            // })
+
             res.data.map(item => {
 
               if(item.max > 1) {
@@ -506,6 +502,7 @@
           this.isLoading = false;
           res.data && res.data.map(item => {
 
+            //item.processes.push(item.eng); //追加ENG工序
             item.processes && item.processes.map(itemc => {
 
               if(itemc.name && !itemc.haveSort) {
@@ -533,19 +530,90 @@
 
         let rowClass = '';
 
-        if(row.row.productionTasksStatus == 60) {
+        if(row.row.productionTasksStatus == 60) { //暂停加工
 
           rowClass = 'rowTermination'
+        }else if(row.row.productionTasksStatus == 80) {
+          
+          rowClass = 'rowSuspend';
         }
 
         return rowClass
       },
-      showRightMenu(e, row) {
+      showRightMenu(e, row, processesId = '', isProcesses = false) {
 
         this.rightMenu.show = true;
+        this.rightMenu.row = row;
+        this.rightMenu.isProcesses = isProcesses;
+        this.rightMenu.processesId = processesId;
         this.rightMenu.top = e.clientY + 'px';
         this.rightMenu.left = e.clientX + 'px';
-        console.log(this.rightMenu)
+      },
+      setCurrentSituation(row) {
+
+        row.currentSituationEdit = false;
+        this.rightMenu.row = row;
+        this.handleTable('currentSituation')
+      },
+      handleTable(type) { //操作表格交互
+
+        let params = {
+          mrProductionPlanTasksId: this.rightMenu.row.mrProductionPlanTasksId
+        }
+
+        switch(type) {
+          case 'pos': //工件位置
+            params.workpieceLocationId = this.rightMenu.processesId;
+            break;
+          case 'suspend': //暂停加工
+            params.productionTasksStatus = 60;
+            break;
+          case 'stop': //终止
+            params.productionTasksStatus = 70;
+            break;
+          case 'complete': //工件完成
+            params.productionTasksStatus = 80;
+            break;
+          case 'currentSituation': //现状
+            params.currentSituation = this.rightMenu.row.currentSituationInput;
+            break;
+        }
+
+        this.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.processTransferRegister, (res) =>  {
+
+          this.isLoading = false;
+          this.$utils.showTip('success', 'success', '117');
+
+          this.rightMenu.row.productionTasksStatus = res.data.productionTasksStatus;
+          this.rightMenu.row.productionTasksStatusText = res.data.productionTasksStatusText;
+
+          switch(type) {
+
+            case 'pos': //工件位置
+
+              this.rightMenu.row.currentPlanProcessId = res.data.currentPlanProcessId;
+              this.rightMenu.row.nextPlanProcessId = res.data.nextPlanProcessId
+              this.rightMenu.row.workpieceLocationId = res.data.workpieceLocationId
+              break;
+            case 'suspend': //暂停加工
+              
+              break;
+            case 'stop': //终止成功后删除
+              this.tableData = this.tableData.filter(item => item.mrProductionPlanTasksId != this.rightMenu.row.mrProductionPlanTasksId)
+              break;
+            case 'complete': //工件完成
+              
+              break;
+            case 'currentSituation': //现状
+              this.rightMenu.row.currentSituation = this.rightMenu.row.currentSituationInput;
+              break;
+          }
+        }, () => {
+
+          this.isLoading = false
+          this.$utils.showTip('error', 'error', '-3');
+        }, params)
       },
       handleSelect(row, event, column) {
         
@@ -553,24 +621,8 @@
       },
       save() {
       },
-      objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-        if (columnIndex === 0) {
-          if (rowIndex % 2 === 0) {
-            return {
-              rowspan: 2,
-              colspan: 1
-            };
-          } else {
-            return {
-              rowspan: 0,
-              colspan: 0
-            };
-          }
-        }
-      },
       refresh() {
 
-        
       }
     },
     computed: {

@@ -1,15 +1,15 @@
 <template>
   <div id="right-menu" class="right-menu" :style="{top: top, left: left, display: (show ? 'block' : '')}">
-    <a href="javascript:;" @click="">工件位置</a>
-    <a href="javascript:;" @click="">暂停加工</a>
-    <a href="javascript:;" @click="">终止</a>
-    <a href="javascript:;" @click="">工件完成</a>
+    <a href="javascript:;" @click="$emit('rightMenuHandle', 'pos')" v-show="isProcesses">工件位置</a>
+    <a href="javascript:;" @click="$emit('rightMenuHandle', 'suspend')">暂停加工</a>
+    <a href="javascript:;" @click="$emit('rightMenuHandle', 'stop')">终止</a>
+    <a href="javascript:;" @click="$emit('rightMenuHandle', 'complete')">工件完成</a>
   </div>
 </template>
 
 <script>
 export default {
-  props: ['top', 'left', 'data', 'show'],
+  props: ['isProcesses', 'show', 'top', 'left'],
   methods: {
     hideRightMenu() {
 
