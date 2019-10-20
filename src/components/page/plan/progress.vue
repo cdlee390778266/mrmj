@@ -7,6 +7,7 @@
             <div class="msg-wrapper">
               <el-button type="primary" @click="$router.push('/plan/edit/1')">制定作业计划</el-button>
               <el-button type="primary" @click="handle.add.dialogVisible = true;">发货</el-button>
+              <el-button type="primary" @click="$router.push('/plan/stop')">终止/暂停/恢复生产</el-button>
               <el-dropdown ref="sort" :hide-on-click="false">
                 <el-button type="primary" icon="el-icon-sort" class="mgl10"></el-button>
                 <el-dropdown-menu slot="dropdown" class="sort">
@@ -282,107 +283,79 @@
             <el-col :span="24">
               <p>请勾选完工零件确认发货。发货后，表示该零件生产完成，将不再在计划表和跟踪表中显示。</p>
               <p class="mgt5">已完工零件列表</p>
-              <p class="mgt5">
-                <el-radio v-model="handle.add.form" label="1">按照要求交期排序</el-radio>
-                <el-radio v-model="handle.add.form" label="2">按照订单是否完成排序</el-radio>
-                <el-radio v-model="handle.add.form" label="3">按照客户排序</el-radio>
-              </p>
             </el-col>
           </el-row>
-          <div class="dialog-content pdt10 pdlr10 mglr10 bgfff">
+          <div class="dialog-content bgfff">
             <div class="mgb10 borb">
-              <div class="mgb20">
-                <el-table
-                  :data="tableData"
-                  max-height="400"
-                  style="width: 100%">
-                  <el-table-column
-                    prop="date"
-                    label="模具号">
-                  </el-table-column>
-                  <el-table-column
-                    prop="date"
-                    label="出货日期">
-                  </el-table-column>
-                  <el-table-column
-                    prop="date"
-                    label="客户">
-                  </el-table-column>
-                  <el-table-column
-                    prop="date"
-                    label="要求交期">
-                  </el-table-column>
-                  <el-table-column
-                    prop="date"
-                    label="状态">
-                  </el-table-column>
-                  <el-table-column
-                    prop="date"
-                    label="零件号码">
-                  </el-table-column>
-                  <el-table-column
-                    prop="date"
-                    label="数量">
-                  </el-table-column>
-                  <el-table-column
-                    prop="date"
-                    label="版本">
-                  </el-table-column>
-                  <el-table-column
-                    prop="date"
-                    label="整体外协">
-                  </el-table-column>
-                  <el-table-column label="工艺时间" align="center">
-                    <el-table-column
-                      prop="name"
-                      label="M"
-                      align="center"
-                      width="66">
-                    </el-table-column>
-                    <el-table-column
-                      prop="name"
-                      label="M"
-                      align="center"
-                      width="66">
-                    </el-table-column>
-                    <el-table-column
-                      prop="name"
-                      label="M"
-                      align="center"
-                      width="66">
-                    </el-table-column>
-                    <el-table-column
-                      prop="name"
-                      label="M"
-                      align="center"
-                      width="66">
-                    </el-table-column>
-                    <el-table-column
-                      prop="name"
-                      label="M"
-                      align="center"
-                      width="66">
-                    </el-table-column>
-                    <el-table-column
-                      prop="name"
-                      label="M"
-                      align="center"
-                      width="66">
-                    </el-table-column>
-                    <el-table-column
-                      prop="name"
-                      label="M"
-                      align="center"
-                      width="66">
-                    </el-table-column>
-                  </el-table-column>
-                </el-table>
-              </div>
+              <el-table
+                :data="tableData"
+                max-height="400"
+                style="width: 100%"
+                 @selection-change="handleSelectionChange">
+                <el-table-column
+                  type="selection"
+                  width="55"
+                  fixed="left">
+                </el-table-column>
+                <el-table-column
+                  prop="requireCompletionDate"
+                  label="要求交期"
+                  sortable
+                  min-width="100"
+                  align="center"
+                  show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column
+                  prop="mouldNo"
+                  label="模具号"
+                  min-width="100"
+                  align="center"
+                  show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column
+                  prop="productionTasksStatus"
+                  label="订单是否已完成"
+                  min-width="130"
+                  align="center"
+                  sortable
+                  show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.productionTasksStatus == 80 ? '是' : '否'}}
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="零件号码"
+                  min-width="100"
+                  align="center"
+                  show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.components | concatString('componentNo')}}
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="date"
+                  label="数量"
+                  min-width="100"
+                  align="center"
+                  show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.components | concatString('quantity')}}
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="abbreviation"
+                  label="客户"
+                  sortable
+                  min-width="100"
+                  align="center"
+                  show-overflow-tooltip>
+                </el-table-column>
+              </el-table>
             </div>
           </div>
         </el-form>
         <div slot="footer" class="dialog-footer tr pdtb20 pdlr10">
-          <el-button type="primary" @click="addOrder(false)">发货</el-button>
+          <el-button type="primary" @click="sendOutGoods">发货</el-button>
           <el-button type="primary" @click="handle.add.dialogVisible = false">取消</el-button>
         </div>
       </div>
@@ -422,7 +395,9 @@
         handle: {
           add: {
             dialogVisible: false,
-            data: {},
+            isLoading: false,
+            multipleSelection: [],
+            tableData: {},
             form: {
               faceUrl: "",
               name: "",
@@ -524,6 +499,7 @@
             })
           })
           this.tableData = res.data || [];
+          this.handle.add.tableData = this.$utils.deepCopy(this.tableData);
         }, () => this.isLoading = false, params)
       },
       setRowClass(row) {
@@ -619,7 +595,33 @@
         
         this.selectedRow = row || {processes: []};
       },
-      save() {
+      handleSelectionChange(val) {
+
+        this.handle.add.multipleSelection = val;
+      },
+      sendOutGoods() { //发货
+
+        let params = [];
+        if(!this.handle.add.multipleSelection.length) {
+
+          this.$utils.showTip('warning', 'error', '-1078');
+          return;
+        }
+
+        this.handle.add.multipleSelection.map(item => {
+
+          params.push(item.mrProductionPlanTasksId)
+        })
+
+        this.handle.add.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.sendOutGoods, (res) =>  {
+
+          this.handle.add.isLoading = false;
+          this.handle.add.dialogVisible = false;
+          this.$utils.showTip('success', 'success', '118');
+          this.handle.add.multipleSelection = [];
+          this.getData();
+        }, () =>  this.handle.add.isLoading = false, params)
       },
       refresh() {
 

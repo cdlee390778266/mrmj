@@ -104,6 +104,10 @@ const CONFIG = {
 		setMaxWorkTime: baseUrl + 'requirement/threshold/sou', //计划--工序估工阈值设置
 		getAllProcessOfIndex: baseUrl + 'requirement/productionOrder/getAllProcessOfIndex', //计划--获取计划表表头工序
 		queryPlanList: baseUrl + 'requirement/makeworkplan/queryPlanList', //计划--当前生产计划列表
+		sendOutGoods: baseUrl + 'requirement/plan/sendOutGoods', //生产进度跟踪--发货
+		queryNeedStopOfOrder: baseUrl + 'requirement/plan/queryNeedStopOfOrder', //生产进度跟踪--未终止生产订单查询
+		stopOrPauseOrder: baseUrl + 'requirement/term/stopOrPauseOrder', //生产进度跟踪--暂停与终止生产订单
+		stopOrPauseRoute: baseUrl + 'requirement/term/stopOrPauseRoute', //生产进度跟踪--暂停与终止零件工艺路线
 		queryNoReleasedPurchase: baseUrl + 'requirement/purchaseOrder/queryNoReleasedPurchase', //计划--查询外协任务
 		processTransferRegister: baseUrl + 'requirement/plan/processTransferRegister', //计划--工件流转登记
 	},
@@ -125,7 +129,8 @@ const CONFIG = {
 		'114': '已暂停',
 		'115': '已终止',
 		'116': '删除成功',
-		'117': '操作成功'
+		'117': '操作成功',
+		'118': '发货成功'
 	},
 	error: {
 		'-1': '加载数据失败，请检查网络！',
@@ -161,7 +166,8 @@ const CONFIG = {
 		'-1074': '请选择报工人员',
 		'-1075': '没有可报工的工序',
 		'-1076': '请输入员工编号',
-		'-1077': '员工编号重复'
+		'-1077': '员工编号重复',
+		'-1078': '至少选中一项'
 	}
 }
 

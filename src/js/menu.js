@@ -225,6 +225,13 @@ const MENU = {
 				isSubPage: true
 			},
 			{
+				name: '终止生产订单',
+				path: '/stop',
+				paramsPath: '/stop',
+				icon: '',
+				isSubPage: true
+			},
+			{
 				name: '委托加工',
 				path: '/entrust',
 				icon: 'el-icon-potato-strips'
