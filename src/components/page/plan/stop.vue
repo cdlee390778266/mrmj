@@ -22,7 +22,9 @@
                   border
                   size="mini"
                   class="content-table mgt10"
-                  style="width: 100%">
+                  style="width: 100%"
+                  :highlight-current-row="true"
+                  @row-click="handleSelect">
                   <el-table-column
                     prop="mouldNo"
                     label="模具号"
@@ -60,33 +62,38 @@
               <h5 class="content-right-title">订单对应零件</h5>
               <div class="content-right">
                 <el-table
-                  :data="needStopOfOrder"
+                  :data="selectedRow.stopInfo"
                   height="238"
                   border
                   size="mini"
                   class="content-table mgt10"
                   style="width: 100%">
                   <el-table-column
-                    prop="fileName"
                     label="零件号"
                     min-width="130"
                     show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      {{scope.row.stopComponents | concatString('componentNo')}}
+                    </template>
                   </el-table-column>
                   <el-table-column
                     prop="fileName"
                     label="数量"
                     min-width="130"
                     show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      {{scope.row.stopComponents | concatString('quantity')}}
+                    </template>
                   </el-table-column>
                   <el-table-column
-                    prop="fileName"
+                    prop="requireDateString"
                     label="要求交期"
                     width="120"
                     align="center"
                     show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column
-                    prop="fileName"
+                    prop="shipmentDateString"
                     label="出货日期"
                     width="120"
                     align="center"
@@ -142,6 +149,7 @@
     data() {
       return {
         isLoading: false,
+        selectedRow: {},
         needStopOfOrder: [],
         handle: {
           stop: {
@@ -183,6 +191,10 @@
         this.handle.stop.tableType = tableType;
         this.$refs.form && this.$refs.form.resetFields();
       },
+      handleSelect(row, event, column) {
+        
+        this.selectedRow = row || {stopInfo: []};
+      },
       save() {
 
         this.$refs.form.validate((valid) => {
@@ -190,7 +202,7 @@
            
             let url = this.handle.stop.tableType == 'order' ? this.$utils.CONFIG.api.stopOrPauseOrder : this.$utils.CONFIG.api.stopOrPauseRoute;
             let params = {
-              productOrderOrCraftRouteId: this.handle.stop.row.craftRouteLineId,
+              productOrderOrCraftRouteId: this.handle.stop.tableType == 'order' ? this.handle.stop.row.productionOrderId : this.handle.stop.row.craftRouteLineId,
               operateType: this.handle.stop.type == 'stop' ? 50 : 40,
               reason: this.handle.stop.form.reason,
               remark: this.handle.stop.form.remark
@@ -202,6 +214,7 @@
               this.handle.stop.isLoading = false;
               this.$utils.showTip('success', 'success', '117');
               this.queryNeedStopOfOrder();
+              this.selectedRow = {};
             }, () => this.handle.stop.isLoading = false, params)
           } else {
             
