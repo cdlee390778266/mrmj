@@ -6,20 +6,8 @@
           <div class="msg" style="width: 100%;">
             <div class="msg-wrapper">
               <el-button type="primary" @click="$router.push('/plan/edit/1')">制定作业计划</el-button>
-              <el-button type="primary" @click="handle.add.dialogVisible = true;">发货</el-button>
+              <el-button type="primary" @click="getOutGoods">发货</el-button>
               <el-button type="primary" @click="$router.push('/plan/stop')">终止/暂停/恢复生产</el-button>
-              <el-dropdown ref="sort" :hide-on-click="false">
-                <el-button type="primary" icon="el-icon-sort" class="mgl10"></el-button>
-                <el-dropdown-menu slot="dropdown" class="sort">
-                  <el-dropdown-item>
-                    <el-button type="text" class="fs14" :class="{active: filter.sort.sortType == ''}" @click="checkSort('')">升序</el-button>
-                    <el-button type="text" class="fr fs14" :class="{active: filter.sort.sortType == 'desc'}" @click="checkSort('desc')">降序</el-button>
-                  </el-dropdown-item>
-                  <el-dropdown-item divided v-for="(item, index) in filter.sort.listType.product" :key="index">
-                    <el-radio v-model="filter.sort.sortField" :label="item.value">{{item.label}}</el-radio>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
               <span class="mgl20">
                 工序估工时间超过
                 <el-input v-model="maxWorkTime" style="width: 60px;" size="mini"></el-input>
@@ -58,6 +46,8 @@
                   </template>
                 </el-table-column>
                 <el-table-column
+                  prop="mouldNo"
+                  sortable
                   label="模具号"
                   width="120"
                   show-overflow-tooltip>
@@ -146,16 +136,16 @@
                     show-overflow-tooltip>
                     <template slot-scope="scope">
                       <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row, '', true)">
-                        <div @click="showInput(tableData, scope.$index, 'buyEdit')">
+                        <div @click="showInput(tableData, scope.$index, 'qcEdit')">
                           <div class="ellipsis">
-                            {{scope.row.else}}
+                            {{scope.row.qc}}
                           </div>
                           <el-select
-                            v-model="scope.row.else"
+                            v-model="scope.row.qcSelect"
                             placeholder="请选择"
-                            :style="{opacity: scope.row.elseEdit ? 1 : 0}"
-                            @focus="showInput(tableData, scope.$index, 'elseEdit')"
-                            @blur="scope.row.elseEdit = false">
+                            :style="{opacity: scope.row.qcEdit ? 1 : 0}"
+                            @focus="showInput(tableData, scope.$index, 'qcEdit')"
+                            @change="() => setQc(scope.row)">
                             <el-option label="请选择" value="">
                             </el-option>
                             <el-option label="QC" value="QC">
@@ -167,6 +157,8 @@
                   </el-table-column>
                 </el-table-column>
                 <el-table-column
+                  prop="requireCompletionDate"
+                  sortable
                   label="要求交期"
                   min-width="100"
                   align="center"
@@ -180,6 +172,8 @@
                   </template>
                 </el-table-column>
                 <el-table-column
+                  prop="abbreviation"
+                  sortable
                   label="客户"
                   min-width="100"
                   align="center"
@@ -192,16 +186,18 @@
                   </template>
                 </el-table-column>
                 <el-table-column
+                  prop="surplus"
+                  sortable
                   label="交期剩余(天)"
-                  min-width="100"
+                  min-width="120"
                   align="center"
                   label-class-name="fc-el-table-head"
                   show-overflow-tooltip>
                   <template slot-scope="scope">
-                    <div :class="{fcfff: dateMinusBgColor(dateMinus(scope.row.requireCompletionDate))}" :style="{background: dateMinusBgColor(dateMinus(scope.row.requireCompletionDate))}"
+                    <div :class="{fcfff: dateMinusBgColor(scope.row.surplus)}" :style="{background: dateMinusBgColor(scope.row.surplus)}"
                       @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)"
                     >
-                      {{dateMinus(scope.row.requireCompletionDate)}}
+                      {{scope.row.surplus}}
                     </div>
                   </template>
                 </el-table-column>
@@ -229,8 +225,10 @@
                   </template>
                 </el-table-column>
                 <el-table-column
+                  prop="residueWorkTime"
+                  sortable
                   label="剩余工时"
-                  min-width="88"
+                  min-width="100"
                   align="center"
                   label-class-name="fc-el-table-head"
                   show-overflow-tooltip>
@@ -288,7 +286,7 @@
           <div class="dialog-content bgfff">
             <div class="mgb10 borb">
               <el-table
-                :data="tableData"
+                :data="handle.add.tableData"
                 max-height="400"
                 style="width: 100%"
                  @selection-change="handleSelectionChange">
@@ -386,7 +384,7 @@
             dialogVisible: false,
             isLoading: false,
             multipleSelection: [],
-            tableData: {},
+            tableData: [],
             form: {
               faceUrl: "",
               name: "",
@@ -417,6 +415,13 @@
           }
         }
       },
+      dateMinus(dateString) { //交期剩余天数
+
+        let t1 = new Date(dateString).getTime();
+        let t0 = new Date().getTime();
+  
+        return parseInt((t1 - t0) / (1000 * 60 * 60 * 24))
+      },
       getAllProcessOfIndex() {  //获取工序列表
 
         this.isLoading = true;
@@ -425,13 +430,6 @@
           this.isLoading = false;
           let allProcessOfIndex = [];
           if(res.data.length) {
-
-            // res.data.push({ //追加ENG工序
-            //   max: 1,
-            //   min: 0,
-            //   mrProcessId: "",
-            //   name: "ENG"
-            // })
 
             res.data.map(item => {
 
@@ -466,7 +464,7 @@
           this.isLoading = false;
           res.data && res.data.map(item => {
 
-            //item.processes.push(item.eng); //追加ENG工序
+            item.surplus = this.dateMinus(item.requireCompletionDate);
             item.processes && item.processes.map(itemc => {
 
               if(itemc.name && !itemc.haveSort) {
@@ -488,7 +486,6 @@
             })
           })
           this.tableData = res.data || [];
-          this.handle.add.tableData = this.$utils.deepCopy(this.tableData);
         }, () => this.isLoading = false, params)
       },
       setRowClass(row) {
@@ -514,7 +511,13 @@
         this.rightMenu.top = e.clientY + 'px';
         this.rightMenu.left = e.clientX + 'px';
       },
-      setCurrentSituation(row) {
+      setQc(row) { //设置Else
+
+        row.qcEdit = false;
+        this.rightMenu.row = row;
+        this.handleTable('qc')
+      },
+      setCurrentSituation(row) { //设置现状
 
         row.currentSituationEdit = false;
         this.rightMenu.row = row;
@@ -539,6 +542,9 @@
           case 'complete': //工件完成
             params.productionTasksStatus = 80;
             break;
+          case 'qc': //Else列
+            params.qc = this.rightMenu.row.qcSelect;
+            break; 
           case 'currentSituation': //现状
             params.currentSituation = this.rightMenu.row.currentSituationInput;
             break;
@@ -570,6 +576,9 @@
             case 'complete': //工件完成
               
               break;
+            case 'qc': //Else
+              this.rightMenu.row.qc = this.rightMenu.row.qcSelect;
+              break;
             case 'currentSituation': //现状
               this.rightMenu.row.currentSituation = this.rightMenu.row.currentSituationInput;
               break;
@@ -587,6 +596,21 @@
       handleSelectionChange(val) {
 
         this.handle.add.multipleSelection = val;
+      },
+      getOutGoods() { //获取可发货列表
+
+        let params = {
+          type: 2
+        };
+
+        this.handle.add.multipleSelection = [];
+        this.handle.add.isLoading = true;
+        this.handle.add.dialogVisible = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryPlanList, (res) =>  {
+
+          this.handle.add.isLoading = false;
+          this.handle.add.tableData = res.data || [];
+        }, () => this.handle.add.isLoading = false, params)
       },
       sendOutGoods() { //发货
 
@@ -608,8 +632,6 @@
           this.handle.add.isLoading = false;
           this.handle.add.dialogVisible = false;
           this.$utils.showTip('success', 'success', '118');
-          this.handle.add.multipleSelection = [];
-          this.getData();
         }, () =>  this.handle.add.isLoading = false, params)
       },
       refresh() {
@@ -617,16 +639,6 @@
       }
     },
     computed: {
-      dateMinus() { //交期剩余天数
-
-        return function(dateString) {
-
-          let t1 = new Date(dateString).getTime();
-          let t0 = new Date().getTime();
-    
-          return parseInt((t1 - t0) / (1000 * 60 * 60 * 24))
-        }
-      },
       dateMinusBgColor() { //交期剩余天数颜色
 
         return function(time) {
