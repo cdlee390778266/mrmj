@@ -37,7 +37,7 @@
                   label="出货日期"
                   width="120"
                   label-class-name="fc-el-table-head"
-                  class-name="notEdit fc-red"
+                  class-name="fc-red"
                   show-overflow-tooltip>
                   <template slot-scope="scope">
                     <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">

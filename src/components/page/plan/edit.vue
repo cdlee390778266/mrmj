@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="isLoading">
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
@@ -10,11 +10,13 @@
     <div class="">
       <span>作业计划日期：</span>
       <el-date-picker
-        v-model="right.page1.date"
+        v-model="operationalPlanDate"
         type="date"
         size="mini"
+        :picker-options="pickerOptions"
         placeholder="年/月/日">
       </el-date-picker>
+      <el-button type="text" class="mgl10 pointer" @click="showPlan">查询已制定作业计划</el-button>
     </div>
     <div class="v-tabs mgt10">
       <span class="v-tab" :class="{'active': activeTab == 'step1'}" @click="activeTab = 'step1'">第1步 选择作业零件</span>
@@ -32,6 +34,7 @@
           </p>
           <div class="posFull" style="top: 30px; bottom: 66px;">
             <el-table
+                ref="step1"
                 :data="tabs.step1.tableData"
                 size="mini"
                 style="width: 100%"
@@ -87,9 +90,7 @@
                   label-class-name="fc-el-table-head"
                   show-overflow-tooltip>
                   <template slot-scope="scope">
-                    <div :class="{fcfff: dateMinusBgColor(scope.row.surplus)}" :style="{background: dateMinusBgColor(scope.row.surplus)}"
-                      @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)"
-                    >
+                    <div :class="{fcfff: dateMinusBgColor(scope.row.surplus)}" :style="{background: dateMinusBgColor(scope.row.surplus)}">
                       {{scope.row.surplus}}
                     </div>
                   </template>
@@ -258,7 +259,7 @@
 				<div class="step2-content">
           <div class="content">
             <h5 class="content-left-title">选择工序</h5>
-            <div class="content-left" v-loading="left.isLoading">
+            <div class="content-left">
               <div class="list">
                 <div class="list-body">
                   <div class="dflex pd10" :class="{active: tabs.step2.left.activeId == key}" style="align-items: center;" v-for="(item, key) in tabs.step2.left.processes" :key="key" @click="handleSelectProcesses(key)">
@@ -274,9 +275,9 @@
             <div class="content-right">
               <h3 class="tc pdtb10">工序G作业计划</h3>
               <div>
-                <img :src="img1" width="22">
-                <img :src="img2" width="22" class="mgl10">
-                <img :src="img3" width="22" class="mgl10">
+                <img :src="img1" width="22" class="pointer" @click="remove">
+                <img :src="img2" width="22" class="mgl10 pointer" @click="moveUp">
+                <img :src="img3" width="22" class="mgl10 pointer" @click="moveDown">
                 <span class="mgl20">作业计划调整（选择某条记录，点击移出、上移、下移按钮进行操作）</span>
               </div>
               <div class="posFull" style="top: 90px; bottom: 74px;">
@@ -291,12 +292,12 @@
                   <el-table-column type="index" label="序号" width="50"></el-table-column>
                   <el-table-column prop="processesName" label="工序" width="100" class-name="notEdit" show-overflow-tooltip></el-table-column>
                   <el-table-column prop="mouldNo" label="模具号" width="100" class-name="notEdit" show-overflow-tooltip></el-table-column>
-                  <el-table-column label="零件号" width="100" class-name="notEdit" show-overflow-tooltip>
+                  <el-table-column label="零件号" min-width="100" class-name="notEdit" show-overflow-tooltip>
                     <template slot-scope="scope">
                       {{scope.row.components | concatString('componentNo')}}
                     </template>
                   </el-table-column>
-                  <el-table-column label="数量" width="100" class-name="notEdit" show-overflow-tooltip>
+                  <el-table-column label="数量" min-width="100" class-name="notEdit" show-overflow-tooltip>
                     <template slot-scope="scope">
                       {{scope.row.components | concatString('quantity', '+')}}
                     </template>
@@ -323,10 +324,10 @@
                       </div>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="estimationWorkTime" label="估工工时" width="100" class-name="notEdit" show-overflow-tooltip></el-table-column>
-                  <el-table-column prop="electrode" label="电极" class-name="notEdit" show-overflow-tooltip></el-table-column>
-                  <el-table-column prop="startDateString" label="开始日期" class-name="notEdit" show-overflow-tooltip></el-table-column>
-                  <el-table-column label="要求完成日期" show-overflow-tooltip>
+                  <el-table-column prop="estimationWorkTime" label="估工工时" width="100" align="center" class-name="notEdit" show-overflow-tooltip></el-table-column>
+                  <el-table-column prop="electrode" label="电极" align="center" class-name="notEdit" show-overflow-tooltip></el-table-column>
+                  <el-table-column prop="startDateString" label="开始日期" align="center" width="100" class-name="notEdit" show-overflow-tooltip></el-table-column>
+                  <el-table-column label="要求完成日期" width="120" align="center" show-overflow-tooltip>
                     <template slot-scope="scope">
                       <div>
                         <div @click="showInput(tabs.step2.right.tableData, scope.$index, 'requireCompletionDateEdit', {})">
@@ -335,6 +336,7 @@
                             type="date"
                             size="mini"
                             placeholder="选择日期"
+                            :clearable="false"
                             format="yyyy-MM-dd"
                             value-format="yyyy-MM-dd"
                             v-model="scope.row.requireCompletionDate"
@@ -348,7 +350,7 @@
                   </el-table-column>
                   <el-table-column label="加工人" class-name="notEdit" show-overflow-tooltip>
                     <template slot-scope="scope">
-                      <!-- {{scope.row.people | concatString('name', ',')}} -->
+                      {{scope.row.people | concatString('userName', ',')}}
                     </template>
                   </el-table-column>
                   <el-table-column label="备注"  show-overflow-tooltip>
@@ -390,9 +392,80 @@
 			</div>
     </div>
     <div class="detail-footer tr">
-      <el-button type="primary">保 存</el-button>
-      <el-button type="primary" @click="back">返 回</el-button>
+      <el-button type="primary" @click="save">保 存</el-button>
     </div>
+
+    <el-dialog title="查看历史作业计划" class="dialog-gray" :visible.sync="handle.plan.dialogVisible">
+      <div class="step2 rel show" style="height: 400px;" v-loading="handle.plan.isLoading">
+        <div class="step2-content">
+          <div class="pdtb10">
+            <span>查询日期：</span>
+            <el-date-picker
+              v-model="operationalPlanDate"
+              type="date"
+              size="mini">
+            </el-date-picker>
+          </div>
+          <div class="content" style="top: 50px; bottom: 60px;">
+            <h5 class="content-left-title">选择工序</h5>
+            <div class="content-left">
+              <div class="list">
+                <div class="list-body">
+                  <div class="dflex pd10" :class="{active: tabs.step2.left.activeId == key}" style="align-items: center;" v-for="(item, key) in tabs.step2.left.processes" :key="key" @click="handleSelectProcesses(key)">
+                    <img :src="defaultImg" width="32">
+                    <div class="flex pdl10">
+                      工序：{{key}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <h5 class="content-right-title">制定所选工序作业计划</h5>
+            <div class="content-right">
+              <div class="posFull" style="top: 20px;">
+                <el-table
+                  :data="tabs.step2.right.tableData"
+                  border
+                  size="mini"
+                  style="width: 100%;"
+                  class="edit-table"
+                  :highlight-current-row="true"
+                  @row-click="handleSelect">
+                  <el-table-column type="index" label="序号" width="50"></el-table-column>
+                  <el-table-column prop="processesName" label="工序" width="100" class-name="notEdit" show-overflow-tooltip></el-table-column>
+                  <el-table-column prop="mouldNo" label="模具号" width="100" class-name="notEdit" show-overflow-tooltip></el-table-column>
+                  <el-table-column label="零件号" min-width="100" class-name="notEdit" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      {{scope.row.components | concatString('componentNo')}}
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="数量" min-width="100" class-name="notEdit" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      {{scope.row.components | concatString('quantity', '+')}}
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="operationalStatusText" label="内容" width="100" show-overflow-tooltip></el-table-column>
+                  <el-table-column prop="estimationWorkTime" label="估工工时" width="100" align="center" class-name="notEdit" show-overflow-tooltip></el-table-column>
+                  <el-table-column prop="electrode" label="电极" align="center" class-name="notEdit" show-overflow-tooltip></el-table-column>
+                  <el-table-column prop="startDateString" label="开始日期" align="center" width="100" class-name="notEdit" show-overflow-tooltip></el-table-column>
+                  <el-table-column prop="requireCompletionDate" label="要求完成日期" width="120" align="center" show-overflow-tooltip>
+                  </el-table-column>
+                  <el-table-column label="加工人" class-name="notEdit" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      {{scope.row.people | concatString('userName', ',')}}
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="remark" label="备注"  show-overflow-tooltip></el-table-column>
+                </el-table>
+              </div>
+            </div>
+          </div>
+          <div class="detail-footer tr" style="border-top: none;">
+            <el-button type="primary" class="mgb5" @click="handle.plan.dialogVisible = false">关闭</el-button>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -402,6 +475,7 @@
     mixins: [leftMixin],
     data() {
       return {
+        isLoading: false,
         activeTab: "step1",
         defaultImg: require('../../../assets/img/wp.svg'),
         img1: require('../../../assets/img/img2.svg'),
@@ -410,6 +484,12 @@
         maxWorkTime: this.$dict.maxWorkTime,
         procedurePrefix: 'procedure',
         allProcessOfIndex: [],
+        operationalPlanDate: new Date(),
+        pickerOptions: { // 限制派工时间不让选择今天以前的
+        　　disabledDate(time) {
+        　　　　return time.getTime() < Date.now() - 24 * 60 * 60 * 1000
+        　　}
+        },
         tabs: {
           step1: {
             form: {
@@ -427,6 +507,17 @@
             right: {
               selectedRow: {},
               tableData: []
+            }
+          }
+        },
+        handle: {
+          plan: {
+            dialogVisible: false,
+            isLoading: false,
+            multipleSelection: [],
+            tableData: [],
+            form: {
+              
             }
           }
         }
@@ -522,6 +613,13 @@
             })
           })
           this.tabs.step1.tableData = res.data || [];
+          this.$nextTick(() => {  //全选
+
+            this.tabs.step1.tableData.map(row => {
+
+              this.$refs.step1.toggleRowSelection(row);
+            })
+          })
         }, () => this.isLoading = false, params)
       },
       setRowClass(row) {
@@ -540,9 +638,7 @@
       },
       handleSelectionChange(val) {
         
-        this.tabs.step1.multipleSelection = val;
-        this.tabs.step1.multipleSelectionProcesses = {};
-
+        this.tabs.step1.multipleSelection = this.$utils.deepCopy(val);
         let processes = [];
         this.tabs.step1.multipleSelection.map(item => {
 
@@ -574,8 +670,6 @@
       },
       handleSelectProcesses(key) {
 
-        if(this.tabs.step2.left.activeId == key) return;
-
         this.tabs.step2.left.activeId = key;
         this.tabs.step2.right.tableData = [];
         this.tabs.step2.right.selectedRow = {};
@@ -583,29 +677,104 @@
         this.tabs.step1.multipleSelection.map(item => {
           
           let index = 0;
-          item.processes && item.processes.length && item.processes.map((itemc) => {
+          if(item.processes && item.processes.length) {
 
-            if(itemc.name == key) {
+            let nameHaveNumber = false;
+            if((item.processes.filter(itemc => itemc.name == key)).length > 1) nameHaveNumber = true;
+            item.processes.map((itemc) => {
 
-              let obj = this.$utils.deepCopy(item);
-              index++;
-              obj.processesName = `${itemc.name}${index}`;
-              obj.mrProductionPlanProcessId = itemc.mrProductionPlanProcessId;
-              obj.operationalStatusText = '';
-              obj.people = '';
-              obj.remark = '';
+              if(itemc.name == key) {
 
-              obj.estimationWorkTime = itemc.estimationWorkTime;
-              this.tabs.step2.right.tableData.push(obj);
-            }
-          })
+                let obj = this.$utils.deepCopy(item);
+                index++;
+                obj.processesName = nameHaveNumber ? `${itemc.name}${index}` : itemc.name;
+                obj.mrProductionPlanProcessId = itemc.mrProductionPlanProcessId;
+                obj.operationalStatusText = '加工';
+                obj.remark = '';
+
+                obj.estimationWorkTime = itemc.estimationWorkTime;
+                this.tabs.step2.right.tableData.push(obj);
+              }
+            })
+          }
         })
       },
       handleSelect(row, event, column) {
         
         this.tabs.step2.right.selectedRow = row;
       },
+      getSelectRowIndex() {
 
+        if(!this.tabs.step2.right.selectedRow.processesName) return -1;
+
+        let index = this.tabs.step2.right.tableData.findIndex(item => this.tabs.step2.right.selectedRow.mrProductionPlanProcessId == item.mrProductionPlanProcessId);
+
+        return index;
+      },
+      remove() {  //删除
+
+        let index = this.getSelectRowIndex();
+        if(index == -1) return;
+
+        this.tabs.step2.right.tableData.splice(index, 1);
+        this.tabs.step2.right.selectedRow = {};
+      },
+      moveUp() {  //上移
+
+        let index = this.getSelectRowIndex();
+        if(index == -1) return;
+
+        if (index > 0) {
+          let upDate = this.tabs.step2.right.tableData[index - 1];
+          this.tabs.step2.right.tableData.splice(index - 1, 1);
+          this.tabs.step2.right.tableData.splice(index,0, upDate);
+        }
+      },
+      moveDown() {  //下移
+
+        let index = this.getSelectRowIndex();
+        if(index == -1) return;
+
+        if ((index + 1) !== this.tabs.step2.right.tableData.length){
+          
+          let downDate = this.tabs.step2.right.tableData[index + 1];
+          this.tabs.step2.right.tableData.splice(index + 1, 1);
+          this.tabs.step2.right.tableData.splice(index,0, downDate);
+        }
+      },
+      save() {
+
+        if(!this.tabs.step2.right.tableData.length) {
+
+          this.$utils.showTip('warning', 'error', '-1079');
+          return;
+        }
+
+        let params = [];
+        this.tabs.step2.right.tableData.map((item, index) => {
+
+          params.push({
+            operationSequence: index + 1,
+            productionPlanProcessId: item.mrProductionPlanProcessId,
+            operationalStatusText: item.operationalStatusText,
+            operationalPlanDate: this.operationalPlanDate,
+            startDate: item.startDateString,
+            requireCompletionDate: item.requireCompletionDate,
+            remark: item.remark
+          })
+        })
+
+        this.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.makeOperationPlan, (res) =>  {
+
+          this.isLoading = false;
+          this.$utils.showTip('success', 'success', '102');
+        }, () => this.isLoading = false, params)
+      },
+      showPlan() {
+
+        this.handle.plan.dialogVisible = true;
+      }
     },
     computed: {
       dateMinusBgColor() { //交期剩余天数颜色
@@ -659,7 +828,7 @@
       left: 10px;
       font-weight: normal;
       font-size: 14px;
-      background: #fff;
+      background: #f2f2f2;
       z-index: 8;
     }
     .content-left {
@@ -708,7 +877,7 @@
       left: 230px;
       font-weight: normal;
       font-size: 14px;
-      background: #fff;
+      background: #f2f2f2;
       z-index: 8;
     }
     .content-right {
