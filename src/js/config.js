@@ -109,8 +109,14 @@ const CONFIG = {
 		stopOrPauseOrder: baseUrl + 'requirement/term/stopOrPauseOrder', //生产进度跟踪--暂停与终止生产订单
 		stopOrPauseRoute: baseUrl + 'requirement/term/stopOrPauseRoute', //生产进度跟踪--暂停与终止零件工艺路线
 		makeOperationPlan: baseUrl + 'requirement/operationalPlan/makeOperationPlan', //生产进度跟踪--制定作业计划
-		queryNoReleasedPurchase: baseUrl + 'requirement/purchaseOrder/queryNoReleasedPurchase', //计划--查询外协任务
 		processTransferRegister: baseUrl + 'requirement/plan/processTransferRegister', //计划--工件流转登记
+		queryNoReleasedPurchase: baseUrl + 'requirement/purchaseOrder/queryNoReleasedPurchase', //计划--外协申请
+		deletePurchaseApply: baseUrl + 'requirement/purchaseOrder/deletePurchaseApply', //计划--删除外协申请
+		queryReleasingPurchase: baseUrl + 'requirement/purchaseOrder/queryReleasingPurchase', //计划--查询当前选择的外协
+		checkPurchaseOrderNo: baseUrl + 'requirement/purchaseOrder/checkPurchaseOrderNo', //计划--于采购订单号验重
+		releasedPurchaseOrder: baseUrl + 'requirement/purchaseOrder/releasedPurchaseOrder', //计划--下达采购订单
+		queryPurchaseOrder: baseUrl + 'requirement/purchaseOrder/queryPurchaseOrder', //计划--未发货的外协采购订单
+
 	},
 	success: {
 		"1": "加载数据成功",

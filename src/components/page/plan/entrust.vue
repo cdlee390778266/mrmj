@@ -50,7 +50,7 @@
                     type="selection"
                     width="50">
                     </el-table-column>
-                    <el-table-column prop="mouldNo" label="模具号" width="180" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="mouldNo" sortable label="模具号" width="180" show-overflow-tooltip></el-table-column>
                     <el-table-column label="零件号" width="180" show-overflow-tooltip>
                       <template scope="scope">
                         {{scope.row.components | concatString('componentNo')}}
@@ -61,13 +61,9 @@
                         {{scope.row.components | concatString('quantity')}}
                       </template>
                     </el-table-column>
-                    <el-table-column label="外协工序" width="180" show-overflow-tooltip>
-                      <template scope="scope">
-                        {{scope.row.components | concatString('quantity')}}
-                      </template>
-                    </el-table-column>
-                    <el-table-column prop="applyDate" label="申请交期" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="description" label="操作" show-overflow-tooltip>
+                    <el-table-column prop="name" sortable label="外协工序" width="180" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="applyDateString" sortable label="申请交期" show-overflow-tooltip></el-table-column>
+                    <el-table-column label="操作" show-overflow-tooltip>
                       <template scope="scope">
                         <el-button type="text" @click="deleteNoReleasedPurchase(scope.row, scope.$index)">删除</el-button>
                       </template>
@@ -131,11 +127,11 @@
                     border
                     size="mini"
                     class="content-table">
-                    <el-table-column prop="a" label="采购订单编号" sortable width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="b" label="供应商"  show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="c" label="下单日期" sortable width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="d" label="最近要求交期" width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="e" label="总金额(CNY)" sortable width="120"  show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="purchaseOrderNo" label="采购订单编号" sortable width="180" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="purchaseOrderNo" label="供应商"  show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="releasedOrderDate" label="下单日期" sortable width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="earliestDeliveryDate" label="最近要求交期" width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="totalPrice" label="总金额(CNY)" sortable width="120"  show-overflow-tooltip></el-table-column>
                     <el-table-column prop="description" label="操作" width="200">
                       <template scope="scope">
                         <el-button type="text" @click="$router.push('/plan/register/1')">到货</el-button>
@@ -371,7 +367,7 @@
         this.$utils.getJson(this.$utils.CONFIG.api.queryNoReleasedPurchase, (res) => {
    
           this.left.isLoading = false;
-          this.left.tabs[0].list = res.data.content || [];
+          this.left.tabs[0].list = res.data || [];
         }, () => {
 
           this.left.isLoading = false;
@@ -381,45 +377,35 @@
       deleteNoReleasedPurchase(item, index) {
 
         let params = {
-
+          mrOutsourcePurchaseApplyId: item.mrOutsourcePurchaseApplyId
         };
       
         this.right.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.deletePurchaseApply, (res) =>  {
 
           this.right.isLoading = false;
           this.$utils.showTip('success', 'success', '104');
-          this.left.tabs[0].list.splice(index, 1);
+          this.queryNoReleasedPurchase();
         }, () => this.right.isLoading = false, params)
       },
       queryOrder() { //获取采购订单跟踪列表
 
         let params = {
-
+          name: '',
+          releasedOrderDate_from: '',
+          releasedOrderDate_to: '',
+          earliestDeliveryDate_from: '',
+          earliestDeliveryDate_to: '',
+          minTotalPrice: '',
+          maxTotalPrice: ''
         };
-        let mock = [
-          {
-            a: 'MR2019-04-06',
-            b: '-',
-            c: '2019.04.06',
-            d: '2019.05.2',
-            e: '123123.00',
-          },
-          {
-            a: 'MR2019-04-08',
-            b: '-',
-            c: '2019.04.08',
-            d: '2019.05.30',
-            e: '1223.00',
-          }
-        ]
-
+    
         this.left.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.queryPurchaseOrder, (res) =>  {
 
           this.left.isLoading = false;
           this.left.tabs[1].list = res.data || [];
-        }, () => this.left.isLoading = false, params, mock)
+        }, () => this.left.isLoading = false, params)
       },
       deleteOrder(item, index) {
 
@@ -476,7 +462,9 @@
         }
 
         let time = new Date().getTime();
-        this.$utils.setSessionStorage(time, JSON.stringify(this.left.tabs[0].selections));
+        let ids = [];
+        this.left.tabs[0].selections.map(item => ids.push(item.mrOutsourcePurchaseApplyId ? item.mrOutsourcePurchaseApplyId : item.productionPlanProcessId))
+        this.$utils.setSessionStorage(time, JSON.stringify(ids));
         this.$router.push(`/plan/placeOrder/${time}`);
       },
       showDialog(type, row) {

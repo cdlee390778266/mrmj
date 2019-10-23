@@ -72,18 +72,18 @@
             style="width: 100%;"
           >
             <el-table-column type="index" label="序号" width="50"></el-table-column>
-            <el-table-column prop="mouldNo" label="模具号" class-name="notEdit" show-overflow-tooltip></el-table-column>
-            <el-table-column label="零件号" class-name="notEdit"  show-overflow-tooltip>
+            <el-table-column prop="mouldNo" label="模具号" class-name="notEdit" width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column label="零件号" class-name="notEdit" min-width="100" show-overflow-tooltip>
               <template scope="scope">
                 {{scope.row.components | concatString('componentNo')}}
               </template>
             </el-table-column>
-            <el-table-column label="零件数量" class-name="notEdit"  show-overflow-tooltip>
+            <el-table-column label="零件数量" class-name="notEdit" min-width="100" show-overflow-tooltip>
               <template scope="scope">
                 {{scope.row.components | concatString('quantity')}}
               </template>
             </el-table-column>
-            <el-table-column label="加工数量" show-overflow-tooltip>
+            <el-table-column label="加工数量" width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
                   <div @click="showInput(tabs.calc.list, scope.$index, 'numEdit', {}, false)">
@@ -93,7 +93,7 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="加工单位" show-overflow-tooltip>
+            <el-table-column label="加工单位" min-width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
                   <div @click="showInput(tabs.calc.list, scope.$index, 'nameEdit', {}, false)">
@@ -103,7 +103,7 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="工序" show-overflow-tooltip>
+            <el-table-column label="工序" min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
                 <div>
                   <div @click="showInput(tabs.calc.list, scope.$index, 'nameEdit', {}, false)">
@@ -127,7 +127,7 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="要求交货期" show-overflow-tooltip>
+            <el-table-column label="要求交货期" width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
                   <div @click="showInput(tabs.calc.list, scope.$index, 'requireDeliveryDateStringEdit', {}, false)">
@@ -147,7 +147,7 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="未含税单价" show-overflow-tooltip>
+            <el-table-column label="未含税单价" width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
                   <div @click="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)">
@@ -157,7 +157,7 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="未含税总价" show-overflow-tooltip>
+            <el-table-column label="未含税总价" width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
                   <div @click="showInput(tabs.calc.list, scope.$index, 'noTaxRateTotalPricesEdit', {}, false)">
@@ -167,7 +167,37 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="备注" show-overflow-tooltip>
+            <el-table-column label="增殖税率" width="100" show-overflow-tooltip>
+              <template scope="scope">
+                <div>
+                  <div @click="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)">
+                    <div class="ellipsis">{{ scope.row.noTaxRatePrice }}</div>
+                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="含税单价" width="100" show-overflow-tooltip>
+              <template scope="scope">
+                <div>
+                  <div @click="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)">
+                    <div class="ellipsis">{{ scope.row.noTaxRatePrice }}</div>
+                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="含税总价" width="100" show-overflow-tooltip>
+              <template scope="scope">
+                <div>
+                  <div @click="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)">
+                    <div class="ellipsis">{{ scope.row.noTaxRatePrice }}</div>
+                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="备注" min-width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
                   <div @click="showInput(tabs.calc.list, scope.$index, 'remarkEdit', {}, false)">
@@ -207,6 +237,7 @@ export default {
     return {
       activeTab: "calc",
       isLoading: false,
+      ids: [],
       tabs: {
         calc: {
           filter: {
@@ -249,6 +280,15 @@ export default {
     };
   },
   methods: {
+    getData() { //获取下达采购订单列表
+
+      this.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.queryReleasingPurchase, (res) => {
+        res.data = [{}]
+        this.isLoading = false;
+        this.tabs.calc.list = res.data || [];
+      }, () => this.isLoading = false, this.ids)
+    },
     save() {
 
       let params = {
@@ -276,9 +316,13 @@ export default {
     if(this.$route.params.id) {
 
       let json = this.$utils.getSessionStorage(this.$route.params.id);
-      this.tabs.calc.list = json ? JSON.parse(json) : [];
+      this.ids = json ? JSON.parse(json) : [];
+    }else {
+
+      return;
     }
     
+    this.getData();
     this.refresh();
   }
 };

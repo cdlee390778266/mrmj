@@ -99,7 +99,7 @@
                   prop="residueWorkTime"
                   sortable
                   label="剩余工时"
-                  min-width="88"
+                  min-width="100"
                   align="center"
                   label-class-name="fc-el-table-head"
                   show-overflow-tooltip>
@@ -368,7 +368,7 @@
               <div class="detail-footer" style="border-top: none;">
                 <div class="dflex" style="align-items: center;">
                   <div class="pdlr10">模具号：{{tabs.step2.right.selectedRow.mouldNo}}</div>
-                  <div class="pdlr10">零件号：{{tabs.step2.right.selectedRow.components | concatString('quantity')}}</div>
+                  <div class="pdlr10">零件号：{{tabs.step2.right.selectedRow.components | concatString('componentNo')}}</div>
                   <div class="pdl20">当前状态：</div>
                   <div class="flex pdlr10">
                     <table class="mrmj-table tc">
@@ -583,7 +583,6 @@
       getData() { //获取订单列表
 
         let params = {
-          type: 1
         };
         this.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryPlanList, (res) =>  {
@@ -613,13 +612,13 @@
             })
           })
           this.tabs.step1.tableData = res.data || [];
-          this.$nextTick(() => {  //全选
+          // this.$nextTick(() => {  //全选
 
-            this.tabs.step1.tableData.map(row => {
+          //   this.tabs.step1.tableData.map(row => {
 
-              this.$refs.step1.toggleRowSelection(row);
-            })
-          })
+          //     this.$refs.step1.toggleRowSelection(row);
+          //   })
+          // })
         }, () => this.isLoading = false, params)
       },
       setRowClass(row) {

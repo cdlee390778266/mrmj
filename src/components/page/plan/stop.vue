@@ -212,6 +212,7 @@
             this.$utils.getJson(url, (res) =>  {
 
               this.handle.stop.isLoading = false;
+              this.handle.stop.dialogVisible = false;
               this.$utils.showTip('success', 'success', '117');
               this.queryNeedStopOfOrder();
               this.selectedRow = {};
