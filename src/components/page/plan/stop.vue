@@ -52,7 +52,8 @@
                     show-overflow-tooltip>
                     <template slot-scope="scope">
                       <el-button type="text" @click="showDialog('stop', scope.row)">终止订单</el-button>
-                      <el-button type="text" @click="showDialog('suspend', scope.row)">暂停订单</el-button>
+                      <el-button type="text" @click="recovery('order', scope.row)" v-show="scope.row.productionOrderStatus == 40">恢复订单</el-button>
+                      <el-button type="text" @click="showDialog('suspend', scope.row)" v-show="scope.row.productionOrderStatus != 40">暂停订单</el-button>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -195,7 +196,7 @@
         
         this.selectedRow = row || {stopInfo: []};
       },
-      save() {
+      save() { //终止，暂停
 
         this.$refs.form.validate((valid) => {
           if (valid) {
@@ -204,7 +205,7 @@
             let params = {
               productOrderOrCraftRouteId: this.handle.stop.tableType == 'order' ? this.handle.stop.row.productionOrderId : this.handle.stop.row.craftRouteLineId,
               operateType: this.handle.stop.type == 'stop' ? 50 : 40,
-              reason: this.handle.stop.form.reason,
+              reasonType: this.handle.stop.form.reason,
               remark: this.handle.stop.form.remark
             }
 
@@ -222,6 +223,20 @@
             return false;
           }
         });
+      },
+      recovery(type, row) { //恢复
+
+        let url = type == 'order' ? this.$utils.CONFIG.api.resetOrder : this.$utils.CONFIG.api.resetCraftRoute;
+        let params = type == 'order' ? {productionOrderId: row.productionOrderId} : {craftRouteLineId: row.craftRouteLineId}
+
+        this.isLoading = true;
+        this.$utils.getJson(url, (res) =>  {
+
+          this.isLoading = false;
+          this.$utils.showTip('success', 'success', '117');
+          this.queryNeedStopOfOrder();
+          this.selectedRow = {};
+        }, () => this.isLoading = false, params)
       },
       refresh() {
         

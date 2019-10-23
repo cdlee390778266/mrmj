@@ -107,7 +107,9 @@ const CONFIG = {
 		sendOutGoods: baseUrl + 'requirement/plan/sendOutGoods', //生产进度跟踪--发货
 		queryNeedStopOfOrder: baseUrl + 'requirement/plan/queryNeedStopOfOrder', //生产进度跟踪--未终止生产订单查询
 		stopOrPauseOrder: baseUrl + 'requirement/term/stopOrPauseOrder', //生产进度跟踪--暂停与终止生产订单
+		resetOrder: baseUrl + 'requirement/term/resetOrder', //生产进度跟踪--恢复订单
 		stopOrPauseRoute: baseUrl + 'requirement/term/stopOrPauseRoute', //生产进度跟踪--暂停与终止零件工艺路线
+		resetCraftRoute: baseUrl + 'requirement/term/resetCraftRoute', //生产进度跟踪--恢复生产
 		makeOperationPlan: baseUrl + 'requirement/operationalPlan/makeOperationPlan', //生产进度跟踪--制定作业计划
 		processTransferRegister: baseUrl + 'requirement/plan/processTransferRegister', //计划--工件流转登记
 		queryNoReleasedPurchase: baseUrl + 'requirement/purchaseOrder/queryNoReleasedPurchase', //计划--外协申请
