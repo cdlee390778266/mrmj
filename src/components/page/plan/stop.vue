@@ -107,8 +107,9 @@
                     align="center"
                     show-overflow-tooltip>
                     <template slot-scope="scope">
-                      <el-button type="text" @click="showDialog('stop', scope.row, 'route')">终止订单</el-button>
-                      <el-button type="text" @click="showDialog('suspend', scope.row, 'route')">暂停订单</el-button>
+                      <el-button type="text" @click="showDialog('stop', scope.row, 'route')">终止生产</el-button>
+                      <el-button type="text" @click="recovery('route', scope.row)" v-show="scope.row.designTasksStatus == 40">恢复生产</el-button>
+                      <el-button type="text" @click="showDialog('suspend', scope.row, 'route')" v-show="scope.row.designTasksStatus != 40">暂停生产</el-button>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -215,8 +216,28 @@
               this.handle.stop.isLoading = false;
               this.handle.stop.dialogVisible = false;
               this.$utils.showTip('success', 'success', '117');
-              this.queryNeedStopOfOrder();
-              this.selectedRow = {};
+
+              if(this.handle.stop.type == 'stop') {
+
+                if(this.handle.stop.tableType == 'order') {
+
+                  this.queryNeedStopOfOrder();
+                  this.selectedRow = {};
+                }else {
+
+                  this.selectedRow.stopInfo = this.selectedRow.stopInfo.filter(item => item.craftRouteLineId != this.handle.stop.row.craftRouteLineId)
+                }
+              }else {
+
+                if(this.handle.stop.tableType == 'order') {
+                  
+                  this.selectedRow.productionOrderStatus = 40;
+                }else {
+                  
+                  this.handle.stop.row.designTasksStatus = 40;
+                }
+              }
+              
             }, () => this.handle.stop.isLoading = false, params)
           } else {
             
@@ -234,8 +255,14 @@
 
           this.isLoading = false;
           this.$utils.showTip('success', 'success', '117');
-          this.queryNeedStopOfOrder();
-          this.selectedRow = {};
+
+          if(type == 'order') {
+
+            row.productionOrderStatus = 1000;
+          }else {
+           
+            row.designTasksStatus = 1000;
+          }
         }, () => this.isLoading = false, params)
       },
       refresh() {

@@ -105,6 +105,8 @@ const CONFIG = {
 		getAllProcessOfIndex: baseUrl + 'requirement/productionOrder/getAllProcessOfIndex', //计划--获取计划表表头工序
 		queryPlanList: baseUrl + 'requirement/makeworkplan/queryPlanList', //计划--当前生产计划列表
 		sendOutGoods: baseUrl + 'requirement/plan/sendOutGoods', //生产进度跟踪--发货
+		saveSelectedTask: baseUrl + 'requirement/plan/saveSelectedTask', //生产进度跟踪--记录勾选的任务
+		queryPlanProcess: baseUrl + 'requirement/plan/queryPlanProcess', //生产进度跟踪--查询已制定的作业计划
 		queryNeedStopOfOrder: baseUrl + 'requirement/plan/queryNeedStopOfOrder', //生产进度跟踪--未终止生产订单查询
 		stopOrPauseOrder: baseUrl + 'requirement/term/stopOrPauseOrder', //生产进度跟踪--暂停与终止生产订单
 		resetOrder: baseUrl + 'requirement/term/resetOrder', //生产进度跟踪--恢复订单

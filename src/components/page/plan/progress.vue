@@ -41,7 +41,7 @@
                   show-overflow-tooltip>
                   <template slot-scope="scope">
                     <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row)">
-                      {{scope.row.shipmentDate | filterNull(' ')}}
+                      {{scope.row.shipmentDateString | filterNull(' ')}}
                     </div>
                   </template>
                 </el-table-column>

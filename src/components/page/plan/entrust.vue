@@ -463,7 +463,7 @@
 
         let time = new Date().getTime();
         let ids = [];
-        this.left.tabs[0].selections.map(item => ids.push(item.mrOutsourcePurchaseApplyId ? item.mrOutsourcePurchaseApplyId : item.productionPlanProcessId))
+        this.left.tabs[0].selections.map(item => ids.push(item.outsourceType == 10 ? item.mrOutsourcePurchaseApplyId : item.productionPlanProcessId))
         this.$utils.setSessionStorage(time, JSON.stringify(ids));
         this.$router.push(`/plan/placeOrder/${time}`);
       },

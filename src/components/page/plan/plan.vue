@@ -74,73 +74,33 @@
                   :data="tableData"
                   size="mini"
                   style="width: 100%"
-                  class="edit-table">
-                  <el-table-column
-                    prop="mouldNo"
-                    label="模具号"
-                    width="120"
-                    class-name="notEdit"
-                    show-overflow-tooltip>
-                  </el-table-column>
-                  <el-table-column
-                    prop="releaseProductionOrderDate"
-                    label="下图日期"
-                    width="100"
-                    align="center"
-                    label-class-name="fc-el-table-head"
-                    class-name="fc-blue"
-                    show-overflow-tooltip>
-                  </el-table-column>
+                  class="edit-table"
+                  :highlight-current-row="true"
+                  :row-class-name="setRowClass"
+                  @row-click="handleSelect">
                   <el-table-column
                     label="出货日期"
-                    width="100"
-                    align="center"
+                    width="120"
                     label-class-name="fc-el-table-head"
                     class-name="fc-red"
                     show-overflow-tooltip>
-                    <template scope="scope">
-                      <div>
-                        <div @click="showInput(tableData, scope.$index, 'shipmentDateEdit', {})">
-                          <div class="ellipsis tc">{{ scope.row.shipmentDate }}</div>
-                          <el-date-picker
-                            type="date"
-                            size="mini"
-                            placeholder="选择日期"
-                            format="yyyy-MM-dd"
-                            value-format="yyyy-MM-dd"
-                            v-model="scope.row.shipmentDate"
-                            @focus="showInput(tableData, scope.$index, 'shipmentDateEdit', {})"
-                            @blur="scope.row.shipmentDateEdit = false"
-                            :style="{opacity: scope.row.shipmentDateEdit ? 1 : 0}">
-                          </el-date-picker>
-                        </div>
+                    <template slot-scope="scope">
+                      <div >
+                        {{scope.row.shipmentDateString | filterNull(' ')}}
                       </div>
                     </template>
                   </el-table-column>
                   <el-table-column
-                    prop="abbreviation"
-                    label="客户"
-                    min-width="100"
-                    align="center"
-                    label-class-name="fc-el-table-head"
-                    class-name="fc-blue"
+                    prop="mouldNo"
+                    sortable
+                    label="模具号"
+                    width="120"
                     show-overflow-tooltip>
-                  </el-table-column>
-                  <el-table-column
-                    prop="requireCompletionDate"
-                    label="要求交期"
-                    width="100"
-                    align="center"
-                    label-class-name="fc-el-table-head"
-                    class-name="fc-blue"
-                    show-overflow-tooltip>
-                  </el-table-column>
-                  <el-table-column
-                    prop="productionTasksStatus"
-                    label="状态"
-                    width="100"
-                    align="center"
-                    show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      <div >
+                        {{scope.row.mouldNo | filterNull(' ')}}
+                      </div>
+                    </template>
                   </el-table-column>
                   <el-table-column
                     label="零件号码"
@@ -148,7 +108,9 @@
                     align="center"
                     show-overflow-tooltip>
                     <template slot-scope="scope">
-                      {{scope.row.components | concatString('componentNo')}}
+                      <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" >
+                        {{scope.row.components | concatString('componentNo')}}
+                      </div>
                     </template>
                   </el-table-column>
                   <el-table-column
@@ -157,7 +119,9 @@
                     align="center"
                     show-overflow-tooltip>
                     <template slot-scope="scope">
-                      {{scope.row.components | concatString('quantity')}}
+                      <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" >
+                        {{scope.row.components | concatString('quantity')}}
+                      </div>
                     </template>
                   </el-table-column>
                   <el-table-column
@@ -166,37 +130,24 @@
                     width="100"
                     align="center"
                     show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      <div >
+                        {{scope.row.versionNo | filterNull(' ')}}
+                      </div>
+                    </template>
                   </el-table-column>
                   <el-table-column
-                    prop="j"
                     label="整体外协"
                     width="100"
                     align="center"
                     show-overflow-tooltip>
                     <template slot-scope="scope">
-                      <div>
-                        <div @click="showInput(tableData, scope.$index, 'buyEdit')">
-                          <div class="ellipsis">
-                            {{ 
-                              scope.row.buy == 1 ? '是' : (
-                                 scope.row.buy == 0 ? '否' : ''
-                              )
-                            }}
-                          </div>
-                          <el-select
-                            v-model="scope.row.buy"
-                            placeholder="请选择"
-                            :style="{opacity: scope.row.buyEdit ? 1 : 0}"
-                            @focus="showInput(tableData, scope.$index, 'buyEdit')"
-                            @blur="scope.row.buyEdit = false">
-                            <el-option
-                              v-for="itemc in $dict.outsourceList"
-                              :key="itemc.value"
-                              :label="itemc.label"
-                              :value="itemc.value">
-                            </el-option>
-                          </el-select>
-                        </div>
+                      <div >
+                        {{ 
+                          scope.row.buy == 1 ? '是' : (
+                             scope.row.buy == 0 ? '否' : ''
+                          )
+                        }}
                       </div>
                     </template>
                   </el-table-column>
@@ -210,30 +161,102 @@
                       label-class-name="fc-red"
                       show-overflow-tooltip>
                       <template slot-scope="scope">
-                        <div :class="{'fc-red': (scope.row[item.key] > maxWorkTime) && !scope.row[`${item.key}-isOut`]}" v-if="scope.row[item.key]">
-                          <div @click="showInput(tableData, scope.$index, `${item.key}Edit`)">
-                            <div class="ellipsis">
-                              {{ 
-                                scope.row[`${item.key}-isOut`] == 1 ? '外协' : scope.row[item.key]
-                              }}
-                            </div>
-                            <el-select
-                              v-model="scope.row[`${item.key}-isOut`]"
-                              placeholder="请选择"
-                              :style="{opacity: scope.row[`${item.key}Edit`] ? 1 : 0}"
-                              @focus="showInput(tableData, scope.$index, `${item.key}Edit`)"
-                              @blur="scope.row[`${item.key}Edit`] = false">
-                              <el-option
-                                v-for="itemc in $dict.outsourceLabelList"
-                                :key="itemc.value"
-                                :label="itemc.label"
-                                :value="itemc.value">
-                              </el-option>
-                            </el-select>
-                          </div>
+                        <div
+                        :class="{
+                          'fc-red': scope.row[item.key] > maxWorkTime,
+                          'bg00b0f0 fcfff': scope.row.currentPlanProcessId == scope.row[item.key+'-id'],
+                          'bg-green fcfff': scope.row.nextPlanProcessId == scope.row[item.key+'-id'],
+                          'bgffff00': scope.row.workpieceLocationId == scope.row[item.key+'-id']}"
+                          v-if="scope.row[item.key] || scope.row[item.key] == 0"
+                          >
+                          {{scope.row[item.key]}}
                         </div>
                       </template>
                     </el-table-column>
+                    <el-table-column
+                      prop="qc"
+                      label="Else"
+                      align="center"
+                      min-width="70"
+                      label-class-name="fc-blue"
+                      show-overflow-tooltip>
+                    </el-table-column>
+                  </el-table-column>
+                  <el-table-column
+                    prop="requireCompletionDate"
+                    sortable
+                    label="要求交期"
+                    min-width="100"
+                    align="center"
+                    label-class-name="fc-el-table-head"
+                    class-name="fc-blue"
+                    show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      <div >
+                        {{scope.row.requireCompletionDate | filterNull(' ')}}
+                      </div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    prop="abbreviation"
+                    sortable
+                    label="客户"
+                    min-width="100"
+                    align="center"
+                    class-name="fc-blue"
+                    show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      <div >
+                        {{scope.row.abbreviation | filterNull(' ')}}
+                      </div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    prop="surplus"
+                    sortable
+                    label="交期剩余(天)"
+                    min-width="120"
+                    align="center"
+                    label-class-name="fc-el-table-head"
+                    show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      <div :class="{fcfff: dateMinusBgColor(scope.row.surplus)}" :style="{background: dateMinusBgColor(scope.row.surplus)}"
+                      >
+                        {{scope.row.surplus}}
+                      </div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="现状" class-name="fc800000" min-width="180" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      <div >
+                        {{ scope.row.currentSituation }}
+                      </div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    label="电极"
+                    min-width="100"
+                    align="center"
+                    label-class-name="fc-el-table-head"
+                    class-name="fc-blue"
+                    show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      <div >
+                        {{scope.row.electrode | filterNull(' ')}}
+                      </div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    prop="residueWorkTime"
+                    sortable
+                    label="剩余工时"
+                    min-width="100"
+                    align="center"
+                    label-class-name="fc-el-table-head"
+                    show-overflow-tooltip>
+                    <template scope="scope">
+                      <div :class="{'bgRed fcfff': scope.row.residueWorkTime > 200}" >{{scope.row.residueWorkTime | filterNull(' ')}}</div>
+                    </template>
                   </el-table-column>
                 </el-table>
               </div>
@@ -410,6 +433,31 @@
       }
     },
     methods: {
+      compare(propertyName) { //对象排序比较器
+
+        return function(object1, object2) {
+
+          var value1 = object1[propertyName];
+          var value2 = object2[propertyName];
+          if (value2 < value1) {
+
+            return 1;
+          } else if (value2 > value1) {
+
+            return -1;
+          } else {
+
+            return 0;
+          }
+        }
+      },
+      dateMinus(dateString) { //交期剩余天数
+
+        let t1 = new Date(dateString).getTime();
+        let t0 = new Date().getTime();
+  
+        return parseInt((t1 - t0) / (1000 * 60 * 60 * 24))
+      },
       getAllProcessOfIndex() {  //获取工序列表
 
         this.isLoading = true;
@@ -418,7 +466,7 @@
           this.isLoading = false;
           let allProcessOfIndex = [];
           if(res.data.length) {
-            
+
             res.data.map(item => {
 
               if(item.max > 1) {
@@ -431,7 +479,7 @@
                   newItem.index = i;
                   allProcessOfIndex.push(newItem);
                 }
-              }else {
+              }else if(item.max == 1) {
 
                 item.key = `${this.procedurePrefix}-${item.name}1`;
                 allProcessOfIndex.push(item);
@@ -446,52 +494,49 @@
         let params = {
 
         };
-        let mock = [
-          {
-            id: 0,
-            a: 'M19536',
-            b: '4月7日',
-            c: '5月1日',
-            d: 'KL-D',
-            e: '5月7日',
-            f: '',
-            g: '200',
-            h: '8+1',
-            i: 'v1',
-            j: '是',
-            k: [
-              {
-                name: 'M',
-                value: 50,
-                index: 1
-              },
-              {
-                name: 'W/C',
-                value: 100,
-                index: 1
-              },
-              {
-                name: 'G',
-                value: 369,
-                index: 2
-              }
-            ]
-          }
-        ]
-
         this.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryPlanList, (res) =>  {
 
           this.isLoading = false;
           res.data && res.data.map(item => {
 
+            item.surplus = this.dateMinus(item.requireCompletionDate);
             item.processes && item.processes.map(itemc => {
 
-              item[`${this.procedurePrefix}-${itemc.name}${itemc.processSequence}`] = itemc.workTime;
+              if(itemc.name && !itemc.haveSort) {
+
+                let processes = item.processes.filter(itemcc => itemcc.name == itemc.name);
+                processes.sort(this.compare('processSequence'));
+                
+                processes.map((itemcc, index) => {
+
+                  itemc.haveSort = true;
+                  itemc.processesIndex = index + 1;
+                  itemc.webName = `${itemcc.name}${itemcc.processesIndex}`;
+
+                  item[`${this.procedurePrefix}-${itemcc.name}${itemcc.processesIndex}`] = itemcc.workTime;
+                  item[`${this.procedurePrefix}-${itemcc.name}${itemcc.processesIndex}-id`] = itemcc.mrProductionPlanProcessId;
+                })
+                item.webProcesses = processes;
+              }
             })
           })
           this.tableData = res.data || [];
         }, () => this.isLoading = false, params)
+      },
+      setRowClass(row) {
+
+        let rowClass = '';
+
+        if(row.row.productionTasksStatus == 60) { //暂停加工
+
+          rowClass = 'rowTermination'
+        }else if(row.row.productionTasksStatus == 80) {
+          
+          rowClass = 'rowSuspend';
+        }
+
+        return rowClass
       },
       objectSpanMethod({ row, column, rowIndex, columnIndex }) {
         if (columnIndex === 0) {
@@ -514,7 +559,31 @@
         this.getList(this.$utils.CONFIG.api.qwm, this.filter, 'qwm'); //获取模具与零件号联动列表
       }
     },
+    computed: {
+      dateMinusBgColor() { //交期剩余天数颜色
+
+        return function(time) {
+
+          let bgColor = '';
+
+          if(time > 10) {
+
+            bgColor = '#0070c0'
+          }else if(time >= 5) {
+
+            bgColor = '#ffff00'
+          }else if(time >= 0) {
+
+            bgColor = '#ffc000'
+          }else if(time < 0) {
+
+            bgColor = '#ff0000'
+          }
     
+          return bgColor
+        }
+      }
+    },
     created() {
       
       this.getDropDownList();

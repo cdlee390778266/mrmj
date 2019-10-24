@@ -58,7 +58,7 @@
                   show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column
-                  prop="shipmentDate"
+                  prop="shipmentDateString"
                   sortable
                   label="出货日期"
                   width="100"
@@ -258,7 +258,7 @@
       <div class="step2 hide rel" :class="{'show': activeTab == 'step2'}">
 				<div class="step2-content">
           <div class="content">
-            <h5 class="content-left-title">选择工序</h5>
+            <h5 class="content-left-title" style="background: #fff">选择工序</h5>
             <div class="content-left">
               <div class="list">
                 <div class="list-body">
@@ -271,7 +271,7 @@
                 </div>
               </div>
             </div>
-            <h5 class="content-right-title">制定所选工序作业计划</h5>
+            <h5 class="content-right-title" style="background: #fff">制定所选工序作业计划</h5>
             <div class="content-right">
               <h3 class="tc pdtb10">工序G作业计划</h3>
               <div>
@@ -305,7 +305,7 @@
                   <el-table-column label="内容" width="100" show-overflow-tooltip>
                     <template slot-scope="scope">
                       <div>
-                        <div @click="showInput(tabs.step2.right.tableData, scope.$index, 'operationalStatusTextEdit')">
+                        <div @click="showInput(tabs.step2.right.tableData, scope.$index, 'operationalStatusTextEdit', {}, false)">
                           <div class="ellipsis">
                             {{scope.row.operationalStatusText}}
                           </div>
@@ -313,7 +313,7 @@
                             v-model="scope.row.operationalStatusText"
                             placeholder="请选择"
                             :style="{opacity: scope.row.operationalStatusTextEdit ? 1 : 0}"
-                            @focus="showInput(tabs.step2.right.tableData, scope.$index, 'operationalStatusTextEdit')"
+                            @focus="showInput(tabs.step2.right.tableData, scope.$index, 'operationalStatusTextEdit', {}, false)"
                             @blur="scope.row.operationalStatusTextEdit = false">
                             <el-option label="加工" value="加工">
                             </el-option>
@@ -330,7 +330,7 @@
                   <el-table-column label="要求完成日期" width="120" align="center" show-overflow-tooltip>
                     <template slot-scope="scope">
                       <div>
-                        <div @click="showInput(tabs.step2.right.tableData, scope.$index, 'requireCompletionDateEdit', {})">
+                        <div @click="showInput(tabs.step2.right.tableData, scope.$index, 'requireCompletionDateEdit', {}, false)">
                           <div class="ellipsis tc">{{ scope.row.requireCompletionDate }}</div>
                           <el-date-picker
                             type="date"
@@ -340,7 +340,7 @@
                             format="yyyy-MM-dd"
                             value-format="yyyy-MM-dd"
                             v-model="scope.row.requireCompletionDate"
-                            @focus="showInput(tabs.step2.right.tableData, scope.$index, 'requireCompletionDateEdit', {})"
+                            @focus="showInput(tabs.step2.right.tableData, scope.$index, 'requireCompletionDateEdit', {}, false)"
                             @blur="scope.row.requireCompletionDateEdit = false"
                             :style="{opacity: scope.row.requireCompletionDateEdit ? 1 : 0}">
                           </el-date-picker>
@@ -401,9 +401,11 @@
           <div class="pdtb10">
             <span>查询日期：</span>
             <el-date-picker
-              v-model="operationalPlanDate"
+              v-model="handle.plan.form.date"
               type="date"
-              size="mini">
+              size="mini"
+              value-format="yyyy-MM-dd"
+              @change="showPlan">
             </el-date-picker>
           </div>
           <div class="content" style="top: 50px; bottom: 60px;">
@@ -411,10 +413,10 @@
             <div class="content-left">
               <div class="list">
                 <div class="list-body">
-                  <div class="dflex pd10" :class="{active: tabs.step2.left.activeId == key}" style="align-items: center;" v-for="(item, key) in tabs.step2.left.processes" :key="key" @click="handleSelectProcesses(key)">
+                  <div class="dflex pd10" :class="{active: handle.plan.activeId == index}" style="align-items: center;" v-for="(item, index) in handle.plan.list" :key="index" @click="handleSelectPlanProcesses(index)">
                     <img :src="defaultImg" width="32">
                     <div class="flex pdl10">
-                      工序：{{key}}
+                      工序：{{item.name}}
                     </div>
                   </div>
                 </div>
@@ -424,15 +426,14 @@
             <div class="content-right">
               <div class="posFull" style="top: 20px;">
                 <el-table
-                  :data="tabs.step2.right.tableData"
+                  :data="handle.plan.selectedRow.planProcesses"
                   border
                   size="mini"
+                  height="256px"
                   style="width: 100%;"
-                  class="edit-table"
-                  :highlight-current-row="true"
-                  @row-click="handleSelect">
+                  :highlight-current-row="true">
                   <el-table-column type="index" label="序号" width="50"></el-table-column>
-                  <el-table-column prop="processesName" label="工序" width="100" class-name="notEdit" show-overflow-tooltip></el-table-column>
+                  <el-table-column prop="name" label="工序" width="100" class-name="notEdit" show-overflow-tooltip></el-table-column>
                   <el-table-column prop="mouldNo" label="模具号" width="100" class-name="notEdit" show-overflow-tooltip></el-table-column>
                   <el-table-column label="零件号" min-width="100" class-name="notEdit" show-overflow-tooltip>
                     <template slot-scope="scope">
@@ -448,7 +449,7 @@
                   <el-table-column prop="estimationWorkTime" label="估工工时" width="100" align="center" class-name="notEdit" show-overflow-tooltip></el-table-column>
                   <el-table-column prop="electrode" label="电极" align="center" class-name="notEdit" show-overflow-tooltip></el-table-column>
                   <el-table-column prop="startDateString" label="开始日期" align="center" width="100" class-name="notEdit" show-overflow-tooltip></el-table-column>
-                  <el-table-column prop="requireCompletionDate" label="要求完成日期" width="120" align="center" show-overflow-tooltip>
+                  <el-table-column prop="requireCompletionDateString" label="要求完成日期" width="120" align="center" show-overflow-tooltip>
                   </el-table-column>
                   <el-table-column label="加工人" class-name="notEdit" show-overflow-tooltip>
                     <template slot-scope="scope">
@@ -514,10 +515,12 @@
           plan: {
             dialogVisible: false,
             isLoading: false,
-            multipleSelection: [],
+            activeId: 0,
+            selectedRow: {},
+            list: [],
             tableData: [],
             form: {
-              
+              date: ''
             }
           }
         }
@@ -612,13 +615,13 @@
             })
           })
           this.tabs.step1.tableData = res.data || [];
-          // this.$nextTick(() => {  //全选
+          this.$nextTick(() => {  //全选
 
-          //   this.tabs.step1.tableData.map(row => {
+            this.tabs.step1.tableData.map(row => {
 
-          //     this.$refs.step1.toggleRowSelection(row);
-          //   })
-          // })
+              row.isSelected && this.$refs.step1.toggleRowSelection(row);
+            })
+          })
         }, () => this.isLoading = false, params)
       },
       setRowClass(row) {
@@ -741,6 +744,14 @@
           this.tabs.step2.right.tableData.splice(index,0, downDate);
         }
       },
+      saveSelectedTask() { //保存勾选的任务
+
+        let params = [];
+
+        this.tabs.step1.multipleSelection.map(item => params.push(item.mrProductionPlanTasksId))
+
+        this.$utils.getJson(this.$utils.CONFIG.api.saveSelectedTask, (res) => {}, null, params)
+      },
       save() {
 
         if(!this.tabs.step2.right.tableData.length) {
@@ -748,6 +759,8 @@
           this.$utils.showTip('warning', 'error', '-1079');
           return;
         }
+
+        this.saveSelectedTask();
 
         let params = [];
         this.tabs.step2.right.tableData.map((item, index) => {
@@ -772,7 +785,30 @@
       },
       showPlan() {
 
+        let params = {
+          operationalPlanDate: this.handle.plan.form.date
+        }
+
         this.handle.plan.dialogVisible = true;
+        this.handle.plan.list = [];
+        this.handle.plan.selectedRow = {};
+
+        this.handle.plan.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryPlanProcess, (res) => {
+
+          this.handle.plan.isLoading = false;
+          this.handle.plan.list = res.data || [];
+
+          if(this.handle.plan.list && this.handle.plan.list.length) {
+            this.handle.plan.activeId = 0;
+            this.handle.plan.selectedRow = this.handle.plan.list[0];
+          }
+        }, () => this.handle.plan.isLoading = false, params)
+      },
+      handleSelectPlanProcesses(key) {
+        
+        this.handle.plan.activeId = key;
+        this.handle.plan.selectedRow = this.handle.plan.list[key];
       }
     },
     computed: {
