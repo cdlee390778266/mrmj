@@ -166,13 +166,13 @@
                     size="mini"
                     class="content-table"
                     style="width: 100%">
-                    <el-table-column prop="a" label="供应商名称" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="b" label="供应商简称" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="c" label="详细地址" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="d" label="联系电话" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="e" label="传真" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="f" label="电子邮件" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="description" label="操作" show-overflow-tooltip>
+                    <el-table-column prop="name" label="供应商名称" sortable min-width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="abbreviation" label="供应商简称" sortable min-width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="address" label="详细地址" sortable min-width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="phone" label="联系电话" sortable width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="fax" label="传真" sortable width="100" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="email" label="电子邮件" sortable min-width="100" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="description" label="操作" width="100" align="center" fixed="right" show-overflow-tooltip>
                       <template scope="scope">
                         <el-button type="text" @click="showDialog('edit', scope.row)">编辑</el-button>
                       </template>
@@ -190,82 +190,82 @@
       <div v-loading="handle.supplier.isLoading">
         <el-form ref="supplierForm" :model="handle.supplier.form" :rules="handle.supplier.rules" label-width="100px">
           <div class="dialog-content pdt10 pdlr10 mglr10">
-            <el-form-item label="供应商名称" prop="a">
-              <el-input v-model="handle.supplier.form.a" auto-complete="off"></el-input>
+            <el-form-item label="供应商名称" prop="name">
+              <el-input v-model="handle.supplier.form.name" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="供应商简称" prop="b">
-              <el-input v-model="handle.supplier.form.b" auto-complete="off"></el-input>
+            <el-form-item label="供应商简称" prop="abbreviation">
+              <el-input v-model="handle.supplier.form.abbreviation" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="详细地址" prop="c">
-              <el-input v-model="handle.supplier.form.c" auto-complete="off"></el-input>
+            <el-form-item label="详细地址" prop="address">
+              <el-input v-model="handle.supplier.form.address" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="联系电话" prop="d">
-              <el-input v-model="handle.supplier.form.d" auto-complete="off"></el-input>
+            <el-form-item label="联系电话" prop="phone">
+              <el-input v-model="handle.supplier.form.phone" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="传真" prop="e">
-              <el-input v-model="handle.supplier.form.e" auto-complete="off"></el-input>
+            <el-form-item label="传真" prop="fax">
+              <el-input v-model="handle.supplier.form.fax" auto-complete="off"></el-input>
             </el-form-item>
-            <el-form-item label="电子邮件" prop="f">
-              <el-input v-model="handle.supplier.form.f" auto-complete="off"></el-input>
+            <el-form-item label="电子邮件" prop="email">
+              <el-input v-model="handle.supplier.form.email" auto-complete="off"></el-input>
             </el-form-item>
             <div class="tl">
               <p>业务联系人：</p>
-              <el-table :data="handle.supplier.form.liaisonManList" border size="mini" style="width: 100%" class="edit-table">
-                <el-table-column prop="liaisonManName" label="联系人姓名"  width="100" show-overflow-tooltip>
-                  <template scope="scope">
+              <el-table :data="handle.supplier.form.liaisonMens" border size="mini" style="width: 100%" class="edit-table">
+                <el-table-column prop="name" label="联系人姓名"  min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
                     <div>
-                      <div @click="showInput(handle.supplier.form.liaisonManList, scope.$index, 'liaisonManNameEdit')">
-                        <el-input size="mini" v-model="scope.row.liaisonManName" @focus="showInput(handle.supplier.form.liaisonManList, scope.$index, 'liaisonManNameEdit')" @blur="scope.row.liaisonManNameEdit = false" :style="{opacity: scope.row.liaisonManNameEdit ? 1 : 0}"/>
-                        <div class="ellipsis">{{ scope.row.liaisonManName }}</div>
+                      <div @click="showInput(handle.supplier.form.liaisonMens, scope.$index, 'nameEdit')">
+                        <el-input size="mini" v-model="scope.row.name" @focus="showInput(handle.supplier.form.liaisonMens, scope.$index, 'nameEdit')" @blur="scope.row.nameEdit = false" :style="{opacity: scope.row.nameEdit ? 1 : 0}"/>
+                        <div class="ellipsis">{{ scope.row.name }}</div>
                       </div>
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column prop="name" label="性别" width="88" show-overflow-tooltip>
-                  <template scope="scope">
+                <el-table-column prop="gender" label="性别" width="88" show-overflow-tooltip>
+                  <template slot-scope="scope">
                     <div>
-                      <div @click="showInput(handle.supplier.form.liaisonManList, scope.$index, 'genderEdit')">
-                        <el-input size="mini" v-model="scope.row.gender" @focus="showInput(handle.supplier.form.liaisonManList, scope.$index, 'genderEdit')" @blur="scope.row.genderEdit = false" :style="{opacity: scope.row.genderEdit ? 1 : 0}"/>
+                      <div @click="showInput(handle.supplier.form.liaisonMens, scope.$index, 'genderEdit')">
+                        <el-input size="mini" v-model="scope.row.gender" @focus="showInput(handle.supplier.form.liaisonMens, scope.$index, 'genderEdit')" @blur="scope.row.genderEdit = false" :style="{opacity: scope.row.genderEdit ? 1 : 0}"/>
                         <div class="ellipsis">{{ scope.row.gender }}</div>
                       </div>
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column prop="address" label="职位" show-overflow-tooltip>
+                <el-table-column prop="position" label="职位" min-width="100"  show-overflow-tooltip>
                   <template scope="scope">
                     <div>
-                      <div @click="showInput(handle.supplier.form.liaisonManList, scope.$index, 'positionEdit')">
-                        <el-input size="mini" v-model="scope.row.position" @focus="showInput(handle.supplier.form.liaisonManList, scope.$index, 'positionEdit')" @blur="scope.row.positionEdit = false" :style="{opacity: scope.row.positionEdit ? 1 : 0}"/>
+                      <div @click="showInput(handle.supplier.form.liaisonMens, scope.$index, 'positionEdit')">
+                        <el-input size="mini" v-model="scope.row.position" @focus="showInput(handle.supplier.form.liaisonMens, scope.$index, 'positionEdit')" @blur="scope.row.positionEdit = false" :style="{opacity: scope.row.positionEdit ? 1 : 0}"/>
                         <div class="ellipsis">{{ scope.row.position }}</div>
                       </div>
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column prop="address" label="联系电话" show-overflow-tooltip>
+                <el-table-column prop="phone" label="联系电话" min-width="100" show-overflow-tooltip>
                   <template scope="scope">
                     <div>
-                      <div @click="showInput(handle.supplier.form.liaisonManList, scope.$index, 'phoneEdit')">
-                        <el-input size="mini" v-model="scope.row.phone" @focus="showInput(handle.supplier.form.liaisonManList, scope.$index, 'phoneEdit')" @blur="scope.row.phoneEdit = false" :style="{opacity: scope.row.phoneEdit ? 1 : 0}"/>
+                      <div @click="showInput(handle.supplier.form.liaisonMens, scope.$index, 'phoneEdit')">
+                        <el-input size="mini" v-model="scope.row.phone" @focus="showInput(handle.supplier.form.liaisonMens, scope.$index, 'phoneEdit')" @blur="scope.row.phoneEdit = false" :style="{opacity: scope.row.phoneEdit ? 1 : 0}"/>
                         <div class="ellipsis">{{ scope.row.phone }}</div>
                       </div>
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column prop="address" label="电子邮件" show-overflow-tooltip>
+                <el-table-column prop="email" label="电子邮件" min-width="100" show-overflow-tooltip>
                   <template scope="scope">
                     <div>
-                      <div @click="showInput(handle.supplier.form.liaisonManList, scope.$index, 'emailEdit')">
-                        <el-input size="mini" v-model="scope.row.email" @focus="showInput(handle.supplier.form.liaisonManList, scope.$index, 'emailEdit')" @blur="scope.row.emailEdit = false" :style="{opacity: scope.row.emailEdit ? 1 : 0}"/>
+                      <div @click="showInput(handle.supplier.form.liaisonMens, scope.$index, 'emailEdit')">
+                        <el-input size="mini" v-model="scope.row.email" @focus="showInput(handle.supplier.form.liaisonMens, scope.$index, 'emailEdit')" @blur="scope.row.emailEdit = false" :style="{opacity: scope.row.emailEdit ? 1 : 0}"/>
                         <div class="ellipsis">{{ scope.row.email }}</div>
                       </div>
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column prop="address" label="备注" show-overflow-tooltip>
+                <el-table-column prop="remark" label="备注" min-width="100" show-overflow-tooltip>
                   <template scope="scope">
                     <div>
-                      <div @click="showInput(handle.supplier.form.liaisonManList, scope.$index, 'remarkEdit')">
-                        <el-input size="mini" v-model="scope.row.remark" @focus="showInput(handle.supplier.form.liaisonManList, scope.$index, 'remarkEdit')" @blur="scope.row.remarkEdit = false" :style="{opacity: scope.row.remarkEdit ? 1 : 0}"/>
+                      <div @click="showInput(handle.supplier.form.liaisonMens, scope.$index, 'remarkEdit')">
+                        <el-input size="mini" v-model="scope.row.remark" @focus="showInput(handle.supplier.form.liaisonMens, scope.$index, 'remarkEdit')" @blur="scope.row.remarkEdit = false" :style="{opacity: scope.row.remarkEdit ? 1 : 0}"/>
                         <div class="ellipsis">{{ scope.row.remark }}</div>
                       </div>
                     </div>
@@ -276,7 +276,7 @@
           </div>
         </el-form>
         <div slot="footer" class="dialog-footer tr pdtb20 pdlr10">
-          <el-button type="primary" @click="addUser">保存</el-button>
+          <el-button type="primary" @click="updateUser">保存</el-button>
           <el-button type="primary" @click="handle.supplier.dialogVisible = false">取消</el-button>
         </div>
       </div>
@@ -337,18 +337,22 @@
             isLoading: false,
             data: {},
             form: {
-              a: '',
-              b: '',
-              c: '',
-              d: '',
-              e: '',
-              f: '',
-              liaisonManList: [{}]
+              name: '',
+              liaisonMens: [{}]
             },
             rules: {
-              a: [
-                { required: true, message: '请输入供应商名称'}
-              ]
+              name: [
+                { required: true, message: this.$utils.getTipText('error', '-1080')}
+              ],
+              abbreviation: [
+                { required: true, message: this.$utils.getTipText('error', '-1081')}
+              ],
+              address: [
+                { required: true, message: this.$utils.getTipText('error', '-1082')}
+              ],
+              phone: [
+                { required: true, message: this.$utils.getTipText('error', '-1083')}
+              ],
             }
           }
         }
@@ -424,36 +428,16 @@
       queryUser() { //获取供应商列表
 
         let params = {
-
+          customerType: 20
         };
-        let mock = [
-          {
-            id: '',
-            a: 'A公司',
-            b: 'A',
-            c: '四川成都高新区',
-            d: '12312312312',
-            e: '12312312312',
-            f: '12313@123123.com'
-          },
-          {
-            a: 'B公司',
-            b: 'B',
-            c: '北京',
-            d: '12312312312',
-            e: '12312312312',
-            f: '12313@qq.com'
-          }
-        ]
 
         this.left.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.customerQcip, (res) =>  {
 
           this.left.isLoading = false;
-          this.left.tabs[2].list = res.data || [];
-        }, () => this.left.isLoading = false, params, mock)
+          this.left.tabs[2].list = res.data.content || [];
+        }, () => this.left.isLoading = false, params)
       },
-      
       addOrder() {
 
         if(!this.left.tabs[0].selections.length) {
@@ -471,45 +455,55 @@
 
         this.handle.supplier.type = type;
         if(type == 'add') { //新增
-
+          console.log(this.$refs.supplierForm)
           this.$refs.supplierForm && this.$refs.supplierForm.resetFields();
           this.handle.supplier.dialogVisible = true;
-          this.handle.supplier.form.liaisonManList = [{}];
+          this.handle.supplier.form.liaisonMens = [{}];
         }else { //编辑
 
-          let params = {
-
-          };
-          let mock = Object.assign({}, row, {liaisonManList: [{}]})
-
           this.handle.supplier.dialogVisible = true;
-          this.handle.supplier.isLoading = true;
-          this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-            this.handle.supplier.isLoading = false;
-            this.handle.supplier.form = res.data || {};
-          }, () => this.handle.supplier.isLoading = false, params, mock)
+          this.handle.supplier.form = this.$utils.deepCopy(row);
         }
       },
-      addUser() {
+      updateUser() {
 
-        let params = {
-
-        };
-       
-        this.handle.supplier.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-          this.handle.supplier.isLoading = false;
-          this.handle.supplier.dialogVisible = false;
-          this.$utils.showTip('success', 'success', '102');console.log(this.handle.supplier.type)
-          if(this.handle.supplier.type == 'add') {  //如果新增
+        this.$refs.supplierForm.validate((valid) => {
+          if (valid) {
             
-            this.left.tabs[2].list.push(Object.assign({}, this.handle.supplier.form));
-          }else { //如果编辑
+            let url = '';
+            let params = {};
 
+            if(this.handle.supplier.type == 'add') {
+
+              url = this.$utils.CONFIG.api.saveCustomer;
+              params = this.handle.supplier.form;
+              params.customerType = 20;
+              params.countryId = '--';
+              let liaisonMens = [];
+              params.liaisonMens && params.liaisonMens.map(item => {
+
+                if(item.name && item.phone) liaisonMens.push(Object.assign({}, item))
+              })
+              params.liaisonMens = liaisonMens;
+            }else {
+
+              url = this.$utils.CONFIG.api.modifyCustomerInfo;
+              params = this.handle.supplier.form;
+            }
+           
+            this.handle.supplier.isLoading = true;
+            this.$utils.getJson(url, (res) =>  {
+
+              this.handle.supplier.isLoading = false;
+              this.handle.supplier.dialogVisible = false;
+              this.$utils.showTip('success', 'success', '102');
+              this.queryUser();
+            }, () => this.handle.supplier.isLoading = false, params)
+          } else {
+  
+            return false;
           }
-        }, () => this.handle.supplier.isLoading = false, params)
+        });
       },
       handleSelect(item) {
       
