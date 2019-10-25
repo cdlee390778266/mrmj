@@ -48,6 +48,7 @@ const CONFIG = {
 		saveSaleOrder: baseUrl + 'requirement/saleOrder/saveSaleOrder', //需求--零件报价
 
 		/* 生产模块*/
+		saveSaleInProduct: baseUrl + 'requirement/productionOrder/saveSaleInProduct', //生产--工艺路线处新增销售订单
 		queryPendingSaleOrder: baseUrl + 'requirement/saleOrder/queryPendingSaleOrder', //生产--待处理的销售订单列表
 		queryPendingSaleOrderDetail: baseUrl + 'requirement/saleOrder/queryPendingSaleOrderDetail', //生产--销售订单详细信息
 		modifyCraftRouteLine: baseUrl + 'requirement/productionOrder/modifyCraftRouteLine', //生产--修改零件工艺与下料清单
