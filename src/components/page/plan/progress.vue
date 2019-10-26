@@ -5,7 +5,7 @@
         <div class="main">
           <div class="msg" style="width: 100%;">
             <div class="msg-wrapper">
-              <el-button type="primary" @click="$router.push('/plan/edit/1')">制定作业计划</el-button>
+              <el-button type="primary" @click="$router.push('/plan/edit')">制定作业计划</el-button>
               <el-button type="primary" @click="getOutGoods">发货</el-button>
               <el-button type="primary" @click="$router.push('/plan/stop')">终止/暂停/恢复生产</el-button>
               <span class="mgl20">

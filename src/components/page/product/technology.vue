@@ -567,7 +567,14 @@
                 });
               }
             })
+            if(!componentOrders || !componentOrders.length ) {
+
+              this.$utils.showTip('warning', 'error', '-1084');
+              return;
+            }
+
             params.componentOrders = componentOrders;
+
             params.attachments = [];
             if(res && res.data && res.data.length) {
 

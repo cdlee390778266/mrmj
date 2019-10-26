@@ -50,7 +50,7 @@
               <el-col :span="24">数量：{{item.components | concatString('quantity')}}</span></el-col>
               <el-col :span="24" class="tr">
                 <a href="javascript: void(0);" @click.stop="queryElectrodeComponentInfo(item)">设计完成</a>
-                <a href="javascript: void(0);" @click.stop="getOrderDetail(item)">下达电极生产订单</a>
+                <a href="javascript: void(0);" @click.stop="getOrderDetail(item)" v-if="item.isHaveEdm">下达电极生产订单</a>
               </el-col>
             </el-row>
           </div>
@@ -419,7 +419,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog :title="`${handle.attachment.title}编程任务完成确认对话框`" align="center" width="500px" class="dialog-gray" :visible.sync="handle.attachment.dialogVisible">
+    <el-dialog :title="`${handle.attachment.title}完成确认对话框`" align="center" width="500px" class="dialog-gray" :visible.sync="handle.attachment.dialogVisible">
       <div v-loading="handle.attachment.isLoading" class="tl pdtb20">
         <div>
           <p class="mgb10">
@@ -475,6 +475,7 @@
       return {
         defaultImg: require('../../../assets/img/spareParts.svg'),
         userName: this.$utils.getStorage(this.$utils.CONFIG.storageNames.usernameName),
+        activeDialogType: '',
         handle: {
           add: {
             dialogVisible: false,
@@ -600,6 +601,7 @@
           this.handle.design.isLoading = false;
           this.handle.design.dialogVisible = false;
           this.$utils.showTip('success', 'success', '102');
+          this.search();
         }, () => this.handle.design.isLoading = false, params);
       },
       getOrderDetail(item) {  //电极生产订单详情
@@ -636,11 +638,11 @@
           this.handle.add.isLoading = false;
           this.handle.add.dialogVisible = false;
           this.$utils.showTip('success', 'success', '102');
-          !saveAsDraft && this.search();
         }, () => this.handle.add.isLoading = false, params);
       },
       showDialog(formKey, type, id, title, attachments) {
         
+        this.activeDialogType = formKey;
         this.handle[formKey].type = type;
         this.handle[formKey].id = id;
         this.handle[formKey].title = title;
@@ -716,12 +718,17 @@
       },
       uploadSuccess(res) {
 
-        let params = [];
+        let params = {
+          mrProgrammeTasksId: this.handle[this.activeDialogType].id,
+          attachments: []
+        };
+
+        console.log(params)
 
         this.handle.attachment.data.map(item => {
 
           if(!item.type) {  //添加原有附件数据
-            params.push({
+            params.attachments.push({
               mrProgrammeTasksId: this.handle.attachment.id,
               fileId: item.fileId,
               fileName: item.fileName,
@@ -735,7 +742,7 @@
 
           res.data.map(item => {  //添加新增附件数据
 
-            params.push({
+            params.attachments.push({
               mrProgrammeTasksId: this.handle.attachment.id,
               fileId: item.fileId,
               fileName: item.fileName,

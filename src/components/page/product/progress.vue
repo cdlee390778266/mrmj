@@ -89,7 +89,7 @@
                     <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{ currentData.customerPoNo | filterNull }}</el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ currentData.name | filterNull }}</el-col>
                   </el-row>
-                  <el-row>
+                  <el-row v-if="left.list && left.list.length">
                     <el-col :span="24">
                       <el-button type="primary" @click="orderDetail">查看相关销售订单</el-button>
                     </el-col>
@@ -371,7 +371,7 @@
         progressImg1: require('../../../assets/img/progress-1.png'),
         progressImg2: require('../../../assets/img/progress-2.png'),
         left: {
-          list: [{}]
+          list: []
         },
         right: {
           activeIndex: 0,
@@ -434,43 +434,32 @@
       },
       editOrder() { //编辑保存
 
-        let params = {
-          mrCraftRouteLineVersionId: this.right.page1.mrCraftRouteLineVersionId,
-          versionNo: this.right.page1.craftVersionNo,
-          stuffNo: this.right.page1.stuffNo || '',
-          length: parseFloat(this.right.page1.length) || 0,
-          width: parseFloat(this.right.page1.width) || 0,
-          height: parseFloat(this.right.page1.height) || 0,
-          remark: this.right.page1.remark || '',
-          processDescription: this.right.page1.processDescription || '',
-          components: [],
-          processes: [],
-          versions: []
+        console.log(this.handle.edit.data)
+        let params = [];
+
+        
+        if(!this.handle.edit.data && !this.handle.edit.data.length) {
+
+          this.showTip('warning', 'error', '-1079');
+          return;
         }
 
-        this.handle.edit.data.map(item => {  //取得选中的版本，如没选中则默认选中第一个
+        this.handle.edit.data.map(item => {
 
-          let obj = {
-            mrCraftRouteLineId: item.mrCraftRouteLineId
-          }
-          if(item.selectedVersionNo) {
-            obj.versionNo = item.selectedVersionNo;
-          }else {
-            if(item.versions && item.versions.length) {
-              obj.versionNo = item.versions[0].versionNo;
-            }else {
-              obj.versionNo = '';
-            }
-          }
-          params.versions.push(obj);
+          item.components && item.components.map(itemc => params.push({
+            mrComponentCraftId: itemc.mrComponentCraftId,
+            quantity: itemc.quantity,
+            stockingQuantity: itemc.stockingQuantity
+          }))
         })
-        
+
         this.handle.edit.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.modifyCraftRouteLine, (res) => {
+        this.$utils.getJson(this.$utils.CONFIG.api.editProductionTrack, (res) => {
 
           this.handle.edit.isLoading = false;
           this.handle.edit.dialogVisible = false;
           this.$utils.showTip('success', 'success', '102');
+          this.search();
         }, () => this.handle.edit.isLoading = false, params);
       },
       orderDetail() {

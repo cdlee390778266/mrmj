@@ -84,6 +84,7 @@ const CONFIG = {
 		queryAttInProgramme: baseUrl + 'requirement/electrodeOrder/queryAttInProgramme', //生产--编程任务附件列表
 		releasedElectrodeProductionOrder: baseUrl + 'requirement/electrodeOrder/releasedElectrodeProductionOrder', //生产--下达电极生产订单
 		trackProductionOrder: baseUrl + 'requirement/productionOrder/trackProductionOrder', //生产--生产订单跟踪查询
+		editProductionTrack: baseUrl + 'requirement/productionOrder/editProductionTrack', //生产--编辑
 		terminateOrPauseOrder: baseUrl + 'requirement/productionOrder/terminateOrPauseOrder', //生产--暂停与终止生产订单
 		querySaleOrderInfo: baseUrl + 'requirement/saleOrder/querySaleOrderInfo', //生产--查看相关销售订单
 		queryPlanList: baseUrl + 'requirement/makeworkplan/queryPlanList', //生产--查看制定作业计划
@@ -145,7 +146,7 @@ const CONFIG = {
 		'118': '发货成功'
 	},
 	error: {
-		'-1': '加载数据失败，请检查网络！',
+		'-1': '加载数据失败，请刷新页面重试！',
 		'-2': '上传失败！',
 		'-3': '操作失败！',
 		'-1000': '数据出错，没有对应的部门！',
@@ -185,6 +186,8 @@ const CONFIG = {
 		'-1081': '请输入供应商简称',
 		'-1082': '请输入详细地址',
 		'-1083': '请输入联系电话',
+		'-1084': '零件清单至少有一条数据，并且零件号数量，客户编号与要求交期不能为空',
+		
 	}
 }
 

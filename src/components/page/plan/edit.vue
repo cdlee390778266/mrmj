@@ -691,9 +691,8 @@
                 index++;
                 obj.processesName = nameHaveNumber ? `${itemc.name}${index}` : itemc.name;
                 obj.mrProductionPlanProcessId = itemc.mrProductionPlanProcessId;
-                obj.operationalStatusText = '加工';
-                obj.remark = '';
-
+                obj.operationalStatusText = itemc.content ? itemc.content : '加工';
+                obj.requireCompletionDate = itemc.requireCompletionDateString ? itemc.requireCompletionDateString : (new Date().Format('yyyy-MM-dd'));
                 obj.estimationWorkTime = itemc.estimationWorkTime;
                 this.tabs.step2.right.tableData.push(obj);
               }
