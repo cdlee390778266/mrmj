@@ -26,30 +26,30 @@
               <!-- 重制订单 -->
               <div class="mgt10">
                 <span>客户：
-                  <el-select size="mini" v-model="right.page1.name" placeholder="请选择客户" style="width: 160px;">
+                  <el-select size="mini" v-model="form.name" placeholder="请选择客户" style="width: 160px;">
                     <el-option v-for="(item, index) in filter.customer" :key="index" :label="item.name" :value="item.name"></el-option>
                   </el-select>
                 </span>
                 <span class="mgl20">模具号：
-                  <el-select size="mini" v-model="right.page1.qwm" value-key="mouldNo" placeholder="请选择模具号" style="width: 160px;" @change="right.page1.componentNo = ''">
+                  <el-select size="mini" v-model="form.qwm" value-key="mouldNo" placeholder="请选择模具号" style="width: 160px;" @change="form.componentNo = ''; resetData();">
                     <el-option v-for="(item, index) in filter.qwm" :key="item.mouldNo" :label="item.mouldNo" :value="item"></el-option>
                   </el-select>
                 </span>
                 <span class="mgl20">零件号：
-                  <el-select size="mini" v-model="right.page1.componentNo" placeholder="请选择模具号" style="width: 160px;" @change="getDetail">
-                    <template v-if="right.page1.qwm">
-                      <el-option v-for="(item, index) in right.page1.qwm.componentOrders" :key="index" :label="item.componentNo" :value="item.componentNo"></el-option>
+                  <el-select size="mini" v-model="form.componentNo" placeholder="请选择模具号" style="width: 160px;" @change="getDetail">
+                    <template v-if="form.qwm">
+                      <el-option v-for="(item, index) in form.qwm.componentOrders" :key="index" :label="item.componentNo" :value="item.componentNo"></el-option>
                     </template>
                   </el-select>
                 </span>
                 <span class="mgl20">手动增加原因：
-                  <el-select size="mini" v-model="right.page1.origin" placeholder="请选择" style="width: 77px;">
+                  <el-select size="mini" v-model="form.origin" placeholder="请选择" style="width: 77px;">
                     <el-option label="重置" :value="20"></el-option>
                     <el-option label="其它" :value="30"></el-option>
                   </el-select>
                 </span>
                 <span class="mgl20">数量：
-                  <el-input size="mini" v-model="right.page1.quantity" style="width: 66px" />
+                  <el-input size="mini" v-model="form.quantity" style="width: 66px" />
                 </span>
               </div>
             </div>
@@ -63,8 +63,8 @@
                   <div class="flex">图纸名称版本</div>
                 </div>
                 <div class="list-body">
-                  <div class="dflex" v-for="(item, index) in left.list" :key="index" :class="{active: left.activeId == item.mrCraftRouteLineVersionId}" @click="handleSelect(item)">
-                    <div class="flex">{{item.craftVersionNo}}</div>
+                  <div class="dflex" style="height: 20px;" v-for="(item, index) in left.list" :key="index" :class="{active: left.activeId == index}" @click="handleSelect(item, index)">
+                    <div class="flex">{{item.versionNo}}</div>
                     <div class="flex">{{item.drawingVersionNo}}</div>
                   </div>
                 </div>
@@ -72,198 +72,193 @@
             </div>
             <h5 class="content-right-title">工艺信息明细</h5>
             <div class="content-right" v-loading="right.isLoading">
-              <p><strong>工艺版本号</strong>（可输入新的版本号，保存后为零件增加新版本工艺路线）
-              </p>
-              <p>
-                <span>工艺路线版本号：</span> 
-                <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                <span class="mgl20">使用图纸版本号：</span> 
-                <el-select size="mini" v-model="right.page1.drawingVersionNo" placeholder="请选择" style="width: 100px;">
-                  <el-option v-for="(itemc, index) in left.list" :key="index" :label="itemc.drawingVersionNo" :value="itemc.drawingVersionNo"></el-option>
-                </el-select>
-              </p>
-              <p v-for="(item, index) in right.page1.components" :key="index">
-                <span>零件号码：{{item.componentNo}}</span>
-                <span class="mgl20">数量： 
-                <el-input size="mini" v-model="item.quantity" style="width: 100px" /></span>
-                <span class="mgl20">备货数量： 
-                <el-input size="mini" v-model="item.stockingQuantity" style="width: 100px" /></span>
-              </p>
-              <p><strong>下料清单</strong></p>
-              <p>
-                <span class="mgl20">材料：
-                  <el-autocomplete
-                    style="width: 100px;"
-                    class="inline-input"
-                    v-model="right.page1.stuffNo"
-                    :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.stuff, 'stuffNo')"
-                    valueKey="stuffNo"
-                    value="stuffNo"
-                    placeholder="请输入内容"
-                  ></el-autocomplete>
-                </span>
-                <span class="mgl20">下料尺寸(净尺寸mm)：
-                  <el-input size="mini" v-model="right.page1.length" style="width: 70px" placeholder="长"/>
-                  x
-                  <el-input size="mini" v-model="right.page1.width" style="width: 70px" placeholder="宽"/>
-                  x
-                  <el-input size="mini" v-model="right.page1.height" style="width: 70px" placeholder="高"/>
-                </span>
-              </p>
-              <p>
-                备注：
-                <el-input
-                  type="textarea"
-                  :rows="4"
-                  placeholder="请输入内容"
-                  style="width: 600px;"
-                  v-model="right.page1.remark">
-                </el-input>
-              </p>
-              <p>
-                <strong>加工工序</strong>
-                <el-table
-                  :data="right.page1.processes"
-                  border
-                  size="mini"
-                  max-height="200"
-                  class=" edit-table"
-                  style="width: 100%">
-                  <el-table-column
-                    type="index"
-                    label="工序序号"
-                    width="80">
-                  </el-table-column>
-                  <el-table-column
-                    label="工序名称"
-                    show-overflow-tooltip>
-                    <template scope="scope">
-                      <div>
-                        <div @click="showInput(right.page1.processes, scope.$index, 'nameEdit')">
-                          <div class="ellipsis">{{ scope.row.name }}</div>
-                          <el-autocomplete
-                            class="inline-input"
-                            v-model="scope.row.name"
-                            :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.process, 'name')"
-                            valueKey="name"
-                            value="name"
-                            placeholder="请输入内容"
-                            @focus="showInput(right.page1.processes, scope.$index, 'nameEdit')"
-                            @blur="scope.row.nameEdit = false"
-                            :style="{opacity: scope.row.nameEdit ? 1 : 0}"
-                          ></el-autocomplete>
-                        </div>
-                      </div>
-                    </template>
-                  </el-table-column>
-                  <el-table-column
-                    label="加工工序内容"
-                    show-overflow-tooltip>
-                    <template scope="scope">
-                      <div>
-                        <div @click="showInput(right.page1.processes, scope.$index, 'processContentTextEdit')">
-                          <div class="ellipsis">{{ scope.row.processContentText }}</div>
-                          <el-autocomplete
-                            class="inline-input"
-                            v-model="scope.row.processContentText"
-                            :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.sysCode, 'codeName')"
-                            valueKey="codeName"
-                            value="codeName"
-                            placeholder="请输入内容"
-                            @focus="showInput(right.page1.processes, scope.$index, 'processContentTextEdit')"
-                            @blur="scope.row.processContentTextEdit = false"
-                            :style="{opacity: scope.row.processContentTextEdit ? 1 : 0}"
-                          ></el-autocomplete>
-                        </div>
-                      </div>
-                    </template>
-                  </el-table-column>
-                  <el-table-column
-                    label="是否委外"
-                    show-overflow-tooltip>
-                    <template slot-scope="scope">
-                      <div>
-                        <div @click="showInput(right.page1.processes, scope.$index, 'nameEdit')">
-                          <div class="ellipsis">
-                            {{ 
-                              scope.row.isOutsource == 1 ? '是' : (
-                                 scope.row.isOutsource == 0 ? '否' : ''
-                              )
-                            }}
-                          </div>
-                          <el-select
-                            v-model="scope.row.isOutsource"
-                            placeholder="请选择"
-                            :style="{opacity: scope.row.isOutsourceEdit ? 1 : 0}"
-                            @focus="showInput(right.page1.processes, scope.$index, 'isOutsourceEdit')"
-                            @blur="scope.row.isOutsourceEdit = false">
-                            <el-option
-                              v-for="itemc in $dict.outsourceList"
-                              :key="itemc.value"
-                              :label="itemc.label"
-                              :value="itemc.value">
-                            </el-option>
-                          </el-select>
-                        </div>
-                      </div>
-                    </template>
-                  </el-table-column>
-                  <el-table-column
-                    label="估工(H)"
-                    show-overflow-tooltip>
-                    <template scope="scope">
-                      <div>
-                        <div @click="showInput(right.page1.processes, scope.$index, 'estimationWorkTimeEdit')">
-                          <div class="ellipsis">{{ scope.row.estimationWorkTime }}</div>
-                          <el-input size="mini" v-model="scope.row.estimationWorkTime" @focus="showInput(right.page1.processes, scope.$index, 'estimationWorkTimeEdit')" @blur="scope.row.estimationWorkTimeEdit = false" :style="{opacity: scope.row.estimationWorkTimeEdit ? 1 : 0}"/>
-                        </div>
-                      </div>
-                    </template>
-                  </el-table-column>
-                </el-table>
-              </p>
-              <p>
-                工艺说明：
-                <el-input
-                  type="textarea"
-                  :rows="4"
-                  placeholder="请输入内容"
-                  v-model="right.page1.processDescription">
-                </el-input>
-              </p>
-              <template v-if="(component.type == 'edit') && isExistenceVersion(left.list, right.page1.craftVersionNo, 'craftVersionNo')">
-                <p><strong>工艺附件</strong></p>
+              <div v-show="left.list && left.list.length">
+                <p><strong>工艺版本号</strong>（可输入新的版本号，保存后为零件增加新版本工艺路线）
+                </p>
                 <p>
-                  上传工艺附件：
-                  <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
-                    <el-button size="mini" type="primary">上传图纸</el-button>
-                    <input type="file" name="file" ref="file" class="posFull opacity0" @change="uploadFile">
+                  <span>工艺路线版本号：</span> 
+                  <el-input size="mini" v-model="right.page1.versionNo" style="width: 100px" />
+                  <span class="mgl20">使用图纸版本号：</span> 
+                  <el-select size="mini" v-model="right.page1.drawingVersionNo" placeholder="请选择" style="width: 100px;">
+                    <el-option v-for="(itemc, index) in left.list" :key="index" :label="itemc.drawingVersionNo" :value="itemc.drawingVersionNo"></el-option>
+                  </el-select>
+                </p>
+                <p><strong>下料清单</strong></p>
+                <p>
+                  <span class="mgl20">材料：
+                    <el-autocomplete
+                      style="width: 100px;"
+                      class="inline-input"
+                      v-model="right.page1.stuffNo"
+                      :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.stuff, 'stuffNo')"
+                      valueKey="stuffNo"
+                      value="stuffNo"
+                      placeholder="请输入内容"
+                    ></el-autocomplete>
+                  </span>
+                  <span class="mgl20">下料尺寸(净尺寸mm)：
+                    <el-input size="mini" v-model="right.page1.length" style="width: 70px" placeholder="长"/>
+                    x
+                    <el-input size="mini" v-model="right.page1.width" style="width: 70px" placeholder="宽"/>
+                    x
+                    <el-input size="mini" v-model="right.page1.height" style="width: 70px" placeholder="高"/>
                   </span>
                 </p>
-                <el-table
-                  :data="right.page1.attachments"
-                  border
-                  size="mini"
-                  class="content-table"
-                  style="width: 100%">
-                  <el-table-column
-                    prop="fileName"
-                    label="资料名称"
-                    show-overflow-tooltip>
-                  </el-table-column>
-                  <el-table-column
-                    prop="operator"
-                    label="操作者"
-                    width="120"
-                    align="center"
-                    show-overflow-tooltip>
-                    <template slot-scope="scope">
-                      <el-button type="text" @click="deleteFiles(scope.row.fileId, scope.row)">删除</el-button>
-                      <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
-                    </template>
-                  </el-table-column>
-                </el-table>
-              </template>
+                <p>
+                  备注：
+                  <el-input
+                    type="textarea"
+                    :rows="4"
+                    placeholder="请输入内容"
+                    style="width: 600px;"
+                    v-model="right.page1.remark">
+                  </el-input>
+                </p>
+                <p>
+                  <strong>加工工序</strong>
+                  <el-table
+                    :data="right.page1.processes"
+                    border
+                    size="mini"
+                    max-height="200"
+                    class=" edit-table"
+                    style="width: 100%">
+                    <el-table-column
+                      type="index"
+                      label="工序序号"
+                      width="80">
+                    </el-table-column>
+                    <el-table-column
+                      label="工序名称"
+                      show-overflow-tooltip>
+                      <template scope="scope">
+                        <div>
+                          <div @click="showInput(right.page1.processes, scope.$index, 'nameEdit')">
+                            <div class="ellipsis">{{ scope.row.name }}</div>
+                            <el-autocomplete
+                              class="inline-input"
+                              v-model="scope.row.name"
+                              :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.process, 'name')"
+                              valueKey="name"
+                              value="name"
+                              placeholder="请输入内容"
+                              @focus="showInput(right.page1.processes, scope.$index, 'nameEdit')"
+                              @blur="scope.row.nameEdit = false"
+                              :style="{opacity: scope.row.nameEdit ? 1 : 0}"
+                            ></el-autocomplete>
+                          </div>
+                        </div>
+                      </template>
+                    </el-table-column>
+                    <el-table-column
+                      label="加工工序内容"
+                      show-overflow-tooltip>
+                      <template scope="scope">
+                        <div>
+                          <div @click="showInput(right.page1.processes, scope.$index, 'processContentTextEdit')">
+                            <div class="ellipsis">{{ scope.row.processContentText }}</div>
+                            <el-autocomplete
+                              class="inline-input"
+                              v-model="scope.row.processContentText"
+                              :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, right.sysCode, 'codeName')"
+                              valueKey="codeName"
+                              value="codeName"
+                              placeholder="请输入内容"
+                              @focus="showInput(right.page1.processes, scope.$index, 'processContentTextEdit')"
+                              @blur="scope.row.processContentTextEdit = false"
+                              :style="{opacity: scope.row.processContentTextEdit ? 1 : 0}"
+                            ></el-autocomplete>
+                          </div>
+                        </div>
+                      </template>
+                    </el-table-column>
+                    <el-table-column
+                      label="是否委外"
+                      show-overflow-tooltip>
+                      <template slot-scope="scope">
+                        <div>
+                          <div @click="showInput(right.page1.processes, scope.$index, 'nameEdit')">
+                            <div class="ellipsis">
+                              {{ 
+                                scope.row.isOutsource == 1 ? '是' : (
+                                   scope.row.isOutsource == 0 ? '否' : ''
+                                )
+                              }}
+                            </div>
+                            <el-select
+                              v-model="scope.row.isOutsource"
+                              placeholder="请选择"
+                              :style="{opacity: scope.row.isOutsourceEdit ? 1 : 0}"
+                              @focus="showInput(right.page1.processes, scope.$index, 'isOutsourceEdit')"
+                              @blur="scope.row.isOutsourceEdit = false">
+                              <el-option
+                                v-for="itemc in $dict.outsourceList"
+                                :key="itemc.value"
+                                :label="itemc.label"
+                                :value="itemc.value">
+                              </el-option>
+                            </el-select>
+                          </div>
+                        </div>
+                      </template>
+                    </el-table-column>
+                    <el-table-column
+                      label="估工(H)"
+                      show-overflow-tooltip>
+                      <template scope="scope">
+                        <div>
+                          <div @click="showInput(right.page1.processes, scope.$index, 'estimationWorkTimeEdit')">
+                            <div class="ellipsis">{{ scope.row.estimationWorkTime }}</div>
+                            <el-input size="mini" v-model="scope.row.estimationWorkTime" @focus="showInput(right.page1.processes, scope.$index, 'estimationWorkTimeEdit')" @blur="scope.row.estimationWorkTimeEdit = false" :style="{opacity: scope.row.estimationWorkTimeEdit ? 1 : 0}"/>
+                          </div>
+                        </div>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </p>
+                <p>
+                  工艺说明：
+                  <el-input
+                    type="textarea"
+                    :rows="4"
+                    placeholder="请输入内容"
+                    v-model="right.page1.processDescription">
+                  </el-input>
+                </p>
+                <template v-if="(component.type == 'edit') && isExistenceVersion(left.list, right.page1.craftVersionNo, 'craftVersionNo')">
+                  <p><strong>工艺附件</strong></p>
+                  <p>
+                    上传工艺附件：
+                    <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
+                      <el-button size="mini" type="primary">上传图纸</el-button>
+                      <input type="file" name="file" ref="file" class="posFull opacity0" @change="uploadFile">
+                    </span>
+                  </p>
+                  <el-table
+                    :data="right.page1.attachments"
+                    border
+                    size="mini"
+                    class="content-table"
+                    style="width: 100%">
+                    <el-table-column
+                      prop="fileName"
+                      label="资料名称"
+                      show-overflow-tooltip>
+                    </el-table-column>
+                    <el-table-column
+                      prop="operator"
+                      label="操作者"
+                      width="120"
+                      align="center"
+                      show-overflow-tooltip>
+                      <template slot-scope="scope">
+                        <el-button type="text" @click="deleteFiles(scope.row.fileId, scope.row)">删除</el-button>
+                        <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </template>
+              </div>
             </div>
           </div>
         </div>
@@ -295,19 +290,21 @@
         time: '',
         isLoading: false,
         component: {},
-        form: {},
         filter: {
           customer: [],
           qwm: []
         },
+        form: {
+          qwm: {
+              componentOrders: []
+          },
+          componentNo: '',
+          name: '',
+          origin: 20,
+        },
         right: {
           page1: {
-            name: '',
-            qwm: {
-              componentOrders: []
-            },
-            componentNo: '',
-            origin: 20,
+            versionNo: '',
             components: [],
             processes: [{}]
           }
@@ -315,28 +312,44 @@
       }
     },
     methods: {
+      resetData() {
+
+        this.left.activeId = '';
+        this.left.list = [];
+        this.right.page1 = {
+          versionNo: '',
+          components: [],
+          processes: [{}]
+        }
+      },
       getDetail(val) {
+        if(!this.form.componentNo) return;
         
-        console.log(val)
         let params = {
-          mrProductionOrderId: '',
+          componentNo: this.form.componentNo
         }
 
         this.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryRestartComponent, (res) => { //版本详情 
+        this.$utils.getJson(this.$utils.CONFIG.api.queryRestartComponent, (res) => { //版本 
 
           this.isLoading = false;
-          this.right.page1 = res.data || [];
-          if(!this.right.page1.processes || !this.right.page1.processes.length) {
-            this.right.page1.processes = [{}]
+          this.left.list = res.data || [];
+          if(this.left.list && this.left.list.length) {
+            
+            this.left.activeId = 0;
+            this.right.page1 = this.left.list[0];
+          }else {
+
+            this.resetData();
           }
         }, () => this.isLoading = false, params);
       },
-      handleSelect(item) {
-      
-        this.left.activeId = item.mrCraftRouteLineVersionId;
-        this.currentData= item;
-        this.getDetail(this.currentData);
+      handleSelect(item, index) {
+        
+        if(this.left.activeId == index) return;
+
+        this.left.activeId = index;
+        this.right.page1 = item;
       },
       uploadSuccess(res) {
 
@@ -365,22 +378,22 @@
       },
       save() {
 
-        if(!this.right.page1.name) { //如果没有选择用户
+        if(!this.form.name) { //如果没有选择用户
           this.$utils.showTip('warning', 'error', '-1070');
           return;
         }
 
-        if(!this.right.page1.qwm.mouldNo) { //如果没有选择模具号
+        if(!this.form.qwm.mouldNo) { //如果没有选择模具号
           this.$utils.showTip('warning', 'error', '-1071');
           return;
         }
 
-        if(!this.right.page1.componentNo) { //如果没有选择零件号
+        if(!this.form.componentNo) { //如果没有选择零件号
           this.$utils.showTip('warning', 'error', '-1072');
           return;
         }
 
-        if(!this.right.page1.craftVersionNo) { //如果没有输入工艺路线版本号
+        if(!this.right.page1.versionNo) { //如果没有输入工艺路线版本号
           this.$utils.showTip('warning', 'error', '-1043');
           return;
         }
@@ -391,9 +404,10 @@
         }
 
         let params = {
-          name: this.right.page1.name,
-          mouldNo: this.right.page1.qwm.mouldNo,
-          origin: this.right.page1.origin,
+          createBy: this.$utils.getStorage(this.$utils.CONFIG.storageNames.useridName),
+          name: this.form.name,
+          mouldNo: this.form.qwm.mouldNo,
+          origin: this.form.origin,
           versionNo: this.right.page1.craftVersionNo,
           drawingVersionNo: this.right.page1.drawingVersionNo || '',
           stuffNo: this.right.page1.stuffNo || '',
@@ -403,7 +417,7 @@
           remark: this.right.page1.remark || '',
           processDescription: this.right.page1.processDescription || '',
           components: [{
-            componentNo: this.right.page1.componentNo,
+            componentNo: this.form.componentNo,
             quantity: parseFloat(this.right.page1.quantity) || 0
           }],
           processes: []

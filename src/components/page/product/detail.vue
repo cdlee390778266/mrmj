@@ -7,93 +7,196 @@
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div class="detail-main" style="top: 70px;" v-loading="left.isLoading">
+    <div class="detail-main" style="top: 70px;" v-loading="isLoading">
       <div class="calc mgt20 mgl20">
         <el-table
-          :data="left.list"
-          :span-method="objectSpanMethod"
-          style="width: 100%">
+          :data="tableData"
+          size="mini"
+          style="width: 100%"
+          class="edit-table"
+          :highlight-current-row="true"
+          :row-class-name="setRowClass"
+          @row-click="handleSelect">
           <el-table-column
-            prop="releaseProductionOrderDate"
-            label="下图日期"
-            width="100"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            prop="shipmentDate"
             label="出货日期"
-            width="100"
+            width="120"
+            label-class-name="fc-el-table-head"
+            class-name="fc-red"
             show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{scope.row.shipmentDateString | filterNull(' ')}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
             prop="mouldNo"
+            sortable
             label="模具号"
+            width="120"
             show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{scope.row.mouldNo | filterNull(' ')}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
             label="零件号码"
+            min-width="100"
+            align="center"
             show-overflow-tooltip>
             <template slot-scope="scope">
-              {{scope.row.components | concatString('componentNo')}}
+              <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" >
+                {{scope.row.components | concatString('componentNo')}}
+              </div>
             </template>
           </el-table-column>
           <el-table-column
             label="数量"
+            min-width="100"
+            align="center"
             show-overflow-tooltip>
             <template slot-scope="scope">
-              {{scope.row.components | concatString('quantity')}}
+              <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" >
+                {{scope.row.components | concatString('quantity')}}
+              </div>
             </template>
           </el-table-column>
           <el-table-column
             prop="versionNo"
             label="版本"
+            width="100"
+            align="center"
             show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{scope.row.versionNo | filterNull(' ')}}
+              </div>
+            </template>
           </el-table-column>
-          <el-table-column label="工艺时间" align="center">
+          <el-table-column
+            label="整体外协"
+            width="100"
+            align="center"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{ 
+                  scope.row.buy == 1 ? '是' : (
+                     scope.row.buy == 0 ? '否' : ''
+                  )
+                }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="工艺时间" align="center" min-width="100">
             <el-table-column
-              v-for="(itemc, index) in [1, 2, 3]"
+              v-for="(item, index) in allProcessOfIndex"
               :key="index"
-              prop="name"
-              label="M"
+              :label="item.name"
               align="center"
-              width="66"
+              min-width="70"
+              label-class-name="fc-red"
               show-overflow-tooltip>
+              <template slot-scope="scope">
+                <div
+                :class="{
+                  'fc-red': scope.row[item.key] > maxWorkTime,
+                  'bg00b0f0 fcfff': scope.row.currentPlanProcessId == scope.row[item.key+'-id'],
+                  'bg-green fcfff': scope.row.nextPlanProcessId == scope.row[item.key+'-id'],
+                  'bgffff00': scope.row.workpieceLocationId == scope.row[item.key+'-id']}"
+                  v-if="scope.row[item.key] || scope.row[item.key] == 0"
+                  >
+                  {{scope.row[item.key]}}
+                </div>
+              </template>
             </el-table-column>
-          </el-table-column>
-          <el-table-column label="今天" align="center">
             <el-table-column
-              prop="requireCompletionDate"
-              label="要求交期"
+              prop="qc"
+              label="Else"
               align="center"
-              width="100"
-              show-overflow-tooltip>
-            </el-table-column>
-          </el-table-column>
-          <el-table-column label="4月25日" align="center">
-            <el-table-column
-              prop="abbreviation"
-              label="客户"
-              align="center"
-              width="100"
-              show-overflow-tooltip>
-            </el-table-column>
-          </el-table-column>
-          <el-table-column label="四" align="center">
-            <el-table-column
-              prop="name"
-              label="交期"
-              align="center"
-              width="100"
+              min-width="70"
+              label-class-name="fc-blue"
               show-overflow-tooltip>
             </el-table-column>
           </el-table-column>
           <el-table-column
-              prop="name"
-              label="现状"
-              align="center"
-              width="100"
-              show-overflow-tooltip>
-            </el-table-column>
+            prop="requireCompletionDate"
+            sortable
+            label="要求交期"
+            min-width="100"
+            align="center"
+            label-class-name="fc-el-table-head"
+            class-name="fc-blue"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{scope.row.requireCompletionDate | filterNull(' ')}}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="abbreviation"
+            sortable
+            label="客户"
+            min-width="100"
+            align="center"
+            class-name="fc-blue"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{scope.row.abbreviation | filterNull(' ')}}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="surplus"
+            sortable
+            label="交期剩余(天)"
+            min-width="120"
+            align="center"
+            label-class-name="fc-el-table-head"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div :class="{fcfff: dateMinusBgColor(scope.row.surplus)}" :style="{background: dateMinusBgColor(scope.row.surplus)}"
+              >
+                {{scope.row.surplus}}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="现状" class-name="fc800000" min-width="180" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{ scope.row.currentSituation }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="电极"
+            min-width="100"
+            align="center"
+            label-class-name="fc-el-table-head"
+            class-name="fc-blue"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{scope.row.electrode | filterNull(' ')}}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="residueWorkTime"
+            sortable
+            label="剩余工时"
+            min-width="100"
+            align="center"
+            label-class-name="fc-el-table-head"
+            show-overflow-tooltip>
+            <template scope="scope">
+              <div :class="{'bgRed fcfff': scope.row.residueWorkTime > 200}" >{{scope.row.residueWorkTime | filterNull(' ')}}</div>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
     </div>
@@ -110,77 +213,117 @@ export default {
   data() {
     return {
       isLoading: false,
-      tableData3: [{
-        date: '2016-05-03',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-02',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-08',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-06',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }, {
-        date: '2016-05-07',
-        name: '王小虎',
-        province: '上海',
-        city: '普陀区',
-        address: '上海市普陀区金沙江路 1518 弄',
-        zip: 200333
-      }],
+      maxWorkTime: this.$dict.maxWorkTime,
+      procedurePrefix: 'procedure',
+      allProcessOfIndex: [],
+      tableData: [],
     };
   },
   methods: {
-    getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
+    compare(propertyName) { //对象排序比较器
 
-      this.getData(this.$utils.CONFIG.api.queryPlanList, {}, 'name', loadingKey);
-    },
-    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-      if (columnIndex === 0) {
-        if (rowIndex % 2 === 0) {
-          return {
-            rowspan: 2,
-            colspan: 1
-          };
+      return function(object1, object2) {
+
+        var value1 = object1[propertyName];
+        var value2 = object2[propertyName];
+        if (value2 < value1) {
+
+          return 1;
+        } else if (value2 > value1) {
+
+          return -1;
         } else {
-          return {
-            rowspan: 0,
-            colspan: 0
-          };
+
+          return 0;
         }
       }
+    },
+    dateMinus(dateString) { //交期剩余天数
+
+      let t1 = new Date(dateString).getTime();
+      let t0 = new Date().getTime();
+
+      return parseInt((t1 - t0) / (1000 * 60 * 60 * 24))
+    },
+    getAllProcessOfIndex() {  //获取工序列表
+
+      this.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.getAllProcessOfIndex, (res) =>  {
+
+        this.isLoading = false;
+        let allProcessOfIndex = [];
+        if(res.data.length) {
+
+          res.data.map(item => {
+
+            if(item.max > 1) {
+
+              for(let i = 1; i <= item.max; i++) {
+
+                let newItem = Object.assign({}, item);
+                newItem.name = `${newItem.name}${i}`;
+                newItem.key = `${this.procedurePrefix}-${newItem.name}`;
+                newItem.index = i;
+                allProcessOfIndex.push(newItem);
+              }
+            }else if(item.max == 1) {
+
+              item.key = `${this.procedurePrefix}-${item.name}1`;
+              allProcessOfIndex.push(item);
+            }
+          })
+        }
+        this.allProcessOfIndex = allProcessOfIndex;
+      }, () => this.isLoading = false)
+    },
+    getData() { //获取订单列表
+
+      let params = {
+
+      };
+      this.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.queryPlanList, (res) =>  {
+
+        this.isLoading = false;
+        res.data && res.data.map(item => {
+
+          item.surplus = this.dateMinus(item.requireCompletionDate);
+          item.processes && item.processes.map(itemc => {
+
+            if(itemc.name && !itemc.haveSort) {
+
+              let processes = item.processes.filter(itemcc => itemcc.name == itemc.name);
+              processes.sort(this.compare('processSequence'));
+              
+              processes.map((itemcc, index) => {
+
+                itemc.haveSort = true;
+                itemc.processesIndex = index + 1;
+                itemc.webName = `${itemcc.name}${itemcc.processesIndex}`;
+
+                item[`${this.procedurePrefix}-${itemcc.name}${itemcc.processesIndex}`] = itemcc.workTime;
+                item[`${this.procedurePrefix}-${itemcc.name}${itemcc.processesIndex}-id`] = itemcc.mrProductionPlanProcessId;
+              })
+              item.webProcesses = processes;
+            }
+          })
+        })
+        this.tableData = res.data || [];
+      }, () => this.isLoading = false, params)
+    },
+    setRowClass(row) {
+
+      let rowClass = '';
+
+      if(row.row.productionTasksStatus == 60) { //暂停加工
+
+        rowClass = 'rowTermination'
+      }else if(row.row.productionTasksStatus == 80) {
+        
+        rowClass = 'rowSuspend';
+      }
+
+      return rowClass
     },
     removeWarning(item) {  //消除报警
 
@@ -196,8 +339,35 @@ export default {
       }, () => this.right.isLoading = false, params)
     },
   },
+  computed: {
+    dateMinusBgColor() { //交期剩余天数颜色
+
+      return function(time) {
+
+        let bgColor = '';
+
+        if(time > 10) {
+
+          bgColor = '#0070c0'
+        }else if(time >= 5) {
+
+          bgColor = '#ffff00'
+        }else if(time >= 0) {
+
+          bgColor = '#ffc000'
+        }else if(time < 0) {
+
+          bgColor = '#ff0000'
+        }
+  
+        return bgColor
+      }
+    }
+  },
   created() {
-    this.getLeftList();
+    
+    this.getAllProcessOfIndex();
+    this.getData(); 
   }
 };
 </script>

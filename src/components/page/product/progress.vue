@@ -444,7 +444,8 @@
           remark: this.right.page1.remark || '',
           processDescription: this.right.page1.processDescription || '',
           components: [],
-          processes: []
+          processes: [],
+          versions: []
         }
 
         this.handle.edit.data.map(item => {  //取得选中的版本，如没选中则默认选中第一个
