@@ -632,6 +632,7 @@
           this.handle.add.isLoading = false;
           this.handle.add.dialogVisible = false;
           this.$utils.showTip('success', 'success', '118');
+          this.getData();
         }, () =>  this.handle.add.isLoading = false, params)
       },
       refresh() {

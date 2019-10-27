@@ -198,7 +198,7 @@
                     label-class-name="fc-blue"
                     show-overflow-tooltip>
                     <template slot-scope="scope">
-                      {{scope.row.else}}
+                      {{scope.row.qc}}
                     </template>
                   </el-table-column>
                 </el-table-column>
