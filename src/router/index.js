@@ -115,6 +115,9 @@ function createRoutes() {
       routes[0].children.push({
         name: item.name,
         path: item.paramsPath ? `/${key}${item.paramsPath}` : `/${key}${item.path}`,
+        meta: {
+          reg: item.meta || ''
+        },
         component: resolve => require([`../components/page/${key}${item.path}.vue`], resolve)
       })
     }

@@ -128,7 +128,8 @@ const MENU = {
 				path: '/processCard',
 				paramsPath: '/processcard/:id?',
 				icon: '',
-				isSubPage: true
+				isSubPage: true, //不生成标签
+				meta: '/processcard' //标签唯一匹配字符串
 			},
 			{
 				name: '电极设计与CNC编程',
@@ -140,7 +141,8 @@ const MENU = {
 				path: '/designElectrode',
 				paramsPath: '/designElectrode/:id?',
 				icon: '',
-				isSubPage: true
+				isSubPage: true,
+				meta: '/designElectrode' //标签唯一匹配字符串
 			},
 			{
 				name: '生产订单跟踪',
@@ -152,21 +154,24 @@ const MENU = {
 				path: '/remanufacture',
 				paramsPath: '/remanufacture/:id?',
 				icon: '',
-				isSubPage: true
+				isSubPage: true,
+				meta: '/remanufacture' //标签唯一匹配字符串
 			},
 			{
 				name: '手动增加生产订单',
 				path: '/editOrder',
 				paramsPath: '/editOrder/:id?',
 				icon: '',
-				isSubPage: true
+				isSubPage: true,
+				meta: '/editOrder' //标签唯一匹配字符串
 			},
 			{
 				name: '查看当前生产计划安排',
 				path: '/detail',
 				paramsPath: '/detail/:id?',
 				icon: '',
-				isSubPage: true
+				isSubPage: true,
+				meta: '/detail' //标签唯一匹配字符串
 			},
 			{
 				name: '当日工序生产',
@@ -178,14 +183,16 @@ const MENU = {
 				path: '/dspwk',
 				paramsPath: '/dspwk/:id?',
 				icon: '',
-				isSubPage: true
+				isSubPage: true,
+				meta: '/dspwk' //标签唯一匹配字符串
 			},
 			{
 				name: '生产报工',
 				path: '/npwk',
 				paramsPath: '/npwk/:id?',
 				icon: '',
-				isSubPage: true
+				isSubPage: true,
+				meta: '/npwk' //标签唯一匹配字符串
 			},
 			{
 				name: '设备管理',

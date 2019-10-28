@@ -100,6 +100,25 @@
                   class-name="notEdit"
                   align="center"
                   show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div>
+                      <div @click="showInput(currentData.planMsg, scope.$index, 'startDateStringEdit', {}, false)">
+                        <div class="ellipsis tc">{{ scope.row.startDateString }}</div>
+                        <el-date-picker
+                          type="date"
+                          size="mini"
+                          placeholder="选择日期"
+                          :clearable="false"
+                          format="yyyy-MM-dd"
+                          value-format="yyyy-MM-dd"
+                          v-model="scope.row.startDateString"
+                          @focus="showInput(currentData.planMsg, scope.$index, 'startDateStringEdit', {}, false)"
+                          @blur="scope.row.startDateStringEdit = false"
+                          :style="{opacity: scope.row.startDateStringEdit ? 1 : 0}">
+                        </el-date-picker>
+                      </div>
+                    </div>
+                  </template>
                 </el-table-column>
                 <el-table-column
                   prop="requireCompletionDateString"
@@ -282,6 +301,7 @@
 
           let data = {
             mrOperationalPlanId: item.mrOperationalPlanId,
+            startDate: item.startDateString,
             actualCompletionWorkTime: parseFloat(item.actualCompletionWorkTime) || 0,
             workerList: []
           }

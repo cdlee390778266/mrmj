@@ -326,7 +326,27 @@
                   </el-table-column>
                   <el-table-column prop="estimationWorkTime" label="估工工时" width="100" align="center" class-name="notEdit" show-overflow-tooltip></el-table-column>
                   <el-table-column prop="electrode" label="电极" align="center" class-name="notEdit" show-overflow-tooltip></el-table-column>
-                  <el-table-column prop="startDateString" label="开始日期" align="center" width="100" class-name="notEdit" show-overflow-tooltip></el-table-column>
+                  <el-table-column label="开始日期" align="center" width="100" show-overflow-tooltip>
+                    <template slot-scope="scope">
+                      <div>
+                        <div @click="showInput(tabs.step2.right.tableData, scope.$index, 'startDateStringEdit', {}, false)">
+                          <div class="ellipsis tc">{{ scope.row.startDateString }}</div>
+                          <el-date-picker
+                            type="date"
+                            size="mini"
+                            placeholder="选择日期"
+                            :clearable="false"
+                            format="yyyy-MM-dd"
+                            value-format="yyyy-MM-dd"
+                            v-model="scope.row.startDateString"
+                            @focus="showInput(tabs.step2.right.tableData, scope.$index, 'startDateStringEdit', {}, false)"
+                            @blur="scope.row.startDateStringEdit = false"
+                            :style="{opacity: scope.row.startDateStringEdit ? 1 : 0}">
+                          </el-date-picker>
+                        </div>
+                      </div>
+                    </template>
+                  </el-table-column>
                   <el-table-column label="要求完成日期" width="120" align="center" show-overflow-tooltip>
                     <template slot-scope="scope">
                       <div>

@@ -76,8 +76,14 @@
 					return;
 				}
 				
+				let currentTag = null
 				const isExist = this.tagsList.some(item => {
-					return item.path === route.fullPath;
+
+					let isExist = item.path === route.fullPath;
+					let isExist1 = item.reg && (route.fullPath.toLowerCase().indexOf(item.reg) > -1);
+					isExist1 && (currentTag = item);
+
+					return  isExist || isExist1;
 				});
 
 				if (!isExist) {
@@ -87,8 +93,12 @@
 					this.tagsList.push({
 						title: route.name,
 						path: route.fullPath,
-						name: route.matched[1].components.default.name
+						name: route.matched[1].components.default.name,
+						reg: route.meta.reg ? route.meta.reg.toLowerCase() : route.meta.reg
 					});
+				}else {
+
+					currentTag && (currentTag.path = route.fullPath);
 				}
 				bus.$emit("tags", this.tagsList);
 			},
