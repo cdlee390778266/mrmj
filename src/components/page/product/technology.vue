@@ -371,7 +371,7 @@
                       <td class="bge4e4e4">估工（H）</td>
                       <th v-for="(itemc, index) in getSelectedProcesses(item.versions, item.selectedVersionNo)" :key="index">{{itemc.estimationWorkTime}}</th>
                       <th class="bge4e4e4">
-                        {{item.processes | sum('estimationWorkTime')}}
+                        {{getSelectedProcesses(item.versions, item.selectedVersionNo) | sum('estimationWorkTime')}}
                       </th>
                     </tr>
                   </tbody>

@@ -186,7 +186,7 @@
       </div>
     </div>
 
-    <el-dialog title="供应商信息" class="dialog-gray tc" :visible.sync="handle.supplier.dialogVisible">
+    <el-dialog title="供应商信息" class="dialog-gray tc" :visible.sync="handle.supplier.dialogVisible" width="666px">
       <div v-loading="handle.supplier.isLoading">
         <el-form ref="supplierForm" :model="handle.supplier.form" :rules="handle.supplier.rules" label-width="100px">
           <div class="dialog-content pdt10 pdlr10 mglr10">
@@ -223,10 +223,22 @@
                 </el-table-column>
                 <el-table-column prop="gender" label="性别" width="88" show-overflow-tooltip>
                   <template slot-scope="scope">
-                    <div>
+                    <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row, '', true)">
                       <div @click="showInput(handle.supplier.form.liaisonMens, scope.$index, 'genderEdit')">
-                        <el-input size="mini" v-model="scope.row.gender" @focus="showInput(handle.supplier.form.liaisonMens, scope.$index, 'genderEdit')" @blur="scope.row.genderEdit = false" :style="{opacity: scope.row.genderEdit ? 1 : 0}"/>
-                        <div class="ellipsis">{{ scope.row.gender }}</div>
+                        <div class="ellipsis">
+                          {{scope.row.gender}}
+                        </div>
+                        <el-select
+                          v-model="scope.row.genderSelect"
+                          placeholder="请选择"
+                          :style="{opacity: scope.row.genderEdit ? 1 : 0}"
+                          @focus="showInput(handle.supplier.form.liaisonMens, scope.$index, 'genderEdit')"
+                          @blur="scope.row.genderEdit = false">
+                          <el-option label="男" value="男">
+                          </el-option>
+                          <el-option label="女" value="女">
+                          </el-option>
+                        </el-select>
                       </div>
                     </div>
                   </template>
@@ -455,14 +467,16 @@
 
         this.handle.supplier.type = type;
         if(type == 'add') { //新增
-          console.log(this.$refs.supplierForm)
+          
           this.$refs.supplierForm && this.$refs.supplierForm.resetFields();
           this.handle.supplier.dialogVisible = true;
+          this.handle.supplier.form = {};
           this.handle.supplier.form.liaisonMens = [{}];
         }else { //编辑
 
           this.handle.supplier.dialogVisible = true;
           this.handle.supplier.form = this.$utils.deepCopy(row);
+          if(!this.handle.supplier.form.liaisonMens || !this.handle.supplier.form.liaisonMens.length) this.handle.supplier.form.liaisonMens = [{}];
         }
       },
       updateUser() {
@@ -489,6 +503,19 @@
 
               url = this.$utils.CONFIG.api.modifyCustomerInfo;
               params = this.handle.supplier.form;
+              let liaisonMens = [];
+              params.liaisonMens && params.liaisonMens.map(item => {
+                if(item.mrLiaisonManId) {
+
+                  if(!item.id) {
+                    liaisonMens.push(Object.assign({}, item));
+                  }
+                }else {
+                  if(item.name && item.phone) liaisonMens.push(Object.assign({}, item))
+                }
+                
+              })
+              params.liaisonMens = liaisonMens;
             }
            
             this.handle.supplier.isLoading = true;
