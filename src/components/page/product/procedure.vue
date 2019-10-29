@@ -35,8 +35,8 @@
             <el-row>
               <el-col :span="24">当天工序进度：<el-progress :percentage="item | cpercentage('haveJobBookingWorkTime', 'processTotalWorkTime')" color="rgba(0, 255, 0, 1)" style="width: 160px;display: inline-block;"></el-progress></el-col>
               <el-col :span="24" class="tr" @click.stop>
-                <a href="javascript:void" @click.stop="$router.push(`/product/dspwk/${item.name}`)">派工</a>
-                <a href="javascript:void" @click.stop="$router.push(`/product/npwk/${item.name}`)">报工</a>
+                <a href="javascript:void" @click.stop="$router.push(`/product/dspwk?process=${item.name}`)">派工</a>
+                <a href="javascript:void" @click.stop="$router.push(`/product/npwk?process=${item.name}`)">报工</a>
               </el-col>
             </el-row>
           </div>

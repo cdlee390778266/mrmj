@@ -41,7 +41,14 @@
                 border
                 size="mini"
                 class="content-table edit-table"
-                style="width: 100%">
+                style="width: 100%"
+                @selection-change="handleSelectionChange">
+                <el-table-column
+                  type="selection"
+                  width="55"
+                  align="center"
+                  fixed="left">
+                </el-table-column>
                 <el-table-column
                   type="index"
                   label="序号"
@@ -195,13 +202,14 @@
         isLoading: false,
         name: '',
         form: {
-          jobBookingDate: '',
+          jobBookingDate: new Date(),
           jobBookingWorkerId: this.$utils.getStorage(this.$utils.CONFIG.storageNames.useridName),
           jobBookingWorker: this.$utils.getStorage(this.$utils.CONFIG.storageNames.usernameName)
         },
         filter: {
 
-        }
+        },
+        multipleSelection: []
       }
     },
     methods: {
@@ -272,6 +280,10 @@
           }
         }); //获取加工人人员列表
       },
+      handleSelectionChange(val) {
+        
+        this.multipleSelection = val;
+      },
       save() {
 
         if(!this.currentData.planMsg || !this.currentData.planMsg.length) {
@@ -327,8 +339,8 @@
     },
     created() {
 
-      if(!this.$route.params.id) return;
-      this.name = this.$route.params.id;
+      if(!this.$route.query.process) return;
+      this.name = this.$route.query.process;
       this.getData();
       this.getDropDownList();
     }

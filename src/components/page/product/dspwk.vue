@@ -480,8 +480,8 @@
     },
     created() {
       
-      if(!this.$route.params.id) return;
-      this.name = this.$route.params.id;
+      if(!this.$route.query.process) return;
+      this.name = this.$route.query.process;
       this.getWorkTimeDays();
       this.getLeftList();
     }
