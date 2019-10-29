@@ -286,7 +286,7 @@
       },
       save() {
 
-        if(!this.currentData.planMsg || !this.currentData.planMsg.length) {
+        if(!this.multipleSelection.length) {
 
           this.$utils.showTip('warning', 'error', '-1075');
           return;
@@ -309,7 +309,7 @@
           jobBookingList: []
         };
 
-        this.currentData.planMsg.map(item => {
+        this.multipleSelection.map(item => {
 
           let data = {
             mrOperationalPlanId: item.mrOperationalPlanId,

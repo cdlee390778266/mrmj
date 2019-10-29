@@ -118,8 +118,21 @@
                             </el-tooltip>
                           </span>
                         </p>
-                        <p class="ellipsis"><span>生产订单下达时间：{{ currentData.issuedOrderDate | filterNull }}</span></p>
-                        <p class="ellipsis"><span>计划时间：{{ currentData.planStartDate | filterNull }} 至 {{ currentData.planEndDate | filterNull }}</span></p>
+                        <p class="ellipsis">
+                            <span>
+                              生产订单下达时间：
+                              <el-tooltip class="item" effect="dark" :content="item.issuedOrderDate | filterNull" placement="top">
+                                <span>{{item.issuedOrderDate | filterNull}}</span>
+                              </el-tooltip>
+                          </span>
+                        </p>
+                        <p class="ellipsis">
+                          <span>计划时间：
+                            <el-tooltip class="item" effect="dark" :content="item.planStartDate + '至' + item.planEndDate" placement="top">
+                              <span>{{item.planStartDate }} 至 {{ item.planEndDate }}</span>
+                            </el-tooltip>
+                          </span>
+                        </p>
                         <p class="ellipsis"><span>当前成本累计：{{ total(item) }}元</span></p>
                         <p>
                           <el-button type="text" @click="jump(item)">编辑 查看 打印工艺卡</el-button>
@@ -248,7 +261,7 @@
           <el-row class="pdtb10 borb">
             <el-col :span="8">模具号：{{handle.edit.order && handle.edit.order.mouldNo}}</el-col>
             <el-col :span="8">客户：{{handle.edit.order && handle.edit.order.name}}</el-col>
-            <el-col :span="8">交期：{{handle.edit.order && handle.edit.order.mouldNo}}</el-col>
+            <el-col :span="8">交期：{{handle.edit.order && handle.edit.order.completionDate}}</el-col>
           </el-row>
           <div class="dialog-content pd10 mglr10 bgfff">
             <div class="mgb10" :class="{borb: handle.edit.data && (index != handle.edit.data.length - 1)}" v-for="(item, index) in handle.edit.data" :key="index" >
@@ -288,7 +301,7 @@
                       <td class="bge4e4e4">估工（H）</td>
                       <th v-for="(itemc, index) in getSelectedProcesses(item.versions, item.selectedVersionNo)" :key="index">{{itemc.estimationWorkTime}}</th>
                       <th class="bge4e4e4">
-                        {{item.processes | sum('estimationWorkTime')}}
+                        {{getSelectedProcesses(item.versions, item.selectedVersionNo) | sum('estimationWorkTime')}}
                       </th>
                     </tr>
                   </tbody>
