@@ -103,7 +103,7 @@
                 <el-table-column
                   prop="startDateString"
                   label="开始时间"
-                  width="100"
+                  width="160"
                   class-name="notEdit"
                   align="center"
                   show-overflow-tooltip>
@@ -112,12 +112,12 @@
                       <div @click="showInput(currentData.planMsg, scope.$index, 'startDateStringEdit', {}, false)">
                         <div class="ellipsis tc">{{ scope.row.startDateString }}</div>
                         <el-date-picker
-                          type="date"
+                          type="datetime"
                           size="mini"
                           placeholder="选择日期"
                           :clearable="false"
-                          format="yyyy-MM-dd"
-                          value-format="yyyy-MM-dd"
+                          format="yyyy-MM-dd HH:mm:ss"
+                          value-format="yyyy-MM-dd HH:mm:ss"
                           v-model="scope.row.startDateString"
                           @focus="showInput(currentData.planMsg, scope.$index, 'startDateStringEdit', {}, false)"
                           @blur="scope.row.startDateStringEdit = false"
