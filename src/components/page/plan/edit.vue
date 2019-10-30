@@ -712,7 +712,9 @@
                 obj.processesName = nameHaveNumber ? `${itemc.name}${index}` : itemc.name;
                 obj.mrProductionPlanProcessId = itemc.mrProductionPlanProcessId;
                 obj.operationalStatusText = itemc.content ? itemc.content : '加工';
+                obj.startDateString = itemc.startDateString || '';
                 obj.requireCompletionDate = itemc.requireCompletionDateString ? itemc.requireCompletionDateString : (new Date().Format('yyyy-MM-dd'));
+                obj.people = itemc.people || [];
                 obj.estimationWorkTime = itemc.estimationWorkTime;
                 this.tabs.step2.right.tableData.push(obj);
               }
@@ -783,7 +785,7 @@
 
         let params = [];
         this.tabs.step2.right.tableData.map((item, index) => {
-
+          console.log(item)
           params.push({
             operationSequence: index + 1,
             productionPlanProcessId: item.mrProductionPlanProcessId,

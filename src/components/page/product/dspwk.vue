@@ -81,11 +81,11 @@
               <template v-if="currentData.page1">
                 <p><strong>相关零件生产内容</strong></p>
                 <p>
-                  <span>模具号：{{currentData.page1.mouldNo}}</span> 
-                  <span class="mgl20">零件号：{{currentData.page1.components | concatString('componentNo')}}</span> 
-                  <span class="mgl20">数量：{{currentData.page1.components | concatString('quantity')}}</span> 
-                  <span class="mgl20">材料：{{currentData.page1.stuffNo}}</span> 
-                  <span class="mgl20">要求完成日期：{{currentData.page1.requireCompletionDateString}}</span> 
+                  <span>模具号：{{currentData.page1[0].mouldNo}}</span> 
+                  <span class="mgl20">零件号：{{currentData.page1[0].components | concatString('componentNo')}}</span> 
+                  <span class="mgl20">数量：{{currentData.page1[0].components | concatString('quantity')}}</span> 
+                  <span class="mgl20">材料：{{currentData.page1[0].stuffNo}}</span> 
+                  <span class="mgl20">要求完成日期：{{currentData.page1[0].requireCompletionDateString}}</span> 
                 </p>
                 <p class="ellipsis">
                   <span>零件工序及估工：（绿底标注工序为当前所选派工任务对应工序）</span>
@@ -95,16 +95,16 @@
                     <thead>
                       <tr>
                         <th class="bge4e4e4">工序顺序</th>
-                        <th v-for="(itemc, index) in currentData.page1.processes" :key="index" :class="{'bg-green fcfff': currentData.mrProductionPlanTasksId == itemc.mrProductionPlanProcessId}">{{itemc.name}}</th>
+                        <th v-for="(itemc, index) in currentData.page1[0].processes" :key="index" :class="{'bg-green fcfff': currentData.mrProductionPlanTasksId == itemc.mrProductionPlanProcessId}">{{itemc.name}}</th>
                         <th class="bge4e4e4">工时合计</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
                         <td class="bge4e4e4">估工（H）</td>
-                        <th v-for="(itemc, index) in currentData.page1.processes" :key="index" :class="{'bg-green fcfff': currentData.mrProductionPlanTasksId == itemc.mrProductionPlanProcessId}">{{itemc.estimationWorkTime}}</th>
+                        <th v-for="(itemc, index) in currentData.page1[0].processes" :key="index" :class="{'bg-green fcfff': currentData.mrProductionPlanTasksId == itemc.mrProductionPlanProcessId}">{{itemc.estimationWorkTime}}</th>
                         <th class="bge4e4e4">
-                          {{currentData.page1.processes | sum('estimationWorkTime')}}
+                          {{currentData.page1[0].processes | sum('estimationWorkTime')}}
                         </th>
                       </tr>
                     </tbody>
@@ -113,7 +113,7 @@
                 <p>
                   <strong>下载附件</strong>
                   <el-table
-                    :data="currentData.page1.attachments"
+                    :data="currentData.page1[0].attachments"
                     border
                     size="mini"
                     max-height="200"
@@ -333,15 +333,14 @@
         if(this.currentData.page1) return;
 
         let params = {
-          productionPlanProcessId: this.currentData.mrProductionPlanTasksId
+          productionPlanProcessId: this.currentData.productionPlanProcessId
         };
         
-        this.currentData.page1 = {};
         this.right.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryAssignWorkInfo, (res) =>  {
 
           this.right.isLoading = false;
-          this.currentData.page1 = res.data || {};
+          this.$set(this.currentData, 'page1', [res.data] || [{}])
         }, () => this.right.isLoading = false, params)
 
         this.getUserList();
