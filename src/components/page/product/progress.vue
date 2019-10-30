@@ -79,7 +79,7 @@
               <el-carousel-item >
                 <div class="main-content-title">
                   <div>
-                    <i class="el-icon-lx-edit"></i> 订单{{currentData.saleOrderNo}}生产进度
+                    <i class="el-icon-lx-edit"></i> 订单{{currentData.mouldNo}}生产进度
                   </div>
                 </div>
                 <el-scrollbar class="main-content-scorll pdt10">
@@ -150,13 +150,13 @@
                                 <span>{{itemc.startTimeString}}</span>
                               </td>
                             </tr>
-                            <tr>
+                            <!-- <tr>
                               <td class="tr"><span class="bg-green fcfff">结束</span></td>
                               <td class="tc" v-for="(itemc, index) in item.processes" :key="index" :class="{'fc-green': itemc.statusDescription == '已完成'}">
                                 <span>
                                   {{itemc.endTimeString || (itemc.statusDescription == '进行中' && item.isOutsource ? '外协中' : itemc.statusDescription)}}</span>
                               </td>
-                            </tr>
+                            </tr> -->
                             <tr>
                               <td class="tr"><span class="bg-green fcfff">耗时</span></td>
                               <td class="tc" v-for="(itemc, index) in item.processes" :key="index" :class="{'fc-green': itemc.statusDescription == '已完成'}">
