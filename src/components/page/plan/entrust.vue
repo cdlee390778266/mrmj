@@ -86,8 +86,8 @@
                   <div class="mgt10 ">
                     <div class="filter-item">
                       <span>供应商名称：</span> 
-                      <el-select style="width: 100px;" v-model="left.tabs[1].form.supplier">
-                        <el-option v-for="(item, index) in left.tabs[1].filter.supplier" :key="index" :label="item.stuffNo" :value="item.stuffNo" @click=""></el-option>
+                      <el-select style="width: 100px;" v-model="left.tabs[1].form.name">
+                        <el-option v-for="(item, index) in left.tabs[1].filter.supplier" :key="index" :label="item.name" :value="item.name" @click=""></el-option>
                       </el-select>
                     </div>
                     <div class="filter-item">
@@ -95,6 +95,7 @@
                       <el-date-picker
                         v-model="left.tabs[1].form.makeOrderDaterange"
                         type="daterange"
+                        value-format="yyyy-MM-dd"
                         range-separator="至"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期">
@@ -105,6 +106,7 @@
                       <el-date-picker
                         v-model="left.tabs[1].form.requireDaterange"
                         type="daterange"
+                        value-format="yyyy-MM-dd"
                         range-separator="至"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期">
@@ -112,10 +114,10 @@
                     </div>
                     <div class="filter-item">
                       <span>总金额：</span> 
-                      <el-input v-model="left.tabs[1].form.minPrice" style="width: 60px" />
+                      <el-input v-model="left.tabs[1].form.minTotalPrice" style="width: 60px" />
                       元
                       <span class="mglr10">至</span>
-                      <el-input v-model="left.tabs[1].form.maxPrice" style="width: 60px" />
+                      <el-input v-model="left.tabs[1].form.maxTotalPrice" style="width: 60px" />
                       元
                     </div>
                     <el-button type="primary" class="mgl40" @click="queryOrder">搜 索</el-button>
@@ -128,7 +130,7 @@
                     size="mini"
                     class="content-table">
                     <el-table-column prop="purchaseOrderNo" label="采购订单编号" sortable width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="purchaseOrderNo" label="供应商"  show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="name" label="供应商"  show-overflow-tooltip></el-table-column>
                     <el-table-column prop="releasedOrderDate" label="下单日期" sortable width="120" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="earliestDeliveryDate" label="最近要求交期" width="120" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="totalPrice" label="总金额(CNY)" sortable width="120"  show-overflow-tooltip></el-table-column>
@@ -317,21 +319,14 @@
               name: '采购订单跟踪',
               icon: require('../../../assets/img/icon9.svg'),
               filter: {
-                supplier: [
-                  {
-                    stuffNo: 'A公司'
-                  },
-                  {
-                    stuffNo: 'B公司'
-                  },
-                ]
+                supplier: []
               },
               form: {
-                supplier: '',
+                name: '',
                 makeOrderDaterange: '',
                 requireDaterange: '',
-                minPrice: '',
-                maxPrice: ''
+                minTotalPrice: '',
+                maxTotalPrice: ''
               },
               list: []
             },
@@ -405,15 +400,15 @@
         }, () => this.right.isLoading = false, params)
       },
       queryOrder() { //获取采购订单跟踪列表
-
+        console.log(this.left.tabs[1].form)
         let params = {
-          name: '',
-          releasedOrderDate_from: '',
-          releasedOrderDate_to: '',
-          earliestDeliveryDate_from: '',
-          earliestDeliveryDate_to: '',
-          minTotalPrice: '',
-          maxTotalPrice: ''
+          name: this.left.tabs[1].form.name,
+          releasedOrderDate_from: this.left.tabs[1].form.makeOrderDaterange[0] || '',
+          releasedOrderDate_to: this.left.tabs[1].form.makeOrderDaterange[1] || '',
+          earliestDeliveryDate_from: this.left.tabs[1].form.requireDaterange[0] || '',
+          earliestDeliveryDate_to: this.left.tabs[1].form.requireDaterange[1] || '',
+          minTotalPrice: parseInt(this.left.tabs[1].form.minTotalPrice) || '',
+          maxTotalPrice: parseInt(this.left.tabs[1].form.maxTotalPrice) || ''
         };
     
         this.left.isLoading = true;
@@ -448,6 +443,7 @@
 
           this.left.isLoading = false;
           this.left.tabs[2].list = res.data.content || [];
+          this.left.tabs[1].filter.supplier = this.$utils.deepCopy(this.left.tabs[2].list);
         }, () => this.left.isLoading = false, params)
       },
       addOrder() {

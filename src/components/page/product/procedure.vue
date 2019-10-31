@@ -64,7 +64,7 @@
                     <i class="el-icon-lx-edit"></i> {{currentData.name | filterNull}}工序生产情况
                   </div>
                 </div>
-                <el-scrollbar class="main-content-scorll pdt10">
+                <el-scrollbar class="main-content-scorll pdt10 table-wrapper">
                   <el-row>
                     <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">报工日期：{{ right.page1.jobBookingDate | filterNull }}</el-col>
                     <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">代报工人员：{{ right.page1.jobBookingWorker | filterNull }}</el-col>
@@ -77,6 +77,8 @@
                     <el-col :span="24">
                       <el-table
                         :data="right.page1.planMsg"
+                        :height="maxHeight"
+                        :max-height="maxHeight"
                         border
                         size="mini"
                         class="content-table mgt10"
@@ -285,6 +287,10 @@
         this.currentData= item;
         this.getDetail();
       },
+      setTableMaxHeight() {
+
+        this.maxHeight = this.$utils.getTableMaxHeight([], 100, '.table-wrapper');
+      },
       refresh() {}
     },
     computed: {
@@ -324,6 +330,10 @@
       this.filter.typeList = this.filter.listType.product;
       this.getWorkTimeDays();
       this.getLeftList();
+    },
+    updated() {
+      this.setTableMaxHeight();
+      window.onresize = this.setTableMaxHeight;
     }
   };
 </script>

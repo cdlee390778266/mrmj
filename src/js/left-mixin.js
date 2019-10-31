@@ -3,6 +3,7 @@ let leftMixin = {
 		return {
 			defaultImg: require('../assets/img/img1.svg'),
 			isShowList: true,
+			maxHeight: 600,
 			filter: {
 				selectedValue: '',
 				typeList: [
@@ -318,6 +319,10 @@ let leftMixin = {
 	    		return '';
 	    	} 	
 	    },
+	    setTableMaxHeight() {
+
+	    	this.maxHeight = this.$utils.getTableMaxHeight();
+	    },
 	    back() {
 
 	    	this.$router.go(-1);
@@ -348,6 +353,7 @@ let leftMixin = {
 	destroyed() {
 
 		this.$refs.list && (this.$refs.list.onscroll = null);
+		window.onresize = null;
 	}
 }
 

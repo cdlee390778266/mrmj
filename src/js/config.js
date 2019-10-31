@@ -31,21 +31,26 @@ const CONFIG = {
 		login: baseUrl + 'authMR/login', //登录
 
 		/* 销售模块*/
+		addRequirement: baseUrl + 'requirement/req/addRequirement', //需求--新增需求
+		modifyRequirement: baseUrl + 'requirement/req/modifyRequirement', //需求--需求修改
+		queryRequirement: baseUrl + 'requirement/req/queryRequirement', //需求--需求查询
+		queryRequirementDetail: baseUrl + 'requirement/req/queryRequirementDetail', //需求--客户需求详细信息
+		saveDemand: baseUrl + 'requirement/demand/saveDemand', //需求--需求终止
+		matchCodeType: baseUrl + 'requirement/demand/matchCodeType', //需求--终止类型联想匹配
+		
+		
+		querySaleOrder: baseUrl + 'requirement/saleOrder/querySaleOrder', //销售订单开展--销售订单查询
+		saveSaleOrder: baseUrl + 'requirement/saleOrder/saveSaleOrder', //销售订单开展--新增销售订单或保存为草稿
+		editSaleOrder: baseUrl + 'requirement/saleOrder/editSaleOrder', //销售订单开展--编辑销售订单
+		deleteSaleOrder: baseUrl + 'requirement/saleOrder/deleteSaleOrder', //销售订单开展--删除销售订单
+		pauseOrStopSaleOrder: baseUrl + 'requirement/saleOrder/pauseOrStopSaleOrder', //销售订单开展--暂停或终止销售订单
+		resetSaleOrder: baseUrl + 'requirement/saleOrder/resetSaleOrder', //销售订单开展--恢复已暂停的销售订单
 		customerQueryCustomer: baseUrl + 'requirement/customer/queryCustomer', //客户档案--客户/供应商查询
 		saveCustomerHeadPortraits: baseUrl + 'requirement/customer/saveCustomerHeadPortraits', //客户档案--存储客户当前上传的头像
 		saveCustomer: baseUrl + 'requirement/customer/saveCustomer', //客户档案--客户/供应商信息录入
 		customerQcip: baseUrl + 'requirement/customer/selectCustomer', //客户档案--查询客户/供应商信息
 		modifyCustomerInfo: baseUrl + 'requirement/customer/modifyCustomerInfo', //客户档案--修改客户信息
 		sumCusRequirement: baseUrl + 'requirement/customer/sumCusRequirement', //客户档案--统计当前符合条件的客户需求数量
-		saveRequirement: baseUrl + 'requirement/req/saveRequirement', //需求--新增需求
-		modifyRequirement: baseUrl + 'requirement/req/modifyRequirement', //需求--需求修改
-		queryRequirementDetail: baseUrl + 'requirement/req/queryRequirementDetail', //需求--需求查询
-		sumRequirement: baseUrl + 'requirement/requirement/sumRequirement', //需求--统计符合条件
-		saveDemand: baseUrl + 'requirement/demand/saveDemand', //需求--需求终止
-		sysCodeQc: baseUrl + 'requirement/sysCode/qc', //需求--需求终止类型查询
-		inputDemand: baseUrl + 'requirement/demand/inputDemand', //需求--终止类型联想匹配
-		saveComponentOfferRecord: baseUrl + 'requirement/componentOfferRecord/saveComponentOfferRecord', //需求--零件报价
-		saveSaleOrder: baseUrl + 'requirement/saleOrder/saveSaleOrder', //需求--零件报价
 
 		/* 生产模块*/
 		saveSaleInProduct: baseUrl + 'requirement/productionOrder/saveSaleInProduct', //生产--工艺路线处新增销售订单
@@ -143,7 +148,8 @@ const CONFIG = {
 		'115': '已终止',
 		'116': '删除成功',
 		'117': '操作成功',
-		'118': '发货成功'
+		'118': '发货成功',
+		'119': '恢复成功',
 	},
 	error: {
 		'-1': '加载数据失败，请刷新页面重试！',

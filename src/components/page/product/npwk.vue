@@ -38,6 +38,8 @@
             <div class="content-right">
               <el-table
                 :data="currentData.planMsg"
+                :height="maxHeight"
+                :max-height="maxHeight"
                 border
                 size="mini"
                 class="content-table edit-table"
@@ -335,6 +337,10 @@
           this.isLoading = false;
           this.back();
         }, () => this.isLoading = false, params)
+      },
+      setTableMaxHeight() {
+
+        this.maxHeight = this.$utils.getTableMaxHeight(['.crumbs', '.detail-footer'], 196);
       }
     },
     created() {
@@ -343,6 +349,10 @@
       this.name = this.$route.query.process;
       this.getData();
       this.getDropDownList();
+    },
+    updated() {
+      this.setTableMaxHeight();
+      window.onresize = this.setTableMaxHeight;
     }
   };
 </script>

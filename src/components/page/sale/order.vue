@@ -31,29 +31,33 @@
           </div>
         </div>
         <div class="list" style="top: 96px;">
-          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.id }" v-show="isShowList" @click="handleSelect(item)">
+          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrSaleOrderId }" v-show="isShowList" @click="handleSelect(item)">
             <div class="dflex">
               <div>
                 <img src="../../../assets/img/img1.svg" width="30" class="mgr10 mgt10" />
               </div>
               <div class="flex ellipsis">
                 <p class="ellipsis">
-                  <span>模具号：{{item.a | filterNull}}</span>
-                  <span class="mgl20" :title="item.b | filterNull">订单类型：{{item.b | filterNull}}</span>
+                  <span>模具号：{{item.mouldNo | filterNull}}</span>
+                  <span class="mgl20" :title="item.saleOrderTypeText | filterNull">订单类型：{{item.saleOrderTypeText | filterNull}}</span>
                 </p>
-                <p class="ellipsis" :title="item.c | filterNull">客户：{{item.c | filterNull}}</p>
+                <p class="ellipsis" :title="item.c | filterNull">客户：{{item.name | filterNull}}</p>
               </div>
             </div>
             <el-row>
-              <el-col :span="12">交期：{{item.d | filterNull}}</el-col>
-              <el-col :span="12" class="ellipsis" :title="item.e | filterNull">订单价格：{{item.e | filterNull}}</el-col>
-              <el-col :span="12">状态：{{item.f | filterNull}}</el-col>
-              <el-col :span="12">进度：<el-progress :percentage="50" color="rgba(0, 255, 0, 1)" style="width: 88px;display: inline-block;"></el-progress></el-col>
+              <el-col :span="12">交期：{{item.completionDateString | filterNull}}</el-col>
+              <el-col :span="12" class="ellipsis" :title="item.settlementCurrencyTotalPrice | filterNull">订单价格：{{item.settlementCurrencyTotalPrice | filterNull}}</el-col>
+              <el-col :span="12" class="ellipsis" :title="item.saleOrderStatusText | filterNull">状态：{{item.saleOrderStatusText | filterNull}}</el-col>
+              <el-col :span="12">
+                进度：
+                <el-progress :percentage="item | cpercentage('haveCompletionTotalTime', 'estimateTotalTime')" color="rgba(0, 255, 0, 1)" style="width: 85px;display: inline-block;"></el-progress>
+              </el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click.stop="getOrderDetail(item)">修改</a>
-                <a href="javascript: void(0);" @click.stop="suspend(item)">暂停</a>
-                <a href="javascript: void(0);" @click.stop="termination(item)">终止</a>
-                <a href="javascript: void(0);" @click.stop="deleteConfirm(item)">删除</a>
+                <a href="javascript: void(0);" @click.stop="getOrderDetail(item)" v-if="item.saleOrderStatus == 10 || item.saleOrderStatus == 12">修改</a>
+                <a href="javascript: void(0);" @click.stop="resetSaleOrder(item)" v-if="item.saleOrderStatus == 14">恢复</a>
+                <a href="javascript: void(0);" @click.stop="suspend(item)" v-else>暂停</a>
+                <a href="javascript: void(0);" @click.stop="deleteConfirm(item)" v-if="item.saleOrderStatus == 10 || item.saleOrderStatus == 12">删除</a>
+                <a href="javascript: void(0);" @click.stop="termination(item)" v-else>终止</a>
               </el-col>
             </el-row>
           </div>
@@ -74,40 +78,40 @@
             <el-carousel-item>
               <div class="main-content-title">
                 <div>
-                  <i class="el-icon-lx-edit"></i> 订单{{right.page1.aa | filterNull}}信息
+                  <i class="el-icon-lx-edit"></i> 订单{{currentData.number}}信息
                 </div>
               </div>
               <el-scrollbar class="main-content-scorll pdt10">
                 <el-row>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{right.page1.a | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{right.page1.b | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">模具号：{{right.page1.c | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单类型：{{right.page1.d | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单状态：{{right.page1.e | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单总价：{{right.page1.f | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">汇率：{{right.page1.g | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单总价(RMB)：{{right.page1.h | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">当前成本累计(RMB)：{{right.page1.i | filterNull}}</el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{currentData.name | filterNull}}</el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{currentData.customerPoNo | filterNull}}</el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">模具号：{{currentData.mouldNo | filterNull}}</el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单类型：{{currentData.saleOrderTypeText | filterNull}}</el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单状态：{{currentData.saleOrderStatusText | filterNull}}</el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单总价：{{currentData.settlementCurrencyTotalPrice | filterNull}}</el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">汇率：{{currentData.settlementExchangeRate | filterNull}}</el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单总价(RMB)：{{currentData.saleTotal | filterNull}}</el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">当前成本累计(RMB)：{{currentData.i | filterNull}}</el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">下单日期：{{currentData.releaseOrderDateString | filterNull}}</el-col>
                 </el-row>
                 <el-row >
                   <el-col :span="24" class="mgt10">订单零件列表：</el-col>
                   <el-col :span="24">
                     <el-table
-                      :data="right.page1.j"
+                      :data="currentData.componentOrders"
                       border
                       size="mini"
                       class="content-table"
                       style="width: 100%"
                     >
                       <el-table-column type="index" label="序号" width="50"></el-table-column>
-                      <el-table-column prop="a" label="零件号" width="180"></el-table-column>
-                      <el-table-column prop="b" label="客户编号" width="180"></el-table-column>
-                      <el-table-column prop="c" label="数量" min-width="88"></el-table-column>
-                      <el-table-column prop="d" label="单价"  min-width="88"></el-table-column>
-                      <el-table-column prop="e" label="总价"  min-width="88"></el-table-column>
-                      <el-table-column prop="f" label="下单日期"  min-width="88"></el-table-column>
-                      <el-table-column prop="g" label="要求交期" min-width="88"></el-table-column>
-                      <el-table-column prop="h" label="说明" min-width="88"></el-table-column>
+                      <el-table-column prop="componentNo" label="零件号" width="180"></el-table-column>
+                      <el-table-column prop="customerNo" label="客户编号" width="180"></el-table-column>
+                      <el-table-column prop="quantity" label="数量" min-width="88"></el-table-column>
+                      <el-table-column prop="componentPrice" label="单价"  min-width="88"></el-table-column>
+                      <el-table-column prop="componentTotal" label="总价"  min-width="88"></el-table-column>
+                      <el-table-column prop="deliveryDateString" label="要求交期" min-width="88"></el-table-column>
+                      <el-table-column prop="description" label="说明" min-width="88"></el-table-column>
                     </el-table>
                   </el-col>
                 </el-row>
@@ -115,7 +119,7 @@
                   <el-col :span="24">
                     <p class="mgt20">订单附件</p>
                     <el-table
-                      :data="right.page1.k"
+                      :data="currentData.attachments"
                       border
                       size="mini"
                       class="content-table"
@@ -136,7 +140,7 @@
                   <el-col
                     :span="24"
                   >
-                    {{right.page1.l | filterNull}}
+                    {{currentData.remark | filterNull}}
                   </el-col>
                 </el-row>
               </el-scrollbar>
@@ -149,7 +153,7 @@
               </div>
               <el-scrollbar class="main-content-scorll">
                 <div class="progress-list">
-                  <div class="progress-item" v-for="(item, index) in right.page2">
+                  <div class="progress-item" v-for="(item, index) in currentData.trackMessages">
                     <div class="process-left">
                       <p class="ellipsis">
                         <span>零件：
@@ -172,9 +176,21 @@
                           </el-tooltip>
                         </span>
                       </p>
-                      <p class="ellipsis"><span>生产订单下达时间：{{ currentData.issuedOrderDate | filterNull }}</span></p>
-                      <p class="ellipsis"><span>计划时间：{{ currentData.planStartDate | filterNull }} 至 {{ currentData.planEndDate | filterNull }}</span></p>
-                      <p class="ellipsis"><span>总价：{{ total(item) }}元</span></p>
+                      <p class="ellipsis">
+                          <span>
+                            生产订单下达时间：
+                            <el-tooltip class="item" effect="dark" :content="item.issuedOrderDate | filterNull" placement="top">
+                              <span>{{item.issuedOrderDate | filterNull}}</span>
+                            </el-tooltip>
+                        </span>
+                      </p>
+                      <p class="ellipsis">
+                        <span>计划时间：
+                          <el-tooltip class="item" effect="dark" :content="item.planStartDate + '至' + item.planEndDate" placement="top">
+                            <span>{{item.planStartDate }} 至 {{ item.planEndDate }}</span>
+                          </el-tooltip>
+                        </span>
+                      </p>
                       <p class="ellipsis"><span>当前成本累计：{{ total(item) }}元</span></p>
                     </div>
                     <div class="process-right">
@@ -202,13 +218,13 @@
                               <span>{{itemc.startTimeString}}</span>
                             </td>
                           </tr>
-                          <tr>
+                          <!-- <tr>
                             <td class="tr"><span class="bg-green fcfff">结束</span></td>
                             <td class="tc" v-for="(itemc, index) in item.processes" :key="index" :class="{'fc-green': itemc.statusDescription == '已完成'}">
                               <span>
                                 {{itemc.endTimeString || (itemc.statusDescription == '进行中' && item.isOutsource ? '外协中' : itemc.statusDescription)}}</span>
                             </td>
-                          </tr>
+                          </tr> -->
                           <tr>
                             <td class="tr"><span class="bg-green fcfff">耗时</span></td>
                             <td class="tc" v-for="(itemc, index) in item.processes" :key="index" :class="{'fc-green': itemc.statusDescription == '已完成'}">
@@ -677,103 +693,21 @@
       getLeftList() {
 
         let params = {
-
+          type: this.filter.selectedValue,
+          sorting: `${this.filter.sort.sortField} ${this.filter.sort.sortType}`
         };
-        let mock = [
-          {
-            id: '125944',
-            a: 'M-1901',
-            b: '模具零件',
-            c: '测试测试测试测试公司',
-            d: '2019.03.31',
-            e: '12500.00元',
-            f: '草稿'
-          },
-          {
-            id: '125945',
-            a: 'M-1902',
-            b: '模具零件',
-            c: '测试测试测试测试公司',
-            d: '2019.03.31',
-            e: '12500.00元',
-            f: '生产中'
-          },
-        ]
-
+      
         this.left.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.querySaleOrder, (res) =>  {
 
           this.left.isLoading = false;
           this.left.list = res.data || [];
           if(this.left.list.length) {
 
             this.currentData = this.left.list[0];
-            this.left.activeId = this.left.list[0].id;
-            this.getDetail();
+            this.left.activeId = this.left.list[0].mrSaleOrderId;
           }
-        }, () => this.left.isLoading = false, params, mock)
-      },
-      getDetail() {
-
-        let params = {
-
-        };
-
-        let mock = {
-          a: 'A公司',
-          b: '12334567',
-          cc: 'M-1901',
-          c: '模具零件',
-          d: '生产中',
-          e: '12301.00',
-          f: '欧元',
-          g: '7.0',
-          h: '12301.00',
-          i: '9301.00',
-          j: [
-            {
-              a: '172988',
-              b: '',
-              c: '3',
-              d: '',
-              e: '2019.03.1',
-              f: '2019.03.08',
-              g: ''
-            },
-            {
-              a: '832071',
-              b: '',
-              c: '3',
-              d: '',
-              e: '2019.03.1',
-              f: '2019.03.08',
-              g: ''
-            }
-          ],
-          k: [
-            {
-              fileName: '172988图纸',
-              fileId: 'crQhc2flTyetPwbJ'
-            }
-          ],
-          l: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc ege'
-        }
-
-        let mock1 = [{"mrProductionPlanTasksId":"bUzB93j7vki1xgZk","issuedOrderDate":"2019-09-29","planStartDate":"2019-09-30","planEndDate":"2019-11-27","currentProcessId":"eXWfclePNi1hsWoC","issuedPurchaseOrderDate":null,"requireArrivalDate":null,"arrivalDate":null,"outsourceTotalPrice":null,"components":[{"likeCondition":null,"otherWhereClause":null,"enableSumQuery":false,"sumQueryCols":null,"_PAGE":0,"_PAGE_SIZE":0,"_SORT":null,"mrComponentCraftId":"2sNXtAm8X76PLc9Q","componentNo":"L800","quantity":6,"stockingQuantity":5,"id":null,"idColumnName":"","buDesc":null},{"likeCondition":null,"otherWhereClause":null,"enableSumQuery":false,"sumQueryCols":null,"_PAGE":0,"_PAGE_SIZE":0,"_SORT":null,"mrComponentCraftId":"FT7VlgnoZoWMLmDK","componentNo":"TU905","quantity":8,"stockingQuantity":2,"id":null,"idColumnName":"","buDesc":null}],"processes":[{"mrProductionPlanProcessId":"eXWfclePNi1hsWoC","processSequence":"1","processName":"G","isOutsource":null,"workTime":0,"estimationWorkTime":15,"startTime":null,"startTimeString":null,"endTime":null,"endTimeString":null,"statusDescription":"进行中","consumeTime":null,"processPrice":10},{"mrProductionPlanProcessId":"qO26agoSLjzeworC","processSequence":"2","processName":"M","isOutsource":null,"workTime":10,"estimationWorkTime":10,"startTime":"2019-10-09T05:00:00.000+0000","startTimeString":"2019-10-09 13:00:00","endTime":null,"endTimeString":null,"statusDescription":"待处理","consumeTime":null,"processPrice":10},{"mrProductionPlanProcessId":"MyR0GNnJeginQzt8","processSequence":"3","processName":"G","isOutsource":null,"workTime":9,"estimationWorkTime":9,"startTime":null,"startTimeString":null,"endTime":null,"endTimeString":null,"statusDescription":"待处理","consumeTime":null,"processPrice":10},{"mrProductionPlanProcessId":"hDSocyg3qjPm29t4","processSequence":"4","processName":"BH","isOutsource":null,"workTime":0,"estimationWorkTime":5,"startTime":"2019-10-04T05:00:00.000+0000","startTimeString":"2019-10-04 13:00:00","endTime":"2019-10-04T11:00:00.000+0000","endTimeString":"2019-10-04 19:00:00","statusDescription":"已完成","consumeTime":6,"processPrice":100}],"buy":null},{"mrProductionPlanTasksId":"EEe9dvlefbu4gRRv","issuedOrderDate":"2019-09-29","planStartDate":"2019-09-30","planEndDate":"2019-12-27","currentProcessId":"B4U9plj5pRtfA7gZ","issuedPurchaseOrderDate":null,"requireArrivalDate":null,"arrivalDate":null,"outsourceTotalPrice":null,"components":[{"likeCondition":null,"otherWhereClause":null,"enableSumQuery":false,"sumQueryCols":null,"_PAGE":0,"_PAGE_SIZE":0,"_SORT":null,"mrComponentCraftId":"CnqlBCfATbBejaL2","componentNo":"602","quantity":4,"stockingQuantity":3,"id":null,"idColumnName":"","buDesc":null}],"processes":[{"mrProductionPlanProcessId":"B4U9plj5pRtfA7gZ","processSequence":"1","processName":"W/C","isOutsource":null,"workTime":0,"estimationWorkTime":9,"startTime":null,"startTimeString":null,"endTime":null,"endTimeString":null,"statusDescription":"进行中","consumeTime":null,"processPrice":100},{"mrProductionPlanProcessId":"NlKACfiHEeA8yfIf","processSequence":"2","processName":"CNCH","isOutsource":null,"workTime":0,"estimationWorkTime":5,"startTime":null,"startTimeString":null,"endTime":null,"endTimeString":null,"statusDescription":"待处理","consumeTime":null,"processPrice":50},{"mrProductionPlanProcessId":"UimEd3dfQxYNYeTp","processSequence":"3","processName":"G","isOutsource":null,"workTime":0,"estimationWorkTime":18,"startTime":null,"startTimeString":null,"endTime":null,"endTimeString":null,"statusDescription":"待处理","consumeTime":null,"processPrice":10}],"buy":1},{"mrProductionPlanTasksId":"sRtXHUnsJmRqvii9","issuedOrderDate":"2019-09-29","planStartDate":"2019-09-30","planEndDate":null,"currentProcessId":"Zi3hmniC6pmTajQ7","issuedPurchaseOrderDate":null,"requireArrivalDate":null,"arrivalDate":null,"outsourceTotalPrice":null,"components":[{"likeCondition":null,"otherWhereClause":null,"enableSumQuery":false,"sumQueryCols":null,"_PAGE":0,"_PAGE_SIZE":0,"_SORT":null,"mrComponentCraftId":"mLdDOplocrNnbvFf","componentNo":"998","quantity":9,"stockingQuantity":6,"id":null,"idColumnName":"","buDesc":null}],"processes":[{"mrProductionPlanProcessId":"Zi3hmniC6pmTajQ7","processSequence":"1","processName":"M","isOutsource":null,"workTime":5,"estimationWorkTime":5,"startTime":null,"startTimeString":null,"endTime":null,"endTimeString":null,"statusDescription":"进行中","consumeTime":null,"processPrice":10},{"mrProductionPlanProcessId":"88389BmhwoK1RTCW","processSequence":"2","processName":"G","isOutsource":null,"workTime":16,"estimationWorkTime":16,"startTime":null,"startTimeString":null,"endTime":null,"endTimeString":null,"statusDescription":"待处理","consumeTime":null,"processPrice":10},{"mrProductionPlanProcessId":"KlVeR2ec06ShL6Xo","processSequence":"3","processName":"M","isOutsource":null,"workTime":10,"estimationWorkTime":10,"startTime":null,"startTimeString":null,"endTime":null,"endTimeString":null,"statusDescription":"待处理","consumeTime":null,"processPrice":10},{"mrProductionPlanProcessId":"8mKZ8VcgJecj02CI","processSequence":"4","processName":"CNCV","isOutsource":null,"workTime":8,"estimationWorkTime":8,"startTime":null,"startTimeString":null,"endTime":null,"endTimeString":null,"statusDescription":"待处理","consumeTime":null,"processPrice":10},{"mrProductionPlanProcessId":"GNsW0pfxvCatngOq","processSequence":"5","processName":"CNCH","isOutsource":null,"workTime":4,"estimationWorkTime":4,"startTime":null,"startTimeString":null,"endTime":null,"endTimeString":null,"statusDescription":"待处理","consumeTime":null,"processPrice":50}],"buy":null}]
-
-        this.right.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-          this.right.isLoading = false;
-          this.right.page1 = res.data || {};
-        }, () => this.right.isLoading = false, params, mock)
-
-        this.right.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-          this.right.isLoading = false;
-          this.right.page2 = res.data || {};
-        }, () => this.right.isLoading = false, params, mock1)
+        }, () => this.left.isLoading = false, params)
       },
       resetAddForm(obj = null) {
 
@@ -891,30 +825,50 @@
           this.$utils.showTip('success', 'success', isSaveAsDraft ? '102' : '113');
         }, () => this.handle.update.isLoading = false, params)
       },
-      suspend(item) {
+      suspend(item) { //暂停
 
         let params = {
-
+          mrSaleOrderId: item.mrSaleOrderId,
+          saleOrderStatus: 14
         };
-        
+
         this.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.pauseOrStopSaleOrder, (res) =>  {
 
           this.isLoading = false;
+          item.saleOrderStatus = 14;
+          item.saleOrderStatusText = '暂停';
           this.$utils.showTip('success', 'success', '114');
         }, () => this.isLoading = false, params)
       },
-      termination(item) {
+      resetSaleOrder(item) { //恢复
 
         let params = {
-
+          mrSaleOrderId: item.mrSaleOrderId
         };
-        
+
         this.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.resetSaleOrder, (res) =>  {
+
+          this.isLoading = false;
+          item.saleOrderStatus = 120;
+          item.saleOrderStatusText = '已下达生产订单';
+          this.$utils.showTip('success', 'success', '119');
+        }, () => this.isLoading = false, params)
+      },
+      termination(item) { //终止
+
+        let params = {
+          mrSaleOrderId: item.mrSaleOrderId,
+          saleOrderStatus: 16
+        };
+
+        this.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.pauseOrStopSaleOrder, (res) =>  {
 
           this.isLoading = false;
           this.$utils.showTip('success', 'success', '115');
+          this.search();
         }, () => this.isLoading = false, params)
       },
       deleteConfirm(item) {
@@ -945,7 +899,6 @@
 
         this.left.activeId = item.id;
         this.currentData = item;
-        this.getDetail();
       },
       refresh() {}
     },

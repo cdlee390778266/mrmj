@@ -88,3 +88,6 @@
 .el-table__row.active td {
   background: #d7d7d7 !important;
 }
+.table-wrapper .el-scrollbar__wrap {
+  overflow-x: hidden;
+}

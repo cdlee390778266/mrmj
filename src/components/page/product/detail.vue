@@ -11,6 +11,8 @@
       <div class="calc mgt20 mgl20">
         <el-table
           :data="tableData"
+          :height="maxHeight"
+          :max-height="maxHeight"
           size="mini"
           style="width: 100%"
           class="edit-table"
@@ -337,7 +339,7 @@ export default {
         this.$utils.showTip('success', 'success', '107');
         this.right.isLoading = false;
       }, () => this.right.isLoading = false, params)
-    },
+    }
   },
   computed: {
     dateMinusBgColor() { //交期剩余天数颜色
@@ -363,6 +365,10 @@ export default {
         return bgColor
       }
     }
+  },
+  updated() {
+    this.setTableMaxHeight();
+    window.onresize = this.setTableMaxHeight;
   },
   created() {
     

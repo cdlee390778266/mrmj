@@ -241,6 +241,24 @@ Date.prototype.Format = function(fmt, hasWeek) {
 	return fmt + (hasWeek ? '&nbsp;&nbsp;&nbsp;&nbsp;' + weekday[this.getDay()] : '');
 }
 
+// 拿到表格的高度和最高高度 高度===最高高度
+Utils.getTableMaxHeight = (minusSelectors = ['.crumbs', '.detail-footer'], minusHeight = 55, containerSelector = '.content') => {
+
+  let [container, minusHeightTotal]  = [document.querySelector(containerSelector), minusHeight];
+  if (!container) return 200;
+
+  let [boxHeight, maxHeight] = [container.clientHeight, maxHeight];
+
+  if (navigator.userAgent.includes('Firefox')) minusHeightTotal += 20;
+  for (let selector of minusSelectors) {
+
+    minusHeightTotal += container.querySelector(selector).clientHeight;
+  }
+
+  maxHeight = boxHeight - minusHeightTotal;
+  return  maxHeight > 200 ? maxHeight : 200;
+};
+
 //模拟请求
 Utils.mock = function(url, success, error, params = {}, resData = {}) {
 

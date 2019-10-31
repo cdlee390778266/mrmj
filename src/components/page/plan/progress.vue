@@ -28,6 +28,8 @@
               <el-table
                 :data="tableData"
                 size="mini"
+                :height="maxHeight"
+                :max-height="maxHeight"
                 style="width: 100%"
                 class="edit-table"
                 :highlight-current-row="true"
@@ -635,6 +637,10 @@
           this.getData();
         }, () =>  this.handle.add.isLoading = false, params)
       },
+      setTableMaxHeight() {
+
+        this.maxHeight = this.$utils.getTableMaxHeight(['.detail-footer'], 120);
+      },
       refresh() {
 
       }
@@ -668,6 +674,10 @@
 
       this.getAllProcessOfIndex();
       this.getData();
+    },
+    updated() {
+      this.setTableMaxHeight();
+      window.onresize = this.setTableMaxHeight;
     }
   };
 </script>

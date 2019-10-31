@@ -12,7 +12,7 @@
         <div class="main-left-search pd10">
           <div class="mgb10">
             需求列表：
-            <el-input v-model="form.text" style="width: 200px" prefix-icon="el-icon-search" @focus="isShowList = false" />
+            <el-input v-model="left.form.parameter" style="width: 200px" prefix-icon="el-icon-search" @focus="isShowList = false" />
           </div>
           <div>
             <el-button type="primary" @click="handle.add.dialogVisible = true" style="width: 130px;">新增需求</el-button>
@@ -20,22 +20,22 @@
           </div>
         </div>
         <div class="list" ref="list">
-          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.id }" v-show="isShowList" @click="handleSelect(item)">
+          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrRequirementId }" v-show="isShowList" @click="handleSelect(item, 'mrRequirementId')">
             <div class="dflex">
               <div>
                 <div>
-                <img :src="item.business && item.business.fileId ? `${$utils.CONFIG.api.image}?fileId=${item.business.fileId}` : defaultImg" width="30" class="mgr10 mgt10" />
+                <img :src="item.fileId ? `${$utils.CONFIG.api.image}?fileId=${item.fileId}` : defaultImg" width="30" class="mgr10 mgt10" />
               </div>
               </div>
               <div class="flex">
-                <p>{{ (item.customer ? item.customer.name : '') | filterNull }}</p>
+                <p>{{ item.name | filterNull }}</p>
                 <p>客户PO号：{{ item.customerPoNo | filterNull }}</p>
               </div>
             </div>
             <el-row>
-              <el-col :span="12">需求类型：{{ item.reqTypeId | filterValueToLabel($dict.reqTypeValToLab) }}</el-col>
-              <el-col :span="12">交期：{{ item.reqCompletionDate | filterNull }}</el-col>
-              <el-col :span="24">报价：{{ item.totalPrice | filterNull }}{{ (item.currency ? item.currency.name : '') | filterNull }}</el-col>
+              <el-col :span="12">需求类型：{{ item.requirementTypeText }}</el-col>
+              <el-col :span="12">交期：{{ item.requireDeliveryDateString | filterNull }}</el-col>
+              <el-col :span="24">报价：{{ item.totalPrice | filterNull }}{{ (item.currencyName ? item.currencyName : '') | filterNull }}</el-col>
               <el-col :span="24" class="tr">
                 <a href="javascript: void(0);" @click="handle.add.dialogVisible = true">修改</a>
                 <a href="javascript: void(0);" @click="handle.stop.dialogVisible = true">终止</a>
@@ -53,7 +53,7 @@
         </div>
       </div>
       <div class="main-right">
-        <page-wrapper @change="refresh" :haveCarousel="true">
+        <page-wrapper @change="refresh" :haveCarousel="false">
           <div class="main-content-title">
             <div>
               <slot name="pageTitle"><i class="el-icon-lx-edit"></i> 模具零件需求信息</slot>
@@ -62,13 +62,13 @@
           <div class="pdt10 mgt10">
             <el-scrollbar class="main-content-scorll pdt10">
               <el-row>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ (currentData.customer ? currentData.customer.name : '') | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ currentData.name | filterNull }}</el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{ currentData.customerPoNo | filterNull }}</el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求编号：{{ currentData.requirementNum | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求类型：{{ currentData.reqTypeId | filterValueToLabel($dict.reqTypeValToLab) }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求状态：{{ currentData.reqStatusId | filterValueToLabel($dict.reqStatusValToLab) }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求类型：{{ currentData.requirementTypeText | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求状态：{{ currentData.requirementStatusText | filterNull }}</el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">已报总价：{{ currentData.totalPrice | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">报价货币：{{ (currentData.currency ? currentData.currency.name : '') | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">报价货币：{{ currentData.currencyName | filterNull }}</el-col>
               </el-row>
               <el-row>
                 <el-col :span="24">需求零件列表：</el-col>
@@ -201,7 +201,6 @@
         border
         size="mini"
         align="center"
-        :span-method="objectSpanMethod"
         style="width: 100%">
         <el-table-column
           prop="date"
@@ -422,6 +421,11 @@
     mixins: [leftMixin],
     data() {
       return {
+        left: {
+          form: {
+            parameter: ''
+          }
+        },
         right: {
           activeIndex: 0,
           list: [
@@ -531,33 +535,19 @@
       getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
 
         let params = {
-          name: '',
-          type: '',
+          parameter: this.left.form.parameter,
+          type: this.filter.selectedValue,
           pageNo: this.left.page.pageNo,
           pageSize: this.left.page.pageSize,
+          //sorting: `${this.filter.sort.sortField} ${this.filter.sort.sortType}`
         }
         if(this.form.text) params.name = this.form.text;
 
-        this.getData(this.$utils.CONFIG.api.queryRequirementDetail, params, 'id', loadingKey);
+        this.getData(this.$utils.CONFIG.api.queryRequirement, params, 'mrRequirementId', loadingKey);
       },
       handlePictureCardPreview(file) {
         this.faceUrl = file.url;
         this.addDialog.dialogVisible = true;
-      },
-      objectSpanMethod({ row, column, rowIndex, columnIndex }) { //合并
-        if (columnIndex === 0) {
-          if (rowIndex % 2 === 0) {
-            return {
-              rowspan: 2,
-              colspan: 1
-            };
-          } else {
-            return {
-              rowspan: 0,
-              colspan: 0
-            };
-          }
-        }
       },
       del(index, row) {
         console.log(index, row);
