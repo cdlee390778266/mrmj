@@ -16,11 +16,11 @@
           </div>
           <div>
             <el-button type="primary" @click="handle.add.dialogVisible = true" style="width: 130px;">新增需求</el-button>
-            <el-button type="primary" class="fr" @click="handle.plan.dialogVisible = true" style="width: 130px;">查看生产计划</el-button>
+            <el-button type="primary" class="fr" @click="showPlanDialog" style="width: 130px;">查看生产计划</el-button>
           </div>
         </div>
         <div class="list" ref="list">
-          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrRequirementId }" v-show="isShowList" @click="handleSelect(item, 'mrRequirementId')">
+          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrRequirementId }" v-show="isShowList" @click="handleSelect(item, 'mrRequirementId', getDetail)">
             <div class="dflex">
               <div>
                 <div>
@@ -37,10 +37,10 @@
               <el-col :span="12">交期：{{ item.requireDeliveryDateString | filterNull }}</el-col>
               <el-col :span="24">报价：{{ item.totalPrice | filterNull }}{{ (item.currencyName ? item.currencyName : '') | filterNull }}</el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="handle.add.dialogVisible = true">修改</a>
-                <a href="javascript: void(0);" @click="handle.stop.dialogVisible = true">终止</a>
+                <a href="javascript: void(0);" @click.stop="handle.add.dialogVisible = true">修改</a>
+                <a href="javascript: void(0);" @click.stop="showStopDialog(item)">终止</a>
                 <router-link to="/sale/detail">报价</router-link>
-                <a href="javascript: void(0);" @click="handle.order.dialogVisible = true">下单</a>
+                <a href="javascript: void(0);" @click.stop="handle.order.dialogVisible = true">下单</a>
               </el-col>
             </el-row>
           </div>
@@ -52,7 +52,7 @@
           </div>
         </div>
       </div>
-      <div class="main-right">
+      <div class="main-right" v-loading="right.isLoading">
         <page-wrapper @change="refresh" :haveCarousel="false">
           <div class="main-content-title">
             <div>
@@ -62,29 +62,29 @@
           <div class="pdt10 mgt10">
             <el-scrollbar class="main-content-scorll pdt10">
               <el-row>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ currentData.name | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{ currentData.customerPoNo | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求编号：{{ currentData.requirementNum | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求类型：{{ currentData.requirementTypeText | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求状态：{{ currentData.requirementStatusText | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">已报总价：{{ currentData.totalPrice | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">报价货币：{{ currentData.currencyName | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ right.page1.name | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{ right.page1.customerPoNo | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求编号：{{ right.page1.requirementNum | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求类型：{{ right.page1.requirementTypeText | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求状态：{{ right.page1.requirementStatusText | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">已报总价：{{ right.page1.totalPrice | filterNull }}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">报价货币：{{ right.page1.currencyName | filterNull }}</el-col>
               </el-row>
               <el-row>
                 <el-col :span="24">需求零件列表：</el-col>
                 <el-col :span="24">
                   <el-table
-                    :data="currentData.componentRequirements"
+                    :data="right.page1.components"
                     border
                     size="mini"
                     class="content-table"
                     style="width: 100%"
                   >
                     <el-table-column type="index" label="序号" width="50" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="componentNum" label="零件号" width="180" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="componentNo" label="零件号" width="180" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="customerNo" label="客户编号" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="componentAmount" label="需求数量" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="completionDate" label="要求交期" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="quantity" label="需求数量" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="deliveryDateString" label="要求交期" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="remark" label="说明" show-overflow-tooltip></el-table-column>
                   </el-table>
                 </el-col>
@@ -93,7 +93,7 @@
                 <el-col :span="24">需求附件：</el-col>
                 <el-col :span="24">
                   <el-table
-                    :data="currentData.attachments"
+                    :data="right.page1.attachments"
                     border
                     size="mini"
                     class="content-table"
@@ -103,7 +103,7 @@
                     <el-table-column prop="fileName" label="附件名称" show-overflow-tooltip></el-table-column>
                     <el-table-column width="100" label="操作">
                       <template slot-scope="scope">
-                        <a href style="color: #3375AB;">下载</a>
+                        <a href="javascript:void(0);" style="color: #3375AB;" @click="down(scope.row.fileId)">下载</a>
                       </template>
                     </el-table-column>
                   </el-table>
@@ -113,7 +113,7 @@
                 <el-col :span="24">需求说明：</el-col>
                 <el-col
                   :span="24"
-                >{{ currentData.remark | filterNull }}</el-col>
+                >{{ right.page1.remark | filterNull }}</el-col>
               </el-row>
             </el-scrollbar>
           </div>
@@ -196,131 +196,212 @@
     </el-dialog>
 
     <el-dialog title="查看当前计划" :visible.sync="handle.plan.dialogVisible">
-      <el-table
-        :data="handle.plan.data"
-        border
-        size="mini"
-        align="center"
-        style="width: 100%">
-        <el-table-column
-          prop="date"
-          label="模具号"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="下图日期"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="出货日期"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="客户"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="要求日期"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="状态"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="零件号码"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="数量"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="date"
-          label="版本"
-          width="100">
-        </el-table-column>
-        <el-table-column label="工艺时间">
+      <div v-loading="handle.plan.isLoading">
+        <el-table
+          :data="handle.plan.tableData"
+          size="mini"
+          style="width: 100%"
+          class="edit-table"
+          :highlight-current-row="true"
+          :row-class-name="setRowClass">
           <el-table-column
-            prop="province"
-            label="M"
-            width="100">
+            label="出货日期"
+            width="120"
+            label-class-name="fc-el-table-head"
+            class-name="fc-red"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{scope.row.shipmentDateString | filterNull(' ')}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
-            prop="city"
-            label="H\WC"
-            width="100">
+            prop="mouldNo"
+            sortable
+            label="模具号"
+            width="120"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{scope.row.mouldNo | filterNull(' ')}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
-            prop="address"
-            label="H\T"
-            width="100">
+            label="零件号码"
+            min-width="100"
+            align="center"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" >
+                {{scope.row.components | concatString('componentNo')}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
-            prop="zip"
-            label="G"
-            width="100">
+            label="数量"
+            min-width="100"
+            align="center"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" >
+                {{scope.row.components | concatString('quantity')}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
-            prop="zip"
-            label="EDM"
-            width="100">
+            prop="versionNo"
+            label="版本"
+            width="100"
+            align="center"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{scope.row.versionNo | filterNull(' ')}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
-            prop="zip"
-            label="CNC"
-            width="100">
+            label="整体外协"
+            width="100"
+            align="center"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{ 
+                  scope.row.buy == 1 ? '是' : (
+                     scope.row.buy == 0 ? '否' : ''
+                  )
+                }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="工艺时间" align="center" min-width="100">
+            <el-table-column
+              v-for="(item, index) in allProcessOfIndex"
+              :key="index"
+              :label="item.name"
+              align="center"
+              min-width="70"
+              label-class-name="fc-red"
+              show-overflow-tooltip>
+              <template slot-scope="scope">
+                <div
+                :class="{
+                  'fc-red': scope.row[item.key] > maxWorkTime,
+                  'bg00b0f0 fcfff': scope.row.currentPlanProcessId == scope.row[item.key+'-id'],
+                  'bg-green fcfff': scope.row.nextPlanProcessId == scope.row[item.key+'-id'],
+                  'bgffff00': scope.row.workpieceLocationId == scope.row[item.key+'-id']}"
+                  v-if="scope.row[item.key] || scope.row[item.key] == 0"
+                  >
+                  {{scope.row[item.key]}}
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="qc"
+              label="Else"
+              align="center"
+              min-width="70"
+              label-class-name="fc-blue"
+              show-overflow-tooltip>
+            </el-table-column>
           </el-table-column>
           <el-table-column
-            prop="zip"
-            label="EDB"
-            width="100">
+            prop="requireCompletionDate"
+            sortable
+            label="要求交期"
+            min-width="100"
+            align="center"
+            label-class-name="fc-el-table-head"
+            class-name="fc-blue"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{scope.row.requireCompletionDate | filterNull(' ')}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
-            prop="zip"
-            label="W/C"
-            width="100">
+            prop="abbreviation"
+            sortable
+            label="客户"
+            min-width="100"
+            align="center"
+            class-name="fc-blue"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{scope.row.abbreviation | filterNull(' ')}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
-            prop="zip"
-            label="PL"
-            width="100">
+            prop="surplus"
+            sortable
+            label="交期剩余(天)"
+            min-width="120"
+            align="center"
+            label-class-name="fc-el-table-head"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div :class="{fcfff: dateMinusBgColor(scope.row.surplus)}" :style="{background: dateMinusBgColor(scope.row.surplus)}"
+              >
+                {{scope.row.surplus}}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="现状" class-name="fc800000" min-width="180" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{ scope.row.currentSituation }}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
-            prop="zip"
-            label="ENG"
-            width="100">
+            label="电极"
+            min-width="100"
+            align="center"
+            label-class-name="fc-el-table-head"
+            class-name="fc-blue"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                {{scope.row.electrode | filterNull(' ')}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
-            prop="zip"
-            label="other"
-            width="100">
+            prop="residueWorkTime"
+            sortable
+            label="剩余工时"
+            min-width="100"
+            align="center"
+            label-class-name="fc-el-table-head"
+            show-overflow-tooltip>
+            <template scope="scope">
+              <div :class="{'bgRed fcfff': scope.row.residueWorkTime > 200}" >{{scope.row.residueWorkTime | filterNull(' ')}}</div>
+            </template>
           </el-table-column>
-        </el-table-column>
-      </el-table>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="handle.plan.dialogVisible = false">返 回</el-button>
+        </el-table>
+        <div slot="footer" class="dialog-footer mgt20 tr">
+          <el-button @click="handle.plan.dialogVisible = false">关 闭</el-button>
+        </div>
       </div>
     </el-dialog>
 
-    <el-dialog title="终止原因" :visible.sync="handle.stop.dialogVisible">
-      <el-form :model="handle.stop.form" label-width="100px">
-        <el-form-item label="需求终止原因" class="mgt20">
-          <el-input v-model="handle.stop.form.reason"></el-input>
+    <el-dialog title="终止原因" :visible.sync="handle.stop.dialogVisible" width="500px">
+      <el-form ref="stopForm" :model="handle.stop.form" :rules="handle.stop.rules" label-width="110px" v-loading="handle.stop.isLoading">
+        <el-form-item prop="causeTypeText" label="需求终止原因" class="mgt20">
+          <el-input v-model="handle.stop.form.causeTypeText"></el-input>
         </el-form-item>
-        <el-form-item label="说明" class="mgt20">
-          <el-input type="textarea" v-model="handle.stop.form.dsc" class="v-textarea"></el-input>
+        <el-form-item prop="description" label="说明" class="mgt20">
+          <el-input type="textarea" v-model="handle.stop.form.description" class="v-textarea"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.stop.dialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="stop">确 定</el-button>
         <el-button @click="handle.stop.dialogVisible = false">取 消</el-button>
       </div>
     </el-dialog>
@@ -426,28 +507,6 @@
             parameter: ''
           }
         },
-        right: {
-          activeIndex: 0,
-          list: [
-            {
-              spList: [
-                {
-                  date: "2016-05-03",
-                  name: "",
-                  address: ""
-                }
-              ],
-              enclosureList: [
-                {
-                  date: "2016-05-03",
-                  name: "",
-                  address: "3",
-                  d: "2019-03-02"
-                }
-              ]
-            }
-          ]
-        },
         handle: {
           add: {
             dialogVisible: false,
@@ -474,27 +533,21 @@
           },
           plan: {
             dialogVisible: false,
-            data: [{
-              date: '2016-05-03',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            },{
-              date: '2016-05-07',
-              name: '王小虎',
-              province: '上海',
-              city: '普陀区',
-              address: '上海市普陀区金沙江路 1518 弄',
-              zip: 200333
-            }]
+            isLoading: false,
+            tableData: []
           },
           stop: {
             dialogVisible: false,
+            isLoading: false,
+            data: {},
             form: {
-              reason: "",
-              dsc: ""
+              causeTypeText: "",
+              description: ""
+            },
+            rules: {
+              causeTypeText: [
+                { required: true, message: this.$utils.getTipText('error', '-1085')},
+              ]
             }
           },
           order: {
@@ -543,7 +596,94 @@
         }
         if(this.form.text) params.name = this.form.text;
 
-        this.getData(this.$utils.CONFIG.api.queryRequirement, params, 'mrRequirementId', loadingKey);
+        this.getData(this.$utils.CONFIG.api.queryRequirement, params, 'mrRequirementId', loadingKey, this.getDetail);
+      },
+      getDetail() {
+        let params = {
+          mrRequirementId: this.currentData.mrRequirementId
+        };
+        
+        this.right.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryRequirementDetail, (res) =>  {
+
+          this.right.isLoading = false;
+          this.right.page1 = res.data || {};
+        }, () => this.right.isLoading = false, params)
+      },
+      showPlanDialog() {
+
+        this.handle.plan.dialogVisible = true;
+        if(!this.handle.plan.tableData.length) {
+
+          this.getAllProcessOfIndex();
+          this.getPlan();
+        }
+      },
+      getPlan() { //获取订单列表
+
+        let params = {
+
+        };
+        this.handle.plan.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryPlanList, (res) =>  {
+
+          this.handle.plan.isLoading = false;
+          res.data && res.data.map(item => {
+
+            item.surplus = this.dateMinus(item.requireCompletionDate);
+            item.processes && item.processes.map(itemc => {
+
+              if(itemc.name && !itemc.haveSort) {
+
+                let processes = item.processes.filter(itemcc => itemcc.name == itemc.name);
+                processes.sort(this.compare('processSequence'));
+                
+                processes.map((itemcc, index) => {
+
+                  itemc.haveSort = true;
+                  itemc.processesIndex = index + 1;
+                  itemc.webName = `${itemcc.name}${itemcc.processesIndex}`;
+
+                  item[`${this.procedurePrefix}-${itemcc.name}${itemcc.processesIndex}`] = itemcc.workTime;
+                  item[`${this.procedurePrefix}-${itemcc.name}${itemcc.processesIndex}-id`] = itemcc.mrProductionPlanProcessId;
+                })
+                item.webProcesses = processes;
+              }
+            })
+          })
+          this.handle.plan.tableData = res.data || [];
+        }, () => this.handle.plan.isLoading = false, params)
+      },
+      showStopDialog(item) {
+
+        this.$refs.stopForm && this.$refs.stopForm.resetFields();
+        this.handle.stop.dialogVisible = true;
+        this.handle.stop.data = item;
+      },
+      stop() {
+    
+        this.$refs.stopForm.validate((valid) => {
+          if (valid) {
+            
+            let params = {
+              mrRequirementId: this.currentData.mrRequirementId,
+              causeTypeText: this.handle.stop.form.causeTypeText,
+              description: this.handle.stop.form.description
+            };
+            
+            this.handle.stop.isLoading = true;
+            this.$utils.getJson(this.$utils.CONFIG.api.saveDemand, (res) =>  {
+
+              this.handle.stop.isLoading = false;
+              this.handle.stop.dialogVisible = false;
+              this.$utils.showTip('success', 'success', '115');
+              this.getLeftList();
+            }, () => this.handle.stop.isLoading = false, params)
+          } else {
+            
+            return false;
+          }
+        });
       },
       handlePictureCardPreview(file) {
         this.faceUrl = file.url;

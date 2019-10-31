@@ -7,7 +7,7 @@
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div class="main" v-loading="left.isLoading">
+    <div class="main" v-loading="isLoading">
       <div class="main-left" style="width: 148px;">
         <div class="list" ref="list" style="top: 0px;">
           <div class="list-item pd10" :class="{ active: left.activeId == item.key }" v-for="item in left.tabs" :key="item.key" @click="handleSelect(item)">
@@ -37,7 +37,7 @@
                   <div class="mgt10 ">
                     <div class="filter-item">
                       <span>供应商名称：</span> 
-                      <el-select style="width: 100px;" v-model="left.tabs[0].form.processes">
+                      <el-select style="width: 100px;" v-model="left.tabs[0].form.name">
                         <el-option v-for="(item, index) in left.tabs[1].filter.processes" :key="index" :label="item.stuffNo" :value="item.stuffNo" @click=""></el-option>
                       </el-select>
                     </div>
@@ -52,8 +52,9 @@
                     <div class="filter-item">
                       <span>检验日期：</span> 
                       <el-date-picker
-                        v-model="left.tabs[0].form.testDaterange"
+                        v-model="left.tabs[0].form.inspectionDate"
                         type="daterange"
+                        value-format="yyyy-MM-dd"
                         range-separator="至"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期">
@@ -67,10 +68,10 @@
                     </div>
                     <div class="filter-item">
                       检验结果：
-                      <el-checkbox-group v-model="left.tabs[0].form.resultType" style="display: inline-block;">
-                        <el-checkbox label="接受"></el-checkbox>
-                        <el-checkbox label="返工"></el-checkbox>
-                        <el-checkbox label="报废"></el-checkbox>
+                      <el-checkbox-group v-model="left.tabs[0].form.inspectionResult" style="display: inline-block;">
+                        <el-checkbox label="接受" :value="10"></el-checkbox>
+                        <el-checkbox label="返工" :value="20"></el-checkbox>
+                        <el-checkbox label="报废" :value="50"></el-checkbox>
                       </el-checkbox-group>
                     </div>
                     <el-button type="primary" class="mgl40" @click="queryOrder">搜 索</el-button>
@@ -82,17 +83,25 @@
                     border
                     size="mini"
                     class="content-table">
-                    <el-table-column prop="a" label="采购单号" sortable width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="b" label="供应商名称" sortable  width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="c" label="到货日期" sortable width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="d" label="检验日期" width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="e" label="模具号" sortable width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="f" label="零件号" sortable width="120"  show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="g" label="外协工序" sortable width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="h" label="数量" sortable width="100" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="i" label="检测结果" sortable width="100" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="j" label="异常数量" sortable width="100" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="k" label="异常概况" sortable min-width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="purchaseOrderNo" label="采购单号" sortable width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="name" label="供应商名称" sortable  width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="arrivalGoodsDate" label="到货日期" sortable width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="inspectionDate" label="检验日期" width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="mouldNo" label="模具号" sortable width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="f" label="零件号" sortable width="120"  show-overflow-tooltip>
+                      <template slot-scope="scope">
+                        {{scope.row.components | concatString('componentNo')}}
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="processName" label="外协工序" sortable width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="h" label="数量" sortable width="100" show-overflow-tooltip>
+                      <template slot-scope="scope">
+                        {{scope.row.components | concatString('quantity')}}
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="inspectionResultText" label="检测结果" sortable width="100" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="abnormalQuantity" label="异常数量" sortable width="100" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="abnormalOverview" label="异常概况" min-width="120" show-overflow-tooltip></el-table-column>
                   </el-table>
                 </el-col>
               </el-row>
@@ -121,15 +130,16 @@
                     </div>
                     <div class="filter-item">
                       <span>加工工序：</span> 
-                      <el-select style="width: 100px;" v-model="left.tabs[1].form.processes">
+                      <el-select style="width: 100px;" v-model="left.tabs[1].form.processId">
                         <el-option v-for="(item, index) in left.tabs[1].filter.processes" :key="index" :label="item.stuffNo" :value="item.stuffNo" @click=""></el-option>
                       </el-select>
                     </div>
                     <div class="filter-item">
                       <span>检验日期：</span> 
                       <el-date-picker
-                        v-model="left.tabs[1].form.testDaterange"
+                        v-model="left.tabs[1].form.inspectionDate"
                         type="daterange"
+                        value-format="yyyy-MM-dd"
                         range-separator="至"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期">
@@ -137,10 +147,10 @@
                     </div>
                     <div class="filter-item">
                       检验结果：
-                      <el-checkbox-group v-model="left.tabs[1].form.resultType" style="display: inline-block;">
-                        <el-checkbox label="接受"></el-checkbox>
-                        <el-checkbox label="返工"></el-checkbox>
-                        <el-checkbox label="报废"></el-checkbox>
+                      <el-checkbox-group v-model="left.tabs[1].form.inspectionResult" style="display: inline-block;">
+                        <el-checkbox label="接受" :value="10"></el-checkbox>
+                        <el-checkbox label="返工" :value="20"></el-checkbox>
+                        <el-checkbox label="报废" :value="50"></el-checkbox>
                       </el-checkbox-group>
                     </div>
                     <el-button type="primary" class="mgl40" @click="queryProcesses">搜 索</el-button>
@@ -152,14 +162,22 @@
                     border
                     size="mini"
                     class="content-table">
-                    <el-table-column prop="a" label="模具号" sortable width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="b" label="零件号" sortable  show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="c" label="工序" sortable width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="d" label="检验日期" width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="e" label="数量" sortable width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="f" label="检测结果" sortable width="120"  show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="mouldNo" label="模具号" sortable width="180" show-overflow-tooltip></el-table-column>
+                    <el-table-column label="零件号" sortable  show-overflow-tooltip>
+                      <template slot-scope="scope">
+                        {{scope.row.components | concatString('componentNo')}}
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="processName" label="工序" sortable width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="inspectionDate" label="检验日期" width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column label="数量" sortable width="120" show-overflow-tooltip>
+                      <template slot-scope="scope">
+                        {{scope.row.components | concatString('quality')}}
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="inspectionResultText" label="检测结果" sortable width="120"  show-overflow-tooltip></el-table-column>
                     <el-table-column prop="g" label="异常数量" sortable width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="h" label="异常概况" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="abnormalQuantity" label="异常概况" show-overflow-tooltip></el-table-column>
                   </el-table>
                 </el-col>
               </el-row>
@@ -178,7 +196,6 @@
     data() {
       return {
         left: {
-          isLoading: false,
           tabs: [
             {
               key:  'page1',
@@ -203,12 +220,12 @@
                 ]
               },
               form: {
-                supplier: '',
+                name: '',
                 mouldNo: '',
                 componentNo: '',
-                processes: '',
-                testDaterange: '',
-                resultType: []
+                processName: '',
+                inspectionDate: '',
+                inspectionResult: ''
               },
               list: []
             },
@@ -227,11 +244,12 @@
                 ]
               },
               form: {
+                name: '',
                 mouldNo: '',
                 componentNo: '',
-                processes: '',
-                testDaterange: '',
-                resultType: []
+                processId: '',
+                inspectionDate: '',
+                inspectionResult: ''
               },
               list: []
             }
@@ -243,103 +261,41 @@
       queryOrder() { //获取采购到货检验列表
 
         let params = {
-
+          name: this.left.tabs[0].form.name,
+          inspectionDate_from: this.left.tabs[0].form.inspectionDate[0] || '',
+          inspectionDate_to: this.left.tabs[0].form.inspectionDate[1] || '',
+          mouldNo: this.left.tabs[0].form.mouldNo,
+          comonentNo: this.left.tabs[0].form.comonentNo,
+          processName: this.left.tabs[0].form.processName,
+          inspectionResult: this.left.tabs[0].form.inspectionResult,
+          sorting: '_MrCustomer.name'
         };
-        let mock = [
-          {
-            a: 'MR2019-05-04',
-            b: 'A公司',
-            c: '5月7日',
-            d: '5月7日',
-            e: 'M16005',
-            f: '300-1',
-            g: 'L',
-            h: '5',
-            i: '接受',
-            j: '10',
-            k: '查图，尺寸量错'
-          },
-          {
-            a: 'MR2019-09-09',
-            b: 'B公司',
-            c: '5月7日',
-            d: '5月7日',
-            e: 'M16005',
-            f: '300-1',
-            g: 'S',
-            h: '3',
-            i: '返工',
-            j: '3',
-            k: '70.07*0.96°斜度未加工'
-          }
-        ]
+  
+        this.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryGoodsInspectInfo, (res) =>  {
 
-        this.left.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-          this.left.isLoading = false;
+          this.isLoading = false;
           this.left.tabs[0].list = res.data || [];
-        }, () => this.left.isLoading = false, params, mock)
+        }, () => this.isLoading = false, params)
       },
       queryProcesses() { //获取工序完工检验列表
 
         let params = {
-
+          name: this.left.tabs[1].form.name,
+          inspectionDate_from: this.left.tabs[1].form.inspectionDate[0] || '',
+          inspectionDate_to: this.left.tabs[1].form.inspectionDate[1] || '',
+          mouldNo: this.left.tabs[1].form.mouldNo,
+          comonentNo: this.left.tabs[1].form.comonentNo,
+          processId: this.left.tabs[1].form.processId,
+          inspectionResult: this.left.tabs[1].form.inspectionResult
         };
-        let mock = [
-          {
-            a: 'M16005',
-            b: '300-1',
-            c: 'L',
-            d: '5月7日',
-            e: '5',
-            f: '接受',
-            g: '1',
-            h: '查图，尺寸量错'
-          },
-          {
-            a: 'M9995',
-            b: '301',
-            c: 'K',
-            d: '5月7日',
-            e: '10',
-            f: '返工',
-            g: '12',
-            h: '圆弧接深'
-          }
-        ]
+    
+        this.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryProcessInspectInfo, (res) =>  {
 
-        this.left.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-          this.left.isLoading = false;
+          this.isLoading = false;
           this.left.tabs[1].list = res.data || [];
-        }, () => this.left.isLoading = false, params, mock)
-      },
-      deleteOrder(item, index) {
-
-        let params = {
-
-        };
-      
-        this.right.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-          this.right.isLoading = false;
-          this.$utils.showTip('success', 'success', '104');
-          this.left.tabs[1].list.splice(index, 1);
-        }, () => this.right.isLoading = false, params)
-      },
-      addOrder() {
-
-        if(!this.left.tabs[0].selections.length) {
-          this.$utils.showTip('warning', 'error', '-1060');
-          return;
-        }
-
-        let time = new Date().getTime();
-        this.$utils.setSessionStorage(time, JSON.stringify(this.left.tabs[0].selections));
-        this.$router.push(`/plan/placeOrder/${time}`);
+        }, () => this.isLoading = false, params)
       },
       handleSelect(item) {
       

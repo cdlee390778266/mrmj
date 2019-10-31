@@ -128,6 +128,9 @@ const CONFIG = {
 		releasedPurchaseOrder: baseUrl + 'requirement/purchaseOrder/releasedPurchaseOrder', //计划--下达采购订单
 		queryPurchaseOrder: baseUrl + 'requirement/purchaseOrder/queryPurchaseOrder', //计划--未发货的外协采购订单
 
+		/* 质检模块*/
+		queryGoodsInspectInfo: baseUrl + 'requirement/goodsInspection/queryGoodsInspectInfo', //质量质检--采购到货查询
+		queryProcessInspectInfo: baseUrl + 'requirement/processInspection/queryProcessInspectInfo', //质量质检--完工检验查询
 	},
 	success: {
 		"1": "加载数据成功",
@@ -193,6 +196,7 @@ const CONFIG = {
 		'-1082': '请输入详细地址',
 		'-1083': '请输入联系电话',
 		'-1084': '零件清单至少有一条数据，并且零件号数量，客户编号与要求交期不能为空',
+		'-1085': '请输入需求终止原因',
 		
 	}
 }

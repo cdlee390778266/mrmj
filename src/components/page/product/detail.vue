@@ -215,69 +215,10 @@ export default {
   data() {
     return {
       isLoading: false,
-      maxWorkTime: this.$dict.maxWorkTime,
-      procedurePrefix: 'procedure',
-      allProcessOfIndex: [],
-      tableData: [],
+      tableData: []
     };
   },
   methods: {
-    compare(propertyName) { //对象排序比较器
-
-      return function(object1, object2) {
-
-        var value1 = object1[propertyName];
-        var value2 = object2[propertyName];
-        if (value2 < value1) {
-
-          return 1;
-        } else if (value2 > value1) {
-
-          return -1;
-        } else {
-
-          return 0;
-        }
-      }
-    },
-    dateMinus(dateString) { //交期剩余天数
-
-      let t1 = new Date(dateString).getTime();
-      let t0 = new Date().getTime();
-
-      return parseInt((t1 - t0) / (1000 * 60 * 60 * 24))
-    },
-    getAllProcessOfIndex() {  //获取工序列表
-
-      this.isLoading = true;
-      this.$utils.getJson(this.$utils.CONFIG.api.getAllProcessOfIndex, (res) =>  {
-
-        this.isLoading = false;
-        let allProcessOfIndex = [];
-        if(res.data.length) {
-
-          res.data.map(item => {
-
-            if(item.max > 1) {
-
-              for(let i = 1; i <= item.max; i++) {
-
-                let newItem = Object.assign({}, item);
-                newItem.name = `${newItem.name}${i}`;
-                newItem.key = `${this.procedurePrefix}-${newItem.name}`;
-                newItem.index = i;
-                allProcessOfIndex.push(newItem);
-              }
-            }else if(item.max == 1) {
-
-              item.key = `${this.procedurePrefix}-${item.name}1`;
-              allProcessOfIndex.push(item);
-            }
-          })
-        }
-        this.allProcessOfIndex = allProcessOfIndex;
-      }, () => this.isLoading = false)
-    },
     getData() { //获取订单列表
 
       let params = {
@@ -312,58 +253,6 @@ export default {
         })
         this.tableData = res.data || [];
       }, () => this.isLoading = false, params)
-    },
-    setRowClass(row) {
-
-      let rowClass = '';
-
-      if(row.row.productionTasksStatus == 60) { //暂停加工
-
-        rowClass = 'rowTermination'
-      }else if(row.row.productionTasksStatus == 80) {
-        
-        rowClass = 'rowSuspend';
-      }
-
-      return rowClass
-    },
-    removeWarning(item) {  //消除报警
-
-      let params = {
-
-      };
-
-      this.right.isLoading = true;
-      this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-        this.$utils.showTip('success', 'success', '107');
-        this.right.isLoading = false;
-      }, () => this.right.isLoading = false, params)
-    }
-  },
-  computed: {
-    dateMinusBgColor() { //交期剩余天数颜色
-
-      return function(time) {
-
-        let bgColor = '';
-
-        if(time > 10) {
-
-          bgColor = '#0070c0'
-        }else if(time >= 5) {
-
-          bgColor = '#ffff00'
-        }else if(time >= 0) {
-
-          bgColor = '#ffc000'
-        }else if(time < 0) {
-
-          bgColor = '#ff0000'
-        }
-  
-        return bgColor
-      }
     }
   },
   updated() {
