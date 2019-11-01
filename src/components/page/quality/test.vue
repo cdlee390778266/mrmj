@@ -36,10 +36,10 @@
                   </div>
                   <div class="mgt10 ">
                     <div class="filter-item">
-                      <span>供应商名称：</span> 
-                      <el-select style="width: 100px;" v-model="left.tabs[0].form.name">
-                        <el-option v-for="(item, index) in left.tabs[1].filter.processes" :key="index" :label="item.stuffNo" :value="item.stuffNo" @click=""></el-option>
-                      </el-select>
+                      <span>供应商名称：</span>
+                      <el-select size="mini" v-model="left.tabs[0].form.name" placeholder="请选择客户" style="width: 100px;">
+                      <el-option v-for="(item, index) in filter.supplier" :key="index" :label="item.name" :value="item.name"></el-option>
+                      </el-select> 
                     </div>
                     <div class="filter-item">
                       <span>模具号：</span> 
@@ -195,6 +195,10 @@
     mixins: [leftMixin],
     data() {
       return {
+        filter: {
+          supplier: [],
+          processes: []
+        },
         left: {
           tabs: [
             {
@@ -302,10 +306,19 @@
         this.left.activeId = item.key;
         this.currentData= item;
       },
+      getDropDownList() { //供应商、模具号、零件号下拉列表
+
+        this.getList(this.$utils.CONFIG.api.customerQcip, this.filter, 'supplier', {customerType: 20, type: 0}, (res) => {
+
+          this.filter.supplier = res.content || [];
+        }); //获取客户列表
+        //this.getList(this.$utils.CONFIG.api.qwm, this.filter, 'qwm'); //获取模具与零件号联动列表
+      },
       refresh() {}
     },
     created() {
 
+      this.getDropDownList();
       this.handleSelect(this.left.tabs[0]);
       this.queryOrder();
       this.queryProcesses();

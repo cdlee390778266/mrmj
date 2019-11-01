@@ -197,16 +197,17 @@ let leftMixin = {
 	      this.$refs[formName] && this.$refs[formName].resetFields();
 	    },
 	    beforeAvatarUpload(file) {	//上传头像之前判断
-			const isJPG = file.type === 'image/jpeg';
-			const isLt2M = file.size / 1024 / 1024 < 2;
+	    	console.log(file.type)
+			let fileTypeArr = ['image/jpeg', 'image/gif', 'image/png'];
+			let isLt2M = file.size / 1024 / 1024 < 2;
 
-			if (!isJPG) {
-				this.$message.error('上传头像图片只能是 JPG 格式!');
+			if (!fileTypeArr.includes(file.type)) {
+				this.$message.error('上传头像图片只能是 JPG、GIF、PNG 格式!');
 			}
 			if (!isLt2M) {
 				this.$message.error('上传头像图片大小不能超过 2MB!');
 			}
-			return isJPG && isLt2M;
+			return fileTypeArr.includes(file.type) && isLt2M;
 		},
 	    uploadFile(dialog = null) {
 	    
@@ -246,7 +247,7 @@ let leftMixin = {
 
 	    	this.right.isLoading = true;
 	    	this.deleteRow = deleteRow;
-	      this.$utils.getJson(this.$utils.CONFIG.api.deleteFiles, (res) => { //版本详情 
+	      this.$utils.getJson(this.$utils.CONFIG.api.deleteFiles, (res) => {  
 
 	        this.right.isLoading = false;
 	        typeof this.deleteSuccess == 'function' && this.deleteSuccess();
@@ -400,6 +401,17 @@ let leftMixin = {
 	    back() {
 
 	    	this.$router.go(-1);
+	    },
+	    showDialog(type, formRef = null, isResetComponents = false) {
+
+	    	if(!type) return;
+	    	this.handle[type].dialogVisible = true;
+	    	formRef && this.$refs[formRef] && this.$refs[formRef].resetFields();
+	    	if(this.handle[type].form) {
+	    		this.handle[type].addFiles = [];
+	    		this.handle[type].form.attachments = [];
+	    		isResetComponents && (this.handle[type].form.components = [{}])
+	    	} 
 	    }
 	},
 	computed: {

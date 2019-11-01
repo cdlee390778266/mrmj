@@ -23,7 +23,7 @@ const CONFIG = {
 		uploadFiles: baseUrl + 'fc/uploadFiles', //上传文件
 		deleteFiles: baseUrl + 'fc/deleteFiles', //生产--删除服务器端的文件
 		download: baseUrl + 'fc/downloadFiles', //下载文件
-		image: baseUrl + 'fc/imgStreamOther	', //图片接口
+		image: baseUrl + 'fc/imgStreamOther', //图片接口
 		customer: baseUrl + 'requirement/customer/qc', //客户名称查询接口
 		qwm: baseUrl + 'requirement/saleOrder/qwm', //模具与零件号联动查询接口
 		maxWorkTime: baseUrl + 'requirement/threshold/qc', //生产--查询工序估工阈值
@@ -41,6 +41,7 @@ const CONFIG = {
 		
 		querySaleOrder: baseUrl + 'requirement/saleOrder/querySaleOrder', //销售订单开展--销售订单查询
 		saveSaleOrder: baseUrl + 'requirement/saleOrder/saveSaleOrder', //销售订单开展--新增销售订单或保存为草稿
+		checkRequirementNum: baseUrl + 'requirement/req/checkRequirementNum', //销售订单开展--需求编号验重
 		editSaleOrder: baseUrl + 'requirement/saleOrder/editSaleOrder', //销售订单开展--编辑销售订单
 		deleteSaleOrder: baseUrl + 'requirement/saleOrder/deleteSaleOrder', //销售订单开展--删除销售订单
 		pauseOrStopSaleOrder: baseUrl + 'requirement/saleOrder/pauseOrStopSaleOrder', //销售订单开展--暂停或终止销售订单
@@ -153,6 +154,7 @@ const CONFIG = {
 		'117': '操作成功',
 		'118': '发货成功',
 		'119': '恢复成功',
+		'120': '修改成功',
 	},
 	error: {
 		'-1': '加载数据失败，请刷新页面重试！',
@@ -197,7 +199,10 @@ const CONFIG = {
 		'-1083': '请输入联系电话',
 		'-1084': '零件清单至少有一条数据，并且零件号数量，客户编号与要求交期不能为空',
 		'-1085': '请输入需求终止原因',
-		
+		'-1086': '请输入客户PO.号',
+		'-1087': '请输入需求编号',
+		'-1088': '需求编号已存在',
+		'-1089': '需求明细至少有一条数据，并且零件号、客户编号、数量与要求交期不能为空',
 	}
 }
 

@@ -15,7 +15,7 @@
             <el-input v-model="left.form.parameter" style="width: 200px" prefix-icon="el-icon-search" @focus="isShowList = false" />
           </div>
           <div>
-            <el-button type="primary" @click="handle.add.dialogVisible = true" style="width: 130px;">新增需求</el-button>
+            <el-button type="primary" @click="handle.update.type = 'add';handle.update.form.userFace = ''; showDialog('update', 'updateForm', true)" style="width: 130px;">新增需求</el-button>
             <el-button type="primary" class="fr" @click="showPlanDialog" style="width: 130px;">查看生产计划</el-button>
           </div>
         </div>
@@ -37,10 +37,10 @@
               <el-col :span="12">交期：{{ item.requireDeliveryDateString | filterNull }}</el-col>
               <el-col :span="24">报价：{{ item.totalPrice | filterNull }}{{ (item.currencyName ? item.currencyName : '') | filterNull }}</el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click.stop="handle.add.dialogVisible = true">修改</a>
+                <a href="javascript: void(0);" @click.stop="handle.update.type = 'edit';handle.update.dialogVisible = true; getDetail(item);">修改</a>
                 <a href="javascript: void(0);" @click.stop="showStopDialog(item)">终止</a>
                 <router-link to="/sale/detail">报价</router-link>
-                <a href="javascript: void(0);" @click.stop="handle.order.dialogVisible = true">下单</a>
+                <a href="javascript: void(0);" @click.stop="handle.order.dialogVisible = true; getDetail(item, true);">下单</a>
               </el-col>
             </el-row>
           </div>
@@ -121,77 +121,155 @@
       </div>
     </div>
 
-    <el-dialog title="新增客户需求" :visible.sync="handle.add.dialogVisible">
-      <el-form :model="handle.add.form" label-width="100px">
+    <el-dialog :title="`${handle.update.type == 'add' ? '新增' : '修改'}客户需求`" :visible.sync="handle.update.dialogVisible">
+      <el-form ref="updateForm" :model="handle.update.form" :rules="handle.update.rules" label-width="100px" v-loading="handle.update.isLoading">
         <div class="dflex">
-          <div class="flex">
-            <el-form-item label="客户">
-              <el-input v-model="handle.add.form.name" auto-complete="off"></el-input>
+          <div class="flex pdr10">
+            <el-form-item prop="name" label="客户">
+              <el-input v-model="handle.update.form.name" auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item prop="customerPoNo" label="客户PO.号">
+              <el-input v-model="handle.update.form.customerPoNo" auto-complete="off"></el-input>
             </el-form-item>
             <el-row>
               <el-col :span="12">
                 <el-form-item label="需求类型">
-                  <el-select v-model="handle.add.form.type">
-                    <el-option label="模具零件" value="0"></el-option>
-                    <el-option label="整体模具" value="1"></el-option>
+                  <el-select v-model="handle.update.form.requirementTypeText">
+                    <el-option label="模具零件" value="模具零件"></el-option>
+                    <el-option label="整体模具" value="整体模具"></el-option>
                   </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="需求编号">
-                  <el-input v-model="handle.add.form.id" auto-complete="off"></el-input>
+                <el-form-item  prop="requirementNum" label="需求编号" v-show="handle.update.type == 'add'">
+                  <el-input v-model="handle.update.form.requirementNum" auto-complete="off"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24" v-show="handle.update.form.requirementTypeText == '整体模具'">
+                <el-form-item  prop="deliveryDate" label="要求交期">
+                  <el-date-picker
+                    type="date"
+                    size="mini"
+                    placeholder="选择日期"
+                    format="yyyy-MM-dd"
+                    value-format="yyyy-MM-dd"
+                    style="width: '98px'"
+                    :clearable="false"
+                    :editable="false"
+                    v-model="handle.update.form.deliveryDate">
+                  </el-date-picker>
                 </el-form-item>
               </el-col>
             </el-row>
           </div>
           <el-upload
-            action="https://jsonplaceholder.typicode.com/posts/"
-            list-type="picture-card"
-            class="v-upload pdl10"
-            :multiple="false"
-            :limit="1"
-            :on-preview="handlePictureCardPreview"
+            class="avatar-uploader"
+            name="files"
+            ref="upload"
+            :action="$utils.CONFIG.api.uploadFiles"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
           >
-            <i class="el-icon-plus"></i>
+            <img v-if="handle.update.form.userFace" :src="handle.update.form.userFace" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </div>
-        <div>
+        <div class="mgb20" v-show="handle.update.form.requirementTypeText == '模具零件'">
           <p>需求明细：</p>
-          <el-table :data="handle.add.form.detailList" height="160" border size="mini" style="width: 100%">
-            <el-table-column prop="date" label="零件号" width="100"></el-table-column>
-            <el-table-column prop="name" label="数量" width="88"></el-table-column>
-            <el-table-column prop="address" label="要求交期"></el-table-column>
-            <el-table-column prop="address" label="说明"></el-table-column>
+          <el-table :data="handle.update.form.components" max-height="160" border size="mini" class="edit-table" style="width: 100%">
+            <el-table-column label="零件号" min-width="100" show-overflow-tooltip>
+              <template scope="scope">
+                <div>
+                  <div @click="showInput(handle.update.form.components, scope.$index, 'componentNoEdit', {})">
+                    <div class="ellipsis">{{ scope.row.componentNo }}</div>
+                    <el-input size="mini" v-model="scope.row.componentNo" @focus="showInput(handle.update.form.components, scope.$index, 'componentNoEdit', {}, false)" @blur="scope.row.componentNoEdit = false" :style="{opacity: scope.row.componentNoEdit ? 1 : 0}"/>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="客户编号" min-width="88" show-overflow-tooltip>
+              <template scope="scope">
+                <div>
+                  <div @click="showInput(handle.update.form.components, scope.$index, 'customerNoEdit', {})">
+                    <div class="ellipsis">{{ scope.row.customerNo }}</div>
+                    <el-input size="mini" v-model="scope.row.customerNo" @focus="showInput(handle.update.form.components, scope.$index, 'customerNoEdit', {}, false)" @blur="scope.row.customerNoEdit = false" :style="{opacity: scope.row.customerNoEdit ? 1 : 0}"/>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column label="数量" min-width="88" show-overflow-tooltip align="center">
+              <template scope="scope">
+                <div>
+                  <div @click="showInput(handle.update.form.components, scope.$index, 'quantityEdit', {})">
+                    <div class="ellipsis">{{ scope.row.quantity }}</div>
+                    <el-input size="mini" v-model="scope.row.quantity" @focus="showInput(handle.update.form.components, scope.$index, 'quantityEdit', {}, false)" @blur="scope.row.quantityEdit = false" :style="{opacity: scope.row.quantityEdit ? 1 : 0}"/>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="address" label="要求交期" show-overflow-tooltip align="center" width="100">
+              <template scope="scope">
+                <div>
+                  <div @click="showInput(handle.update.form.components, scope.$index, 'deliveryDateEdit', {})">
+                    <div class="ellipsis tc">{{ scope.row.deliveryDate }}</div>
+                    <el-date-picker
+                      type="date"
+                      size="mini"
+                      placeholder="选择日期"
+                      format="yyyy-MM-dd"
+                      value-format="yyyy-MM-dd"
+                      v-model="scope.row.deliveryDate"
+                      @focus="showInput(handle.update.form.components, scope.$index, 'deliveryDateEdit', {})"
+                      @blur="scope.row.deliveryDateEdit = false"
+                      :style="{opacity: scope.row.deliveryDateEdit ? 1 : 0}">
+                    </el-date-picker>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="address" label="说明" show-overflow-tooltip>
+              <template scope="scope">
+                <div>
+                  <div @click="showInput(handle.update.form.components, scope.$index, 'remarkEdit', {})">
+                    <div class="ellipsis">{{ scope.row.remark }}</div>
+                    <el-input size="mini" v-model="scope.row.remark" @focus="showInput(handle.update.form.components, scope.$index, 'remarkEdit', {}, false)" @blur="scope.row.remarkEdit = false" :style="{opacity: scope.row.remarkEdit ? 1 : 0}"/>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
         <div>
-          <p class="mgt20 mgb10">
+          <p class="mgb10">
             上传附件：
-            <el-button type="primary" size="mini">选择上传文件</el-button>
+            <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
+              <el-button size="mini" type="primary">选择上传文件</el-button>
+              <input type="file" name="file" ref="fileUpdate" class="posFull opacity0" @change="() => addAttachments()">
+            </span>
           </p>
           <el-table
-            :data="handle.add.form.enclosureList"
+            :data="handle.update.form.attachments"
             max-height="160"
             border
             size="mini"
             style="width: 100%"
           >
-            <el-table-column prop="date" label="上传文件"></el-table-column>
-            <el-table-column prop="name" label="资料名称"></el-table-column>
-            <el-table-column label="操作">
+            <el-table-column prop="fileName" label="资料名称"></el-table-column>
+            <el-table-column label="操作" width="100" align="center">
               <template slot-scope="scope">
-                <el-button size="mini" type="danger" @click="del(scope.$index, scope.row)">删除</el-button>
+                <el-button size="mini" type="text" @click="deleteAttachments(scope.row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
         </div>
-        <el-form-item label="需求编号" class="mgt20">
-          <el-input type="textarea" v-model="handle.add.form.dsc"></el-input>
+        <el-form-item prop="remark" label="说明" class="mgt20">
+          <el-input type="textarea" v-model="handle.update.form.remark"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.add.dialogVisible = false">确 定</el-button>
-        <el-button @click="handle.add.dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveAddRequirement">确 定</el-button>
+        <el-button @click="handle.update.dialogVisible = false">取 消</el-button>
       </div>
     </el-dialog>
 
@@ -407,53 +485,56 @@
     </el-dialog>
 
     <el-dialog title="新增模具零件订单" :visible.sync="handle.order.dialogVisible" width="700px">
-      <el-form :model="handle.order.form" label-width="100px">
+      <el-form :model="handle.order.form" :rules="handle.order.rules" label-width="100px" v-loading="handle.order.isLoading">
         <div class="dflex">
-          <div class="flex">
+          <div class="flex pdr10">
             <el-form-item label="客户">
               <el-input v-model="handle.order.form.name" auto-complete="off"></el-input>
             </el-form-item>
+            <el-form-item label="客户PO.号">
+              <el-input v-model="handle.order.form.customerPoNo" auto-complete="off"></el-input>
+            </el-form-item>
             <el-form-item label="模具号">
-              <el-input v-model="handle.order.form.id" auto-complete="off"></el-input>
+              <el-input v-model="handle.order.form.moduleNo" auto-complete="off"></el-input>
             </el-form-item>
           </div>
           <el-upload
-            action="https://jsonplaceholder.typicode.com/posts/"
-            list-type="picture-card"
-            class="v-upload pdl10"
-            :multiple="false"
-            :limit="1"
-            :on-preview="handlePictureCardPreview"
+            class="avatar-uploader"
+            name="files"
+            ref="upload"
+            :action="$utils.CONFIG.api.uploadFiles"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
           >
-            <i class="el-icon-plus"></i>
+            <img v-if="handle.order.form.userFace" :src="handle.order.form.userFace" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </div>
-        <div>
+        <div class="mgb20" v-show="handle.order.form.requirementTypeText == '模具零件'">
           <p>零件清单：</p>
           <el-table
-            :data="handle.order.form.detailList"
-            height="160"
+            :data="handle.order.form.components"
+            max-height="160"
             border
             size="mini"
             style="width: 100%"
           >
-            <el-table-column prop="date" label="零件号" width="100"></el-table-column>
-            <el-table-column prop="name" label="数量" width="88"></el-table-column>
-            <el-table-column prop="address" label="要求交期"></el-table-column>
-            <el-table-column prop="address" label="单价"></el-table-column>
-            <el-table-column prop="address" label="总价"></el-table-column>
-            <el-table-column prop="address" label="说明"></el-table-column>
+            <el-table-column prop="componentNo" label="零件号" min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="quantity" label="数量" min-width="100" align="center" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="deliveryDate" label="要求交期" min-width="120" align="center" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="address" label="单价" min-width="100" align="center" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="address" label="总价" min-width="100" align="center" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="remark" label="说明" show-overflow-tooltip></el-table-column>
           </el-table>
         </div>
         <div>
-          <div class="mgt20 mgb0 dflex el-form-item-mgb0" style="line-height: 32px;">
-            <div class="flex">订单总价（RMB）：231323.00</div>
+          <div class="mgb0 dflex el-form-item-mgb0" style="line-height: 32px;">
+            <div class="flex">订单总价(RMB)：{{handle.order.form.totalPrice}}</div>
             <div class="flex">
-              <el-form-item label="结算货币">
-                <el-select v-model="handle.order.form.btype">
-                  <el-option label="欧元" value="0"></el-option>
-                  <el-option label="美元" value="1"></el-option>
-                  <el-option label="日元" value="2"></el-option>
+              <el-form-item label="常用货币" prop="btype">
+                <el-select v-model="handle.order.form.btype" style="width: 100%;">
+                  <el-option v-for="(item, index) in $dict.currencyList" :key="index" :label="item.name" :value="item.mrCurrencyId"></el-option>
                 </el-select>
               </el-form-item>
             </div>
@@ -468,23 +549,22 @@
             <el-button type="primary" size="mini">选择上传文件</el-button>
           </p>
           <el-table
-            :data="handle.order.form.enclosureList"
+            :data="handle.order.form.attachments"
             height="160"
             border
             size="mini"
             style="width: 100%"
           >
-            <el-table-column prop="date" label="上传文件"></el-table-column>
-            <el-table-column prop="name" label="资料名称"></el-table-column>
+            <el-table-column prop="fileName" label="资料名称"></el-table-column>
             <el-table-column label="操作">
               <template slot-scope="scope">
-                <el-button size="mini" type="danger" @click="del(scope.$index, scope.row)">删除</el-button>
+                <el-button size="mini" type="text" @click="del(scope.$index, scope.row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
         </div>
         <el-form-item label="说明" class="mgt20">
-          <el-input type="textarea" v-model="handle.order.form.dsc"></el-input>
+          <el-input type="textarea" v-model="handle.order.form.remark"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -501,6 +581,27 @@
   export default {
     mixins: [leftMixin],
     data() {
+
+      var checkNumber = (rule, value, callback) => { //需求编号验重
+        if (!value) {
+          return callback(new Error(this.$utils.getTipText('error', '-1087')));
+        }
+
+        if(this.handle.update.type != 'add') {
+          return callback();
+        }
+        
+        this.$utils.getJson(this.$utils.CONFIG.api.checkRequirementNum, (res) => {
+
+          if(res.data != 1) { //如果编号重复
+
+            callback(new Error(this.$utils.getTipText('error', '-1088')));
+          }else {
+            callback();
+          }
+        }, null, {requirementNum: value})
+      };
+
       return {
         left: {
           form: {
@@ -508,26 +609,33 @@
           }
         },
         handle: {
-          add: {
+          update: {
             dialogVisible: false,
+            type: 'add',
+            item: {},
+            attachments: [],
+            addFiles: [],
             form: {
-              faceUrl: "",
+              userFace: '',
+              fileId: "",
               name: "",
-              type: "0",
-              id: "",
-              dsc: "",
-              detailList: [
-                {
-                  date: "2016-05-01",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                }
+              customerPoNo: "",
+              requirementTypeText: "模具零件",
+              requirementNum: "",
+              deliveryDate: new Date(),
+              components: [{}],
+              attachments: [],
+              remark: ''
+            },
+            rules: {
+              name: [
+                { required: true, message: this.$utils.getTipText('error', '-1010')},
               ],
-              enclosureList: [
-                {
-                  date: "2016-05-01",
-                  name: "王小虎"
-                }
+              customerPoNo: [
+                { required: true, message: this.$utils.getTipText('error', '-1086')},
+              ],
+              requirementNum: [
+                { validator: checkNumber, trigger: 'blur' }
               ]
             }
           },
@@ -552,34 +660,28 @@
           },
           order: {
             dialogVisible: false,
+            isLoading: false,
             form: {
-              faceUrl: "",
+              fileId: "",
               name: "",
-              type: "0",
-              id: "",
-              btype: "0",
-              total: 1256,
-              dsc: "",
-              detailList: [
-                {
-                  date: "2016-05-03",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                },
-                
-                {
-                  date: "2016-05-01",
-                  name: "王小虎",
-                  address: "上海市普陀区金沙江路 1518 弄"
-                }
-              ],
-              enclosureList: [
-                {
-                  date: "2016-05-01",
-                  name: "王小虎"
-                }
-              ]
+              customerPoNo: "",
+              requirementNum: "",
+              deliveryDate: new Date(),
+              components: [{}],
+              attachments: [],
+              remark: ''
             },
+            rules: {
+              name: [
+                { required: true, message: this.$utils.getTipText('error', '-1010')},
+              ],
+              customerPoNo: [
+                { required: true, message: this.$utils.getTipText('error', '-1086')},
+              ],
+              requirementNum: [
+                { validator: checkNumber, trigger: 'blur' }
+              ]
+            }
           }
         }
       };
@@ -598,19 +700,150 @@
 
         this.getData(this.$utils.CONFIG.api.queryRequirement, params, 'mrRequirementId', loadingKey, this.getDetail);
       },
-      getDetail() {
+      getDetail(item = null, isOrder = false) { //需求详情 isOrder 是否是下单
+
         let params = {
           mrRequirementId: this.currentData.mrRequirementId
         };
+        let obj = this.right;
+
+        if(item && item.mrRequirementId) { //如果是修改
+
+          this.handle.update.item = item;
+          params.mrRequirementId = item.mrRequirementId;
+          obj = this.handle.update;
+        }
+
+        if(item && isOrder) { //如果是修改
+
+          this.handle.order.item = item;
+          params.mrRequirementId = item.mrRequirementId;
+          obj = this.handle.order;
+        }
         
-        this.right.isLoading = true;
+        obj.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryRequirementDetail, (res) =>  {
 
-          this.right.isLoading = false;
-          this.right.page1 = res.data || {};
-        }, () => this.right.isLoading = false, params)
+          obj.isLoading = false;
+          if(item && item.mrRequirementId) {
+
+             obj.form = res.data || {};
+             this.handle.update.attachments = obj.form.attachments || [];
+             if(this.handle.update.form.fileId) {
+
+              obj.form.userFace = `${this.$utils.CONFIG.api.image}?fileId=${this.handle.update.form.fileId}`;
+             }
+          }else {
+
+             obj.page1 = res.data || {};
+          }
+        }, () => obj.isLoading = false, params)
       },
-      showPlanDialog() {
+      handleAvatarSuccess(res, file) { //上传头像
+        
+        this.handle.update.form.userFace = `${this.$utils.CONFIG.api.image}?fileId=${res.data[0].fileId}`;
+        this.handle.update.form.fileId = res.data[0].fileId;
+      },
+      addAttachments() { //新增附件
+
+        let fileId = new Date().getTime();
+        this.$refs.fileUpdate.files[0].fileId = fileId;
+        this.handle.update.addFiles.push(this.$refs.fileUpdate.files[0]);
+        this.handle.update.form.attachments.push({
+          type: 'add',
+          fileId: fileId,
+          fileName: this.$refs.fileUpdate.files[0].name
+        })
+        this.$refs.fileUpdate.value = '';
+      },
+      deleteAttachments(file) {
+
+        this.handle.update.form.attachments = this.handle.update.form.attachments.filter(item => item.fileId != file.fileId);
+
+        if(file.type == 'add') {
+          this.handle.update.addFiles = this.handle.update.addFiles.filter(item => item.fileId != file.fileId);
+        }
+      },
+      saveAddRequirement() { //新增需求
+
+        if(this.handle.update.addFiles.length) {
+
+          this.uploadFile(this.handle.update);
+        }else {
+
+          this.uploadSuccess();
+        }
+      },
+      uploadSuccess(res) { //需求
+        
+        this.$refs.updateForm.validate((valid) => {
+          if (valid) {
+            let url = this.$utils.CONFIG.api.addRequirement;
+            let params = {
+              fileId: this.handle.update.form.fileId,
+              name: this.handle.update.form.name,
+              customerPoNo: this.handle.update.form.customerPoNo,
+              requirementTypeText: this.handle.update.form.requirementTypeText,
+              requirementNum: parseInt(this.handle.update.form.requirementNum) || 0,
+              components: [],
+              attachments: [],
+              remark: this.handle.update.form.remark
+            };
+            
+            if(params.requirementTypeText == '模具零件') { //零件
+
+              let components = [];
+              this.handle.update.form.components.map(item => {
+
+                if(item.componentNo && item.quantity && item.customerNo && item.deliveryDate) {
+
+                  components.push({
+                    mrComponentReqId: item.mrComponentReqId,
+                    componentNo: item.componentNo,
+                    quantity: item.quantity,
+                    customerNo: item.customerNo,
+                    deliveryDate: item.deliveryDate, 
+                    remark: item.remark
+                  })
+                }
+              })
+
+              if(!components || !components.length ) {
+
+                this.$utils.showTip('warning', 'error', '-1089');
+                return;
+              }
+
+              params.components = components;
+            }
+
+            params.attachments = [];
+            if(this.handle.update.type == 'edit') { //如果是编辑
+
+              url = this.$utils.CONFIG.api.modifyRequirement;
+              params.mrRequirementId = this.handle.update.item.mrRequirementId;
+              params.requireDeliveryDate = this.handle.update.form.deliveryDate;
+            }
+            if(res && res.data && res.data.length) { //附件
+
+              res.data.map(item => params.attachments.push({
+                fileId: item.fileId,
+                fileName: item.fileName
+              }))
+            }
+
+            this.handle.update.isLoading = true;
+            this.$utils.getJson(url, (res) =>  {
+
+              this.handle.update.isLoading = false;
+              this.handle.update.dialogVisible = false;
+              this.$utils.showTip('success', 'success', this.handle.update.type == 'add' ? '111' : '120');
+              this.getLeftList();
+            }, () => this.handle.update.isLoading = false, params)
+          }
+        })
+      },
+      showPlanDialog() { //查看生产计划
 
         this.handle.plan.dialogVisible = true;
         if(!this.handle.plan.tableData.length) {
@@ -660,7 +893,7 @@
         this.handle.stop.dialogVisible = true;
         this.handle.stop.data = item;
       },
-      stop() {
+      stop() { //终止
     
         this.$refs.stopForm.validate((valid) => {
           if (valid) {
@@ -686,11 +919,9 @@
         });
       },
       handlePictureCardPreview(file) {
+
         this.faceUrl = file.url;
         this.addDialog.dialogVisible = true;
-      },
-      del(index, row) {
-        console.log(index, row);
       },
       refresh() {}
     },
