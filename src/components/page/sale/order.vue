@@ -53,10 +53,10 @@
                 <el-progress :percentage="item | cpercentage('haveCompletionTotalTime', 'estimateTotalTime')" color="rgba(0, 255, 0, 1)" style="width: 85px;display: inline-block;"></el-progress>
               </el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click.stop="getOrderDetail(item)" v-if="item.saleOrderStatus == 10 || item.saleOrderStatus == 12">修改</a>
+                <a href="javascript: void(0);" @click.stop="showUpdateDialog(item)">修改</a>
                 <a href="javascript: void(0);" @click.stop="resetSaleOrder(item)" v-if="item.saleOrderStatus == 14">恢复</a>
                 <a href="javascript: void(0);" @click.stop="suspend(item)" v-else>暂停</a>
-                <a href="javascript: void(0);" @click.stop="deleteConfirm(item)" v-if="item.saleOrderStatus == 10 || item.saleOrderStatus == 12">删除</a>
+                <a href="javascript: void(0);" @click.stop="deleteOrder(item)" v-if="item.saleOrderStatus == 10 || item.saleOrderStatus == 12">删除</a>
                 <a href="javascript: void(0);" @click.stop="termination(item)" v-else>终止</a>
               </el-col>
             </el-row>
@@ -276,197 +276,220 @@
       </div>
     </div>
 
-    <el-dialog title="新增销售订单" :visible.sync="handle.add.dialogVisible" width="900px">
+    <el-dialog title="新增销售订单" :visible.sync="handle.add.dialogVisible" width="1020px">
       <div v-loading="handle.add.isLoading">
         <div class="dflex" >
           <div style="width: 200px;" class="bor rel">
             <div style="display: inline-block; background: #fff; position: relative; top: -10px; left: 10px; z-index: 1">选择需求生成订单</div>
             <div class="order-table-wrapper">
               <el-table
+                ref="order"
                 :data="handle.add.left.list"
                 size="mini"
                 class="order-table"
                 :row-class-name="rowClass"
                 @row-click="rowClick">
-                <el-table-column prop="a" label="需求编号" width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="b" label="客户名称" show-overflow-tooltip	></el-table-column>
-                <el-table-column prop="c" label="需求类型" show-overflow-tooltip	></el-table-column>
-                <el-table-column prop="d" label="要求交期" show-overflow-tooltip	></el-table-column>
+                <el-table-column prop="requirementNum" label="需求编号" width="100" align="center" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="name" label="客户名称" align="center" show-overflow-tooltip	></el-table-column>
+                <el-table-column prop="requirementTypeText" label="需求类型" align="center" show-overflow-tooltip	></el-table-column>
+                <el-table-column prop="requireDeliveryDateString" label="要求交期" align="center" show-overflow-tooltip	></el-table-column>
               </el-table>
             </div>
           </div>
-          <div class="flex">
-            <el-form :model="handle.add.right.form" label-width="100px" class="bor mgl10 pd10">
+          <div class="flex" v-loading="handle.add.right.isLoading">
+            <el-form ref="orderForm" :model="handle.add.right.form" :rules="handle.add.right.rules" label-width="110px" class="bor mgl10 pd10" style="min-height: 300px">
+              <div v-show="handle.add.left.list.length">
               <div style="display: inline-block; background: #fff; position: relative; top: -20px; left: 10px; z-index: 1">录入订单信息</div>
-              <div class="dflex mgt20">
-                <div class="flex">
-                  <el-form-item label="客户:">
-                    <p class="ellipsis">{{handle.add.right.form.a}}</p>
-                  </el-form-item>
-                  <el-form-item label="客户PO.号:">
-                    <p class="ellipsis">{{handle.add.right.form.b}}</p>
-                  </el-form-item>
-                  <el-row>
-                    <el-col :span="12">
-                      <el-form-item label="模具号">
-                        <el-input v-model="handle.add.right.form.c" auto-complete="off" aria-placeholder="请输入模具号"></el-input>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                      <el-form-item label="订单类型">
-                        <el-select v-model="handle.add.right.form.d">
-                          <el-option label="模具零件" value="0"></el-option>
-                          <el-option label="整体模具" value="1"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
+                <div class="dflex">
+                  <div class="flex pdr10">
+                    <el-form-item prop="name" label="客户">
+                      <el-input v-model="handle.add.right.form.name" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="customerPoNo" label="客户PO.号">
+                      <el-input v-model="handle.add.right.form.customerPoNo" auto-complete="off"></el-input>
+                    </el-form-item>
+                     <el-row>
+                      <el-col :span="12">
+                        <el-form-item prop="mouldNo" label="模具号">
+                          <el-autocomplete
+                            class="inline-input"
+                            v-model="handle.add.right.form.mouldNo"
+                            :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, $dict.mouldNoList, 'mouldNo')"
+                            valueKey="mouldNo"
+                            value="mouldNo"
+                            placeholder="请输入模具号"></el-autocomplete>
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="12">
+                        <el-form-item prop="
+                    requirementTypeText" label="订单类型">
+                          <el-select v-model="handle.add.right.form.requirementTypeText">
+                            <el-option label="模具零件" value="模具零件"></el-option>
+                            <el-option label="整体模具" value="整体模具"></el-option>
+                          </el-select>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-form-item  prop="deliveryDate" label="要求交期" v-show="handle.add.right.form.requirementTypeText == '整体模具'">
+                      <el-date-picker
+                        type="date"
+                        size="mini"
+                        placeholder="选择日期"
+                        format="yyyy-MM-dd"
+                        value-format="yyyy-MM-dd"
+                        :clearable="false"
+                        :editable="false"
+                        v-model="handle.add.right.form.deliveryDate">
+                      </el-date-picker>
+                    </el-form-item>
+                  </div>
+                  <el-upload
+                    class="avatar-uploader"
+                    name="files"
+                    :action="$utils.CONFIG.api.uploadFiles"
+                    :show-file-list="false"
+                    :on-success="handleAvatarOrderSuccess"
+                    :before-upload="beforeAvatarUpload"
+                  >
+                    <img v-if="handle.add.right.form.userFace" :src="handle.add.right.form.userFace" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                  </el-upload>
                 </div>
-                <el-upload
-                  action="https://jsonplaceholder.typicode.com/posts/"
-                  list-type="picture-card"
-                  class="v-upload pdl10"
-                  :multiple="false"
-                  :limit="1"
-                  :on-preview="handlePictureCardPreview"
-                >
-                  <i class="el-icon-plus"></i>
-                </el-upload>
-              </div>
-              <template v-if="handle.add.right.form.d == 0">
-                <div>
+                <div class="mgb20" v-show="handle.add.right.form.requirementTypeText == '模具零件'">
                   <p>零件清单：</p>
-                  <el-table
-                    :data="handle.add.right.form.e"
-                    max-height="160"
-                    border
-                    size="mini"
-                    style="width: 100%"
-                    class="edit-table">
+                  <el-table :data="handle.add.right.form.componentOrders" max-height="160" border size="mini" class="edit-table" style="width: 100%">
                     <el-table-column label="零件号" min-width="100" show-overflow-tooltip>
-                      <template slot-scope="scope">
+                      <template scope="scope">
                         <div>
-                          <div @click="showInput(handle.add.right.form.e, scope.$index, 'aaEdit')">
-                            <div class="eaaipsis">{{ scope.row.aa }}</div>
-                            <el-input size="mini" v-model="scope.row.aa" @focus="showInput(handle.add.right.form.e, scope.$index, 'aaEdit', {}, false)" @blur="scope.row.aaEdit = false" :style="{opacity: scope.row.aaEdit ? 1 : 0}"/>
+                          <div @click="showInput(handle.add.right.form.componentOrders, scope.$index, 'componentNoEdit', {})">
+                            <div class="ellipsis">{{ scope.row.componentNo }}</div>
+                            <el-input size="mini" v-model="scope.row.componentNo" @focus="showInput(handle.add.right.form.componentOrders, scope.$index, 'componentNoEdit', {}, false)" @blur="scope.row.componentNoEdit = false" :style="{opacity: scope.row.componentNoEdit ? 1 : 0}"/>
                           </div>
                         </div>
                       </template>
                     </el-table-column>
-                    <el-table-column label="数量" min-width="88" show-overflow-tooltip>
-                      <template slot-scope="scope">
+                    <el-table-column label="数量" min-width="88" show-overflow-tooltip align="center">
+                      <template scope="scope">
                         <div>
-                          <div @click="showInput(handle.add.right.form.e, scope.$index, 'bbEdit')">
-                            <div class="eaaipsis">{{ scope.row.bb }}</div>
-                            <el-input size="mini" v-model="scope.row.bb" @focus="showInput(handle.add.right.form.e, scope.$index, 'bbEdit', {}, false)" @blur="scope.row.bbEdit = false" :style="{opacity: scope.row.bbEdit ? 1 : 0}"/>
+                          <div @click="showInput(handle.add.right.form.componentOrders, scope.$index, 'quantityEdit', {})">
+                            <div class="ellipsis">{{ scope.row.quantity }}</div>
+                            <el-input size="mini" v-model="scope.row.quantity" @focus="showInput(handle.add.right.form.componentOrders, scope.$index, 'quantityEdit', {}, false)" @blur="scope.row.quantityEdit = false; scope.row.componentTotal = (parseInt(scope.row.quantity) || 0) * (parseFloat(scope.row.componentPrice) || 0)" :style="{opacity: scope.row.quantityEdit ? 1 : 0}"/>
                           </div>
                         </div>
                       </template>
                     </el-table-column>
                     <el-table-column label="客户编号" min-width="88" show-overflow-tooltip>
-                      <template slot-scope="scope">
+                      <template scope="scope">
                         <div>
-                          <div @click="showInput(handle.add.right.form.e, scope.$index, 'ccEdit')">
-                            <div class="eaaipsis">{{ scope.row.cc }}</div>
-                            <el-input size="mini" v-model="scope.row.cc" @focus="showInput(handle.add.right.form.e, scope.$index, 'ccEdit', {}, false)" @blur="scope.row.ccEdit = false" :style="{opacity: scope.row.ccEdit ? 1 : 0}"/>
+                          <div @click="showInput(handle.add.right.form.componentOrders, scope.$index, 'customerNoEdit', {})">
+                            <div class="ellipsis">{{ scope.row.customerNo }}</div>
+                            <el-input size="mini" v-model="scope.row.customerNo" @focus="showInput(handle.add.right.form.componentOrders, scope.$index, 'customerNoEdit', {}, false)" @blur="scope.row.customerNoEdit = false" :style="{opacity: scope.row.customerNoEdit ? 1 : 0}"/>
                           </div>
                         </div>
                       </template>
                     </el-table-column>
-                    <el-table-column label="要求交期" min-width="100" show-overflow-tooltip>
-                      <template slot-scope="scope">
+                    <el-table-column prop="address" label="要求交期" show-overflow-tooltip align="center" width="100">
+                      <template scope="scope">
                         <div>
-                          <div @click="showInput(handle.add.right.form.e, scope.$index, 'ddEdit')">
-                            <div class="eaaipsis">{{ scope.row.dd }}</div>
-                            <el-input size="mini" v-model="scope.row.dd" @focus="showInput(handle.add.right.form.e, scope.$index, 'ddEdit', {}, false)" @blur="scope.row.ddEdit = false" :style="{opacity: scope.row.ddEdit ? 1 : 0}"/>
+                          <div @click="showInput(handle.add.right.form.componentOrders, scope.$index, 'deliveryDateEdit', {})">
+                            <div class="ellipsis tc">{{ scope.row.deliveryDate }}</div>
+                            <el-date-picker
+                              type="date"
+                              size="mini"
+                              placeholder="选择日期"
+                              format="yyyy-MM-dd"
+                              value-format="yyyy-MM-dd"
+                              v-model="scope.row.deliveryDate"
+                              @focus="showInput(handle.add.right.form.componentOrders, scope.$index, 'deliveryDateEdit', {})"
+                              @blur="scope.row.deliveryDateEdit = false"
+                              :style="{opacity: scope.row.deliveryDateEdit ? 1 : 0}">
+                            </el-date-picker>
                           </div>
                         </div>
                       </template>
                     </el-table-column>
-                    <el-table-column label="单价" min-width="100" show-overflow-tooltip>
-                      <template slot-scope="scope">
+                    <el-table-column label="单价" align="center" min-width="88" show-overflow-tooltip>
+                      <template scope="scope">
                         <div>
-                          <div @click="showInput(handle.add.right.form.e, scope.$index, 'eeEdit')">
-                            <div class="eaaipsis">{{ scope.row.ee }}</div>
-                            <el-input size="mini" v-model="scope.row.ee" @focus="showInput(handle.add.right.form.e, scope.$index, 'eeEdit', {}, false)" @blur="scope.row.eeEdit = false" :style="{opacity: scope.row.eeEdit ? 1 : 0}"/>
+                          <div @click="showInput(handle.add.right.form.componentOrders, scope.$index, 'componentPriceEdit', {})">
+                            <div class="ellipsis">{{ scope.row.componentPrice }}</div>
+                            <el-input size="mini" v-model="scope.row.componentPrice" @focus="showInput(handle.add.right.form.componentOrders, scope.$index, 'componentPriceEdit', {}, false)" @blur="scope.row.componentPriceEdit = false; scope.row.componentTotal = (parseInt(scope.row.quantity) || 0) * (parseFloat(scope.row.componentPrice) || 0)" :style="{opacity: scope.row.componentPriceEdit ? 1 : 0}"/>
                           </div>
                         </div>
                       </template>
                     </el-table-column>
-                    <el-table-column label="总价" min-width="100" show-overflow-tooltip>
-                      <template slot-scope="scope">
-                        <div>
-                          <div @click="showInput(handle.add.right.form.e, scope.$index, 'ffEdit')">
-                            <div class="eaaipsis">{{ scope.row.ff }}</div>
-                            <el-input size="mini" v-model="scope.row.ff" @focus="showInput(handle.add.right.form.e, scope.$index, 'ffEdit', {}, false)" @blur="scope.row.ffEdit = false" :style="{opacity: scope.row.ffEdit ? 1 : 0}"/>
-                          </div>
-                        </div>
-                      </template>
+                    <el-table-column prop="componentTotal" label="总价" min-width="88" align="center" class="notEdit" show-overflow-tooltip>
                     </el-table-column>
-                    <el-table-column label="说明" min-width="100" show-overflow-tooltip>
-                      <template slot-scope="scope">
+                    <el-table-column prop="address" label="说明" show-overflow-tooltip>
+                      <template scope="scope">
                         <div>
-                          <div @click="showInput(handle.add.right.form.e, scope.$index, 'ggEdit')">
-                            <div class="eaaipsis">{{ scope.row.gg }}</div>
-                            <el-input size="mini" v-model="scope.row.gg" @focus="showInput(handle.add.right.form.e, scope.$index, 'ggEdit', {}, false)" @blur="scope.row.ggEdit = false" :style="{opacity: scope.row.ggEdit ? 1 : 0}"/>
+                          <div @click="showInput(handle.add.right.form.componentOrders, scope.$index, 'descriptionEdit', {})">
+                            <div class="ellipsis">{{ scope.row.description }}</div>
+                            <el-input size="mini" v-model="scope.row.description" @focus="showInput(handle.add.right.form.componentOrders, scope.$index, 'descriptionEdit', {}, false)" @blur="scope.row.descriptionEdit = false" :style="{opacity: scope.row.descriptionEdit ? 1 : 0}"/>
                           </div>
                         </div>
                       </template>
                     </el-table-column>
                   </el-table>
                 </div>
-                <el-row class="mgt20">
-                  <el-col :span="8" style="line-height: 33px;">
-                    订单总价(RMB)：{{handle.add.right.form.f | filterNull}}
-                  </el-col>
-                  <el-col :span="8">
-                    <el-form-item label="结算货币">
-                      <el-select v-model="handle.add.right.form.g" style="width: 80px;">
-                        <el-option label="欧元" value="0"></el-option>
-                        <el-option label="美元" value="1"></el-option>
-                        <el-option label="日元" value="1"></el-option>
-                      </el-select>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="8">
-                    <el-form-item label="结算货币总价">
-                      <el-input v-model="handle.add.right.form.h" auto-complete="off" aria-placeholder="请输入结算货币总价" style="width: 80px;"></el-input>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-              </template>
-              <div>
-                <p class="mgb10">
-                  上传附件：
-                  <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
-                    <el-button size="mini" type="primary">选择上传文件</el-button>
-                    <input type="file" name="file" ref="fileAdd" class="posFull opacity0" @change="() => addAttachments()">
-                  </span>
-                </p>
-                <el-table
-                  :data="handle.add.right.form.i"
-                  max-height="160"
-                  border
-                  size="mini"
-                  style="width: 100%"
-                >
-                  <el-table-column prop="fileName" label="资料名称"></el-table-column>
-                  <el-table-column label="操作">
-                    <template slot-scope="scope">
-                      <el-button size="mini" type="text" @click="() => deleteAttachments(scope.row.id)">删除</el-button>
-                    </template>
-                  </el-table-column>
-                </el-table>
+                <div>
+                  <div class="mgb10 dflex el-form-item-mgb0" style="line-height: 32px;">
+                    {{saleTotalPrice()}}
+                    <div class="flex">订单总价(RMB)：{{handle.add.right.form.saleTotalPrice}}</div>
+                    <div class="flex">
+                      <el-form-item prop="currency" label="常用货币">
+                        <el-select size="mini" v-model="handle.add.right.form.currency" value-key="name"  @change="(currency) => handle.add.right.form.settlementExchangeRate = ''">
+                          <el-option v-for="(item, index) in $dict.currencyList" :key="item.name" :label="item.name" :value="item"></el-option>
+                        </el-select>
+                      </el-form-item>
+                    </div>
+                    <div class="flex">
+                      <el-form-item prop="settlementExchangeRate" label="汇率">
+                        <el-select size="mini" v-model="handle.add.right.form.settlementExchangeRate">
+                          <template v-if="handle.add.right.form.currency">
+                            <el-option v-for="(item, index) in handle.add.right.form.currency.currencyRates" :key="index" :label="item.value" :value="item.value"></el-option>
+                          </template>
+                        </el-select>
+                      </el-form-item>
+                    </div>
+                    <div class="flex">
+                      <el-form-item prop="settlementCurrencyTotalPrice" label="结算货币总价:">
+                        <el-input size="mini" v-model="handle.add.right.form.settlementCurrencyTotalPrice" auto-complete="off"></el-input>
+                      </el-form-item>
+                    </div>
+                  </div>
+                  <p class="mgb10">
+                    上传附件：
+                    <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
+                      <el-button size="mini" type="primary">选择上传文件</el-button>
+                      <input type="file" name="file" ref="fileOrder" class="posFull opacity0" @change="() => addAttachments($refs.fileOrder, handle.add.right)">
+                    </span>
+                  </p>
+                  <el-table
+                    :data="handle.add.right.form.attachments"
+                    height="160"
+                    border
+                    size="mini"
+                    style="width: 100%"
+                  >
+                    <el-table-column prop="fileName" label="资料名称"></el-table-column>
+                    <el-table-column label="操作">
+                      <template slot-scope="scope">
+                        <el-button size="mini" type="text" @click="deleteAttachments(scope.row, handle.add.right)">删除</el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </div>
+                <el-form-item label="说明" class="mgt20">
+                  <el-input type="textarea" v-model="handle.add.right.form.remark"></el-input>
+                </el-form-item>
               </div>
-              <el-form-item label="说明" class="mgt20">
-                <el-input type="textarea" v-model="handle.add.right.form.j"></el-input>
-              </el-form-item>
             </el-form>
           </div>
         </div>
-        <div slot="footer" class="dialog-footer mgt20 tr">
-          <el-button type="primary" @click="() => saveAdd()">下达订单</el-button>
-          <el-button type="primary" @click="() => saveAdd(true)">存为草稿</el-button>
+        <div slot="footer" class="dialog-footer mgt20 tr" v-show="handle.add.left.list.length">
+          <el-button type="primary" @click="handle.add.right.judgeType = 1; saveFileAndData(handle.add.right, saveOrder)">下达订单</el-button>
+          <el-button type="primary" @click="handle.add.right.judgeType = 2; saveFileAndData(handle.add.right, saveOrder)">存为草稿</el-button>
           <el-button @click="handle.add.dialogVisible = false">取 消</el-button>
         </div>
       </div>
@@ -484,143 +507,162 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="修改模具零件订单" :visible.sync="handle.update.dialogVisible" width="700px">
+    <el-dialog title="修改模具零件订单" :visible.sync="handle.update.dialogVisible" width="800px">
       <div v-loading="handle.update.isLoading">
-        <el-form :model="handle.update.form" label-width="100px">
-          <div class="dflex mgt20">
-            <div class="flex">
-              <el-form-item label="客户:">
-                <p class="ellipsis">{{handle.update.form.a}}</p>
+        <el-form ref="editForm" :model="handle.update.form" :rules="handle.update.rules" label-width="110px" class=" mgl10 pd10">
+          <div class="dflex">
+            <div class="flex pdr10">
+              <el-form-item prop="name" label="客户">
+                <el-input v-model="handle.update.form.name" auto-complete="off" disabled></el-input>
               </el-form-item>
-              <el-form-item label="客户PO.号:">
-                <p class="ellipsis">{{handle.update.form.b}}</p>
+              <el-form-item prop="customerPoNo" label="客户PO.号">
+                <el-input v-model="handle.update.form.customerPoNo" auto-complete="off"></el-input>
               </el-form-item>
-              <el-form-item label="模具号">
-                <el-input v-model="handle.update.form.c" auto-complete="off" aria-placeholder="请输入模具号"></el-input>
+              <el-form-item prop="mouldNo" label="模具号">
+                <el-autocomplete
+                  style="width: 100%;"
+                  class="inline-input"
+                  v-model="handle.update.form.mouldNo"
+                  :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, $dict.mouldNoList, 'mouldNo')"
+                  valueKey="mouldNo"
+                  value="mouldNo"
+                  placeholder="请输入模具号"></el-autocomplete>
               </el-form-item>
+              <!-- <el-form-item  prop="deliveryDate" label="要求交期" v-show="handle.update.form.requirementTypeText == '整体模具'">
+                <el-date-picker
+                  type="date"
+                  size="mini"
+                  placeholder="选择日期"
+                  format="yyyy-MM-dd"
+                  value-format="yyyy-MM-dd"
+                  :clearable="false"
+                  :editable="false"
+                  v-model="handle.update.form.deliveryDate">
+                </el-date-picker>
+              </el-form-item> -->
             </div>
             <el-upload
-              action="https://jsonplaceholder.typicode.com/posts/"
-              list-type="picture-card"
-              class="v-upload pdl10"
-              :multiple="false"
-              :limit="1"
-              :on-preview="handlePictureCardPreview"
-            >
-              <i class="el-icon-plus"></i>
+              class="avatar-uploader"
+              name="files"
+              action=""
+              disabled>
+              <img v-if="handle.update.form.userFace" :src="handle.update.form.userFace" class="avatar">
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             </el-upload>
           </div>
-          <div>
+          <div class="mgb20" v-show="handle.update.form.requirementTypeText == '模具零件'">
             <p>零件清单：</p>
-            <el-table
-              :data="handle.update.form.e"
-              max-height="160"
-              border
-              size="mini"
-              style="width: 100%"
-              class="edit-table">
+            <el-table :data="handle.update.form.componentOrders" max-height="160" border size="mini" class="edit-table" style="width: 100%">
               <el-table-column label="零件号" min-width="100" show-overflow-tooltip>
-                <template slot-scope="scope">
+                <template scope="scope">
                   <div>
-                    <div @click="showInput(handle.update.form.e, scope.$index, 'aaEdit')">
-                      <div class="eaaipsis">{{ scope.row.aa }}</div>
-                      <el-input size="mini" v-model="scope.row.aa" @focus="showInput(handle.update.form.e, scope.$index, 'aaEdit', {}, false)" @blur="scope.row.aaEdit = false" :style="{opacity: scope.row.aaEdit ? 1 : 0}"/>
+                    <div @click="showInput(handle.update.form.componentOrders, scope.$index, 'componentNoEdit', {})">
+                      <div class="ellipsis">{{ scope.row.componentNo }}</div>
+                      <el-input size="mini" v-model="scope.row.componentNo" @focus="showInput(handle.update.form.componentOrders, scope.$index, 'componentNoEdit', {}, false)" @blur="scope.row.componentNoEdit = false" :style="{opacity: scope.row.componentNoEdit ? 1 : 0}"/>
                     </div>
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="数量" min-width="88" show-overflow-tooltip>
-                <template slot-scope="scope">
+              <el-table-column label="数量" min-width="88" show-overflow-tooltip align="center">
+                <template scope="scope">
                   <div>
-                    <div @click="showInput(handle.update.form.e, scope.$index, 'bbEdit')">
-                      <div class="eaaipsis">{{ scope.row.bb }}</div>
-                      <el-input size="mini" v-model="scope.row.bb" @focus="showInput(handle.update.form.e, scope.$index, 'bbEdit', {}, false)" @blur="scope.row.bbEdit = false" :style="{opacity: scope.row.bbEdit ? 1 : 0}"/>
+                    <div @click="showInput(handle.update.form.componentOrders, scope.$index, 'quantityEdit', {})">
+                      <div class="ellipsis">{{ scope.row.quantity }}</div>
+                      <el-input size="mini" v-model="scope.row.quantity" @focus="showInput(handle.update.form.componentOrders, scope.$index, 'quantityEdit', {}, false)" @blur="scope.row.quantityEdit = false; scope.row.componentTotal = (parseInt(scope.row.quantity) || 0) * (parseFloat(scope.row.componentPrice) || 0)" :style="{opacity: scope.row.quantityEdit ? 1 : 0}"/>
                     </div>
                   </div>
                 </template>
               </el-table-column>
               <el-table-column label="客户编号" min-width="88" show-overflow-tooltip>
-                <template slot-scope="scope">
+                <template scope="scope">
                   <div>
-                    <div @click="showInput(handle.update.form.e, scope.$index, 'ccEdit')">
-                      <div class="eaaipsis">{{ scope.row.cc }}</div>
-                      <el-input size="mini" v-model="scope.row.cc" @focus="showInput(handle.update.form.e, scope.$index, 'ccEdit', {}, false)" @blur="scope.row.ccEdit = false" :style="{opacity: scope.row.ccEdit ? 1 : 0}"/>
+                    <div @click="showInput(handle.update.form.componentOrders, scope.$index, 'customerNoEdit', {})">
+                      <div class="ellipsis">{{ scope.row.customerNo }}</div>
+                      <el-input size="mini" v-model="scope.row.customerNo" @focus="showInput(handle.update.form.componentOrders, scope.$index, 'customerNoEdit', {}, false)" @blur="scope.row.customerNoEdit = false" :style="{opacity: scope.row.customerNoEdit ? 1 : 0}"/>
                     </div>
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="要求交期" min-width="100" show-overflow-tooltip>
-                <template slot-scope="scope">
+              <el-table-column prop="address" label="要求交期" show-overflow-tooltip align="center" width="100">
+                <template scope="scope">
                   <div>
-                    <div @click="showInput(handle.update.form.e, scope.$index, 'ddEdit')">
-                      <div class="eaaipsis">{{ scope.row.dd }}</div>
-                      <el-input size="mini" v-model="scope.row.dd" @focus="showInput(handle.update.form.e, scope.$index, 'ddEdit', {}, false)" @blur="scope.row.ddEdit = false" :style="{opacity: scope.row.ddEdit ? 1 : 0}"/>
+                    <div @click="showInput(handle.update.form.componentOrders, scope.$index, 'deliveryDateEdit', {})">
+                      <div class="ellipsis tc">{{ scope.row.deliveryDate }}</div>
+                      <el-date-picker
+                        type="date"
+                        size="mini"
+                        placeholder="选择日期"
+                        format="yyyy-MM-dd"
+                        value-format="yyyy-MM-dd"
+                        v-model="scope.row.deliveryDate"
+                        @focus="showInput(handle.update.form.componentOrders, scope.$index, 'deliveryDateEdit', {})"
+                        @blur="scope.row.deliveryDateEdit = false"
+                        :style="{opacity: scope.row.deliveryDateEdit ? 1 : 0}">
+                      </el-date-picker>
                     </div>
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="单价" min-width="100" show-overflow-tooltip>
-                <template slot-scope="scope">
+              <el-table-column label="单价" align="center" min-width="88" show-overflow-tooltip>
+                <template scope="scope">
                   <div>
-                    <div @click="showInput(handle.update.form.e, scope.$index, 'eeEdit')">
-                      <div class="eaaipsis">{{ scope.row.ee }}</div>
-                      <el-input size="mini" v-model="scope.row.ee" @focus="showInput(handle.update.form.e, scope.$index, 'eeEdit', {}, false)" @blur="scope.row.eeEdit = false" :style="{opacity: scope.row.eeEdit ? 1 : 0}"/>
+                    <div @click="showInput(handle.update.form.componentOrders, scope.$index, 'componentPriceEdit', {})">
+                      <div class="ellipsis">{{ scope.row.componentPrice }}</div>
+                      <el-input size="mini" v-model="scope.row.componentPrice" @focus="showInput(handle.update.form.componentOrders, scope.$index, 'componentPriceEdit', {}, false)" @blur="scope.row.componentPriceEdit = false; scope.row.componentTotal = (parseInt(scope.row.quantity) || 0) * (parseFloat(scope.row.componentPrice) || 0)" :style="{opacity: scope.row.componentPriceEdit ? 1 : 0}"/>
                     </div>
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="总价" min-width="100" show-overflow-tooltip>
-                <template slot-scope="scope">
-                  <div>
-                    <div @click="showInput(handle.update.form.e, scope.$index, 'ffEdit')">
-                      <div class="eaaipsis">{{ scope.row.ff }}</div>
-                      <el-input size="mini" v-model="scope.row.ff" @focus="showInput(handle.update.form.e, scope.$index, 'ffEdit', {}, false)" @blur="scope.row.ffEdit = false" :style="{opacity: scope.row.ffEdit ? 1 : 0}"/>
-                    </div>
-                  </div>
-                </template>
+              <el-table-column prop="componentTotal" label="总价" min-width="88" align="center" class="notEdit" show-overflow-tooltip>
               </el-table-column>
-              <el-table-column label="说明" min-width="100" show-overflow-tooltip>
-                <template slot-scope="scope">
+              <el-table-column prop="address" label="说明" show-overflow-tooltip>
+                <template scope="scope">
                   <div>
-                    <div @click="showInput(handle.update.form.e, scope.$index, 'ggEdit')">
-                      <div class="eaaipsis">{{ scope.row.gg }}</div>
-                      <el-input size="mini" v-model="scope.row.gg" @focus="showInput(handle.update.form.e, scope.$index, 'ggEdit', {}, false)" @blur="scope.row.ggEdit = false" :style="{opacity: scope.row.ggEdit ? 1 : 0}"/>
+                    <div @click="showInput(handle.update.form.componentOrders, scope.$index, 'descriptionEdit', {})">
+                      <div class="ellipsis">{{ scope.row.description }}</div>
+                      <el-input size="mini" v-model="scope.row.description" @focus="showInput(handle.update.form.componentOrders, scope.$index, 'descriptionEdit', {}, false)" @blur="scope.row.descriptionEdit = false" :style="{opacity: scope.row.descriptionEdit ? 1 : 0}"/>
                     </div>
                   </div>
                 </template>
               </el-table-column>
             </el-table>
           </div>
-          <el-row class="mgt20">
-            <el-col :span="8" style="line-height: 33px;">
-              订单总价(RMB)：{{handle.update.form.f | filterNull}}
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="结算货币">
-                <el-select v-model="handle.update.form.g" style="width: 80px;">
-                  <el-option label="欧元" value="0"></el-option>
-                  <el-option label="美元" value="1"></el-option>
-                  <el-option label="日元" value="1"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="结算货币总价">
-                <el-input v-model="handle.update.form.h" auto-complete="off" aria-placeholder="请输入结算货币总价" style="width: 80px;"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
           <div>
+            <div class="mgb10 dflex el-form-item-mgb0" style="line-height: 32px;">
+              {{saleTotalPrice(handle.update)}}
+              <div class="flex">订单总价(RMB)：{{handle.update.form.saleTotalPrice}}</div>
+              <div class="flex">
+                <el-form-item prop="currency" label="常用货币">
+                  <el-select size="mini" v-model="handle.update.form.currency" value-key="name"  @change="(currency) => handle.update.form.settlementExchangeRate = ''">
+                    <el-option v-for="(item, index) in $dict.currencyList" :key="item.name" :label="item.name" :value="item"></el-option>
+                  </el-select>
+                </el-form-item>
+              </div>
+              <div class="flex">
+                <el-form-item prop="settlementExchangeRate" label="汇率">
+                  <el-select size="mini" v-model="handle.update.form.settlementExchangeRate">
+                    <template v-if="handle.update.form.currency">
+                      <el-option v-for="(item, index) in handle.update.form.currency.currencyRates" :key="index" :label="item.value" :value="item.value"></el-option>
+                    </template>
+                  </el-select>
+                </el-form-item>
+              </div>
+              <div class="flex">
+                <el-form-item prop="settlementCurrencyTotalPrice" label="结算货币总价:">
+                  <el-input size="mini" v-model="handle.update.form.settlementCurrencyTotalPrice" auto-complete="off"></el-input>
+                </el-form-item>
+              </div>
+            </div>
             <p class="mgb10">
               上传附件：
               <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
                 <el-button size="mini" type="primary">选择上传文件</el-button>
-                <input type="file" name="file" ref="fileUpdate" class="posFull opacity0" @change="() => addAttachments(handle.update.form, 'i', 'fileUpdate')">
+                <input type="file" name="file" ref="editFile" class="posFull opacity0" @change="() => addAttachments($refs.editFile, handle.update)">
               </span>
             </p>
             <el-table
-              :data="handle.update.form.i"
-              max-height="160"
+              :data="handle.update.form.attachments"
+              height="160"
               border
               size="mini"
               style="width: 100%"
@@ -628,18 +670,17 @@
               <el-table-column prop="fileName" label="资料名称"></el-table-column>
               <el-table-column label="操作">
                 <template slot-scope="scope">
-                  <el-button size="mini" type="text" @click="() => deleteAttachments(scope.row.id, handle.update.form, 'i')">删除</el-button>
+                  <el-button size="mini" type="text" @click="deleteAttachments(scope.row, handle.update)">删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
           </div>
           <el-form-item label="说明" class="mgt20">
-            <el-input type="textarea" v-model="handle.update.form.j"></el-input>
+            <el-input type="textarea" v-model="handle.update.form.remark"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer mgt20 tr">
-          <el-button type="primary" @click="() => saveUpdate()">下达订单</el-button>
-            <el-button type="primary" @click="() => saveUpdate(true)">存为草稿</el-button>
+          <el-button type="primary" @click="saveFileAndData(handle.update, saveUpdate)">保存</el-button>
             <el-button @click="handle.add.dialogVisible = false">取 消</el-button>
         </div>
       </div>
@@ -662,12 +703,48 @@
             isLoading: false,
             currentData: {},
             left: {
-              activeId: ''
+              activeId: '',
+              list: []
             },
             right: {
+              dialogVisible: false,
               isLoading: false,
+              judgeType: 1,
+              item: {},
+              attachments: [],
+              addFiles: [],
               form: {
-
+                currency: {},
+                userFace: '',
+                fileId: "",
+                name: '', 
+                mouldNo: '', 
+                customerPoNo: '',
+                saleOrderTypeText: '',
+                settlementCurrency: '',
+                settlementExchangeRate: '',
+                settlementCurrencyTotalPrice: '',
+                saleTotalPrice: '',
+                components: [],
+                attachments: [],
+                remark: ''
+              },
+              rules: {
+                name: [
+                  { required: true, message: this.$utils.getTipText('error', '-1010')},
+                ],
+                customerPoNo: [
+                  { required: true, message: this.$utils.getTipText('error', '-1086')},
+                ],
+                mouldNo: [
+                  { required: true, message: this.$utils.getTipText('error', '-1090')},
+                ],
+                settlementExchangeRate: [
+                  { required: true, message: this.$utils.getTipText('error', '-1092')},
+                ],
+                settlementCurrencyTotalPrice: [
+                  { required: true, message: this.$utils.getTipText('error', '-1093')},
+                ],
               }
             },
           },
@@ -682,8 +759,42 @@
           update: {
             dialogVisible: false,
             isLoading: false,
+            judgeType: 1,
+            item: {},
+            attachments: [],
+            addFiles: [],
             form: {
-
+              currency: {},
+              userFace: '',
+              fileId: "",
+              name: '', 
+              mouldNo: '', 
+              customerPoNo: '',
+              saleOrderTypeText: '',
+              settlementCurrency: '',
+              settlementExchangeRate: '',
+              settlementCurrencyTotalPrice: '',
+              saleTotalPrice: '',
+              components: [],
+              attachments: [],
+              remark: ''
+            },
+            rules: {
+              name: [
+                { required: true, message: this.$utils.getTipText('error', '-1010')},
+              ],
+              customerPoNo: [
+                { required: true, message: this.$utils.getTipText('error', '-1086')},
+              ],
+              mouldNo: [
+                { required: true, message: this.$utils.getTipText('error', '-1090')},
+              ],
+              settlementExchangeRate: [
+                { required: true, message: this.$utils.getTipText('error', '-1092')},
+              ],
+              settlementCurrencyTotalPrice: [
+                { required: true, message: this.$utils.getTipText('error', '-1093')},
+              ],
             }
           }
         }
@@ -709,121 +820,268 @@
           }
         }, () => this.left.isLoading = false, params)
       },
-      resetAddForm(obj = null) {
-
-        this.handle.add.right.form = {
-          a: obj ? obj.b : '',
-          e: [{}],
-          d: '0'
-        };
-      },
       getAddLeftList() {
 
-        let params = {
-
-        };
-        let mock = [
-          {
-            id: '125944',
-            a: 'M-1901',
-            b: '1测试测试测试测试公司',
-            c: '',
-            d: ''
-          },
-          {
-            id: '125945',
-            a: 'M-1904',
-            b: '测试测试测试测试公司',
-            c: '',
-            d: ''
-          },
-        ]
-
         this.handle.add.dialogVisible = true;
+
+        if(this.handle.add.left.list.length) return;
+
+        let params = {
+          parameter: '',
+          type: '',
+          pageNo: this.left.page.pageNo,
+          pageSize: this.left.page.pageSize,
+        };
+        
         this.handle.add.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.queryRequirement, (res) =>  {
 
           this.handle.add.isLoading = false;
-          this.handle.add.left.list = res.data || [];
+          this.handle.add.left.list = res.data && res.data.content ? res.data.content : [];
+
           if(this.handle.add.left.list.length) {
 
             this.handle.add.currentData = this.handle.add.left.list[0];
-            this.handle.add.left.activeId = this.handle.add.left.list[0].id;
-            this.resetAddForm(this.handle.add.left.list[0])
+            this.handle.add.left.activeId = this.handle.add.left.list[0].mrRequirementId;
+            this.getOrderDetail(this.handle.add.left.list[0])
           }
-        }, () => this.handle.add.isLoading = false, params, mock)
+        }, () => this.handle.add.isLoading = false, params)
+      },
+      handleAvatarOrderSuccess(res, file) { //上传头像
+
+        this.handle.add.right.form.userFace = `${this.$utils.CONFIG.api.image}?fileId=${res.data[0].fileId}`;
+        this.handle.add.right.form.fileId = res.data[0].fileId;
       },
       rowClass(obj) {
 
-        let rowClass = obj.row.id == this.handle.add.left.activeId ? 'active' : '';
+        let rowClass = obj.row.mrRequirementId == this.handle.add.left.activeId ? 'active' : '';
         return rowClass;
       },
       rowClick(row) {
 
-        this.handle.add.left.activeId = row.id;
+        this.handle.add.left.activeId = row.mrRequirementId;
         this.handle.add.currentData = row;
-        this.resetAddForm(row);
+        this.getOrderDetail(row);
       },
-      addAttachments(obj = this.handle.add.right.form, key = 'i', fileRef="fileAdd") {
+      saveOrder(res) { //下单
 
-        let id = new Date().getTime();
-        this.$set(obj, key, obj[key] || []);
-        obj[key].push({
-          id: id,
-          fileName: this.$refs[fileRef].files[0].name
+        this.$refs.orderForm.validate((valid) => {
+          if (valid) {
+
+            let params = {
+              mrSaleOrderId: this.handle.add.right.form.mrSaleOrderId || '',
+              mrRequirementId: this.handle.add.right.form.mrRequirementId || this.handle.add.right.item.mrRequirementId,
+              judgeType: this.handle.add.right.judgeType,
+              name: this.handle.add.right.form.name, 
+              createBy: this.$utils.getStorage(this.$utils.CONFIG.storageNames.usernameName),
+              fileId: this.handle.add.right.form.fileId,
+              mouldNo: this.handle.add.right.form.mouldNo, 
+              customerPoNo: this.handle.add.right.form.customerPoNo,
+              saleOrderTypeText: this.handle.add.right.form.requirementTypeText,
+              settlementCurrency: this.handle.add.right.form.currency.name,
+              settlementExchangeRate: this.handle.add.right.form.settlementExchangeRate,
+              settlementCurrencyTotalPrice: parseFloat(this.handle.add.right.form.settlementCurrencyTotalPrice) || 0,
+              saleTotalPrice: this.handle.add.right.form.saleTotalPrice,
+              componentOrders: [],
+              attachments: [],
+              remark: this.handle.add.right.form.remark
+            };
+            
+            let componentOrders = [];
+            this.handle.add.right.form.componentOrders && this.handle.add.right.form.componentOrders.map(item => {
+
+              if(item.componentNo && item.quantity && item.customerNo && item.deliveryDate) {
+                componentOrders.push({
+                  componentNo: item.componentNo,
+                  quantity: parseInt(item.quantity) || 0,
+                  customerNo: item.customerNo,
+                  deliveryDate: item.deliveryDate,
+                  componentPrice: parseInt(item.componentPrice) || 0,
+                  componentTotal: item.componentTotal,
+                  description: item.description
+                })
+              }
+            })
+
+            if(!componentOrders || !componentOrders.length ) {
+
+              this.handle.add.right.isLoading = false;
+              this.$utils.showTip('warning', 'error', '-1084');
+              return;
+            }
+
+            params.componentOrders = componentOrders;
+
+            params.attachments = [];
+            if(res && res.data && res.data.length) { //附件
+
+              res.data.map(item => params.attachments.push({
+                fileId: item.fileId,
+                fileName: item.fileName
+              }))
+            }
+            this.handle.add.right.form.attachments &&  this.handle.add.right.form.attachments.map(item => {
+
+              if(item.type != 'add') {
+                params.attachments.push({
+                  fileId: item.fileId,
+                  fileName: item.fileName
+                })
+              }
+            })
+
+            this.handle.add.isLoading = true;
+            this.$utils.getJson(this.$utils.CONFIG.api.saveSaleOrder, (res) =>  {
+
+              this.handle.add.right.isLoading = false;
+              this.handle.add.isLoading = false;
+              this.handle.add.dialogVisible = false;
+              this.$utils.showTip('success', 'success', '117');
+              (params.judgeType == 1) && (this.handle.add.left.list = []);
+            }, () => {
+              this.handle.add.right.isLoading = false;
+              this.handle.add.isLoading = false;
+            }, params)
+          }else {
+
+            this.handle.add.right.isLoading = false;
+          }
         })
-        this.$refs[fileRef].value = '';
       },
-      deleteAttachments(id, obj = this.handle.add.right.form, key = 'i') {
-
-        obj[key] = obj[key].filter(item => item.id != id);
-      },
-      saveAdd(isSaveAsDraft = false) {
+      getOrderDetail(item) { //订单详情
 
         let params = {
-
+          mrRequirementId: item.mrRequirementId
         };
-        
-        this.handle.add.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
 
-          this.handle.add.isLoading = false;
-          this.handle.add.dialogVisible = false;
-          this.$utils.showTip('success', 'success', isSaveAsDraft ? '102' : '113');
-        }, () => this.handle.add.isLoading = false, params)
+        this.handle.add.right.item = item;
+        this.handle.add.right.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.querySaleOrderInModify, (res) =>  {
+
+          this.handle.add.right.isLoading = false;
+          let obj  = res.data || {};
+          obj.componentOrders = obj.componentOrders || [{}];
+          obj.settlementExchangeRate = obj.settlementExchangeRate || '';
+          obj.attachments = obj.attachments || [];
+          obj.requirementTypeText = obj.saleOrderTypeText || '模具零件';
+          if(obj.fileId) {
+
+            obj.userFace = `${this.$utils.CONFIG.api.image}?fileId=${obj.fileId}`;
+          }else {
+
+            obj.userFace = '';
+          }
+          if(obj.settlementCurrency && this.$dict.currencyList) {
+
+            for(let i = 0; i < this.$dict.currencyList.length; i++) {
+
+              if(this.$dict.currencyList[i].name == obj.settlementCurrency) {
+
+                obj.currency = this.$dict.currencyList[i];
+                break;
+              }
+            }
+          }
+          this.handle.add.right.form = obj;
+        }, () => this.handle.add.right.isLoading = false, params)
       },
-      getOrderDetail(item) {
+      showUpdateDialog(item) {
 
-        let params = {
+        this.handle.update.allFiles = [];
+        this.handle.update.dialogVisible = true;
+        item.userFace = '';
+        item.fileId = '';
+        item.requirementTypeText = item.saleOrderTypeText || '模具零件';
+        item.deliveryDate = item.completionDateString;
+        if(item.settlementCurrency && this.$dict.currencyList) {
 
-        };
-        let mock = {
-          a: '',
-          e: [{}],
-          d: '0' 
+          for(let i = 0; i < this.$dict.currencyList.length; i++) {
+
+            if(this.$dict.currencyList[i].name == item.settlementCurrency) {
+
+              item.currency = this.$dict.currencyList[i];
+              break;
+            }
+          }
         }
 
-        this.handle.update.isLoading = true;
-        this.handle.update.dialogVisible = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-          this.handle.update.isLoading = false;
-          this.handle.update.form = res.data || {};
-        }, () => this.handle.update.isLoading = false, params, mock)
+        this.$set(this.handle.update, 'form', this.$utils.deepCopy(item));
       },
-      saveUpdate(isSaveAsDraft = false) {
+      saveUpdate(res) {
 
-        let params = {
+        this.$refs.editForm.validate((valid) => {
+          if (valid) {
 
-        };
-        
-        this.handle.update.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+            let params = {
+              mrSaleOrderId: this.handle.update.form.mrSaleOrderId || '', 
+              mouldNo: this.handle.update.form.mouldNo, 
+              customerPoNo: this.handle.update.form.customerPoNo,
+              settlementCurrency: this.handle.update.form.currency.name,
+              settlementExchangeRate: this.handle.update.form.settlementExchangeRate,
+              settlementCurrencyTotalPrice: parseFloat(this.handle.update.form.settlementCurrencyTotalPrice) || 0,
+              saleTotalPrice: this.handle.update.form.saleTotalPrice,
+              componentOrders: [],
+              attachments: [],
+              remark: this.handle.update.form.remark
+            };
+            
+            let componentOrders = [];
+            this.handle.update.form.componentOrders && this.handle.update.form.componentOrders.map(item => {
 
-          this.handle.update.isLoading = false;
-          this.handle.update.dialogVisible = false;
-          this.$utils.showTip('success', 'success', isSaveAsDraft ? '102' : '113');
-        }, () => this.handle.update.isLoading = false, params)
+              if(item.componentNo && item.quantity && item.customerNo && item.deliveryDate) {
+                componentOrders.push({
+                  mrComponentOrderId: item.mrComponentOrderId || '',
+                  componentNo: item.componentNo,
+                  quantity: parseInt(item.quantity) || 0,
+                  customerNo: item.customerNo,
+                  deliveryDate: item.deliveryDate,
+                  componentPrice: parseInt(item.componentPrice) || 0,
+                  componentTotal: item.componentTotal,
+                  description: item.description
+                })
+              }
+            })
+
+            if(!componentOrders || !componentOrders.length ) {
+
+              this.handle.update.isLoading = false;
+              this.$utils.showTip('warning', 'error', '-1084');
+              return;
+            }
+
+            params.componentOrders = componentOrders;
+
+            params.attachments = [];
+            if(res && res.data && res.data.length) { //附件
+
+              res.data.map(item => params.attachments.push({
+                fileId: item.fileId,
+                fileName: item.fileName
+              }))
+            }
+            this.handle.update.form.attachments &&  this.handle.update.form.attachments.map(item => {
+
+              if(item.type != 'add') {
+                params.attachments.push({
+                  fileId: item.fileId,
+                  fileName: item.fileName
+                })
+              }
+            })
+
+            this.handle.add.isLoading = true;
+            this.$utils.getJson(this.$utils.CONFIG.api.editSaleOrder, (res) =>  {
+
+              this.handle.update.isLoading = false;
+              this.handle.update.dialogVisible = false;
+              this.$utils.showTip('success', 'success', '117');
+              this.getLeftList();
+            }, () => this.handle.update.isLoading = false, params)
+          }else {
+
+            this.handle.update.isLoading = false;
+          }
+        })
       },
       suspend(item) { //暂停
 
@@ -871,29 +1129,20 @@
           this.search();
         }, () => this.isLoading = false, params)
       },
-      deleteConfirm(item) {
-
-        this.left.deleteData = item;
-        this.handle.del.dialogVisible = true;
-      },
       deleteOrder(item) {
 
         let params = {
-
+          mrSaleOrderId: item.mrSaleOrderId
         };
         
         this.handle.del.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.deleteSaleOrder, (res) =>  {
 
           this.handle.del.isLoading = false;
           this.handle.del.dialogVisible = false;
           this.$utils.showTip('success', 'success', '116');
           this.getLeftList();
         }, () => this.handle.del.isLoading = false, params)
-      },
-      handlePictureCardPreview(file) {
-        this.faceUrl = file.url;
-        this.addDialog.dialogVisible = true;
       },
       handleSelect(item) {
 
@@ -912,6 +1161,23 @@
             total += (itemc.consumeTime || 0) * itemc.processPrice;
           })
           return total || '-'
+        }
+      },
+      saleTotalPrice() {
+
+        return (obj = null) => {
+
+          let handleObj = obj ? obj : this.handle.add.right;
+          let saleTotalPrice = 0;
+          handleObj.form.componentOrders && handleObj.form.componentOrders.map(item => {
+
+            if(item.componentNo && item.quantity && item.customerNo && item.deliveryDate) {
+
+              saleTotalPrice += (parseInt(item.quantity) || 0) * (parseFloat(item.componentPrice) || 0);
+            }
+          })
+
+          handleObj.form.saleTotalPrice = saleTotalPrice;
         }
       }
     },

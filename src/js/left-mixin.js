@@ -209,7 +209,30 @@ let leftMixin = {
 			}
 			return fileTypeArr.includes(file.type) && isLt2M;
 		},
-	    uploadFile(dialog = null) {
+		saveFileAndData(obj, uploadSuccess) { //先保存附件然后再回调
+
+				obj.isLoading = true;
+        if(obj.addFiles.length) {
+
+        	if(uploadSuccess && typeof this.uploadSuccess == 'function') {
+
+        		this.uploadFile(obj, uploadSuccess);
+        	}else {
+
+        		this.uploadFile(obj);
+        	}
+        }else {
+
+        	if(uploadSuccess && typeof this.uploadSuccess == 'function') {
+
+        		uploadSuccess();
+        	}else {
+
+        		this.uploadSuccess();
+        	}
+        }
+      },
+	    uploadFile(dialog = null, uploadSuccess = null) {
 	    
 	      let formData = new FormData();
 	      if(dialog && dialog.addFiles && dialog.addFiles.length) {
@@ -223,12 +246,18 @@ let leftMixin = {
 	      	formData.append('files', this.$refs.file.files[0]);
 	      }
 	      
-
 	      dialog ? (dialog.isLoading = true) : (this.right.isLoading = true);
 	      this.$utils.getJson(this.$utils.CONFIG.api.uploadFiles, (res) => { //版本详情 
 
+	      	//dialog.addFiles = [];
 	        dialog ? (dialog.isLoading = false) : (this.right.isLoading = false);
-	        typeof this.uploadSuccess == 'function' && this.uploadSuccess(res);
+	        if(uploadSuccess && typeof this.uploadSuccess == 'function') {
+	      		
+	        	uploadSuccess(res);
+	        }else {
+
+	        	typeof this.uploadSuccess == 'function' && this.uploadSuccess(res);
+	        }
 	      }, () => {
 
 	      	dialog ? (dialog.isLoading = false) : (this.right.isLoading = false);
@@ -412,7 +441,27 @@ let leftMixin = {
 	    		this.handle[type].form.attachments = [];
 	    		isResetComponents && (this.handle[type].form.components = [{}])
 	    	} 
-	    }
+	    },
+	    addAttachments(refFile, obj) { //新增附件
+
+        let fileId = new Date().getTime();
+        refFile.files[0].fileId = fileId;
+        obj.addFiles.push(refFile.files[0]);
+        obj.form.attachments.push({
+          type: 'add',
+          fileId: fileId,
+          fileName: refFile.files[0].name
+        })
+        refFile.value = '';
+      },
+      deleteAttachments(file, obj) {
+  
+        obj.form.attachments = obj.form.attachments.filter(item => item.fileId != file.fileId);
+
+        if(file.type == 'add') {
+          obj.addFiles = obj.addFiles.filter(item => item.fileId != file.fileId);
+        }
+      }
 	},
 	computed: {
     dateMinusBgColor() { //交期剩余天数颜色

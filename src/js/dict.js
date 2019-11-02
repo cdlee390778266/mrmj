@@ -103,10 +103,11 @@ let Dict = {
 		},
 	],
 	maxWorkTime: 100,
+	mouldNoList: []
 }
 
 Dict.getCurrency = () => {	//获取币种列表
-	Utils.getJson(Utils.CONFIG.api.currencyList, (res) => {
+	Utils.getJson(Utils.CONFIG.api.currency, (res) => {
 		Dict.currencyList = res.data;
 	})
 }
@@ -124,10 +125,17 @@ Dict.getMaxWorkTime = () => {	//查询工序估工阈值
 	})
 }
 
+Dict.getMouldNoList = () => {	//查询模具与零件号联动列表
+	Utils.getJson(Utils.CONFIG.api.qwm, (res) => {
+		Dict.mouldNoList = res.data ? res.data : [];
+	})
+}
+
 function init() {	//初始化
 	Dict.getCurrency();
 	Dict.getCountry();
 	Dict.getMaxWorkTime();
+	Dict.getMouldNoList();
 }
 
 init();

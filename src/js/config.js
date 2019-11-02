@@ -27,6 +27,7 @@ const CONFIG = {
 		customer: baseUrl + 'requirement/customer/qc', //客户名称查询接口
 		qwm: baseUrl + 'requirement/saleOrder/qwm', //模具与零件号联动查询接口
 		maxWorkTime: baseUrl + 'requirement/threshold/qc', //生产--查询工序估工阈值
+		currency: baseUrl + 'requirement/currency/qwm', //生产--货币与汇率联动查询
 		
 		login: baseUrl + 'authMR/login', //登录
 
@@ -36,6 +37,7 @@ const CONFIG = {
 		queryRequirement: baseUrl + 'requirement/req/queryRequirement', //需求--需求查询
 		queryRequirementDetail: baseUrl + 'requirement/req/queryRequirementDetail', //需求--客户需求详细信息
 		saveDemand: baseUrl + 'requirement/demand/saveDemand', //需求--需求终止
+		querySaleOrderInModify: baseUrl + 'requirement/req/querySaleOrderInModify', //需求--需求下单出销售订单查询
 		matchCodeType: baseUrl + 'requirement/demand/matchCodeType', //需求--终止类型联想匹配
 		
 		
@@ -197,12 +199,17 @@ const CONFIG = {
 		'-1081': '请输入供应商简称',
 		'-1082': '请输入详细地址',
 		'-1083': '请输入联系电话',
-		'-1084': '零件清单至少有一条数据，并且零件号数量，客户编号与要求交期不能为空',
+		'-1084': '零件清单至少有一条数据，并且零件号、数量、客户编号、要求交期不能为空',
 		'-1085': '请输入需求终止原因',
 		'-1086': '请输入客户PO.号',
 		'-1087': '请输入需求编号',
 		'-1088': '需求编号已存在',
-		'-1089': '需求明细至少有一条数据，并且零件号、客户编号、数量与要求交期不能为空',
+		'-1089': '需求明细至少有一条数据，并且零件号、客户编号、数量、要求交期不能为空',
+		'-1090': '请输入模具号',
+		'-1091': '请选择结算货币',
+		'-1092': '请选择结算汇率',
+		'-1093': '请输入结算货币总价',
+		
 	}
 }
 
