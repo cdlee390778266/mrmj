@@ -53,7 +53,7 @@
                 <el-progress :percentage="item | cpercentage('haveCompletionTotalTime', 'estimateTotalTime')" color="rgba(0, 255, 0, 1)" style="width: 85px;display: inline-block;"></el-progress>
               </el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click.stop="showUpdateDialog(item)">修改</a>
+                <a href="javascript: void(0);" @click.stop="showUpdateDialog(item)" v-if="item.saleOrderStatus == 10 || item.saleOrderStatus == 12">修改</a>
                 <a href="javascript: void(0);" @click.stop="resetSaleOrder(item)" v-if="item.saleOrderStatus == 14">恢复</a>
                 <a href="javascript: void(0);" @click.stop="suspend(item)" v-else>暂停</a>
                 <a href="javascript: void(0);" @click.stop="deleteOrder(item)" v-if="item.saleOrderStatus == 10 || item.saleOrderStatus == 12">删除</a>

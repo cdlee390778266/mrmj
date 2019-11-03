@@ -42,12 +42,18 @@
                       </el-select> 
                     </div>
                     <div class="filter-item">
-                      <span>模具号：</span> 
-                      <el-input v-model="left.tabs[0].form.mouldNo" style="width: 100px" />
+                      <span>模具号：</span>
+                      <el-select size="mini" v-model="left.tabs[0].form.moulde" value-key="mouldNo" placeholder="请选择模具号" style="width: 100px;" @change="(module) => { left.tabs[0].form.componentNo = ''; }">
+                        <el-option v-for="(item, index) in $dict.mouldNoList" :key="item.mouldNo" :label="item.mouldNo" :value="item"></el-option>
+                      </el-select> 
                     </div>
                     <div class="filter-item">
-                      <span>零件号：</span> 
-                      <el-input v-model="left.tabs[0].form.componentNo" style="width: 100px" />
+                      <span>零件号：</span>
+                      <el-select size="mini" v-model="left.tabs[0].form.componentNo" placeholder="请选择模具号" style="width: 120px;">
+                      <template v-if="left.tabs[0].form.moulde">
+                          <el-option v-for="(item, index) in left.tabs[0].form.moulde.componentOrders" :key="index" :label="item.componentNo" :value="item.componentNo"></el-option>
+                        </template>
+                      </el-select> 
                     </div>
                     <div class="filter-item">
                       <span>检验日期：</span> 
@@ -62,7 +68,7 @@
                     </div>
                     <div class="filter-item">
                       <span>外协工序：</span> 
-                      <el-select style="width: 100px;" v-model="left.tabs[0].form.processes">
+                      <el-select style="width: 100px;" v-model="left.tabs[0].form.processName">
                         <el-option v-for="(item, index) in left.tabs[1].filter.processes" :key="index" :label="item.stuffNo" :value="item.stuffNo" @click=""></el-option>
                       </el-select>
                     </div>
@@ -85,22 +91,22 @@
                     class="content-table">
                     <el-table-column prop="purchaseOrderNo" label="采购单号" sortable width="120" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="name" label="供应商名称" sortable  width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="arrivalGoodsDate" label="到货日期" sortable width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="inspectionDate" label="检验日期" width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="mouldNo" label="模具号" sortable width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="f" label="零件号" sortable width="120"  show-overflow-tooltip>
+                    <el-table-column prop="arrivalGoodsDateString" label="到货日期" sortable width="120" align="center" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="inspectionDateString" label="检验日期" width="120" align="center" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="mouldNo" label="模具号" sortable width="120" align="center" show-overflow-tooltip></el-table-column>
+                    <el-table-column label="零件号"  min-width="120"  show-overflow-tooltip>
                       <template slot-scope="scope">
                         {{scope.row.components | concatString('componentNo')}}
                       </template>
                     </el-table-column>
-                    <el-table-column prop="processName" label="外协工序" sortable width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="h" label="数量" sortable width="100" show-overflow-tooltip>
+                    <el-table-column prop="processName" label="外协工序" sortable align="center" width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column  label="数量"  min-width="100" align="center" show-overflow-tooltip>
                       <template slot-scope="scope">
                         {{scope.row.components | concatString('quantity')}}
                       </template>
                     </el-table-column>
-                    <el-table-column prop="inspectionResultText" label="检测结果" sortable width="100" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="abnormalQuantity" label="异常数量" sortable width="100" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="inspectionResultText" label="检测结果" sortable width="100" align="center" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="abnormalQuantity" label="异常数量" sortable width="100" align="center" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="abnormalOverview" label="异常概况" min-width="120" show-overflow-tooltip></el-table-column>
                   </el-table>
                 </el-col>
@@ -121,12 +127,18 @@
                   </div>
                   <div class="mgt10 ">
                     <div class="filter-item">
-                      <span>模具号：</span> 
-                      <el-input v-model="left.tabs[1].form.mouldNo" style="width: 100px" />
+                      <span>模具号：</span>
+                      <el-select size="mini" v-model="left.tabs[1].form.moulde" value-key="mouldNo" placeholder="请选择模具号" style="width: 100px;" @change="(module) => { left.tabs[1].form.componentNo = ''; }">
+                        <el-option v-for="(item, index) in $dict.mouldNoList" :key="item.mouldNo" :label="item.mouldNo" :value="item"></el-option>
+                      </el-select> 
                     </div>
                     <div class="filter-item">
-                      <span>零件号：</span> 
-                      <el-input v-model="left.tabs[1].form.componentNo" style="width: 100px" />
+                      <span>零件号：</span>
+                      <el-select size="mini" v-model="left.tabs[1].form.componentNo" placeholder="请选择模具号" style="width: 120px;">
+                      <template v-if="left.tabs[1].form.moulde">
+                          <el-option v-for="(item, index) in left.tabs[1].form.moulde.componentOrders" :key="index" :label="item.componentNo" :value="item.componentNo"></el-option>
+                        </template>
+                      </el-select> 
                     </div>
                     <div class="filter-item">
                       <span>加工工序：</span> 
@@ -162,22 +174,22 @@
                     border
                     size="mini"
                     class="content-table">
-                    <el-table-column prop="mouldNo" label="模具号" sortable width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column label="零件号" sortable  show-overflow-tooltip>
+                    <el-table-column prop="mouldNo" label="模具号" sortable width="120" show-overflow-tooltip></el-table-column>
+                    <el-table-column label="零件号" sortable  width="120"show-overflow-tooltip>
                       <template slot-scope="scope">
                         {{scope.row.components | concatString('componentNo')}}
                       </template>
                     </el-table-column>
-                    <el-table-column prop="processName" label="工序" sortable width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="inspectionDate" label="检验日期" width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column label="数量" sortable width="120" show-overflow-tooltip>
+                    <el-table-column prop="processName" label="工序" sortable width="120" align="center" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="inspectionDateString" label="检验日期" width="120" align="center" show-overflow-tooltip></el-table-column>
+                    <el-table-column label="数量" sortable min-width="120" align="center"  show-overflow-tooltip>
                       <template slot-scope="scope">
-                        {{scope.row.components | concatString('quality')}}
+                        {{scope.row.components | concatString('quantity')}}
                       </template>
                     </el-table-column>
-                    <el-table-column prop="inspectionResultText" label="检测结果" sortable width="120"  show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="g" label="异常数量" sortable width="120" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="abnormalQuantity" label="异常概况" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="inspectionResultText" label="检测结果" sortable width="120" align="center" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="abnormalQuantity" label="异常数量" sortable width="120" align="center" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="abnormalOverview" label="异常概况" min-width="120" show-overflow-tooltip></el-table-column>
                   </el-table>
                 </el-col>
               </el-row>
@@ -206,14 +218,6 @@
               name: '采购到货检验',
               icon: require('../../../assets/img/icon11.svg'),
               filter: {
-                supplier: [
-                  {
-                    stuffNo: 'A公司'
-                  },
-                  {
-                    stuffNo: 'B公司'
-                  },
-                ],
                 processes: [
                   {
                     stuffNo: 'A'
@@ -225,11 +229,12 @@
               },
               form: {
                 name: '',
+                moulde: {},
                 mouldNo: '',
                 componentNo: '',
                 processName: '',
                 inspectionDate: '',
-                inspectionResult: ''
+                inspectionResult: []
               },
               list: []
             },
@@ -249,11 +254,12 @@
               },
               form: {
                 name: '',
+                moulde: {},
                 mouldNo: '',
                 componentNo: '',
                 processId: '',
                 inspectionDate: '',
-                inspectionResult: ''
+                inspectionResult: []
               },
               list: []
             }
@@ -268,10 +274,10 @@
           name: this.left.tabs[0].form.name,
           inspectionDate_from: this.left.tabs[0].form.inspectionDate[0] || '',
           inspectionDate_to: this.left.tabs[0].form.inspectionDate[1] || '',
-          mouldNo: this.left.tabs[0].form.mouldNo,
+          mouldNo: this.left.tabs[0].form.moulde.mouldNo || '',
           comonentNo: this.left.tabs[0].form.comonentNo,
-          processName: this.left.tabs[0].form.processName,
-          inspectionResult: this.left.tabs[0].form.inspectionResult,
+          processName: '',//this.left.tabs[0].form.processName
+          inspectionResult: '', //this.left.tabs[0].form.inspectionResult
           sorting: '_MrCustomer.name'
         };
   
@@ -288,10 +294,10 @@
           name: this.left.tabs[1].form.name,
           inspectionDate_from: this.left.tabs[1].form.inspectionDate[0] || '',
           inspectionDate_to: this.left.tabs[1].form.inspectionDate[1] || '',
-          mouldNo: this.left.tabs[1].form.mouldNo,
+          mouldNo: this.left.tabs[1].form.moulde.mouldNo || '',
           comonentNo: this.left.tabs[1].form.comonentNo,
           processId: this.left.tabs[1].form.processId,
-          inspectionResult: this.left.tabs[1].form.inspectionResult
+          inspectionResult: '' //this.left.tabs[1].form.inspectionResult
         };
     
         this.isLoading = true;
@@ -306,13 +312,12 @@
         this.left.activeId = item.key;
         this.currentData= item;
       },
-      getDropDownList() { //供应商、模具号、零件号下拉列表
+      getDropDownList() { //供应商
 
-        this.getList(this.$utils.CONFIG.api.customerQcip, this.filter, 'supplier', {customerType: 20, type: 0}, (res) => {
+        this.getList(this.$utils.CONFIG.api.customerQcip, this.filter, 'supplier', {customerType: 20}, (res) => {
 
           this.filter.supplier = res.content || [];
-        }); //获取客户列表
-        //this.getList(this.$utils.CONFIG.api.qwm, this.filter, 'qwm'); //获取模具与零件号联动列表
+        }); //获取供应商
       },
       refresh() {}
     },

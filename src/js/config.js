@@ -133,7 +133,15 @@ const CONFIG = {
 
 		/* 质检模块*/
 		queryGoodsInspectInfo: baseUrl + 'requirement/goodsInspection/queryGoodsInspectInfo', //质量质检--采购到货查询
+		queryGoodsInspect: baseUrl + 'requirement/goodsInspection/queryGoodsInspect', //质量质检--未全部收货的采购订单表头查询
+		saveGoodsInspection: baseUrl + 'requirement/goodsInspection/saveGoodsInspection', //质量质检--外协到货检验录入
 		queryProcessInspectInfo: baseUrl + 'requirement/processInspection/queryProcessInspectInfo', //质量质检--完工检验查询
+		queryNoJobBookingProcess: baseUrl + 'requirement/processInspection/queryNoJobBookingProcess', //质量质检--报工中未进行工序检验的零件查询
+		saveProcessInspection: baseUrl + 'requirement/processInspection/saveProcessInspection', //质量质检--工序完工检验录入
+		queryGoodsInspectInfo: baseUrl + 'requirement/goodsInspection/queryGoodsInspectInfo', //质量质检--采购到货不良品查询
+		saveGoodsRejectsInfo: baseUrl + 'requirement/goodsInspection/saveGoodsRejectsInfo', //质量质检--采购到货不良品处置录入
+		queryProcessInspectInfo: baseUrl + 'requirement/processInspection/queryProcessInspectInfo', //质量质检--工序完工不良品查询
+		saveProcessRejectsInfo: baseUrl + 'requirement/processInspection/saveProcessRejectsInfo', //质量质检--工序完工不良品处置录入
 	},
 	success: {
 		"1": "加载数据成功",

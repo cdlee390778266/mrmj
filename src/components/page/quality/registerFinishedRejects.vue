@@ -11,39 +11,54 @@
       <div class="calc">
         <div class="mgt20 pdlr10">
           <el-table
-            :data="tabs.calc.list"
+            :data="list"
             border
             size="mini"
             style="width: 100%;"
-            class="edit-table">
+            class="edit-table"
+            @selection-change="handleSelectionChange">
+            <el-table-column
+              type="selection"
+              width="55"
+              align="center"
+              fixed="left">
+            </el-table-column>
             <el-table-column label="状态" width="88" show-overflow-tooltip>
               <template slot-scope="scope">
-                <div :class="{'table-td-red': scope.row.status == '未处置'}">{{scope.row.status}}</div>
+                <div :class="{'table-td-red': scope.row.dealStatusValue == 10}">{{scope.row.dealStatusText}}</div>
               </template>
             </el-table-column>
-            <el-table-column prop="aa" label="模具号" width="120" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="bb" label="零件号" width="120" class-name="notEdit" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="cc" label="工序"  width="120" class-name="notEdit" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="dd" label="检验日期" show-overflow-tooltip align="center" width="120" class-name="notEdit"></el-table-column>
-            <el-table-column prop="ee" label="数量" width="120" class-name="notEdit" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="ff" label="检测结果" width="120" class-name="notEdit" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="gg" label="异常数量" width="120" class-name="notEdit" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="hh" label="异常概况" min-width="180" class-name="notEdit" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="mouldNo" label="模具号" class-name="notEdit" width="120" show-overflow-tooltip></el-table-column>
+            <el-table-column label="零件号" width="120" class-name="notEdit" show-overflow-tooltip>
+              <template slot-scope="scope">
+                {{scope.row.components | concatString('componentNo')}}
+              </template>
+            </el-table-column>
+            <el-table-column prop="processName" label="工序"  width="120" class-name="notEdit" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="inspectionDateString" label="检验日期" show-overflow-tooltip align="center" width="120" class-name="notEdit"></el-table-column>
+            <el-table-column label="数量" width="120" class-name="notEdit" show-overflow-tooltip>
+              <template slot-scope="scope">
+                {{scope.row.components | concatString('quantity')}}
+              </template>
+            </el-table-column>
+            <el-table-column prop="inspectionResultText" label="检测结果" width="120" class-name="notEdit" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="abnormalQuantity" label="异常数量" width="120" class-name="notEdit" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="abnormalOverview" label="异常概况" min-width="180" class-name="notEdit" show-overflow-tooltip></el-table-column>
             <el-table-column label="处理方式" width="100" show-overflow-tooltip>
               <template slot-scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'iiEdit', {}, false)">
+                  <div @click="showInput(list, scope.$index, 'dealWayTextEdit', {}, false)">
                     <div class="ellipsis">
-                      {{scope.row.ii}}
+                      {{scope.row.dealWayText}}
                     </div>
                     <el-select
-                      v-model="scope.row.ii"
+                      v-model="scope.row.dealWayText"
                       placeholder="请选择"
-                      :style="{opacity: scope.row.iiEdit ? 1 : 0}"
-                      @focus="showInput(tabs.calc.list, scope.$index, 'iiEdit', {}, false)"
-                      @blur="scope.row.iiEdit = false">
+                      :style="{opacity: scope.row.dealWayTextEdit ? 1 : 0}"
+                      @focus="showInput(list, scope.$index, 'dealWayTextEdit', {}, false)"
+                      @blur="scope.row.dealWayTextEdit = false">
                       <el-option
-                        v-for="item in tabs.calc.filter.result"
+                        v-for="item in filter.result"
                         :key="item.label"
                         :label="item.label"
                         :value="item.label">
@@ -56,9 +71,9 @@
             <el-table-column label="处理说明" class-name="notEdit" min-width="180" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'jjEdit', {}, false)">
+                  <div @click="showInput(list, scope.$index, 'jjEdit', {}, false)">
                     <div class="ejjipsis">{{ scope.row.jj }}</div>
-                    <el-input size="mini" v-model="scope.row.jj" @focus="showInput(tabs.calc.list, scope.$index, 'jjEdit', {}, false)" @blur="scope.row.jjEdit = false" :style="{opacity: scope.row.jjEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-model="scope.row.jj" @focus="showInput(list, scope.$index, 'jjEdit', {}, false)" @blur="scope.row.jjEdit = false" :style="{opacity: scope.row.jjEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -80,81 +95,92 @@ export default {
   mixins: [leftMixin],
   data() {
     return {
-      activeTab: "calc",
-      isLoading: false,
-      tabs: {
-        calc: {
-          filter: {
-            result: [
-              {
-                label: '接受',
-                value: '1'
-              },
-              {
-                label: '返工',
-                value: '2'
-              },
-              {
-                label: '报废',
-                value: '3'
-              }
-            ]
+      filter: {
+        result: [
+          {
+            label: '返工',
+            value: '20'
           },
-          list: []
-        },
-        preview: {}
-      }
-    };
+          {
+            label: '特采',
+            value: '40'
+          },
+          {
+            label: '报废',
+            value: '50'
+          }
+        ]
+      },
+      list: [],
+      multipleSelection: []
+    }
   },
   methods: {
     getData() { //获取列表
 
       let params = {
-
+        dealStatus: 10,
+        name: '',
+        inspectionDate_from: '',
+        inspectionDate_to: '',
+        mouldNo: '',  
+        comonentNo: '',
+        processName: '',
+        inspectionResult: ''
       };
-      let mock = [
-        {
-          status: '未处置',
-          aa: 'M16005',
-          bb: '300-1',
-          cc: 'L',
-          dd: '5月7日',
-          ee: '5',
-          ff: '接受',
-          gg: '1',
-          hh: '查图，尺寸量错'
-        },
-        {
-          status: '已处置',
-          aa: 'M9995',
-          bb: '301',
-          cc: 'K',
-          dd: '5月7日',
-          ee: '10',
-          ff: '返工',
-          gg: '12',
-          hh: '圆弧接深'
-        }
-      ]
 
       this.isLoading = true;
-      this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+      this.$utils.getJson(this.$utils.CONFIG.api.queryProcessInspectInfo, (res) =>  {
 
         this.isLoading = false;
-        this.tabs.calc.list = res.data || [];
-      }, () => this.isLoading = false, params, mock)
+        this.list = res.data || [];
+      }, () => this.isLoading = false, params)
+    },
+    handleSelectionChange(val) {
+
+      this.multipleSelection = val;
+    },
+    getDealWayValue(dealWayText) {
+      
+      let value = ''
+      
+      if(!dealWayText) return value;
+
+      for(let i = 0; i < this.filter.result.length; i++) {
+
+        if(this.filter.result[i].label == dealWayText) {
+          
+          value = this.filter.result[i].value;
+          break;
+        }
+      }
+      return value
     },
     save() {
 
-      let params = {
+      if(!this.multipleSelection.length) {
 
-      };
-      
+        this.$utils.showTip('warning', 'error', '-1078')
+        return;
+      }
+
+      let params = [];
+      this.multipleSelection.map(item => {
+
+        params.push({
+          mrProcessInspectionId: item.mrProcessInspectionId,
+          dealStatus: 20,
+          dealWay: this.getDealWayValue(item.dealWayText),
+          dealIllustrate: item.dealIllustrate
+        })
+      })
+
       this.isLoading = true;
-      this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+      this.$utils.getJson(this.$utils.CONFIG.api.saveProcessRejectsInfo, (res) =>  {
 
         this.isLoading = false;
         this.$utils.showTip('success', 'success', '102');
+        this.getData();
       }, () => this.isLoading = false, params)
     },
   },
