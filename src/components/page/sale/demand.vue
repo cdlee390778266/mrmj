@@ -496,13 +496,7 @@
               <el-input v-model="handle.order.form.customerPoNo" auto-complete="off"></el-input>
             </el-form-item>
             <el-form-item prop="mouldNo" label="模具号">
-              <el-autocomplete
-                class="inline-input"
-                v-model="handle.order.form.mouldNo"
-                :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, $dict.mouldNoList, 'mouldNo')"
-                valueKey="mouldNo"
-                value="mouldNo"
-                placeholder="请输入模具号"></el-autocomplete>
+              <el-input v-model="handle.order.form.mouldNo" auto-complete="off"></el-input>
             </el-form-item>
             <!-- <el-form-item prop="
               requirementTypeText" label="需求类型">
@@ -654,8 +648,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.order.judgeType = 1; saveFileAndData(handle.order, saveOrder)">下达订单</el-button>
-        <el-button type="primary" @click="handle.order.judgeType = 2; saveFileAndData(handle.order, saveOrder)">存为草稿</el-button>
+        <el-button type="primary" @click="handle.order.judgeType = 1; checkMouldNo();">下达订单</el-button>
+        <el-button type="primary" @click="handle.order.judgeType = 2;saveFileAndData(handle.order, saveOrder);">存为草稿</el-button>
         <el-button @click="handle.order.dialogVisible = false">取 消</el-button>
       </div>
     </el-dialog>
@@ -1044,7 +1038,26 @@
             }
           }
           this.handle.order.form = obj;
+          this.handle.order.originModulNo = this.handle.order.form.mouldNo || '';
         }, () => obj.isLoading = false, params)
+      },
+      checkMouldNo() { //模具号验重
+
+        if(!this.handle.order.form.mouldNo) {
+
+          this.$utils.showTip('warning', 'error', '-1090')
+          return;
+        }
+        this.$utils.getJson(this.$utils.CONFIG.api.checkMouldNo, (res) => {
+
+          if(res.data != 1) { //如果模具号重复
+
+            this.$utils.showTip('warning', 'error', '-1094');
+          }else {
+            
+            this.saveFileAndData(this.handle.order, this.saveOrder);
+          }
+        }, null, {mouldNo: this.handle.order.form.mouldNo})
       },
       saveOrder(res) { //下单
 
@@ -1088,6 +1101,7 @@
 
             if(!componentOrders || !componentOrders.length ) {
 
+              this.handle.order.isLoading = false;
               this.$utils.showTip('warning', 'error', '-1084');
               return;
             }

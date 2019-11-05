@@ -28,6 +28,7 @@ const CONFIG = {
 		qwm: baseUrl + 'requirement/saleOrder/qwm', //模具与零件号联动查询接口
 		maxWorkTime: baseUrl + 'requirement/threshold/qc', //生产--查询工序估工阈值
 		currency: baseUrl + 'requirement/currency/qwm', //生产--货币与汇率联动查询
+		checkMouldNo: baseUrl + 'requirement/saleOrder/checkMouldNo', //生产--销售订单的模具号验重
 		
 		login: baseUrl + 'authMR/login', //登录
 
@@ -217,6 +218,7 @@ const CONFIG = {
 		'-1091': '请选择结算货币',
 		'-1092': '请选择结算汇率',
 		'-1093': '请输入结算货币总价',
+		'-1094': '模具号已存在',
 		
 	}
 }

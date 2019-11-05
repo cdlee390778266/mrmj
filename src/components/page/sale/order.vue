@@ -488,7 +488,7 @@
           </div>
         </div>
         <div slot="footer" class="dialog-footer mgt20 tr" v-show="handle.add.left.list.length">
-          <el-button type="primary" @click="handle.add.right.judgeType = 1; saveFileAndData(handle.add.right, saveOrder)">下达订单</el-button>
+          <el-button type="primary" @click="handle.add.right.judgeType = 1; checkMouldNo();">下达订单</el-button>
           <el-button type="primary" @click="handle.add.right.judgeType = 2; saveFileAndData(handle.add.right, saveOrder)">存为草稿</el-button>
           <el-button @click="handle.add.dialogVisible = false">取 消</el-button>
         </div>
@@ -862,6 +862,24 @@
         this.handle.add.left.activeId = row.mrRequirementId;
         this.handle.add.currentData = row;
         this.getOrderDetail(row);
+      },
+      checkMouldNo() { //模具号验重
+
+        if(!this.handle.add.right.form.mouldNo) {
+
+          this.$utils.showTip('warning', 'error', '-1090')
+          return;
+        }
+        this.$utils.getJson(this.$utils.CONFIG.api.checkMouldNo, (res) => {
+
+          if(res.data != 1) { //如果模具号重复
+
+            this.$utils.showTip('warning', 'error', '-1094');
+          }else {
+            
+            this.saveFileAndData(this.handle.add.right, this.saveOrder);
+          }
+        }, null, {mouldNo: this.handle.add.right.form.mouldNo})
       },
       saveOrder(res) { //下单
 

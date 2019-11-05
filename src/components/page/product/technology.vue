@@ -395,6 +395,23 @@
   export default {
     mixins: [leftMixin],
     data() {
+
+      var checkMouldNo = (rule, value, callback) => { //模具号验重
+        if (!value) {
+          return callback(new Error(this.$utils.getTipText('error', '-1090')));
+        }
+
+        this.$utils.getJson(this.$utils.CONFIG.api.checkMouldNo, (res) => {
+
+          if(res.data != 1) { //如果模具号重复
+
+            callback(new Error(this.$utils.getTipText('error', '-1094')));
+          }else {
+            callback();
+          }
+        }, null, {mouldNo: value})
+      };
+
       return {
         right: {
           page1: {},
@@ -429,7 +446,7 @@
                 { required: true, message: '请输入客户名称'},
               ],
               mouldNo: [
-                { required: true, message: '请输入模具号'},
+                { validator: checkMouldNo, trigger: 'blur' }
               ],
               customerPoNo: [
                 { required: true, message: '请输入客户PO号'},

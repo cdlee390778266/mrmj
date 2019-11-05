@@ -43,15 +43,15 @@
                     </div>
                     <div class="filter-item">
                       <span>模具号：</span>
-                      <el-select size="mini" v-model="left.tabs[0].form.moulde" value-key="mouldNo" placeholder="请选择模具号" style="width: 100px;" @change="(module) => { left.tabs[0].form.componentNo = ''; }">
+                      <el-select size="mini" v-model="left.tabs[0].form.module" value-key="mouldNo" placeholder="请选择模具号" style="width: 100px;" @change="(module) => { left.tabs[0].form.componentNo = ''; }">
                         <el-option v-for="(item, index) in $dict.mouldNoList" :key="item.mouldNo" :label="item.mouldNo" :value="item"></el-option>
                       </el-select> 
                     </div>
                     <div class="filter-item">
                       <span>零件号：</span>
                       <el-select size="mini" v-model="left.tabs[0].form.componentNo" placeholder="请选择模具号" style="width: 120px;">
-                      <template v-if="left.tabs[0].form.moulde">
-                          <el-option v-for="(item, index) in left.tabs[0].form.moulde.componentOrders" :key="index" :label="item.componentNo" :value="item.componentNo"></el-option>
+                      <template v-if="left.tabs[0].form.module">
+                          <el-option v-for="(item, index) in left.tabs[0].form.module.componentOrders" :key="index" :label="item.componentNo" :value="item.componentNo"></el-option>
                         </template>
                       </el-select> 
                     </div>
@@ -75,9 +75,9 @@
                     <div class="filter-item">
                       检验结果：
                       <el-checkbox-group v-model="left.tabs[0].form.inspectionResult" style="display: inline-block;">
-                        <el-checkbox label="接受" :value="10"></el-checkbox>
-                        <el-checkbox label="返工" :value="20"></el-checkbox>
-                        <el-checkbox label="报废" :value="50"></el-checkbox>
+                        <el-checkbox :label="10">接受</el-checkbox>
+                        <el-checkbox :label="20">返工</el-checkbox>
+                        <el-checkbox :label="50">报废</el-checkbox>
                       </el-checkbox-group>
                     </div>
                     <el-button type="primary" class="mgl40" @click="queryOrder">搜 索</el-button>
@@ -128,15 +128,15 @@
                   <div class="mgt10 ">
                     <div class="filter-item">
                       <span>模具号：</span>
-                      <el-select size="mini" v-model="left.tabs[1].form.moulde" value-key="mouldNo" placeholder="请选择模具号" style="width: 100px;" @change="(module) => { left.tabs[1].form.componentNo = ''; }">
+                      <el-select size="mini" v-model="left.tabs[1].form.module" value-key="mouldNo" placeholder="请选择模具号" style="width: 100px;" @change="(module) => { left.tabs[1].form.componentNo = ''; }">
                         <el-option v-for="(item, index) in $dict.mouldNoList" :key="item.mouldNo" :label="item.mouldNo" :value="item"></el-option>
                       </el-select> 
                     </div>
                     <div class="filter-item">
                       <span>零件号：</span>
                       <el-select size="mini" v-model="left.tabs[1].form.componentNo" placeholder="请选择模具号" style="width: 120px;">
-                      <template v-if="left.tabs[1].form.moulde">
-                          <el-option v-for="(item, index) in left.tabs[1].form.moulde.componentOrders" :key="index" :label="item.componentNo" :value="item.componentNo"></el-option>
+                      <template v-if="left.tabs[1].form.module">
+                          <el-option v-for="(item, index) in left.tabs[1].form.module.componentOrders" :key="index" :label="item.componentNo" :value="item.componentNo"></el-option>
                         </template>
                       </el-select> 
                     </div>
@@ -160,9 +160,9 @@
                     <div class="filter-item">
                       检验结果：
                       <el-checkbox-group v-model="left.tabs[1].form.inspectionResult" style="display: inline-block;">
-                        <el-checkbox label="接受" true-label="10"></el-checkbox>
-                        <el-checkbox label="返工" true-label="20"></el-checkbox>
-                        <el-checkbox label="报废" true-label="50"></el-checkbox>
+                        <el-checkbox :label="10">接受</el-checkbox>
+                        <el-checkbox :label="20">返工</el-checkbox>
+                        <el-checkbox :label="50">报废</el-checkbox>
                       </el-checkbox-group>
                     </div>
                     <el-button type="primary" class="mgl40" @click="queryProcesses">搜 索</el-button>
@@ -229,7 +229,7 @@
               },
               form: {
                 name: '',
-                moulde: {},
+                module: {},
                 mouldNo: '',
                 componentNo: '',
                 processName: '',
@@ -254,7 +254,7 @@
               },
               form: {
                 name: '',
-                moulde: {},
+                module: {},
                 mouldNo: '',
                 componentNo: '',
                 processId: '',
@@ -272,9 +272,9 @@
 
         let params = {
           name: this.left.tabs[0].form.name,
-          inspectionDate_from: this.left.tabs[0].form.inspectionDate[0] || '',
-          inspectionDate_to: this.left.tabs[0].form.inspectionDate[1] || '',
-          mouldNo: this.left.tabs[0].form.moulde && this.left.tabs[0].form.moulde.mouldNo ? this.left.tabs[0].form.moulde.mouldNo : '',
+          inspectionDate_from: this.left.tabs[0].form.inspectionDate ? this.left.tabs[0].form.inspectionDate[0] : '',
+          inspectionDate_to: this.left.tabs[0].form.inspectionDate ? this.left.tabs[0].form.inspectionDate[1] : '',
+          mouldNo: this.left.tabs[0].form.module && this.left.tabs[0].form.module.mouldNo ? this.left.tabs[0].form.module.mouldNo : '',
           comonentNo: this.left.tabs[0].form.componentNo || '',
           processName: this.left.tabs[0].form.processName || '',//
           inspectionResult: this.left.tabs[0].form.inspectionResult || [],
@@ -292,12 +292,12 @@
 
         let params = {
           name: this.left.tabs[1].form.name,
-          inspectionDate_from: this.left.tabs[1].form.inspectionDate[0] || '',
-          inspectionDate_to: this.left.tabs[1].form.inspectionDate[1] || '',
-          mouldNo: this.left.tabs[1].form.moulde.mouldNo || '',
-          comonentNo: this.left.tabs[1].form.comonentNo,
+          inspectionDate_from: this.left.tabs[1].form.inspectionDate ? this.left.tabs[1].form.inspectionDate[0] : '',
+          inspectionDate_to: this.left.tabs[1].form.inspectionDate ? this.left.tabs[1].form.inspectionDate[1] : '',
+          mouldNo: this.left.tabs[1].form.module.mouldNo || '',
+          comonentNo: this.left.tabs[1].form.componentNo,
           processId: this.left.tabs[1].form.processId,
-          inspectionResult: '' //this.left.tabs[1].form.inspectionResult
+          inspectionResult: this.left.tabs[1].form.inspectionResult
         };
     
         this.isLoading = true;

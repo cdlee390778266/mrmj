@@ -243,7 +243,7 @@
           }else {
             callback();
           }
-        }, null, {number: value})
+        }, null, {number: value, name: this.name})
       };
 
       return {
@@ -328,7 +328,7 @@
           }
         }, () => this.left.isLoading = false, params);
       },
-      getDetail() {
+      getDetail(isGetUserList = true) {
 
         if(this.currentData.page1) return;
 
@@ -343,12 +343,13 @@
           this.$set(this.currentData, 'page1', [res.data] || [{}])
         }, () => this.right.isLoading = false, params)
 
-        this.getUserList();
+        isGetUserList && this.getUserList();
       },
       getUserList() { //获取加工人员列表
 
         let params = {
           type: 1,
+          name: this.name,
           productionPlanProcessId: this.currentData.productionPlanProcessId,
           sorting: this.currentData.sort ? '_MrUserIdleRecord.isIdle' : ''
         };
@@ -367,7 +368,12 @@
               }
             })
           }
-          this.$set(this.currentData, 'userList', res.data || [])
+
+          this.left.list.map(item => {
+
+            this.$set(item, 'userList', (res.data ? this.$utils.deepCopy(res.data) : []))
+          })
+      
         }, () => this.right.isLoading = false, params)        
       },
       showAddDialog() {
@@ -387,6 +393,7 @@
               this.handle.add.isLoading = false;
               this.handle.add.dialogVisible = false;
               this.$utils.showTip('success', 'success', '111');
+
               this.getUserList();
             }, () => this.handle.add.isLoading = false, this.handle.add.form)
           } else {
@@ -399,7 +406,7 @@
       
         this.left.activeId = index;
         this.currentData = item;
-        this.getDetail();
+        this.getDetail(false);
       },
       save() { //派工
 
