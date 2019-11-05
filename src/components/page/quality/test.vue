@@ -160,9 +160,9 @@
                     <div class="filter-item">
                       检验结果：
                       <el-checkbox-group v-model="left.tabs[1].form.inspectionResult" style="display: inline-block;">
-                        <el-checkbox label="接受" :value="10"></el-checkbox>
-                        <el-checkbox label="返工" :value="20"></el-checkbox>
-                        <el-checkbox label="报废" :value="50"></el-checkbox>
+                        <el-checkbox label="接受" true-label="10"></el-checkbox>
+                        <el-checkbox label="返工" true-label="20"></el-checkbox>
+                        <el-checkbox label="报废" true-label="50"></el-checkbox>
                       </el-checkbox-group>
                     </div>
                     <el-button type="primary" class="mgl40" @click="queryProcesses">搜 索</el-button>
@@ -274,10 +274,10 @@
           name: this.left.tabs[0].form.name,
           inspectionDate_from: this.left.tabs[0].form.inspectionDate[0] || '',
           inspectionDate_to: this.left.tabs[0].form.inspectionDate[1] || '',
-          mouldNo: this.left.tabs[0].form.moulde.mouldNo || '',
-          comonentNo: this.left.tabs[0].form.comonentNo,
-          processName: '',//this.left.tabs[0].form.processName
-          inspectionResult: '', //this.left.tabs[0].form.inspectionResult
+          mouldNo: this.left.tabs[0].form.moulde && this.left.tabs[0].form.moulde.mouldNo ? this.left.tabs[0].form.moulde.mouldNo : '',
+          comonentNo: this.left.tabs[0].form.componentNo || '',
+          processName: this.left.tabs[0].form.processName || '',//
+          inspectionResult: this.left.tabs[0].form.inspectionResult || [],
           sorting: '_MrCustomer.name'
         };
   
