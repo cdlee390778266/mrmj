@@ -69,7 +69,7 @@
                     <div class="filter-item">
                       <span>外协工序：</span> 
                       <el-select style="width: 100px;" v-model="left.tabs[0].form.processName">
-                        <el-option v-for="(item, index) in left.tabs[1].filter.processes" :key="index" :label="item.stuffNo" :value="item.stuffNo" @click=""></el-option>
+                        <el-option v-for="(item, index) in filter.outsourceProcess" :key="index" :label="item.name" :value="item.name" @click=""></el-option>
                       </el-select>
                     </div>
                     <div class="filter-item">
@@ -143,7 +143,7 @@
                     <div class="filter-item">
                       <span>加工工序：</span> 
                       <el-select style="width: 100px;" v-model="left.tabs[1].form.processId">
-                        <el-option v-for="(item, index) in left.tabs[1].filter.processes" :key="index" :label="item.stuffNo" :value="item.stuffNo" @click=""></el-option>
+                        <el-option v-for="(item, index) in filter.processes" :key="index" :label="item.name" :value="item.mrProcessId" @click=""></el-option>
                       </el-select>
                     </div>
                     <div class="filter-item">
@@ -209,6 +209,7 @@
       return {
         filter: {
           supplier: [],
+          outsourceProcess: [],
           processes: []
         },
         left: {
@@ -217,16 +218,6 @@
               key:  'page1',
               name: '采购到货检验',
               icon: require('../../../assets/img/icon11.svg'),
-              filter: {
-                processes: [
-                  {
-                    stuffNo: 'A'
-                  },
-                  {
-                    stuffNo: 'G'
-                  },
-                ]
-              },
               form: {
                 name: '',
                 module: {},
@@ -242,16 +233,6 @@
               key:  'page2',
               name: '工序完工检验',
               icon: require('../../../assets/img/icon12.svg'),
-              filter: {
-                processes: [
-                  {
-                    stuffNo: 'A'
-                  },
-                  {
-                    stuffNo: 'G'
-                  },
-                ]
-              },
               form: {
                 name: '',
                 module: {},
@@ -318,6 +299,9 @@
 
           this.filter.supplier = res.content || [];
         }); //获取供应商
+
+        this.getList(this.$utils.CONFIG.api.queryOutsourceProcess, this.filter, 'outsourceProcess'); //外协工序列表
+        this.getList(this.$utils.CONFIG.api.process, this.filter, 'processes', ); //工序名称列表
       },
       refresh() {}
     },

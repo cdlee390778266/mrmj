@@ -26,9 +26,10 @@ const CONFIG = {
 		image: baseUrl + 'fc/imgStreamOther', //图片接口
 		customer: baseUrl + 'requirement/customer/qc', //客户名称查询接口
 		qwm: baseUrl + 'requirement/saleOrder/qwm', //模具与零件号联动查询接口
-		maxWorkTime: baseUrl + 'requirement/threshold/qc', //生产--查询工序估工阈值
-		currency: baseUrl + 'requirement/currency/qwm', //生产--货币与汇率联动查询
-		checkMouldNo: baseUrl + 'requirement/saleOrder/checkMouldNo', //生产--销售订单的模具号验重
+		maxWorkTime: baseUrl + 'requirement/threshold/qc', //查询工序估工阈值
+		currency: baseUrl + 'requirement/currency/qwm', //货币与汇率联动查询
+		checkMouldNo: baseUrl + 'requirement/saleOrder/checkMouldNo', //销售订单的模具号验重
+		queryOutsourceProcess: baseUrl + 'requirement/purchaseOrder/queryOutsourceProcess', //外协工序列表
 		
 		login: baseUrl + 'authMR/login', //登录
 

@@ -291,6 +291,7 @@
             },
             rules: {
               number: [
+                { required: true, message: this.$utils.getTipText('error', '-1076')},
                 { validator: checkNumber, trigger: 'blur' }
               ],
               name: [
@@ -328,7 +329,7 @@
           }
         }, () => this.left.isLoading = false, params);
       },
-      getDetail(isGetUserList = true) {
+      getDetail() {
 
         if(this.currentData.page1) return;
 
@@ -343,7 +344,7 @@
           this.$set(this.currentData, 'page1', [res.data] || [{}])
         }, () => this.right.isLoading = false, params)
 
-        isGetUserList && this.getUserList();
+        this.getUserList();
       },
       getUserList() { //获取加工人员列表
 
@@ -369,11 +370,7 @@
             })
           }
 
-          this.left.list.map(item => {
-
-            this.$set(item, 'userList', (res.data ? this.$utils.deepCopy(res.data) : []))
-          })
-      
+          this.$set(this.currentData, 'userList', (res.data || []))
         }, () => this.right.isLoading = false, params)        
       },
       showAddDialog() {
@@ -394,7 +391,19 @@
               this.handle.add.dialogVisible = false;
               this.$utils.showTip('success', 'success', '111');
 
-              this.getUserList();
+              if(res.data && res.data.length) {
+
+                let processor = res.data[0];
+                  processor.chartData = {
+                  columns: ['a', 'b'],
+                  rows: []
+                }
+                
+                this.left.list.map(item => {
+
+                  item.userList && item.userList.push(this.$utils.deepCopy(processor));
+                })
+              }
             }, () => this.handle.add.isLoading = false, this.handle.add.form)
           } else {
             
@@ -471,7 +480,7 @@
           })
 
           let saturation = parseInt(percentage*100);
-          tooltip += `<p>已分配任务总时长：${people.processTotalTime.toFixed(1)} h</p>`;
+          tooltip += `<p>已分配任务总时长：${people.processTotalTime ? people.processTotalTime.toFixed(1) : '0'} h</p>`;
           tooltip += `<p>当前工序${this.name}计划派工时长：${totalTime.toFixed(1)} h</p>`;
           tooltip += `<p>总时长：${todayTotalTime.toFixed(1)} h</p>`;
           tooltip += `<p>工作饱和度：${saturation}%</p>`;
