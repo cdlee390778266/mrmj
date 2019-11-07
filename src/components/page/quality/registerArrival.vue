@@ -264,7 +264,7 @@ export default {
         if(item.purchaseOrderNo) {
           params.push({
             purchaseOrderNo: item.purchaseOrderNo,
-            supplierId: item.supplierId || '',
+            supplierName: item.supplierId || '',
             arrivalGoodsDate: item.arrivalGoodsDate || '',
             inspectionDate: item.inspectionDate || '',
             mouldNo: item.mouldNo || '',

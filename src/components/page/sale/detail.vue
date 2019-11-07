@@ -33,64 +33,54 @@
         <div class="mgt20 pdlr10">
           <p class="mgb10">需求附件：</p>
           <el-table
-            :data="tabs.calc.enclosureList"
+            :data="tabs.calc.attachments"
             border
             size="mini"
             style="width: 100%; max-width: 400px;"
           >
             <el-table-column type="index" label="序号"></el-table-column>
-            <el-table-column prop="name" label="附件名称"></el-table-column>
+            <el-table-column prop="fileName" label="附件名称"></el-table-column>
             <el-table-column label="操作">
               <template slot-scope="scope">
-                <a href>下载</a>
+                <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
               </template>
             </el-table-column>
           </el-table>
         </div>
         <div class="mgt20 pdlr10">
           <p class="mgb10">需求说明：</p>
-          <p>这里保存的是对客户需求的详细说明。Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc eget.</p>
+          <p>这里.</p>
         </div>
         <el-row class="mgt20 mgb20 pdlr10">
           <el-col :span="16">
             <el-breadcrumb separator="/">
               <el-breadcrumb-item class="lh32">
                 <i class="el-icon-lx-copy"></i> 报价计算
-                <span class="mgl10">总价（人民币）：13250.00</span>
-                <span class="mgl10">交易货币总价：13250.00</span>
+                <span class="mgl10">总价（人民币）：{{calc.data.offerTotalPrice | filterNull}}</span>
+                <span class="mgl10">交易货币总价：{{calc.data.totalPrice | filterNull}}</span>
               </el-breadcrumb-item>
             </el-breadcrumb>
           </el-col>
           <el-col :span="8">
             <span>加载历史报价：</span>
-            <el-select v-model="tabs.calc.form.history" style="width: 100px;" size="mini">
-              <el-option label="模具零件" value="0"></el-option>
-              <el-option label="整体模具" value="1"></el-option>
+            <el-select size="mini" style="width: 100px;" v-model="tabs.calc.data.offerRecord">
+              <el-option v-for="(item, index) in tabs.calc.filter.offerNo" :key="index" :label="item.offerNo" :value="item.offerNo"></el-option>
             </el-select>
           </el-col>
           <el-col :span="24" class="mgt10">
             <span class="mgl10">交易货币：</span>
-            <el-select size="mini" style="width: 100px;" v-model="tabs.calc.form.btype">
-              <el-option label="欧元" value="0"></el-option>
-              <el-option label="美元" value="1"></el-option>
-              <el-option label="日元" value="2"></el-option>
+            <el-select size="mini" style="width: 100px;" v-model="tabs.calc.data.currency" value-key="name"  @change="(currency) => tabs.calc.data.exchangeRateValue = ''">
+              <el-option v-for="(item, index) in $dict.currencyList" :key="item.name" :label="item.name" :value="item"></el-option>
             </el-select>
             <span class="mgl10">汇率：</span>
-            <el-select size="mini" style="width: 100px;" v-model="tabs.calc.form.erate">
-              <el-option label="7.0" value="0"></el-option>
-              <el-option label="6.5" value="1"></el-option>
-              <el-option label="6.2" value="2"></el-option>
+            <el-select size="mini" style="width: 100px;" v-model="tabs.calc.data.exchangeRateValue">
+              <template v-if="tabs.calc.data.currency">
+                <el-option v-for="(item, index) in tabs.calc.data.currency.currencyRates" :key="index" :label="item.value" :value="item.value"></el-option>
+              </template>
             </el-select>
             <span class="mgl10">管理费用上浮比例：</span>
-            <el-select
-              size="mini"
-              style="width: 100px;"
-              class="mgr40"
-              v-model="tabs.calc.form.goup"
-            >
-              <el-option label="5.0" value="0"></el-option>
-              <el-option label="5.1" value="1"></el-option>
-              <el-option label="5.2" value="2"></el-option>
+            <el-select size="mini" style="width: 100px;" v-model="tabs.calc.data.managementFeeFloatingRatio">
+              <el-option v-for="(item, index) in tabs.calc.filter.floatRatio" :key="index" :label="item.value" :value="item.value"></el-option>
             </el-select>
             <el-button type="primary">工序工时单价设置</el-button>
           </el-col>
@@ -263,39 +253,51 @@ export default {
     return {
       name: localStorage.getItem("ms_username"),
       activeTab: "calc",
+      offerNo: '',
       tabs: {
         calc: {
-          form: {
-            history: "0",
-            btype: "0",
-            erate: "0",
-            goup: "0"
+          filter: {
+            floatRatio: [],
+            offerRecord: []
           },
-          enclosureList: [
-            {
-              date: "2016-05-03",
-              name: "王小虎"
-            },
-            {
-              date: "2016-05-02",
-              name: "王小虎"
-            },
-            {
-              date: "2016-05-04",
-              name: "王小虎"
-            },
-            {
-              date: "2016-05-01",
-              name: "王小虎"
-            }
-          ]
+          data: {}
         },
         preview: {}
       }
     };
   },
-  created() {},
-  methods: {}
+  methods: {
+    getData() {
+         
+      this.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.queryOfferRecord, (res) =>  {
+
+        this.isLoading = false;
+        this.tabs.calc.data = res.data || {};
+      }, () => this.isLoading = false, {offerNo: this.offerNo})
+    },
+    save() {//报价
+
+      this.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.queryOfferRecord, (res) =>  {
+
+        this.isLoading = false;
+        this.tabs.calc.data = res.data || {};
+      }, () => this.isLoading = false, params)
+    },
+    getDropDownList() {
+
+      this.getList(this.$utils.CONFIG.api.queryOfferRecord, this.tabs.calc.filter, 'offerRecord'); //零件报价记录列表
+      this.getList(this.$utils.CONFIG.api.floatRatio, this.tabs.calc.filter, 'floatRatio'); //管理费用上浮比例列表
+    }
+  },
+  created() {
+
+    if(!this.$route.params.id) return;
+    this.offerNo = this.$route.params.id;
+
+
+  },
 };
 </script>
 

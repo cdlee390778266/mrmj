@@ -31,6 +31,7 @@ const CONFIG = {
 		checkMouldNo: baseUrl + 'requirement/saleOrder/checkMouldNo', //销售订单的模具号验重
 		queryOutsourceProcess: baseUrl + 'requirement/purchaseOrder/queryOutsourceProcess', //外协工序列表
 		
+		
 		login: baseUrl + 'authMR/login', //登录
 
 		/* 销售模块*/
@@ -41,7 +42,12 @@ const CONFIG = {
 		saveDemand: baseUrl + 'requirement/demand/saveDemand', //需求--需求终止
 		querySaleOrderInModify: baseUrl + 'requirement/req/querySaleOrderInModify', //需求--需求下单出销售订单查询
 		matchCodeType: baseUrl + 'requirement/demand/matchCodeType', //需求--终止类型联想匹配
-		
+		floatRatio: baseUrl + '/requirement/floatRatio/qc', //管理费用上浮比例列表
+		queryOffer: baseUrl + 'requirement/componentOfferRecord/queryOffer', //零件报价记录列表
+		queryOfferRecord: baseUrl + 'requirement/componentOfferRecord/queryOfferRecord', //零件报价记录详细信息
+		saveComponentOfferRecord: baseUrl + 'requirement/componentOfferRecord/saveComponentOfferRecord', //零件报价或保存为草稿
+		workProcedure: baseUrl + 'requirement/workProcedure/qc', //零件工序查询
+		saveWorkProcedure: baseUrl + 'requirement/workProcedure/saveWorkProcedure', //零件工序新增
 		
 		querySaleOrder: baseUrl + 'requirement/saleOrder/querySaleOrder', //销售订单开展--销售订单查询
 		saveSaleOrder: baseUrl + 'requirement/saleOrder/saveSaleOrder', //销售订单开展--新增销售订单或保存为草稿

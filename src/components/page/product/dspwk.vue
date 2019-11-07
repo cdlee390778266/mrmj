@@ -428,6 +428,7 @@
           item.userList && item.userList.map(itemc => {
 
             params.push({
+              productionPlanProcessId: item.productionPlanProcessId,
               mrAssignWorkMiddleId: itemc.mrAssignWorkMiddleId,
               isAssignWorkSelected: itemc.isAssignWorkSelected ? 1 : 0,
               quantity: itemc.quantity || 0

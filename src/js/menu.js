@@ -40,8 +40,10 @@ const MENU = {
 			{
 				name: '详情',
 				path: '/detail',
+				paramsPath: '/detail/:id',
 				icon: '',
-				isSubPage: true
+				isSubPage: true, //不生成标签
+				meta: '/detail' //标签唯一匹配字符串
 			},
 			{
 				name: '编辑客户投诉',
