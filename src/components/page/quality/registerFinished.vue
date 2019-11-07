@@ -21,20 +21,23 @@
                 <div>
                   <div @click="showInput(list, scope.$index, 'mouldNoEdit')">
                     <div class="ellipsis">{{ scope.row.mouldNo }}</div>
-                    <el-autocomplete
-                      class="inline-input"
-                      v-model="scope.row.mouldNo"
-                      :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, filter.orderList, 'mouldNo')"
-                      valueKey="mouldNo"
-                      value="mouldNo"
-                      placeholder="请输入内容"
+                    <el-select
+                      v-model="scope.row.selectMoud"
+                      placeholder="请选择"
+                      value-key="mouldNo"
+                      :style="{opacity: scope.row.mouldNoEdit ? 1 : 0}"
                       @focus="showInput(list, scope.$index, 'mouldNoEdit')"
                       @blur="scope.row.mouldNoEdit = false"
-                      @select="item => {
-                        $set(list, scope.$index, $utils.deepCopy(item));
-                      }"
-                      :style="{opacity: scope.row.mouldNoEdit ? 1 : 0}"
-                    ></el-autocomplete>
+                      @change="item => {
+                        $set(list, scope.$index,  item.mouldNo == '清空' ? {} : $utils.deepCopy(item));
+                      }">
+                      <el-option
+                        v-for="item in (filter.modulList || [])"
+                        :key="item.mouldNo"
+                        :label="item.mouldNo"
+                        :value="item">
+                      </el-option>
+                    </el-select>
                   </div>
                 </div>
               </template>
@@ -42,23 +45,27 @@
             <el-table-column label="零件号" width="120" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="showInput(list, scope.$index, 'componentNoEdit')">
-                    <div class="ellipsis">{{ scope.row.componentNo }}</div>
-                    <el-autocomplete
-                      class="inline-input"
-                      v-model="scope.row.componentNo"
-                      :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, (scope.row.components || []), 'componentNo')"
-                      valueKey="componentNo"
-                      value="componentNo"
-                      placeholder="请输入内容"
-                      @focus="showInput(list, scope.$index, 'componentNoEdit')"
-                      @blur="scope.row.componentNoEdit = false"
-                      @select="item => {
-                        $set(scope.row, 'processes', $utils.deepCopy(item.processes));
+                  <div @click="showInput(list, scope.$index, 'selectComponentNoEdit')">
+                    <div class="ellipsis">{{ scope.row.selectComponentNo }}</div>
+                    <el-select
+                      v-model="scope.row.selectComponent"
+                      placeholder="请选择"
+                      value-key="componentNo"
+                      :style="{opacity: scope.row.selectComponentNoEdit ? 1 : 0}"
+                      @focus="showInput(list, scope.$index, 'selectComponentNoEdit')"
+                      @blur="scope.row.selectComponentNoEdit = false"
+                      @change="item => {
+                        $set(scope.row, 'selectComponentNo', item.componentNo);
                         $set(scope.row, 'quantity', item.quantity);
-                      }"
-                      :style="{opacity: scope.row.componentNoEdit ? 1 : 0}"
-                    ></el-autocomplete>
+                        $set(scope.row, 'processes', $utils.deepCopy(item.processes));
+                      }">
+                      <el-option
+                        v-for="item in (scope.row.components || [])"
+                        :key="item.componentNo"
+                        :label="item.componentNo"
+                        :value="item">
+                      </el-option>
+                    </el-select>
                   </div>
                 </div>
               </template>
@@ -66,20 +73,26 @@
             <el-table-column label="工序"  width="120" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="showInput(list, scope.$index, 'processNameEdit')">
-                    <div class="ellipsis">{{ scope.row.processName }}</div>
-                    <el-autocomplete
-                      class="inline-input"
-                      v-model="scope.row.processName"
-                      :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, (scope.row.processes || []), 'name')"
-                      valueKey="name"
-                      value="name"
-                      placeholder="请输入内容"
-                      @focus="showInput(list, scope.$index, 'processNameEdit')"
-                      @blur="scope.row.processNameEdit = false"
-                      @select="item => scope.row.mrProductionPlanProcessId = item.mrProductionPlanProcessId"
-                      :style="{opacity: scope.row.processNameEdit ? 1 : 0}"
-                    ></el-autocomplete>
+                  <div @click="showInput(list, scope.$index, 'selectProcessNameEdit')">
+                    <div class="ellipsis">{{ scope.row.selectProcessName }}</div>
+                    <el-select
+                      v-model="scope.row.selectProcess"
+                      placeholder="请选择"
+                      value-key="processId"
+                      :style="{opacity: scope.row.selectProcessNameEdit ? 1 : 0}"
+                      @focus="showInput(list, scope.$index, 'selectProcessNameEdit')"
+                      @blur="scope.row.selectProcessNameEdit = false"
+                      @change="item => {
+                        $set(scope.row, 'selectProcessName', item.name);
+                        $set(scope.row, 'mrProductionPlanProcessId', item.mrProductionPlanProcessId);
+                      }">
+                      <el-option
+                        v-for="item in (scope.row.processes || [])"
+                        :key="item.processId"
+                        :label="item.name"
+                        :value="item">
+                      </el-option>
+                    </el-select>
                   </div>
                 </div>
               </template>
@@ -206,31 +219,55 @@ export default {
       this.$utils.getJson(this.$utils.CONFIG.api.queryNoJobBookingProcess, (res) =>  {
 
         this.isLoading = false;
-        this.filter.orderList = res.data || [];
+        let modulList = [{mouldNo: '清空'}];
+        modulList = modulList.concat(res.data || []);
+        this.filter.modulList = modulList;
       }, () => this.isLoading = false, {})
     },
     save() {
 
       let params = [];
 
-      this.list.map(item => {
+      for(let i = 0; i < this.list.length; i++) {
 
+        let item = this.list[i];
         if(item.mouldNo) {
+
+          if(!item.selectComponentNo) {
+            this.$utils.showTip('warning', '', '', `第${i + 1}条订单请选择零件号`);
+            return;
+          }
+
+          if(!item.selectProcessName) {
+            this.$utils.showTip('warning', '', '', `第${i + 1}条订单请选择工序`);
+            return;
+          }
+
+          if(!item.inspectionDateString) {
+            this.$utils.showTip('warning', '', '', `第${i + 1}条订单请选择检验日期`);
+            return;
+          }
+
+          if(!item.inspectionResultText) {
+            this.$utils.showTip('warning', '', '', `第${i + 1}条订单请选择检验结果`);
+            return;
+          }
+
           params.push({
-            inspectionDate: item.inspectionDate || '',
+            inspectionDate: item.inspectionDateString || '',
             mouldNo: item.mouldNo || '',
-            name: item.processName || '',
+            name: item.selectProcessName || '',
             productionPlanProcessId: item.mrProductionPlanProcessId || '',
             inspectionResultText: item.inspectionResultText || '',
             abnormalQuantity: item.abnormalQuantity || 0,
             abnormalOverview: item.abnormalOverview || '',
             components: [{
-              componentNo: item.componentNo || '',
-              quantity: item.quantity || ''
+              componentNo: item.selectComponentNo || '',
+              quantity: item.quantity || 0
             }]
           })
         }
-      })
+      }
     
       this.isLoading = true;
       this.$utils.getJson(this.$utils.CONFIG.api.saveProcessInspection, (res) =>  {

@@ -181,7 +181,7 @@
                       </template>
                     </el-table-column>
                     <el-table-column prop="processName" label="工序" sortable width="120" align="center" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="inspectionDateString" label="检验日期" width="120" align="center" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="inspectionDate" label="检验日期" width="120" align="center" show-overflow-tooltip></el-table-column>
                     <el-table-column label="数量" sortable min-width="120" align="center"  show-overflow-tooltip>
                       <template slot-scope="scope">
                         {{scope.row.components | concatString('quantity')}}

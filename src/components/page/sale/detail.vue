@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="isLoading">
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
@@ -25,15 +25,15 @@
           </el-breadcrumb>
         </div>
         <el-row class="pd10">
-          <el-col :span="12" class="pdb10">客户名称：XXXXXX公司</el-col>
-          <el-col :span="12" class="pdb10">客户PO.号：12312323123</el-col>
-          <el-col :span="12" class="pdb10">需求编号：REQ1901</el-col>
-          <el-col :span="12" class="pdb10">需求类型：整体模具</el-col>
+          <el-col :span="12" class="pdb10">客户名称：{{tabs.calc.requirement.name | filterNull}}</el-col>
+          <el-col :span="12" class="pdb10">客户PO.号：{{tabs.calc.requirement.customerPoNo | filterNull}}</el-col>
+          <el-col :span="12" class="pdb10">需求编号：{{tabs.calc.requirement.requirementNum | filterNull}}</el-col>
+          <el-col :span="12" class="pdb10">需求类型：{{tabs.calc.requirement.requirementTypeText | filterNull}}</el-col>
         </el-row>
         <div class="mgt20 pdlr10">
           <p class="mgb10">需求附件：</p>
           <el-table
-            :data="tabs.calc.attachments"
+            :data="tabs.calc.requirement.attachments"
             border
             size="mini"
             style="width: 100%; max-width: 400px;"
@@ -47,24 +47,24 @@
             </el-table-column>
           </el-table>
         </div>
-        <div class="mgt20 pdlr10">
+        <div class="mgt20 mgb10 pdlr10">
           <p class="mgb10">需求说明：</p>
-          <p>这里.</p>
+          <p>{{tabs.calc.requirement.remark | filterNull}}</p>
         </div>
         <el-row class="mgt20 mgb20 pdlr10">
           <el-col :span="16">
             <el-breadcrumb separator="/">
               <el-breadcrumb-item class="lh32">
                 <i class="el-icon-lx-copy"></i> 报价计算
-                <span class="mgl10">总价（人民币）：{{calc.data.offerTotalPrice | filterNull}}</span>
-                <span class="mgl10">交易货币总价：{{calc.data.totalPrice | filterNull}}</span>
+                <span class="mgl10">总价（人民币）：{{tabs.calc.data.offerTotalPrice | filterNull}}</span>
+                <span class="mgl10">交易货币总价：{{tabs.calc.data.totalPrice | filterNull}}</span>
               </el-breadcrumb-item>
             </el-breadcrumb>
           </el-col>
           <el-col :span="8">
             <span>加载历史报价：</span>
             <el-select size="mini" style="width: 100px;" v-model="tabs.calc.data.offerRecord">
-              <el-option v-for="(item, index) in tabs.calc.filter.offerNo" :key="index" :label="item.offerNo" :value="item.offerNo"></el-option>
+              <el-option v-for="(item, index) in tabs.calc.filter.requ" :key="index" :label="item.offerNo" :value="item.offerNo"></el-option>
             </el-select>
           </el-col>
           <el-col :span="24" class="mgt10">
@@ -248,18 +248,22 @@
 </template>
 
 <script>
+import leftMixin from '../../../js/left-mixin'
 export default {
+  mixins: [leftMixin],
   data() {
     return {
       name: localStorage.getItem("ms_username"),
       activeTab: "calc",
-      offerNo: '',
+      mrRequirementId: '',
+      isLoading: false,
       tabs: {
         calc: {
           filter: {
             floatRatio: [],
             offerRecord: []
           },
+          requirement: {},
           data: {}
         },
         preview: {}
@@ -267,14 +271,27 @@ export default {
     };
   },
   methods: {
-    getData() {
-         
+    getDetail() { //需求详情
+
+      let params = {
+        mrRequirementId: this.mrRequirementId
+      };
+    
+      this.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.queryRequirementDetail, (res) =>  {
+
+        this.isLoading = false;
+        this.tabs.calc.requirement = res.data || {};
+      }, () => this.isLoading = false, params)
+    },
+    getData() { //表格数据
+        
       this.isLoading = true;
       this.$utils.getJson(this.$utils.CONFIG.api.queryOfferRecord, (res) =>  {
 
         this.isLoading = false;
         this.tabs.calc.data = res.data || {};
-      }, () => this.isLoading = false, {offerNo: this.offerNo})
+      }, () => this.isLoading = false, {offerNo: this.mrRequirementId})
     },
     save() {//报价
 
@@ -287,16 +304,17 @@ export default {
     },
     getDropDownList() {
 
-      this.getList(this.$utils.CONFIG.api.queryOfferRecord, this.tabs.calc.filter, 'offerRecord'); //零件报价记录列表
+      this.getList(this.$utils.CONFIG.api.queryOffer, this.tabs.calc.filter, 'offerRecord', {mrRequirementId: this.mrRequirementId}); //零件报价记录列表
       this.getList(this.$utils.CONFIG.api.floatRatio, this.tabs.calc.filter, 'floatRatio'); //管理费用上浮比例列表
     }
   },
   created() {
 
     if(!this.$route.params.id) return;
-    this.offerNo = this.$route.params.id;
-
-
+    this.mrRequirementId = this.$route.params.id;
+    this.getDetail();
+    this.getData();
+    this.getDropDownList();
   },
 };
 </script>

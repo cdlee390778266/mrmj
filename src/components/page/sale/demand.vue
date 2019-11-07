@@ -39,7 +39,7 @@
               <el-col :span="24" class="tr">
                 <a href="javascript: void(0);" @click.stop="handle.update.type = 'edit';handle.update.dialogVisible = true; getDetail(item);">修改</a>
                 <a href="javascript: void(0);" @click.stop="showStopDialog(item)">终止</a>
-                <router-link :to="`/sale/detail/${item.offerNo}`">报价</router-link>
+                <router-link :to="`/sale/detail/${item.mrRequirementId}`">报价</router-link>
                 <a href="javascript: void(0);" @click.stop="handle.order.dialogVisible = true; getOrderDetail(item);">下单</a>
               </el-col>
             </el-row>

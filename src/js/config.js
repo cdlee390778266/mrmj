@@ -42,7 +42,7 @@ const CONFIG = {
 		saveDemand: baseUrl + 'requirement/demand/saveDemand', //需求--需求终止
 		querySaleOrderInModify: baseUrl + 'requirement/req/querySaleOrderInModify', //需求--需求下单出销售订单查询
 		matchCodeType: baseUrl + 'requirement/demand/matchCodeType', //需求--终止类型联想匹配
-		floatRatio: baseUrl + '/requirement/floatRatio/qc', //管理费用上浮比例列表
+		floatRatio: baseUrl + 'requirement/floatRatio/qc', //管理费用上浮比例列表
 		queryOffer: baseUrl + 'requirement/componentOfferRecord/queryOffer', //零件报价记录列表
 		queryOfferRecord: baseUrl + 'requirement/componentOfferRecord/queryOfferRecord', //零件报价记录详细信息
 		saveComponentOfferRecord: baseUrl + 'requirement/componentOfferRecord/saveComponentOfferRecord', //零件报价或保存为草稿
