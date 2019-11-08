@@ -28,7 +28,7 @@
             </div>
             <el-row>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="edit('edit', 'updateForm', item)">编辑</a>
+                <a href="javascript: void(0);" @click.stop="edit('edit', 'updateForm', item)">编辑</a>
               </el-col>
             </el-row>
           </div>
@@ -461,6 +461,7 @@
             this.handle.update.form.liaisonManList.forEach(item => {
               if(item.liaisonManName && item.gender && item.position && item.phone) {
                 params.liaisonMens.push({
+                  mrLiaisonManId: item.liaisonManId || '',
                   name: item.liaisonManName,
                   gender: item.gender,
                   position: item.position,
