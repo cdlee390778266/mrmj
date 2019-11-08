@@ -309,7 +309,7 @@
          this.workTimeDays = res.data && res.data.length && res.data[0].dayWorkTime ? res.data[0].dayWorkTime : 8;
         })
       },
-      getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
+      getLeftList() { //获取左侧列表数据
 
         let params = {
           name: this.name,
@@ -325,6 +325,11 @@
 
             this.currentData = this.left.list[0];
             this.left.activeId = 0;
+            this.left.list.map(item => {
+
+              this.$set(item, 'page1', null);
+              this.$set(item, 'userList', null);
+            })
             this.getDetail();
           }
         }, () => this.left.isLoading = false, params);
@@ -442,7 +447,7 @@
           this.$utils.showTip('success', 'success', '102');
           this.isLoading = false;
           this.setWorkTimeDays();
-          this.back();
+          this.getLeftList();
         }, () => this.isLoading = false, params)
       },
       setWorkTimeDays() { //设置日工时

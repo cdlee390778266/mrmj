@@ -259,18 +259,6 @@
             {
               codeName: '202',
               supplier: '202'
-            },
-            {
-              codeName: '203',
-              supplier: '203'
-            },
-            {
-              codeName: '204',
-              supplier: '204'
-            },
-            {
-              codeName: '205',
-              supplier: '205'
             }
           ],
         },
@@ -286,47 +274,17 @@
       };
     },
     methods: {
-      getLeftList() {
+      getLeftList(loadingKey = 'isLoading') {
 
         let params = {
-
-        };
-        let mock = [
-          {
-            id: 0,
-            a: 'ABCDEFG公司',
-            b: '23413.00 欧元',
-            c: '2',
-            d: '2019.03.31',
-          },
-          {
-            id: 1,
-            a: '测试测试测试测试测试测试1公司',
-            b: '23413.00 日元',
-            c: '1',
-            d: '2019.02.21',
-          },
-          {
-            id: 2,
-            a: 'General Electric Company',
-            b: '23413.00 美元',
-            c: '4',
-            d: '2019.04.02',
-          },
-        ]
-
-        this.left.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-          this.left.isLoading = false;
-          this.left.list = res.data || [];
-          if(this.left.list.length) {
-
-            this.currentData = this.left.list[0];
-            this.left.activeId = this.left.list[0].id;
-            this.getDetail();
-          }
-        }, () => this.left.isLoading = false, params, mock)
+          parameter: this.form.parameter,
+          type: this.filter.selectedValue,
+          pageNo: this.left.page.pageNo,
+          pageSize: this.left.page.pageSize,
+          sorting: `${this.filter.sort.sortField} ${this.filter.sort.sortType}`
+        }
+        
+        this.getData(this.$utils.CONFIG.api.queryReceivables, params, 'mrSaleOrderId', loadingKey, this.getDetail);
       },
       getDetail() {
 

@@ -82,150 +82,219 @@
             <el-select size="mini" style="width: 100px;" v-model="tabs.calc.data.managementFeeFloatingRatio">
               <el-option v-for="(item, index) in tabs.calc.filter.floatRatio" :key="index" :label="item.value" :value="item.value"></el-option>
             </el-select>
-            <el-button type="primary">工序工时单价设置</el-button>
+            <el-button type="primary" size="mini" class="mgl10">工序工时单价设置</el-button>
           </el-col>
           <el-col :span="24" class="mgb20">
-            <div
-              class="el-table el-table--fit el-table--border el-table--enable-row-hover el-table--enable-row-transition el-table--mini mgt10"
-            >
-              <table class="el-table__body" style="width: 100%">
-                <thead class="has-gutter">
-                  <tr class>
-                    <th>
-                      <div class="cell">Det No</div>
-                    </th>
-                    <th>
-                      <div class="cell">数量</div>
-                    </th>
-                    <th>
-                      <div class="cell">材料</div>
-                    </th>
-                    <th>
-                      <div class="cell">M</div>
-                    </th>
-                    <th>
-                      <div class="cell">EDB</div>
-                    </th>
-                    <th>
-                      <div class="cell">G</div>
-                    </th>
-                    <th>
-                      <div class="cell">CNCV</div>
-                    </th>
-                    <th>
-                      <div class="cell">CNCH</div>
-                    </th>
-                    <th>
-                      <div class="cell">EDM</div>
-                    </th>
-                    <th>
-                      <div class="cell">W/C</div>
-                    </th>
-                    <th>
-                      <div class="cell">BENCH</div>
-                    </th>
-                    <th>
-                      <div class="cell">编程</div>
-                    </th>
-                    <th>
-                      <div class="cell">电极设计</div>
-                    </th>
-                    <th>
-                      <div class="cell">设计</div>
-                    </th>
-                    <th>
-                      <div class="cell">QC</div>
-                    </th>
-                    <th>
-                      <div class="cell">Total</div>
-                    </th>
-                    <th>
-                      <div class="cell">订购</div>
-                    </th>
-                    <th>
-                      <div class="cell">铜材</div>
-                    </th>
-                    <th>
-                      <div class="cell">钢材</div>
-                    </th>
-                    <th>
-                      <div class="cell">合计人民币</div>
-                    </th>
-                    <th>
-                      <div class="cell">单价人民币</div>
-                    </th>
-                    <th>
-                      <div class="cell">单价</div>
-                    </th>
-                    <th>
-                      <div class="cell">最终价格</div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr class="el-table__row">
-                    <td>
-                      <div class="cell">
-                        <div>1</div>
+            <el-table
+              :data="tabs.calc.data.list"
+              size="mini"
+              style="width: 100%"
+              class="edit-table mgt10"
+              :highlight-current-row="true"
+              :row-class-name="setRowClass"
+              @row-click="handleSelect">
+              <el-table-column
+                label="出货日期"
+                width="120"
+                label-class-name="fc-el-table-head"
+                class-name="fc-red"
+                show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    <div @click="showInput(tabs.calc.data.list, scope.$index, 'currentSituationEdit', {}, false)">
+                      <div class="ecurrentSituationipsis">{{ scope.row.currentSituation }}</div>
+                      <el-input size="mini" v-model="scope.row.currentSituationInput" @focus="showInput(tabs.calc.data.list, scope.$index, 'currentSituationEdit', {}, false)" @blur="() => setCurrentSituation(scope.row)" :style="{opacity: scope.row.currentSituationEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="mouldNo"
+                label="模具号"
+                width="120"
+                show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    {{scope.row.mouldNo | filterNull(' ')}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="零件号码"
+                min-width="100"
+                align="center"
+                show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" >
+                    {{scope.row.components | concatString('componentNo')}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="数量"
+                min-width="100"
+                align="center"
+                show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" >
+                    {{scope.row.components | concatString('quantity')}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="versionNo"
+                label="版本"
+                width="100"
+                align="center"
+                show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    {{scope.row.versionNo | filterNull(' ')}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="整体外协"
+                width="100"
+                align="center"
+                show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    {{ 
+                      scope.row.buy == 1 ? '是' : (
+                         scope.row.buy == 0 ? '否' : ''
+                      )
+                    }}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="工艺时间" align="center" min-width="100">
+                <el-table-column
+                  v-for="(item, index) in allProcessOfIndex"
+                  :key="index"
+                  :label="item.name"
+                  align="center"
+                  min-width="70"
+                  label-class-name="fc-red"
+                  show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div
+                    :class="{
+                      'fc-red': scope.row[item.key] > maxWorkTime,
+                      'bg00b0f0 fcfff': scope.row.currentPlanProcessId == scope.row[item.key+'-id'],
+                      'bg-green fcfff': scope.row.nextPlanProcessId == scope.row[item.key+'-id'],
+                      'bgffff00': scope.row.workpieceLocationId == scope.row[item.key+'-id']}"
+                      v-if="scope.row[item.key] || scope.row[item.key] == 0"
+                      @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row, scope.row[item.key+'-id'], true)">
+                      {{scope.row[item.key]}}
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="Else"
+                  align="center"
+                  min-width="70"
+                  label-class-name="fc-blue"
+                  show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row, '', true)">
+                      <div @click="showInput(tableData, scope.$index, 'qcEdit')">
+                        <div class="ellipsis">
+                          {{scope.row.qc}}
+                        </div>
+                        <el-select
+                          v-model="scope.row.qcSelect"
+                          placeholder="请选择"
+                          :style="{opacity: scope.row.qcEdit ? 1 : 0}"
+                          @focus="showInput(tableData, scope.$index, 'qcEdit')"
+                          @change="() => setQc(scope.row)">
+                          <el-option label="请选择" value="">
+                          </el-option>
+                          <el-option label="QC" value="QC">
+                          </el-option>
+                        </el-select>
                       </div>
-                    </td>
-                    <td>
-                      <div class="cell">王小虎</div>
-                    </td>
-                    <td>
-                      <div class="cell">
-                        <a href>下载</a>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div
-              class="el-table el-table--fit el-table--border el-table--enable-row-hover el-table--enable-row-transition el-table--mini mgt10"
-            >
-              <table class="el-table__body" style="width: 100%">
-                <thead class="has-gutter">
-                  <tr class>
-                    <th>
-                      <div class="cell">长(MM)</div>
-                    </th>
-                    <th>
-                      <div class="cell">宽(MM)</div>
-                    </th>
-                    <th>
-                      <div class="cell">高(MM)</div>
-                    </th>
-                    <th>
-                      <div class="cell">重量(KG)</div>
-                    </th>
-                    <th>
-                      <div class="cell">材料</div>
-                    </th>
-                    <th>
-                      <div class="cell">运费</div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr class="el-table__row">
-                    <td>
-                      <div class="cell">
-                        <div>1</div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="cell">王小虎</div>
-                    </td>
-                    <td>
-                      <div class="cell">
-                        <a href>下载</a>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table-column>
+              <el-table-column
+                prop="requireCompletionDate"
+                label="要求交期"
+                min-width="100"
+                align="center"
+                label-class-name="fc-el-table-head"
+                class-name="fc-blue"
+                show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    {{scope.row.requireCompletionDate | filterNull(' ')}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="abbreviation"
+                label="客户"
+                min-width="100"
+                align="center"
+                class-name="fc-blue"
+                show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    {{scope.row.abbreviation | filterNull(' ')}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="surplus"
+                label="交期剩余(天)"
+                min-width="120"
+                align="center"
+                label-class-name="fc-el-table-head"
+                show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div :class="{fcfff: dateMinusBgColor(scope.row.surplus)}" :style="{background: dateMinusBgColor(scope.row.surplus)}"
+                    
+                  >
+                    {{scope.row.surplus}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="现状" class-name="fc800000" min-width="180" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    <div @click="showInput(tableData, scope.$index, 'currentSituationEdit', {}, false)">
+                      <div class="ecurrentSituationipsis">{{ scope.row.currentSituation }}</div>
+                      <el-input size="mini" v-model="scope.row.currentSituationInput" @focus="showInput(tableData, scope.$index, 'currentSituationEdit', {}, false)" @blur="() => setCurrentSituation(scope.row)" :style="{opacity: scope.row.currentSituationEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="电极"
+                min-width="100"
+                align="center"
+                label-class-name="fc-el-table-head"
+                class-name="fc-blue"
+                show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    {{scope.row.electrode | filterNull(' ')}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="residueWorkTime"
+                label="剩余工时"
+                min-width="100"
+                align="center"
+                label-class-name="fc-el-table-head"
+                show-overflow-tooltip>
+                <template scope="scope">
+                  <div :class="{'bgRed fcfff': scope.row.residueWorkTime > 200}" >{{scope.row.residueWorkTime | filterNull(' ')}}</div>
+                </template>
+              </el-table-column>
+            </el-table>
           </el-col>
         </el-row>
       </div>
@@ -264,7 +333,9 @@ export default {
             offerRecord: []
           },
           requirement: {},
-          data: {}
+          data: {
+            list: [{}]
+          }
         },
         preview: {}
       }

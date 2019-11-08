@@ -103,10 +103,10 @@
       </div>
     </div>
 
-    <el-dialog title="客户档案" center :visible.sync="handle.update.dialogVisible" width="700px" v-dialogDrag>
+    <el-dialog title="客户档案" center :visible.sync="handle.update.dialogVisible" width="800px">
       <el-form :model="handle.update.form" :rules="handle.update.rules" v-loading="handle.update.isLoading" label-width="100px" ref="updateForm">
         <div class="dflex">
-          <div class="flex">
+          <div class="flex pdr10">
             <el-form-item label="客户名称" prop="customerName">
               <el-input v-model="handle.update.form.customerName" auto-complete="off"></el-input>
             </el-form-item>
@@ -126,17 +126,17 @@
             </el-form-item>
             <el-row>
               <el-col :span="12">
-                <el-form-item label="传真">
+                <el-form-item label="传真" prop="fax">
                   <el-input v-model="handle.update.form.fax" auto-complete="off" aria-placeholder="请输入传真"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="电子邮件">
+                <el-form-item label="电子邮件" prop="email">
                   <el-input v-model="handle.update.form.email" auto-complete="off" aria-placeholder="请输入电子邮件"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item label="企业负责人">
+                <el-form-item label="企业负责人" prop="personInCharge">
                   <el-input v-model="handle.update.form.personInCharge" auto-complete="off" aria-placeholder="请输入企业负责人"></el-input>
                 </el-form-item>
               </el-col>
@@ -160,19 +160,17 @@
             </el-row>
           </div>
           <el-upload
-            list-type="picture-card"
-            class="v-upload pdl10"
+            class="avatar-uploader"
             name="files"
-            accept="jpg"
             ref="upload"
             :action="$utils.CONFIG.api.uploadFiles"
             :customerId="$utils.getStorage('userId')"
-            :multiple="false"
-            :limit="1"
-            :on-success="(res) => uploadSuccess(res)"
-            :on-error="() => uploadError()"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
           >
-            <i class="el-icon-plus"></i>
+            <img v-if="handle.update.form.userFace" :src="handle.update.form.userFace" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </div>
         <div>
@@ -293,6 +291,7 @@
             handleType: 'add',
             form: {
               fileId: '',
+              userFace: '',
               customerName: '',
               customerType: 10,
               abbreviation: '',
@@ -351,7 +350,7 @@
           limit: this.left.page.limit || 1000,
           sorting: '_MrCustomer.name'
         }
-        console.log(params)
+        
         if(this.form.text) params.name = this.form.text;
 
         this.getData(this.$utils.CONFIG.api.customerQcip, params, 'mrCustomerId', loadingKey);
@@ -366,7 +365,7 @@
       setFormData(item) {
 
         let liaisonManList = []
-        item.liaisonMens.forEach(data => {
+        item.liaisonMens && item.liaisonMens.forEach(data => {
 
           let liaisonMan = Object.assign({}, this.liaisonManDefault);
           liaisonMan.liaisonManId = data.mrLiaisonManId;
@@ -391,7 +390,9 @@
         }
 
         this.handle.update.form = {
-          customerId: item.id,
+          fileId: item.business && item.business.fileId ? item.business.fileId : '',
+          userFace: item.business && item.business.fileId ? `${this.$utils.CONFIG.api.image}?fileId=${item.business.fileId}` : '',
+          mrCustomerId: item.mrCustomerId || '',
           customerName: item.name,
           customerType: 10,
           abbreviation: item.abbreviation,
@@ -416,7 +417,7 @@
         this.resetUpload();
         this.resetForm(formName);
         this.handle.update.dialogVisible = true
-        if(this.handle.update.handleType == 'edit') this.setFormData(item);
+        this.setFormData(this.handle.update.handleType == 'edit' ? item : {})
       },
       
       showInput(list, index, key) {
@@ -424,7 +425,11 @@
         list[index][key] = true;
         if(list.length -1 == index) list.push(Object.assign({}, this.liaisonManDefault))
       },
-      
+      handleAvatarSuccess(res, file) { //上传头像
+        
+        this.handle.update.form.userFace = `${this.$utils.CONFIG.api.image}?fileId=${res.data[0].fileId}`;
+        this.handle.update.form.fileId = res.data[0].fileId;
+      },
       submitForm(formName) {
 
         this.$refs[formName].validate((valid) => {
@@ -432,13 +437,31 @@
 
             let url = this.handle.update.handleType == 'add' ? this.$utils.CONFIG.api.saveCustomer : this.$utils.CONFIG.api.modifyCustomerInfo;
             let params = Object.assign({}, this.handle.update.form);
-            params.valueScale = parseInt(params.valueScale);
-            params.personScale = parseInt(params.personScale);
-            params.liaisonManList = [];
+            params = {
+              fileId: this.handle.update.form.fileId,
+              mrCustomerId: this.handle.update.form.mrCustomerId || '',
+              name: this.handle.update.form.customerName,
+              abbreviation: this.handle.update.form.customerName,
+              customerType: 10,
+              countryId: this.handle.update.form.countryId,
+              currencyId: this.handle.update.form.currencyId,
+              accountPeriod: this.handle.update.form.accountPeriod,
+              address: this.handle.update.form.address,
+              industryNume: this.handle.update.form.industryNume,
+              phone: this.handle.update.form.phone,
+              industryNume: this.handle.update.form.industryNume,
+              fax: this.handle.update.form.fax,
+              email: this.handle.update.form.email,
+              personInCharge: this.handle.update.form.personInCharge,
+              valueScale: parseInt(this.handle.update.form.valueScale) || 0,
+              personScale: parseInt(this.handle.update.form.personScale) || '',
+              liaisonMens: []
+            }
+            params.liaisonMens = [];
             this.handle.update.form.liaisonManList.forEach(item => {
               if(item.liaisonManName && item.gender && item.position && item.phone) {
-                params.liaisonManList.push({
-                  liaisonManName: item.liaisonManName,
+                params.liaisonMens.push({
+                  name: item.liaisonManName,
                   gender: item.gender,
                   position: item.position,
                   phone: item.phone,
@@ -451,12 +474,8 @@
             this.handle.update.isLoading = true;
             this.$utils.getJson(url, (res) => {
 
-              if(this.handle.update.form.fileId) {
-                this.saveFile(res.data.id)
-              }else {
-                this.closeDialog();
-                this.search();
-              }
+              this.closeDialog();
+              this.search();
             }, () => this.handle.update.isLoading = false, params)
           } else {
             return false;

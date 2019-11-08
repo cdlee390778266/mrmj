@@ -56,6 +56,9 @@ const CONFIG = {
 		deleteSaleOrder: baseUrl + 'requirement/saleOrder/deleteSaleOrder', //销售订单开展--删除销售订单
 		pauseOrStopSaleOrder: baseUrl + 'requirement/saleOrder/pauseOrStopSaleOrder', //销售订单开展--暂停或终止销售订单
 		resetSaleOrder: baseUrl + 'requirement/saleOrder/resetSaleOrder', //销售订单开展--恢复已暂停的销售订单
+		queryReceivables: baseUrl + 'requirement/receipt/queryReceivables', //应收款--查询
+		querySaleOrderByCustomer: baseUrl + 'requirement/receipt/querySaleOrderByCustomer', //应收款--登记页面查询
+		saveReceivables: baseUrl + 'requirement/receipt/saveReceivables', //应收款--应收款登记
 		customerQueryCustomer: baseUrl + 'requirement/customer/queryCustomer', //客户档案--客户/供应商查询
 		saveCustomerHeadPortraits: baseUrl + 'requirement/customer/saveCustomerHeadPortraits', //客户档案--存储客户当前上传的头像
 		saveCustomer: baseUrl + 'requirement/customer/saveCustomer', //客户档案--客户/供应商信息录入

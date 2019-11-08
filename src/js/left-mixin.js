@@ -90,7 +90,7 @@ let leftMixin = {
 				}
 			},
 			form: {
-				text: '',
+				parameter: '',
 				type: ''
 			},
 			left: {
