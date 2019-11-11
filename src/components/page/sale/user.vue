@@ -441,7 +441,7 @@
               fileId: this.handle.update.form.fileId,
               mrCustomerId: this.handle.update.form.mrCustomerId || '',
               name: this.handle.update.form.customerName,
-              abbreviation: this.handle.update.form.customerName,
+              abbreviation: this.handle.update.form.abbreviation,
               customerType: 10,
               countryId: this.handle.update.form.countryId,
               currencyId: this.handle.update.form.currencyId,

@@ -44,6 +44,7 @@ const CONFIG = {
 		matchCodeType: baseUrl + 'requirement/demand/matchCodeType', //需求--终止类型联想匹配
 		floatRatio: baseUrl + 'requirement/floatRatio/qc', //管理费用上浮比例列表
 		queryOffer: baseUrl + 'requirement/componentOfferRecord/queryOffer', //零件报价记录列表
+		getOfferProcessListIndex: baseUrl + 'requirement/componentOfferRecord/getOfferProcessListIndex', //零件报价工序表头
 		queryOfferRecord: baseUrl + 'requirement/componentOfferRecord/queryOfferRecord', //零件报价记录详细信息
 		saveComponentOfferRecord: baseUrl + 'requirement/componentOfferRecord/saveComponentOfferRecord', //零件报价或保存为草稿
 		workProcedure: baseUrl + 'requirement/workProcedure/qc', //零件工序查询

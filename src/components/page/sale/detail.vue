@@ -30,7 +30,7 @@
           <el-col :span="12" class="pdb10">需求编号：{{tabs.calc.requirement.requirementNum | filterNull}}</el-col>
           <el-col :span="12" class="pdb10">需求类型：{{tabs.calc.requirement.requirementTypeText | filterNull}}</el-col>
         </el-row>
-        <div class="mgt20 pdlr10">
+        <div class="pdlr10">
           <p class="mgb10">需求附件：</p>
           <el-table
             :data="tabs.calc.requirement.attachments"
@@ -63,8 +63,8 @@
           </el-col>
           <el-col :span="8">
             <span>加载历史报价：</span>
-            <el-select size="mini" style="width: 100px;" v-model="tabs.calc.data.offerRecord">
-              <el-option v-for="(item, index) in tabs.calc.filter.requ" :key="index" :label="item.offerNo" :value="item.offerNo"></el-option>
+            <el-select size="mini" style="width: 100px;" v-model="tabs.calc.offerRecord" @change="getData">
+              <el-option v-for="(item, index) in tabs.calc.filter.offerRecord" :key="index" :label="item.offerNo" :value="item.offerNo"></el-option>
             </el-select>
           </el-col>
           <el-col :span="24" class="mgt10">
@@ -72,13 +72,13 @@
             <el-select size="mini" style="width: 100px;" v-model="tabs.calc.data.currency" value-key="name"  @change="(currency) => tabs.calc.data.exchangeRateValue = ''">
               <el-option v-for="(item, index) in $dict.currencyList" :key="item.name" :label="item.name" :value="item"></el-option>
             </el-select>
-            <span class="mgl10">汇率：</span>
+            <span class="mgl20">汇率：</span>
             <el-select size="mini" style="width: 100px;" v-model="tabs.calc.data.exchangeRateValue">
               <template v-if="tabs.calc.data.currency">
                 <el-option v-for="(item, index) in tabs.calc.data.currency.currencyRates" :key="index" :label="item.value" :value="item.value"></el-option>
               </template>
             </el-select>
-            <span class="mgl10">管理费用上浮比例：</span>
+            <span class="mgl20">管理费用上浮比例：</span>
             <el-select size="mini" style="width: 100px;" v-model="tabs.calc.data.managementFeeFloatingRatio">
               <el-option v-for="(item, index) in tabs.calc.filter.floatRatio" :key="index" :label="item.value" :value="item.value"></el-option>
             </el-select>
@@ -86,212 +86,191 @@
           </el-col>
           <el-col :span="24" class="mgb20">
             <el-table
-              :data="tabs.calc.data.list"
+              :data="tabs.calc.data.records"
+              border
               size="mini"
               style="width: 100%"
-              class="edit-table mgt10"
-              :highlight-current-row="true"
-              :row-class-name="setRowClass"
-              @row-click="handleSelect">
-              <el-table-column
-                label="出货日期"
-                width="120"
-                label-class-name="fc-el-table-head"
-                class-name="fc-red"
-                show-overflow-tooltip>
+              class="edit-table gray-head mgt10"
+              :highlight-current-row="true">
+              <el-table-column label="Det No." min-width="100" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
-                    <div @click="showInput(tabs.calc.data.list, scope.$index, 'currentSituationEdit', {}, false)">
-                      <div class="ecurrentSituationipsis">{{ scope.row.currentSituation }}</div>
-                      <el-input size="mini" v-model="scope.row.currentSituationInput" @focus="showInput(tabs.calc.data.list, scope.$index, 'currentSituationEdit', {}, false)" @blur="() => setCurrentSituation(scope.row)" :style="{opacity: scope.row.currentSituationEdit ? 1 : 0}"/>
+                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'detNoEdit')">
+                      <div class="ellipsis">{{ scope.row.detNo }}</div>
+                      <el-input size="mini" v-model="scope.row.detNo" @focus="showInput(tabs.calc.data.records, scope.$index, 'detNoEdit')" @blur="scope.row.detNoEdit = false;" :style="{opacity: scope.row.detNoEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="数量" width="80" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'amountEdit')">
+                      <div class="ellipsis">{{ scope.row.amount }}</div>
+                      <el-input size="mini" v-model="scope.row.amount" @focus="showInput(tabs.calc.data.records, scope.$index, 'amountEdit')" @blur="scope.row.amountEdit = false;" :style="{opacity: scope.row.amountEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="材料" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'stuffNoEdit')">
+                      <div class="ellipsis">{{ scope.row.stuffNo }}</div>
+                      <el-input size="mini" v-model="scope.row.stuffNo" @focus="showInput(tabs.calc.data.records, scope.$index, 'stuffNoEdit')" @blur="scope.row.stuffNoEdit = false;" :style="{opacity: scope.row.stuffNoEdit ? 1 : 0}"/>
                     </div>
                   </div>
                 </template>
               </el-table-column>
               <el-table-column
-                prop="mouldNo"
-                label="模具号"
-                width="120"
-                show-overflow-tooltip>
-                <template slot-scope="scope">
-                  <div >
-                    {{scope.row.mouldNo | filterNull(' ')}}
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="零件号码"
+                v-if="tabs.calc.allProcessOfIndex && tabs.calc.allProcessOfIndex.length"
+                v-for="(item, index) in tabs.calc.allProcessOfIndex"
+                :key="index"
+                :label="item.name"
+                align="center"
                 min-width="100"
-                align="center"
                 show-overflow-tooltip>
                 <template slot-scope="scope">
-                  <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" >
-                    {{scope.row.components | concatString('componentNo')}}
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="数量"
-                min-width="100"
-                align="center"
-                show-overflow-tooltip>
-                <template slot-scope="scope">
-                  <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" >
-                    {{scope.row.components | concatString('quantity')}}
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="versionNo"
-                label="版本"
-                width="100"
-                align="center"
-                show-overflow-tooltip>
-                <template slot-scope="scope">
-                  <div >
-                    {{scope.row.versionNo | filterNull(' ')}}
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="整体外协"
-                width="100"
-                align="center"
-                show-overflow-tooltip>
-                <template slot-scope="scope">
-                  <div >
-                    {{ 
-                      scope.row.buy == 1 ? '是' : (
-                         scope.row.buy == 0 ? '否' : ''
-                      )
-                    }}
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column label="工艺时间" align="center" min-width="100">
-                <el-table-column
-                  v-for="(item, index) in allProcessOfIndex"
-                  :key="index"
-                  :label="item.name"
-                  align="center"
-                  min-width="70"
-                  label-class-name="fc-red"
-                  show-overflow-tooltip>
-                  <template slot-scope="scope">
-                    <div
-                    :class="{
-                      'fc-red': scope.row[item.key] > maxWorkTime,
-                      'bg00b0f0 fcfff': scope.row.currentPlanProcessId == scope.row[item.key+'-id'],
-                      'bg-green fcfff': scope.row.nextPlanProcessId == scope.row[item.key+'-id'],
-                      'bgffff00': scope.row.workpieceLocationId == scope.row[item.key+'-id']}"
-                      v-if="scope.row[item.key] || scope.row[item.key] == 0"
-                      @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row, scope.row[item.key+'-id'], true)">
-                      {{scope.row[item.key]}}
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column
-                  label="Else"
-                  align="center"
-                  min-width="70"
-                  label-class-name="fc-blue"
-                  show-overflow-tooltip>
-                  <template slot-scope="scope">
-                    <div @contextmenu.prevent.stop="(e) => showRightMenu(e, scope.row, '', true)">
-                      <div @click="showInput(tableData, scope.$index, 'qcEdit')">
-                        <div class="ellipsis">
-                          {{scope.row.qc}}
-                        </div>
-                        <el-select
-                          v-model="scope.row.qcSelect"
-                          placeholder="请选择"
-                          :style="{opacity: scope.row.qcEdit ? 1 : 0}"
-                          @focus="showInput(tableData, scope.$index, 'qcEdit')"
-                          @change="() => setQc(scope.row)">
-                          <el-option label="请选择" value="">
-                          </el-option>
-                          <el-option label="QC" value="QC">
-                          </el-option>
-                        </el-select>
-                      </div>
-                    </div>
-                  </template>
-                </el-table-column>
-              </el-table-column>
-              <el-table-column
-                prop="requireCompletionDate"
-                label="要求交期"
-                min-width="100"
-                align="center"
-                label-class-name="fc-el-table-head"
-                class-name="fc-blue"
-                show-overflow-tooltip>
-                <template slot-scope="scope">
-                  <div >
-                    {{scope.row.requireCompletionDate | filterNull(' ')}}
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="abbreviation"
-                label="客户"
-                min-width="100"
-                align="center"
-                class-name="fc-blue"
-                show-overflow-tooltip>
-                <template slot-scope="scope">
-                  <div >
-                    {{scope.row.abbreviation | filterNull(' ')}}
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="surplus"
-                label="交期剩余(天)"
-                min-width="120"
-                align="center"
-                label-class-name="fc-el-table-head"
-                show-overflow-tooltip>
-                <template slot-scope="scope">
-                  <div :class="{fcfff: dateMinusBgColor(scope.row.surplus)}" :style="{background: dateMinusBgColor(scope.row.surplus)}"
-                    
-                  >
-                    {{scope.row.surplus}}
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column label="现状" class-name="fc800000" min-width="180" show-overflow-tooltip>
-                <template slot-scope="scope">
-                  <div >
-                    <div @click="showInput(tableData, scope.$index, 'currentSituationEdit', {}, false)">
-                      <div class="ecurrentSituationipsis">{{ scope.row.currentSituation }}</div>
-                      <el-input size="mini" v-model="scope.row.currentSituationInput" @focus="showInput(tableData, scope.$index, 'currentSituationEdit', {}, false)" @blur="() => setCurrentSituation(scope.row)" :style="{opacity: scope.row.currentSituationEdit ? 1 : 0}"/>
+                  <div>
+                    <div @click="showInput(tabs.calc.data.records, scope.$index, `${item.name}Edit`, 'processesObj')">
+                      <div class="ellipsis">{{ scope.row.processesObj[item.name] }}</div>
+                      <el-input size="mini" v-model="scope.row.processesObj[item.name]" @focus="showInput(tabs.calc.data.records, scope.$index, `${item.name}Edit`, 'processesObj')" @blur="$set(scope.row.processesObj, `${item.name}Edit`, false)" :style="{opacity: scope.row.processesObj[`${item.name}Edit`] ? 1 : 0}"/>
                     </div>
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column
-                label="电极"
-                min-width="100"
-                align="center"
-                label-class-name="fc-el-table-head"
-                class-name="fc-blue"
-                show-overflow-tooltip>
+              <el-table-column label="Total" width="100" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
-                    {{scope.row.electrode | filterNull(' ')}}
+                   {{totalTime(scope.row)}}
+                   {{scope.row.totalTime}}
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column
-                prop="residueWorkTime"
-                label="剩余工时"
-                min-width="100"
-                align="center"
-                label-class-name="fc-el-table-head"
-                show-overflow-tooltip>
-                <template scope="scope">
-                  <div :class="{'bgRed fcfff': scope.row.residueWorkTime > 200}" >{{scope.row.residueWorkTime | filterNull(' ')}}</div>
+              <el-table-column label="订购" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'orderPriceEdit')">
+                      <div class="ellipsis">{{ scope.row.orderPrice }}</div>
+                      <el-input size="mini" v-model="scope.row.orderPrice" @focus="showInput(tabs.calc.data.records, scope.$index, 'orderPriceEdit')" @blur="scope.row.orderPriceEdit = false;" :style="{opacity: scope.row.orderPriceEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="铜材" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'copperProductEdit')">
+                      <div class="ellipsis">{{ scope.row.copperProduct }}</div>
+                      <el-input size="mini" v-model="scope.row.copperProduct" @focus="showInput(tabs.calc.data.records, scope.$index, 'copperProductEdit')" @blur="scope.row.copperProductEdit = false;" :style="{opacity: scope.row.copperProductEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="钢材" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'steelProductEdit')">
+                      <div class="ellipsis">{{ scope.row.steelProduct }}</div>
+                      <el-input size="mini" v-model="scope.row.steelProduct" @focus="showInput(tabs.calc.data.records, scope.$index, 'steelProductEdit')" @blur="scope.row.steelProductEdit = false;" :style="{opacity: scope.row.steelProductEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="合计人民币" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    {{rmbTotal(scope.row)}}
+                    {{scope.row.rmbTotal}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="单价人民币" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    {{scope.row.rmbUnitPrice}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="单价" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    {{scope.row.unitPrice}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="最终价格" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    {{scope.row.lastTotalPrice}}
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="长" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'lengthEdit')">
+                      <div class="ellipsis">{{ scope.row.length }}</div>
+                      <el-input size="mini" v-model="scope.row.length" @focus="showInput(tabs.calc.data.records, scope.$index, 'lengthEdit')" @blur="scope.row.lengthEdit = false;" :style="{opacity: scope.row.lengthEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="宽" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'widthEdit')">
+                      <div class="ellipsis">{{ scope.row.width }}</div>
+                      <el-input size="mini" v-model="scope.row.width" @focus="showInput(tabs.calc.data.records, scope.$index, 'widthEdit')" @blur="scope.row.widthEdit = false;" :style="{opacity: scope.row.widthEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="高" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'heightEdit')">
+                      <div class="ellipsis">{{ scope.row.height }}</div>
+                      <el-input size="mini" v-model="scope.row.height" @focus="showInput(tabs.calc.data.records, scope.$index, 'heightEdit')" @blur="scope.row.heightEdit = false;" :style="{opacity: scope.row.heightEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="重量" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'weightEdit')">
+                      <div class="ellipsis">{{ scope.row.weight }}</div>
+                      <el-input size="mini" v-model="scope.row.weight" @focus="showInput(tabs.calc.data.records, scope.$index, 'weightEdit')" @blur="scope.row.widthEdit = false;" :style="{opacity: scope.row.weightEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="材料" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'stuffUnitPriceEdit')">
+                      <div class="ellipsis">{{ scope.row.stuffUnitPrice }}</div>
+                      <el-input size="mini" v-model="scope.row.stuffUnitPrice" @focus="showInput(tabs.calc.data.records, scope.$index, 'stuffUnitPriceEdit')" @blur="scope.row.stuffUnitPriceEdit = false;" :style="{opacity: scope.row.stuffUnitPriceEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="运费" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'freightUnitPriceEdit')">
+                      <div class="ellipsis">{{ scope.row.freightUnitPrice }}</div>
+                      <el-input size="mini" v-model="scope.row.freightUnitPrice" @focus="showInput(tabs.calc.data.records, scope.$index, 'freightUnitPriceEdit')" @blur="scope.row.freightUnitPriceEdit = false;" :style="{opacity: scope.row.freightUnitPriceEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="总重量" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div >
+                    {{scope.row.totalWeight}}
+                  </div>
                 </template>
               </el-table-column>
             </el-table>
@@ -333,8 +312,15 @@ export default {
             offerRecord: []
           },
           requirement: {},
+          offerRecord: '',
+          allProcessOfIndex: [],
+          processesObj: {},
           data: {
-            list: [{}]
+            currency: {},
+            exchangeRateValue: '',
+            records: [{
+              processesObj: {}
+            }]
           }
         },
         preview: {}
@@ -355,14 +341,73 @@ export default {
         this.tabs.calc.requirement = res.data || {};
       }, () => this.isLoading = false, params)
     },
-    getData() { //表格数据
+    getOfferProcessListIndex() { //获取表头
+
+      let params = {
+        mrRequirementId: this.mrRequirementId
+      };
+    
+      this.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.getOfferProcessListIndex, (res) =>  {
+
+        this.isLoading = false;
+        let allProcessOfIndex = [];
+        let processesObj = {};
+        if(res.data && res.data.length) {
+
+          allProcessOfIndex = res.data.filter(item => item.max > 0) || []
+          allProcessOfIndex.map(item => {
+
+            processesObj[item.name] = '';
+          })
+        }
+        this.tabs.calc.allProcessOfIndex = allProcessOfIndex;
+        this.tabs.calc.processesObj = processesObj;
+        this.tabs.calc.data.records[0].processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj);
+      }, () => this.isLoading = false, params)
+    },
+    getData(offerNo) { //表格数据
         
       this.isLoading = true;
       this.$utils.getJson(this.$utils.CONFIG.api.queryOfferRecord, (res) =>  {
 
         this.isLoading = false;
-        this.tabs.calc.data = res.data || {};
-      }, () => this.isLoading = false, {offerNo: this.mrRequirementId})
+        let data = {
+          currency: {},
+          exchangeRateValue: '',
+          records: [{}]
+        };
+        if(res.data) {
+
+          data = res.data;
+          if(data.records && data.records.length) {
+            data.records.map(item => {
+
+              item.processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj);
+              item.processes && item.processes.length && item.processes.map(itemc => {
+
+                item.processesObj[itemc.name] = itemc.workTime || 0;
+              })
+            })
+          }else {
+
+            data.records = [{}]
+          }
+        }
+        this.tabs.calc.data = data;
+      }, () => this.isLoading = false, {offerNo: offerNo})
+    },
+    showInput(list, index, key, keyParent, isAdd = true) {
+        
+        if(keyParent) {
+          this.$set(list[index][keyParent], key, true);
+        }else {
+          this.$set(list[index], key, true);
+        }
+
+        if(list.length -1 == index && isAdd) list.push({
+          processesObj: this.$utils.deepCopy(this.tabs.calc.processesObj)
+        })
     },
     save() {//报价
 
@@ -379,12 +424,36 @@ export default {
       this.getList(this.$utils.CONFIG.api.floatRatio, this.tabs.calc.filter, 'floatRatio'); //管理费用上浮比例列表
     }
   },
+  computed: {
+    totalTime() { //总工时
+
+      return function(row) {
+
+        let sum = 0;
+        for(let key in row.processesObj) {
+          sum += (row.processesObj[key] || 0);
+        }
+        sum = sum.toFixed(1);
+        row.totalTime = sum || '';
+      }
+    },
+    rmbTotal() {
+
+      return (row) => {
+
+        let rmbTotal = 0;
+        rmbTotal = (row.weight || 0) * ((row.stuffUnitPrice || 0) + (row.freightUnitPrice || 0)) //重量*(材料 + 运费)
+        rmbTotal = rmbTotal.toFixed(1);
+        return rmbTotal || ''
+      }
+    }
+  },
   created() {
 
     if(!this.$route.params.id) return;
     this.mrRequirementId = this.$route.params.id;
     this.getDetail();
-    this.getData();
+    this.getOfferProcessListIndex();
     this.getDropDownList();
   },
 };
