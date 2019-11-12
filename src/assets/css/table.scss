@@ -61,6 +61,13 @@
   &.gray-head th{
     background: #f5f7fa;
   }
+  .column-notEdit {
+    color: #333;
+    background-color: #e4dfec !important;
+  }
+  th.column-notEdit {
+    background-color: #c4bd97 !important;
+  }
 }
 .edit {
   position: relative;
@@ -93,4 +100,7 @@
 }
 .table-wrapper .el-scrollbar__wrap {
   overflow-x: hidden;
+}
+.tc input {
+  text-align: center !important;
 }

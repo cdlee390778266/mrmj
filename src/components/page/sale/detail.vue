@@ -82,7 +82,7 @@
             <el-select size="mini" style="width: 100px;" v-model="tabs.calc.data.managementFeeFloatingRatio">
               <el-option v-for="(item, index) in tabs.calc.filter.floatRatio" :key="index" :label="item.value" :value="item.value"></el-option>
             </el-select>
-            <el-button type="primary" size="mini" class="mgl10">工序工时单价设置</el-button>
+            <el-button type="primary" size="mini" class="mgl10" @click="handle.setting.dialogVisible = true">工序工时单价设置</el-button>
           </el-col>
           <el-col :span="24" class="mgb20">
             <el-table
@@ -139,7 +139,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="Total" width="100" show-overflow-tooltip>
+              <el-table-column label="Total" class-name="column-notEdit" width="100" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                    {{totalTime(scope.row)}}
@@ -167,17 +167,15 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="钢材" width="100" show-overflow-tooltip>
+              <el-table-column label="钢材" class-name="column-notEdit" width="100" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
-                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'steelProductEdit')">
-                      <div class="ellipsis">{{ scope.row.steelProduct }}</div>
-                      <el-input size="mini" v-model="scope.row.steelProduct" @focus="showInput(tabs.calc.data.records, scope.$index, 'steelProductEdit')" @blur="scope.row.steelProductEdit = false;" :style="{opacity: scope.row.steelProductEdit ? 1 : 0}"/>
-                    </div>
+                    {{steelProduct(scope.row)}}
+                    {{scope.row.steelProduct}}
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="合计人民币" width="100" show-overflow-tooltip>
+              <el-table-column label="合计人民币" class-name="column-notEdit"  width="100" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     {{rmbTotal(scope.row)}}
@@ -185,23 +183,26 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="单价人民币" width="100" show-overflow-tooltip>
+              <el-table-column label="单价人民币" class-name="column-notEdit" width="100" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
+                    {{rmbUnitPrice(scope.row)}}
                     {{scope.row.rmbUnitPrice}}
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="单价" width="100" show-overflow-tooltip>
+              <el-table-column label="单价" class-name="column-notEdit" width="100" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
+                    {{unitPrice(scope.row)}}
                     {{scope.row.unitPrice}}
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="最终价格" width="100" show-overflow-tooltip>
+              <el-table-column label="最终价格" class-name="column-notEdit" width="100" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
+                    {{lastTotalPrice(scope.row)}}
                     {{scope.row.lastTotalPrice}}
                   </div>
                 </template>
@@ -236,13 +237,11 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="重量" width="100" show-overflow-tooltip>
+              <el-table-column label="重量" class-name="column-notEdit" width="100" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
-                    <div @click="showInput(tabs.calc.data.records, scope.$index, 'weightEdit')">
-                      <div class="ellipsis">{{ scope.row.weight }}</div>
-                      <el-input size="mini" v-model="scope.row.weight" @focus="showInput(tabs.calc.data.records, scope.$index, 'weightEdit')" @blur="scope.row.widthEdit = false;" :style="{opacity: scope.row.weightEdit ? 1 : 0}"/>
-                    </div>
+                    {{weight(scope.row)}}
+                    {{scope.row.weight}}
                   </div>
                 </template>
               </el-table-column>
@@ -266,9 +265,10 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="总重量" width="100" show-overflow-tooltip>
+              <el-table-column label="总重量" class-name="column-notEdit" width="100" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
+                    {{totalWeight(scope.row)}}
                     {{scope.row.totalWeight}}
                   </div>
                 </template>
@@ -292,6 +292,61 @@
       <el-button type="primary">保存草稿</el-button>
       <el-button type="primary">返 回</el-button>
     </div>
+
+    <el-dialog title="工序及对应工时单价设置" :visible.sync="handle.setting.dialogVisible">
+      <div v-loading="handle.setting.isLoading">
+        <p>设置报价表工序列及对应工时单价</p>
+        <el-table
+          :data="handle.setting.workProcedure"
+          border
+          size="mini"
+          max-height="300px"
+          class="edit-table gray-head mgt5"
+          style="width: 100%">
+          <el-table-column
+            label="工序名称"
+            min-width="120"
+            align="center"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                <div @click="showWorkProcedureInput(handle.setting.workProcedure, scope.$index, 'workProcedureNameEdit')">
+                  <div class="ellipsis">{{ scope.row.workProcedureName }}</div>
+                  <el-input size="mini" class="tc" v-model="scope.row.workProcedureName" @focus="showWorkProcedureInput(handle.setting.workProcedure, scope.$index, 'workProcedureNameEdit')" @blur="scope.row.workProcedureNameEdit = false;" :style="{opacity: scope.row.workProcedureNameEdit ? 1 : 0}"/>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="工时单价(RMB元)"
+            min-width="120"
+            align="center"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div >
+                <div @click="showWorkProcedureInput(handle.setting.workProcedure, scope.$index, 'workProcedurePriceEdit')">
+                  <div class="ellipsis">{{ scope.row.workProcedurePrice }}</div>
+                  <el-input size="mini" class="tc" v-model="scope.row.workProcedurePrice" @focus="showWorkProcedureInput(handle.setting.workProcedure, scope.$index, 'workProcedurePriceEdit')" @blur="scope.row.workProcedurePriceEdit = false;" :style="{opacity: scope.row.workProcedurePriceEdit ? 1 : 0}"/>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="操作"
+            width="100"
+            align="center"
+            show-overflow-tooltip>
+            <template slot-scope="scope">
+              <el-button type="text" @click="deleteWorkProcedure(scope.row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div slot="footer" class="dialog-footer mgt20 tr">
+          <el-button type="primary" @click="setProcessInfo">确 定</el-button>
+          <el-button @click="handle.setting.dialogVisible = false">关 闭</el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -305,6 +360,8 @@ export default {
       activeTab: "calc",
       mrRequirementId: '',
       isLoading: false,
+      workProcedure: [],
+      workProcedurePrice: {},
       tabs: {
         calc: {
           filter: {
@@ -315,6 +372,7 @@ export default {
           offerRecord: '',
           allProcessOfIndex: [],
           processesObj: {},
+          processesPriceObj: {},
           data: {
             currency: {},
             exchangeRateValue: '',
@@ -324,6 +382,13 @@ export default {
           }
         },
         preview: {}
+      },
+      handle: {
+        setting: {
+          dialogVisible: false,
+          isLoading: false,
+          workProcedure: []
+        }
       }
     };
   },
@@ -355,7 +420,7 @@ export default {
         let processesObj = {};
         if(res.data && res.data.length) {
 
-          allProcessOfIndex = res.data.filter(item => item.max > 0) || []
+          allProcessOfIndex = res.data || [];
           allProcessOfIndex.map(item => {
 
             processesObj[item.name] = '';
@@ -409,6 +474,13 @@ export default {
           processesObj: this.$utils.deepCopy(this.tabs.calc.processesObj)
         })
     },
+    showWorkProcedureInput(list, index, key) {
+        
+      this.$set(list[index], key, true);
+      if(list.length -1 == index) list.push({
+        id: new Date().getTime()
+      })
+    },
     save() {//报价
 
       this.isLoading = true;
@@ -422,7 +494,37 @@ export default {
 
       this.getList(this.$utils.CONFIG.api.queryOffer, this.tabs.calc.filter, 'offerRecord', {mrRequirementId: this.mrRequirementId}); //零件报价记录列表
       this.getList(this.$utils.CONFIG.api.floatRatio, this.tabs.calc.filter, 'floatRatio'); //管理费用上浮比例列表
-    }
+    },
+    getWorkProcedure() { //零件工序查询
+
+      this.getList(this.$utils.CONFIG.api.workProcedure, this, 'workProcedure', {}, (res) => {
+
+        this.workProcedure && this.workProcedure.map(item => this.workProcedurePrice[item.workProcedureName] = item.workProcedurePrice || 0) //工序价格对象赋值
+
+        this.handle.setting.workProcedure = this.$utils.deepCopy(res) || [{}]; //工序赋值弹框数据
+      });
+    },
+    deleteWorkProcedure(row) { //删除零件工序
+      
+      this.handle.setting.workProcedure = this.handle.setting.workProcedure.filter(item => (item.mrComponentWorkProcedureId != row.mrComponentWorkProcedureId || (item.id && item.id != row.id)))
+    },
+    setProcessInfo() { //新增零件工序
+
+      let params = [];
+      this.handle.setting.workProcedure.map(item => params.push({
+        componentWorkProcedureId: item.mrComponentWorkProcedureId || '',
+        name: item.workProcedureName || '',
+        price: item.workProcedurePrice || '',
+        requirementId: this.mrRequirementId || ''
+      }))
+    
+      this.handle.setting.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.setProcessInfo, (res) =>  {
+
+        this.handle.setting.isLoading = false;
+        this.tabs.calc.requirement = res.data || {};
+      }, () => this.handle.setting.isLoading = false, params)
+    },
   },
   computed: {
     totalTime() { //总工时
@@ -431,30 +533,106 @@ export default {
 
         let sum = 0;
         for(let key in row.processesObj) {
-          sum += (row.processesObj[key] || 0);
+          sum += (parseFloat(row.processesObj[key]) || 0);
         }
         sum = sum.toFixed(1);
-        row.totalTime = sum || '';
+        row.totalTime = sum;
       }
     },
-    rmbTotal() {
+    steelProduct() { //钢材
+
+      return (row) => {
+
+        let steelProduct = 0;
+        steelProduct = (parseFloat(row.weight) || 0) * ((parseFloat(row.stuffUnitPrice) || 0) + (parseFloat(row.freightUnitPrice) || 0)) //重量*(材料 + 运费)
+        steelProduct = steelProduct.toFixed(1);
+        row.steelProduct = steelProduct || '';
+      }
+    },
+    rmbTotal() { //合计人民币
 
       return (row) => {
 
         let rmbTotal = 0;
-        rmbTotal = (row.weight || 0) * ((row.stuffUnitPrice || 0) + (row.freightUnitPrice || 0)) //重量*(材料 + 运费)
-        rmbTotal = rmbTotal.toFixed(1);
-        return rmbTotal || ''
+       
+        for(let key in row.processesObj) {
+
+          rmbTotal += (parseFloat(row.processesObj[key]) || 0) * (parseFloat(this.workProcedurePrice[key]) || 0);
+        }
+        rmbTotal += ((parseFloat(row.orderPrice) || 0) + (parseFloat(row.copperProduct) || 0) + (parseFloat(row.steelProduct) || 0)) * (parseFloat(row.amount) || 0)
+
+        row.rmbTotal = rmbTotal.toFixed(1) || ''
       }
-    }
+    },
+    rmbUnitPrice() { //单价人民币
+
+      return (row) => {
+
+        let rmbUnitPrice = 0;
+       
+        if(row.rmbTotal && parseFloat(row.rmbTotal) > 0 && row.amount && parseFloat(row.amount) > 0) {
+          rmbUnitPrice = parseFloat(row.rmbTotal) / parseFloat(row.amount);
+        }
+
+        row.rmbUnitPrice = rmbUnitPrice.toFixed(1) || ''
+      }
+    },
+    unitPrice() { //单价
+
+      return (row) => {
+
+        let unitPrice = 0;
+       
+        if(row.rmbUnitPrice && parseFloat(row.rmbUnitPrice) > 0 && this.tabs.calc.data.exchangeRateValue && parseFloat(this.tabs.calc.data.exchangeRateValue) > 0) {
+
+          unitPrice = parseFloat(row.rmbUnitPrice) / parseFloat(this.tabs.calc.data.exchangeRateValue);
+        }
+
+        row.unitPrice = unitPrice.toFixed(1) || ''
+      }
+    },
+    lastTotalPrice() { //最终价格
+
+      return (row) => {
+
+        let lastTotalPrice = 0;
+        
+        lastTotalPrice = parseFloat(row.unitPrice) + row.unitPrice*(parseFloat(this.tabs.calc.data.managementFeeFloatingRatio) || 0);
+   
+        row.lastTotalPrice = lastTotalPrice.toFixed(1) || ''
+      }
+    },
+    weight() { //重量
+
+      return (row) => {
+
+        let weight = 0;
+
+        weight = (parseFloat(row.width) || 0) * (parseFloat(row.width) || 0) * (parseFloat(row.height) || 0) * 7.9 / 1000000;
+        
+        row.weight = weight.toFixed(1) || ''
+      }
+    },
+    totalWeight() { //总重量
+
+      return (row) => {
+
+        let totalWeight = 0;
+
+        totalWeight = (parseFloat(row.weight) || 0) * (parseFloat(row.amount) || 0);
+        
+        row.totalWeight = totalWeight.toFixed(1) || ''
+      }
+    },
   },
   created() {
 
     if(!this.$route.params.id) return;
     this.mrRequirementId = this.$route.params.id;
-    this.getDetail();
-    this.getOfferProcessListIndex();
-    this.getDropDownList();
+    this.getDetail(); //需求详情
+    this.getOfferProcessListIndex(); //工序列表
+    this.getDropDownList(); //下拉列表
+    this.getWorkProcedure(); //零件工序列表
   },
 };
 </script>

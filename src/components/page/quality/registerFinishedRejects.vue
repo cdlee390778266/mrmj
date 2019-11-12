@@ -126,7 +126,7 @@ export default {
         mouldNo: '',  
         comonentNo: '',
         processName: '',
-        inspectionResult: ''
+        inspectionResult: []
       };
 
       this.isLoading = true;

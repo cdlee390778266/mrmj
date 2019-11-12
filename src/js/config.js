@@ -49,6 +49,7 @@ const CONFIG = {
 		saveComponentOfferRecord: baseUrl + 'requirement/componentOfferRecord/saveComponentOfferRecord', //零件报价或保存为草稿
 		workProcedure: baseUrl + 'requirement/workProcedure/qc', //零件工序查询
 		saveWorkProcedure: baseUrl + 'requirement/workProcedure/saveWorkProcedure', //零件工序新增
+		setProcessInfo: baseUrl + 'requirement/componentOfferRecord/setProcessInfo', //工序设置
 		
 		querySaleOrder: baseUrl + 'requirement/saleOrder/querySaleOrder', //销售订单开展--销售订单查询
 		saveSaleOrder: baseUrl + 'requirement/saleOrder/saveSaleOrder', //销售订单开展--新增销售订单或保存为草稿

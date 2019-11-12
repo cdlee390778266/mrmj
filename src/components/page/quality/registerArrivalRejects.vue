@@ -130,7 +130,7 @@ export default {
         inspectionDate_from: '',
         inspectionDate_to: '',
         processName: '',
-        inspectionResult: ''
+        inspectionResult: []
       };
     
       this.isLoading = true;
