@@ -56,8 +56,8 @@
             <el-breadcrumb separator="/">
               <el-breadcrumb-item class="lh32">
                 <i class="el-icon-lx-copy"></i> 报价计算
-                <span class="mgl10">总价（人民币）：{{tabs.calc.data.offerTotalPrice | filterNull}}</span>
-                <span class="mgl10">交易货币总价：{{tabs.calc.data.totalPrice | filterNull}}</span>
+                <span class="mgl20">总价（人民币）：{{offerTotalPrice}}{{tabs.calc.data.offerTotalPrice}}</span>
+                <span class="mgl20">交易货币总价：{{totalPrice}}{{tabs.calc.data.totalPrice}}</span>
               </el-breadcrumb-item>
             </el-breadcrumb>
           </el-col>
@@ -92,7 +92,7 @@
               style="width: 100%"
               class="edit-table gray-head mgt10"
               :highlight-current-row="true">
-              <el-table-column label="Det No." min-width="100" show-overflow-tooltip>
+              <el-table-column label="Det No." min-width="100"  show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     <div @click="showInput(tabs.calc.data.records, scope.$index, 'detNoEdit')">
@@ -102,7 +102,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="数量" width="80" show-overflow-tooltip>
+              <el-table-column label="数量" width="80" align="center"  show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     <div @click="showInput(tabs.calc.data.records, scope.$index, 'amountEdit')">
@@ -112,7 +112,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="材料" width="100" show-overflow-tooltip>
+              <el-table-column label="材料" width="100" align="center"  show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     <div @click="showInput(tabs.calc.data.records, scope.$index, 'stuffNoEdit')">
@@ -139,7 +139,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="Total" class-name="column-notEdit" width="100" show-overflow-tooltip>
+              <el-table-column label="Total" class-name="column-notEdit" width="100" align="center" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                    {{totalTime(scope.row)}}
@@ -147,7 +147,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="订购" width="100" show-overflow-tooltip>
+              <el-table-column label="订购" width="100" align="center" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     <div @click="showInput(tabs.calc.data.records, scope.$index, 'orderPriceEdit')">
@@ -157,7 +157,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="铜材" width="100" show-overflow-tooltip>
+              <el-table-column label="铜材" width="100" align="center"  show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     <div @click="showInput(tabs.calc.data.records, scope.$index, 'copperProductEdit')">
@@ -167,7 +167,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="钢材" class-name="column-notEdit" width="100" show-overflow-tooltip>
+              <el-table-column label="钢材" class-name="column-notEdit" width="100" align="center" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     {{steelProduct(scope.row)}}
@@ -175,7 +175,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="合计人民币" class-name="column-notEdit"  width="100" show-overflow-tooltip>
+              <el-table-column label="合计人民币" class-name="column-notEdit" align="center"  width="100" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     {{rmbTotal(scope.row)}}
@@ -183,7 +183,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="单价人民币" class-name="column-notEdit" width="100" show-overflow-tooltip>
+              <el-table-column label="单价人民币" class-name="column-notEdit" width="100" align="center" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     {{rmbUnitPrice(scope.row)}}
@@ -191,7 +191,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="单价" class-name="column-notEdit" width="100" show-overflow-tooltip>
+              <el-table-column label="单价" class-name="column-notEdit" width="100" align="center" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     {{unitPrice(scope.row)}}
@@ -199,7 +199,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="最终价格" class-name="column-notEdit" width="100" show-overflow-tooltip>
+              <el-table-column label="最终价格" class-name="column-notEdit" width="100" align="center" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     {{lastTotalPrice(scope.row)}}
@@ -207,7 +207,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="长" width="100" show-overflow-tooltip>
+              <el-table-column label="长" width="100" align="center"  show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     <div @click="showInput(tabs.calc.data.records, scope.$index, 'lengthEdit')">
@@ -217,7 +217,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="宽" width="100" show-overflow-tooltip>
+              <el-table-column label="宽" width="100" align="center"  show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     <div @click="showInput(tabs.calc.data.records, scope.$index, 'widthEdit')">
@@ -227,7 +227,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="高" width="100" show-overflow-tooltip>
+              <el-table-column label="高" width="100" align="center"  show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     <div @click="showInput(tabs.calc.data.records, scope.$index, 'heightEdit')">
@@ -237,7 +237,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="重量" class-name="column-notEdit" width="100" show-overflow-tooltip>
+              <el-table-column label="重量" class-name="column-notEdit" width="100" align="center" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     {{weight(scope.row)}}
@@ -245,7 +245,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="材料" width="100" show-overflow-tooltip>
+              <el-table-column label="材料" width="100" align="center" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     <div @click="showInput(tabs.calc.data.records, scope.$index, 'stuffUnitPriceEdit')">
@@ -255,7 +255,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="运费" width="100" show-overflow-tooltip>
+              <el-table-column label="运费" width="100" align="center"  show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     <div @click="showInput(tabs.calc.data.records, scope.$index, 'freightUnitPriceEdit')">
@@ -265,7 +265,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="总重量" class-name="column-notEdit" width="100" show-overflow-tooltip>
+              <el-table-column label="总重量" class-name="column-notEdit" width="100" align="center" show-overflow-tooltip>
                 <template slot-scope="scope">
                   <div >
                     {{totalWeight(scope.row)}}
@@ -445,7 +445,20 @@ export default {
         if(res.data) {
 
           data = res.data;
-          if(data.records && data.records.length) {
+
+          if(data.currencyName && this.$dict.currencyList) { //货币初始化
+            
+            for(let i = 0; i < this.$dict.currencyList.length; i++) {
+
+              if(data.currencyName == this.$dict.currencyList[i].name) {
+
+                data.currency = this.$dict.currencyList[i];
+                break;
+              }
+            }
+          }
+
+          if(data.records && data.records.length) { //表格数据
             data.records.map(item => {
 
               item.processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj);
@@ -483,8 +496,10 @@ export default {
     },
     save() {//报价
 
+      let params = [];
+
       this.isLoading = true;
-      this.$utils.getJson(this.$utils.CONFIG.api.queryOfferRecord, (res) =>  {
+      this.$utils.getJson(this.$utils.CONFIG.api.saveComponentOfferRecord, (res) =>  {
 
         this.isLoading = false;
         this.tabs.calc.data = res.data || {};
@@ -624,6 +639,28 @@ export default {
         row.totalWeight = totalWeight.toFixed(1) || ''
       }
     },
+    offerTotalPrice() {
+
+      let total = 0;
+
+      this.tabs.calc.data.records && this.tabs.calc.data.records.map(item => {
+
+        total += (parseFloat(item.rmbTotal) || 0)
+      })
+
+      this.tabs.calc.data.offerTotalPrice = total.toFixed(1);
+    },
+    totalPrice() {
+
+      let total = 0;
+
+      if(this.tabs.calc.data.exchangeRateValue && parseFloat(this.tabs.calc.data.exchangeRateValue) > 0) {
+
+        total = this.tabs.calc.data.offerTotalPrice / parseFloat(this.tabs.calc.data.exchangeRateValue);
+      }
+
+      this.tabs.calc.data.totalPrice = total.toFixed(1);
+    }
   },
   created() {
 
