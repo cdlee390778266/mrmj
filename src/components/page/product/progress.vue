@@ -32,7 +32,7 @@
           </div>
         </div>
         <div class="list" ref="list">
-          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.saleOrderNo }" v-show="isShowList" @click="handleSelect(item)">
+          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrSaleOrderId }" v-show="isShowList" @click="handleSelect(item)">
             <div class="dflex">
               <div>
                 <div>
@@ -423,11 +423,11 @@
         }
         if(this.form.text) params.name = this.form.text;
 
-        this.getData(this.$utils.CONFIG.api.trackProductionOrder, params, 'saleOrderNo', loadingKey, null, isSetCurrentData);
+        this.getData(this.$utils.CONFIG.api.trackProductionOrder, params, 'mrSaleOrderId', loadingKey, null, isSetCurrentData);
       },
       handleSelect(item) {
 
-        this.left.activeId = item.saleOrderNo;
+        this.left.activeId = item.mrSaleOrderId;
         this.currentData = item;
       },
       getOrderDetail(item) {  //生产订单详情

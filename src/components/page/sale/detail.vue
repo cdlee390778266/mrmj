@@ -56,8 +56,8 @@
             <el-breadcrumb separator="/">
               <el-breadcrumb-item class="lh32">
                 <i class="el-icon-lx-copy"></i> 报价计算
-                <span class="mgl20">总价（人民币）：{{offerTotalPrice}}{{tabs.calc.data.offerTotalPrice}}</span>
-                <span class="mgl20">交易货币总价：{{totalPrice}}{{tabs.calc.data.totalPrice}}</span>
+                <span class="mgl20">总价（人民币）：{{tabs.calc.data.offerTotalPrice}}</span>
+                <span class="mgl20">交易货币总价：{{tabs.calc.data.totalPrice}}</span>
               </el-breadcrumb-item>
             </el-breadcrumb>
           </el-col>
@@ -576,7 +576,23 @@ export default {
         }
         rmbTotal += ((parseFloat(row.orderPrice) || 0) + (parseFloat(row.copperProduct) || 0) + (parseFloat(row.steelProduct) || 0)) * (parseFloat(row.amount) || 0)
 
-        row.rmbTotal = rmbTotal.toFixed(1) || ''
+        row.rmbTotal = rmbTotal.toFixed(1) || '' //合计人民币
+
+        let total = 0;
+        this.tabs.calc.data.records && this.tabs.calc.data.records.map(item => {
+
+          total += (parseFloat(item.rmbTotal) || 0)
+        })
+        this.tabs.calc.data.offerTotalPrice = total.toFixed(1); //总价
+
+        let tradeTotal = 0;
+
+        if(this.tabs.calc.data.exchangeRateValue && parseFloat(this.tabs.calc.data.exchangeRateValue) > 0) {
+
+          tradeTotal = this.tabs.calc.data.offerTotalPrice / parseFloat(this.tabs.calc.data.exchangeRateValue);
+        }
+
+        this.tabs.calc.data.totalPrice = tradeTotal.toFixed(1); //交易货币总价
       }
     },
     rmbUnitPrice() { //单价人民币
@@ -638,28 +654,6 @@ export default {
         
         row.totalWeight = totalWeight.toFixed(1) || ''
       }
-    },
-    offerTotalPrice() {
-
-      let total = 0;
-
-      this.tabs.calc.data.records && this.tabs.calc.data.records.map(item => {
-
-        total += (parseFloat(item.rmbTotal) || 0)
-      })
-
-      this.tabs.calc.data.offerTotalPrice = total.toFixed(1);
-    },
-    totalPrice() {
-
-      let total = 0;
-
-      if(this.tabs.calc.data.exchangeRateValue && parseFloat(this.tabs.calc.data.exchangeRateValue) > 0) {
-
-        total = this.tabs.calc.data.offerTotalPrice / parseFloat(this.tabs.calc.data.exchangeRateValue);
-      }
-
-      this.tabs.calc.data.totalPrice = total.toFixed(1);
     }
   },
   created() {

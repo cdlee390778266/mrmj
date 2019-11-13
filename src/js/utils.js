@@ -87,7 +87,7 @@ Utils.getJson = function (url, success, error, params = {}, method='post', isFil
 		},
 		method: method,
 		url: url,
-		timeout: 5000,
+		//timeout: 5000,
 		data: params
 	}
 

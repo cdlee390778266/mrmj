@@ -36,7 +36,7 @@
             <div class="dflex">
               <div>
                 <div>
-                  <img :src="item.business && item.business.fileId ? `${$utils.CONFIG.api.image}?fileId=${item.business.fileId}` : defaultImg" width="30" class="mgr10 mgt10" />
+                  <img :src="item.business && item.business.fileId ? `${$utils.CONFIG.api.image}?fileId=${item.business.fileId}` : defaultImg" width="30" height="30" class="mgr10 mgt10" />
                 </div>
               </div>
               <div class="flex">

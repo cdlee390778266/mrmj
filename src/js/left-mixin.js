@@ -306,6 +306,9 @@ let leftMixin = {
 	    	this.search();
 	    },
 	    search() {
+
+	    	this.left.activeId = '';
+      	this.currentData = {};
 	      this.left.page.pageNo = 1;
 	      this.getLeftList();
 	    },

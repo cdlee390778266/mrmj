@@ -338,6 +338,9 @@
                   min-width="100"
                   align="center"
                   show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.abbreviation && scope.row.abbreviation != 'null' ? scope.row.abbreviation : ''}}
+                  </template>
                 </el-table-column>
               </el-table>
             </div>
