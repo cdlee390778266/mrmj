@@ -288,9 +288,9 @@
 			</div>
     </div>
     <div class="detail-footer tr">
-      <el-button type="primary">报价</el-button>
-      <el-button type="primary">保存草稿</el-button>
-      <el-button type="primary">返 回</el-button>
+      <el-button type="primary" @click="save">报价</el-button>
+      <el-button type="primary" @click="save(true)">保存草稿</el-button>
+      <el-button type="primary" @click="back">返 回</el-button>
     </div>
 
     <el-dialog title="工序及对应工时单价设置" :visible.sync="handle.setting.dialogVisible">
@@ -372,10 +372,12 @@ export default {
           offerRecord: '',
           allProcessOfIndex: [],
           processesObj: {},
+          processesIdObj: {},
           processesPriceObj: {},
           data: {
             currency: {},
             exchangeRateValue: '',
+            managementFeeFloatingRatio: '',
             records: [{
               processesObj: {}
             }]
@@ -418,16 +420,19 @@ export default {
         this.isLoading = false;
         let allProcessOfIndex = [];
         let processesObj = {};
+        let processesIdObj = {};
         if(res.data && res.data.length) {
 
           allProcessOfIndex = res.data || [];
           allProcessOfIndex.map(item => {
 
             processesObj[item.name] = '';
+            processesIdObj[item.name] = item.mrProcessId
           })
         }
         this.tabs.calc.allProcessOfIndex = allProcessOfIndex;
         this.tabs.calc.processesObj = processesObj;
+        this.tabs.calc.processesIdObj = processesIdObj;
         this.tabs.calc.data.records[0].processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj);
       }, () => this.isLoading = false, params)
     },
@@ -494,9 +499,71 @@ export default {
         id: new Date().getTime()
       })
     },
-    save() {//报价
+    save(saveAsDraft = false) {//报价 saveAsDraft是否保存草稿
 
-      let params = [];
+      if(!this.tabs.calc.data.currency.name) {
+
+        this.$utils.showTip('warning', 'error', '-1095')
+        return;
+      }
+
+      if(!this.tabs.calc.data.exchangeRateValue) {
+
+        this.$utils.showTip('warning', 'error', '-1096')
+        return;
+      }
+
+      if(!this.tabs.calc.data.managementFeeFloatingRatio) {
+
+        this.$utils.showTip('warning', 'error', '-1097')
+        return;
+      }
+
+      let params = {
+        offerRecordStatus: saveAsDraft ? 10 : 20,
+        requirementId: this.mrRequirementId,
+        offerNo: '1238',
+        currencyName: this.tabs.calc.data.currency.name || '',
+        exchangeRateValue: this.tabs.calc.data.exchangeRateValue || '',
+        managementFeeFloatingRatio: this.tabs.calc.data.managementFeeFloatingRatio || '',
+        records: []
+      };
+
+      this.tabs.calc.data.records.map(item => {
+
+        if(item.detNo) {
+          let obj = {
+            detNo: item.detNo || '',
+            amount: parseInt(item.amount) || 0,
+            stuffNo: item.stuffNo || '',
+            length: parseFloat(item.length) || 0,
+            width: parseFloat(item.width) || 0,
+            height: parseFloat(item.height) || 0,
+            orderPrice: parseFloat(item.orderPrice) || 0,
+            copperProduct: parseFloat(item.copperProduct) || 0,
+            stuffUnitPrice: parseFloat(item.stuffUnitPrice) || 0,
+            freightUnitPrice: parseFloat(item.freightUnitPrice) || 0,
+            weight: parseFloat(item.weight) || 0,
+            totalTime: parseFloat(item.totalTime) || 0,
+            steelProduct: parseFloat(item.steelProduct) || 0,
+            rmbTotal: parseFloat(item.rmbTotal) || 0,
+            rmbUnitPrice: parseFloat(item.rmbUnitPrice) || 0,
+            unitPrice: parseFloat(item.unitPrice) || 0,
+            lastTotalPrice: parseFloat(item.lastTotalPrice) || 0,
+            processes: []
+          }
+          
+          for(let key in item.processesObj) {
+
+            obj.processes.push({
+              componentWorkProcedureId: this.tabs.calc
+              .processesIdObj[key] || '',
+              workTime: item.processesObj[key] || 0
+            })
+          }
+          params.records.push(obj)
+        }
+      })
 
       this.isLoading = true;
       this.$utils.getJson(this.$utils.CONFIG.api.saveComponentOfferRecord, (res) =>  {
@@ -592,7 +659,8 @@ export default {
           tradeTotal = this.tabs.calc.data.offerTotalPrice / parseFloat(this.tabs.calc.data.exchangeRateValue);
         }
 
-        this.tabs.calc.data.totalPrice = tradeTotal.toFixed(1); //交易货币总价
+        this.$set(this.tabs.calc.data, 'totalPrice', tradeTotal.toFixed(1))
+        //交易货币总价
       }
     },
     rmbUnitPrice() { //单价人民币
