@@ -447,34 +447,6 @@ export default {
         this.tabs.calc.requirement = res.data || {};
       }, () => this.isLoading = false, params)
     },
-    getOfferProcessListIndex() { //获取表头
-
-      let params = {
-        mrRequirementId: this.mrRequirementId
-      };
-    
-      this.isLoading = true;
-      this.$utils.getJson(this.$utils.CONFIG.api.getOfferProcessListIndex, (res) =>  {
-
-        this.isLoading = false;
-        let allProcessOfIndex = [];
-        let processesObj = {};
-        let processesIdObj = {};
-        if(res.data && res.data.length) {
-
-          allProcessOfIndex = res.data || [];
-          allProcessOfIndex.map(item => {
-
-            processesObj[item.name] = '';
-            processesIdObj[item.name] = item.mrProcessId
-          })
-        }
-        this.tabs.calc.allProcessOfIndex = allProcessOfIndex;
-        this.tabs.calc.processesObj = processesObj;
-        this.tabs.calc.processesIdObj = processesIdObj;
-        this.tabs.calc.data.records[0].processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj);
-      }, () => this.isLoading = false, params)
-    },
     getData(offerNo) { //表格数据
         
       this.isLoading = true;
@@ -508,7 +480,10 @@ export default {
               item.processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj);
               item.processes && item.processes.length && item.processes.map(itemc => {
 
-                item.processesObj[itemc.name] = itemc.workTime || 0;
+                if(item.processesObj.hasOwnProperty(itemc.name)) {
+
+                  item.processesObj[itemc.name] = itemc.workTime || 0;
+                }
               })
             })
           }else {
@@ -577,14 +552,17 @@ export default {
                 lastTotalPrice: parseFloat(item.lastTotalPrice) || 0,
                 processes: []
               }
-              
+              console.log(this.tabs.calc
+                  .processesIdObj)
               for(let key in item.processesObj) {
-
-                obj.processes.push({
-                  componentWorkProcedureId: this.tabs.calc
-                  .processesIdObj[key] || '',
-                  workTime: item.processesObj[key] || 0
-                })
+                if(this.tabs.calc
+                  .processesIdObj[key]) {
+                  obj.processes.push({
+                    componentWorkProcedureId: this.tabs.calc
+                    .processesIdObj[key],
+                    workTime: item.processesObj[key] || 0
+                  })
+                }
               }
               params.records.push(obj)
             }
@@ -601,6 +579,7 @@ export default {
 
             this.isLoading = false;
             this.$utils.showTip('success', 'success', '117');
+            this.back();
           }, () => this.isLoading = false, params)
         } else {
           
@@ -613,18 +592,43 @@ export default {
       this.getList(this.$utils.CONFIG.api.queryOffer, this.tabs.calc.filter, 'offerRecord', {mrRequirementId: this.mrRequirementId}); //零件报价记录列表
       this.getList(this.$utils.CONFIG.api.floatRatio, this.tabs.calc.filter, 'floatRatio'); //管理费用上浮比例列表
     },
+    initWorkProcedure(res, isFirst = false) {
+
+      //表头设置
+      let allProcessOfIndex = [];
+      let processesObj = {};
+      let processesIdObj = {};
+      if(res.data && res.data.length) {
+
+        allProcessOfIndex = this.$utils.deepCopy(res.data || []);
+        allProcessOfIndex.map(item => {
+
+          processesObj[item.name] = '';
+          processesIdObj[item.name] = item.componentWorkProcedureId
+        })
+      }
+      this.tabs.calc.allProcessOfIndex = allProcessOfIndex;
+      this.tabs.calc.processesObj = processesObj;
+      this.tabs.calc.processesIdObj = processesIdObj;
+      isFirst && (this.tabs.calc.data.records[0].processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj));
+
+      //工序设置弹框设置
+      this.workProcedure = this.$utils.deepCopy(res.data || []);
+      this.workProcedurePrice = {};
+      this.workProcedure && this.workProcedure.map(item => this.workProcedurePrice[item.name] = item.price || 0) //工序价格对象赋值
+      this.handle.setting.workProcedure = this.$utils.deepCopy(res.data && res.data.length ? res.data : [{}]) || [{}]; //工序赋值弹框数据
+    },
     getWorkProcedure() { //零件工序查询
 
-      this.getList(this.$utils.CONFIG.api.queryWorkProcedure, this, 'workProcedure', {mrRequirementId: this.mrRequirementId}, (res) => {
+      this.$utils.getJson(this.$utils.CONFIG.api.queryWorkProcedure, (res) =>  {
 
-        this.workProcedure && this.workProcedure.map(item => this.workProcedurePrice[item.name] = item.price || 0) //工序价格对象赋值
+        this.initWorkProcedure(res, true);
 
-        this.handle.setting.workProcedure = this.$utils.deepCopy(res) || [{}]; //工序赋值弹框数据
-      });
+      }, () => this.isLoading = false, {mrRequirementId: this.mrRequirementId})
     },
     deleteWorkProcedure(row) { //删除零件工序
       
-      this.handle.setting.workProcedure = this.handle.setting.workProcedure.filter(item => (item.mrComponentWorkProcedureId != row.mrComponentWorkProcedureId || (item.id && item.id != row.id)))
+      this.handle.setting.workProcedure = this.handle.setting.workProcedure.filter(item => (item.componentWorkProcedureId != row.componentWorkProcedureId || (item.id && item.id != row.id)))
     },
     getRepeatWorkProcedure() { //获取重复的工序名称
 
@@ -635,7 +639,7 @@ export default {
 
         for(let j = i+1; j < arr.length; j++) {
           
-          if(arr[i].name == arr[j].name && repeatWorkProcedureArr.indexOf(arr[i].name) == -1) {
+          if(arr[i].name && arr[i].name == arr[j].name && repeatWorkProcedureArr.indexOf(arr[i].name) == -1) {
 
             repeatWorkProcedureArr.push(arr[i].name);
           }
@@ -661,15 +665,15 @@ export default {
         if(item.name) {
 
           if(item.name.toUpperCase() == 'QC') {
-            console.log(44)
+
             this.$utils.showTip('warning', 'error', '', `工序名不能为QC`);
             return;
           }else {
 
             params.push({
-              componentWorkProcedureId: item.mrComponentWorkProcedureId || '',
+              componentWorkProcedureId: item.componentWorkProcedureId || '',
               name: item.name || '',
-              price: item.price || 0,
+              price: parseFloat(item.price) || 0,
               requirementId: this.mrRequirementId || ''
             })
           }
@@ -680,7 +684,24 @@ export default {
       this.$utils.getJson(this.$utils.CONFIG.api.setProcessInfo, (res) =>  {
 
         this.handle.setting.isLoading = false;
+        this.handle.setting.dialogVisible = false;
         this.$utils.showTip('success', 'success', '121');
+
+        this.initWorkProcedure(res, false);
+
+        let data = this.tabs.calc.data;
+        if(data.records && data.records.length) { //更新表格工序数据
+          data.records.map(item => {
+
+            let processesObj = this.$utils.deepCopy(item.processesObj);
+            item.processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj);
+            
+            for(let key in item.processesObj) {
+
+              item.processesObj[key] = processesObj[key] || processesObj[key] == 0 ? processesObj[key] : ''; 
+            }
+          })
+        }
       }, () => this.handle.setting.isLoading = false, params)
     },
   },
@@ -784,7 +805,7 @@ export default {
 
         let weight = 0;
 
-        weight = (parseFloat(row.width) || 0) * (parseFloat(row.width) || 0) * (parseFloat(row.height) || 0) * 7.9 / 1000000;
+        weight = (parseFloat(row.length) || 0) * (parseFloat(row.width) || 0) * (parseFloat(row.height) || 0) * 7.9 / 1000000;
         
         this.$set(row, 'weight', weight.toFixed(1) || '');
       }
@@ -835,9 +856,9 @@ export default {
     if(!this.$route.params.id) return;
     this.mrRequirementId = this.$route.params.id;
     this.getDetail(); //需求详情
-    this.getOfferProcessListIndex(); //工序列表
-    this.getDropDownList(); //下拉列表
     this.getWorkProcedure(); //零件工序列表
+    this.getDropDownList(); //下拉列表
+    
   },
 };
 </script>
