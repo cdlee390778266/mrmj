@@ -43,11 +43,12 @@ const CONFIG = {
 		querySaleOrderInModify: baseUrl + 'requirement/req/querySaleOrderInModify', //需求--需求下单出销售订单查询
 		matchCodeType: baseUrl + 'requirement/demand/matchCodeType', //需求--终止类型联想匹配
 		floatRatio: baseUrl + 'requirement/floatRatio/qc', //管理费用上浮比例列表
+		checkOfferNo: baseUrl + 'requirement/componentOfferRecord/checkOfferNo', //零件报价单号验重
 		queryOffer: baseUrl + 'requirement/componentOfferRecord/queryOffer', //零件报价记录列表
 		getOfferProcessListIndex: baseUrl + 'requirement/componentOfferRecord/getOfferProcessListIndex', //零件报价工序表头
 		queryOfferRecord: baseUrl + 'requirement/componentOfferRecord/queryOfferRecord', //零件报价记录详细信息
 		saveComponentOfferRecord: baseUrl + 'requirement/componentOfferRecord/saveComponentOfferRecord', //零件报价或保存为草稿
-		workProcedure: baseUrl + 'requirement/workProcedure/qc', //零件工序查询
+		queryWorkProcedure: baseUrl + 'requirement/workProcedure/queryWorkProcedure', //零件工序查询
 		saveWorkProcedure: baseUrl + 'requirement/workProcedure/saveWorkProcedure', //零件工序新增
 		setProcessInfo: baseUrl + 'requirement/componentOfferRecord/setProcessInfo', //工序设置
 		
@@ -178,6 +179,7 @@ const CONFIG = {
 		'118': '发货成功',
 		'119': '恢复成功',
 		'120': '修改成功',
+		'121': '设置成功',
 	},
 	error: {
 		'-1': '加载数据失败，请刷新页面重试！',
@@ -234,6 +236,9 @@ const CONFIG = {
 		'-1095': '请选择交易货币',
 		'-1096': '请选择汇率',
 		'-1097': '请选择管理费用上浮比例',
+		'-1098': '请输入报价单编号',
+		'-1099': '报价单编号已存在',
+		'-1100': '报价零件列表不能为空(有Det No.才为有效的数据)',
 	}
 }
 

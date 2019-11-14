@@ -434,6 +434,8 @@
 
             params.push({
               productionPlanProcessId: item.productionPlanProcessId,
+              operationalPlanId: item.mrOperationalPlanId || '',
+              userIdleRecordId: itemc.userIdleRecordId || '',
               mrAssignWorkMiddleId: itemc.mrAssignWorkMiddleId,
               isAssignWorkSelected: itemc.isAssignWorkSelected ? 1 : 0,
               quantity: itemc.quantity || 0
