@@ -16,43 +16,45 @@
       >报价清单预览</span>
     </div>
     <div class="detail-main">
-      <div class="calc hide bor mgt20 mgl20" :class="{'show': activeTab == 'calc'}">
-        <div class="crumbs borb pd10">
-          <el-breadcrumb separator="/">
-            <el-breadcrumb-item class="fs18">
-              <i class="el-icon-lx-copy"></i> 需求信息
-            </el-breadcrumb-item>
-          </el-breadcrumb>
+      <div class="calc hide mgt20 mgl20" :class="{'show': activeTab == 'calc'}">
+        <div class="bor">
+          <div class="crumbs borb pd10">
+            <el-breadcrumb separator="/">
+              <el-breadcrumb-item class="fs18">
+                <i class="el-icon-lx-copy"></i> 需求信息
+              </el-breadcrumb-item>
+            </el-breadcrumb>
+          </div>
+          <el-row class="pd10">
+            <el-col :span="12" class="pdb10">客户名称：{{tabs.calc.requirement.name | filterNull}}</el-col>
+            <el-col :span="12" class="pdb10">客户PO.号：{{tabs.calc.requirement.customerPoNo | filterNull}}</el-col>
+            <el-col :span="12" class="pdb10">需求编号：{{tabs.calc.requirement.requirementNum | filterNull}}</el-col>
+            <el-col :span="12" class="pdb10">需求类型：{{tabs.calc.requirement.requirementTypeText | filterNull}}</el-col>
+          </el-row>
+          <div class="pdlr10">
+            <p class="mgb10">需求附件：</p>
+            <el-table
+              :data="tabs.calc.requirement.attachments"
+              border
+              size="mini"
+              style="width: 100%; max-width: 400px;"
+            >
+              <el-table-column type="index" label="序号"></el-table-column>
+              <el-table-column prop="fileName" label="附件名称"></el-table-column>
+              <el-table-column label="操作">
+                <template slot-scope="scope">
+                  <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <div class="mgt20 mgb10 pdlr10">
+            <p class="mgb10">需求说明：</p>
+            <p>{{tabs.calc.requirement.remark | filterNull}}</p>
+          </div>
         </div>
-        <el-row class="pd10">
-          <el-col :span="12" class="pdb10">客户名称：{{tabs.calc.requirement.name | filterNull}}</el-col>
-          <el-col :span="12" class="pdb10">客户PO.号：{{tabs.calc.requirement.customerPoNo | filterNull}}</el-col>
-          <el-col :span="12" class="pdb10">需求编号：{{tabs.calc.requirement.requirementNum | filterNull}}</el-col>
-          <el-col :span="12" class="pdb10">需求类型：{{tabs.calc.requirement.requirementTypeText | filterNull}}</el-col>
-        </el-row>
-        <div class="pdlr10">
-          <p class="mgb10">需求附件：</p>
-          <el-table
-            :data="tabs.calc.requirement.attachments"
-            border
-            size="mini"
-            style="width: 100%; max-width: 400px;"
-          >
-            <el-table-column type="index" label="序号"></el-table-column>
-            <el-table-column prop="fileName" label="附件名称"></el-table-column>
-            <el-table-column label="操作">
-              <template slot-scope="scope">
-                <el-button type="text" @click="down(scope.row.fileId)">下载</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <div class="mgt20 mgb10 pdlr10">
-          <p class="mgb10">需求说明：</p>
-          <p>{{tabs.calc.requirement.remark | filterNull}}</p>
-        </div>
-        <el-form ref="form" :model="tabs.calc.data" :rules="tabs.calc.rules" :inline="true">
-          <el-row class="mgt20 mgb20 pdlr10">
+        <el-form ref="form" :model="tabs.calc.data" :rules="tabs.calc.rules" :inline="true" class="bor mgtb20">
+          <el-row class="pdtb10 pdlr10 borb">
             <el-col :span="16">
               <el-breadcrumb separator="/">
                 <el-breadcrumb-item class="lh32">
@@ -68,9 +70,11 @@
                 <el-option v-for="(item, index) in tabs.calc.filter.offerRecord" :key="index" :label="item.offerNo" :value="item.offerNo"></el-option>
               </el-select>
             </el-col>
+          </el-row>
+          <el-row class="pdlr10">
             <el-col :span="24" class="mgt10">
-              <el-form-item label="报价单编号：" prop="addOfferNo" size="mini">
-                <el-input v-model="tabs.calc.data.addOfferNo" style="width: 100px;"></el-input>
+              <el-form-item label="报价单编号：" prop="offerNo" size="mini">
+                <el-input v-model="tabs.calc.data.offerNo" style="width: 100px;"></el-input>
               </el-form-item>
               <el-form-item label="交易货币：" label-width="110px">
                 <el-select size="mini" style="width: 100px;" v-model="tabs.calc.data.currency" value-key="name"  @change="(currency) => tabs.calc.data.exchangeRateValue = ''">
@@ -119,18 +123,28 @@
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column label="材料" width="100" align="center"  show-overflow-tooltip>
+                <el-table-column label="材料" width="140" align="center"  show-overflow-tooltip>
                   <template slot-scope="scope">
-                    <div >
+                    <div>
                       <div @click="showInput(tabs.calc.data.records, scope.$index, 'stuffNoEdit')">
                         <div class="ellipsis">{{ scope.row.stuffNo }}</div>
-                        <el-input size="mini" v-model="scope.row.stuffNo" @focus="showInput(tabs.calc.data.records, scope.$index, 'stuffNoEdit')" @blur="scope.row.stuffNoEdit = false;" :style="{opacity: scope.row.stuffNoEdit ? 1 : 0}"/>
+                        <el-autocomplete
+                          class="inline-input"
+                          v-model="scope.row.stuffNo"
+                          :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, tabs.calc.filter.stuff, 'stuffNo')"
+                          valueKey="stuffNo"
+                          value="stuffNo"
+                          placeholder="请输入内容"
+                          @focus="showInput(tabs.calc.data.records, scope.$index, 'stuffNoEdit')"
+                          @blur="scope.row.stuffNoEdit = false"
+                          :style="{opacity: scope.row.stuffNoEdit ? 1 : 0}"
+                        ></el-autocomplete>
                       </div>
                     </div>
                   </template>
                 </el-table-column>
                 <el-table-column
-                  v-if="tabs.calc.allProcessOfIndex && tabs.calc.allProcessOfIndex.length"
+                  v-if="tabs.calc.allProcessOfIndex && tabs.calc.allProcessOfIndex.length && item.name.toUpperCase() != 'QC'"
                   v-for="(item, index) in tabs.calc.allProcessOfIndex"
                   :key="index"
                   :label="item.name"
@@ -146,7 +160,7 @@
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column label="Qc" class-name="column-notEdit" width="100" align="center" show-overflow-tooltip>
+                <el-table-column v-if="tabs.calc.processesObj.hasOwnProperty('QC')" label="QC" class-name="column-notEdit" width="100" align="center" show-overflow-tooltip>
                   <template slot-scope="scope">
                     <div >
                      {{qc(scope.row)}}
@@ -304,8 +318,8 @@
 			</div>
     </div>
     <div class="detail-footer tr">
-      <el-button type="primary" @click="save">报价</el-button>
-      <el-button type="primary" @click="save(true)">保存草稿</el-button>
+      <el-button type="primary" @click="() => save()">报价</el-button>
+      <el-button type="primary" @click="() => save(true)">保存草稿</el-button>
       <el-button type="primary" @click="back">返 回</el-button>
     </div>
 
@@ -396,7 +410,8 @@ export default {
         calc: {
           filter: {
             floatRatio: [],
-            offerRecord: []
+            offerRecord: [],
+            stuff: []
           },
           requirement: {},
           offerRecord: '',
@@ -406,7 +421,7 @@ export default {
           processesPriceObj: {},
           data: {
             currency: {},
-            addOfferNo: '',
+            offerNo: '',
             exchangeRateValue: '',
             managementFeeFloatingRatio: '',
             records: [{
@@ -414,7 +429,7 @@ export default {
             }]
           },
           rules: {
-            addOfferNo: [
+            offerNo: [
               { required: true, message: this.$utils.getTipText('error', '-1098')},
               { validator: checkOfferNo, trigger: 'blur' }
             ],
@@ -432,278 +447,6 @@ export default {
         }
       }
     };
-  },
-  methods: {
-    getDetail() { //需求详情
-
-      let params = {
-        mrRequirementId: this.mrRequirementId
-      };
-    
-      this.isLoading = true;
-      this.$utils.getJson(this.$utils.CONFIG.api.queryRequirementDetail, (res) =>  {
-
-        this.isLoading = false;
-        this.tabs.calc.requirement = res.data || {};
-      }, () => this.isLoading = false, params)
-    },
-    getData(offerNo) { //表格数据
-        
-      this.isLoading = true;
-      this.$utils.getJson(this.$utils.CONFIG.api.queryOfferRecord, (res) =>  {
-
-        this.isLoading = false;
-        let data = {
-          currency: {},
-          exchangeRateValue: '',
-          records: [{}]
-        };
-        if(res.data) {
-
-          data = res.data;
-
-          if(data.currencyName && this.$dict.currencyList) { //货币初始化
-            
-            for(let i = 0; i < this.$dict.currencyList.length; i++) {
-
-              if(data.currencyName == this.$dict.currencyList[i].name) {
-
-                data.currency = this.$dict.currencyList[i];
-                break;
-              }
-            }
-          }
-
-          if(data.records && data.records.length) { //表格数据
-            data.records.map(item => {
-
-              item.processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj);
-              item.processes && item.processes.length && item.processes.map(itemc => {
-
-                if(item.processesObj.hasOwnProperty(itemc.name)) {
-
-                  item.processesObj[itemc.name] = itemc.workTime || 0;
-                }
-              })
-            })
-          }else {
-
-            data.records = [{}]
-          }
-        }
-        this.tabs.calc.data = data;
-      }, () => this.isLoading = false, {offerNo: offerNo})
-    },
-    showInput(list, index, key, keyParent, isAdd = true) {
-        
-        if(keyParent) {
-          this.$set(list[index][keyParent], key, true);
-        }else {
-          this.$set(list[index], key, true);
-        }
-
-        if(list.length -1 == index && isAdd) list.push({
-          processesObj: this.$utils.deepCopy(this.tabs.calc.processesObj)
-        })
-    },
-    showWorkProcedureInput(list, index, key) {
-        
-      this.$set(list[index], key, true);
-      if(list.length -1 == index) list.push({
-        id: new Date().getTime()
-      })
-    },
-    save(saveAsDraft = false) {//报价 saveAsDraft是否保存草稿
-
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-      
-          let params = {
-            offerRecordStatus: saveAsDraft ? 10 : 20,
-            requirementId: this.mrRequirementId,
-            offerNo: this.tabs.calc.data.addOfferNo,
-            currencyName: this.tabs.calc.data.currency.name || '',
-            exchangeRateValue: this.tabs.calc.data.exchangeRateValue || '',
-            managementFeeFloatingRatio: this.tabs.calc.data.managementFeeFloatingRatio || '',
-            records: []
-          };
-
-          this.tabs.calc.data.records.map(item => {
-
-            if(item.detNo) {
-              let obj = {
-                detNo: item.detNo || '',
-                amount: parseInt(item.amount) || 0,
-                stuffNo: item.stuffNo || '',
-                length: parseFloat(item.length) || 0,
-                width: parseFloat(item.width) || 0,
-                height: parseFloat(item.height) || 0,
-                orderPrice: parseFloat(item.orderPrice) || 0,
-                copperProduct: parseFloat(item.copperProduct) || 0,
-                stuffUnitPrice: parseFloat(item.stuffUnitPrice) || 0,
-                freightUnitPrice: parseFloat(item.freightUnitPrice) || 0,
-                weight: parseFloat(item.weight) || 0,
-                qc: parseFloat(item.qc) || 0,
-                totalTime: parseFloat(item.totalTime) || 0,
-                steelProduct: parseFloat(item.steelProduct) || 0,
-                rmbTotal: parseFloat(item.rmbTotal) || 0,
-                rmbUnitPrice: parseFloat(item.rmbUnitPrice) || 0,
-                unitPrice: parseFloat(item.unitPrice) || 0,
-                lastTotalPrice: parseFloat(item.lastTotalPrice) || 0,
-                processes: []
-              }
-              console.log(this.tabs.calc
-                  .processesIdObj)
-              for(let key in item.processesObj) {
-                if(this.tabs.calc
-                  .processesIdObj[key]) {
-                  obj.processes.push({
-                    componentWorkProcedureId: this.tabs.calc
-                    .processesIdObj[key],
-                    workTime: item.processesObj[key] || 0
-                  })
-                }
-              }
-              params.records.push(obj)
-            }
-          })
-
-          if(!params.records.length) {
-
-            this.$utils.showTip('warning', 'error', '-1100');
-            return;
-          }
-
-          this.isLoading = true;
-          this.$utils.getJson(this.$utils.CONFIG.api.saveComponentOfferRecord, (res) =>  {
-
-            this.isLoading = false;
-            this.$utils.showTip('success', 'success', '117');
-            this.back();
-          }, () => this.isLoading = false, params)
-        } else {
-          
-          return false;
-        }
-      });
-    },
-    getDropDownList() {
-
-      this.getList(this.$utils.CONFIG.api.queryOffer, this.tabs.calc.filter, 'offerRecord', {mrRequirementId: this.mrRequirementId}); //零件报价记录列表
-      this.getList(this.$utils.CONFIG.api.floatRatio, this.tabs.calc.filter, 'floatRatio'); //管理费用上浮比例列表
-    },
-    initWorkProcedure(res, isFirst = false) {
-
-      //表头设置
-      let allProcessOfIndex = [];
-      let processesObj = {};
-      let processesIdObj = {};
-      if(res.data && res.data.length) {
-
-        allProcessOfIndex = this.$utils.deepCopy(res.data || []);
-        allProcessOfIndex.map(item => {
-
-          processesObj[item.name] = '';
-          processesIdObj[item.name] = item.componentWorkProcedureId
-        })
-      }
-      this.tabs.calc.allProcessOfIndex = allProcessOfIndex;
-      this.tabs.calc.processesObj = processesObj;
-      this.tabs.calc.processesIdObj = processesIdObj;
-      isFirst && (this.tabs.calc.data.records[0].processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj));
-
-      //工序设置弹框设置
-      this.workProcedure = this.$utils.deepCopy(res.data || []);
-      this.workProcedurePrice = {};
-      this.workProcedure && this.workProcedure.map(item => this.workProcedurePrice[item.name] = item.price || 0) //工序价格对象赋值
-      this.handle.setting.workProcedure = this.$utils.deepCopy(res.data && res.data.length ? res.data : [{}]) || [{}]; //工序赋值弹框数据
-    },
-    getWorkProcedure() { //零件工序查询
-
-      this.$utils.getJson(this.$utils.CONFIG.api.queryWorkProcedure, (res) =>  {
-
-        this.initWorkProcedure(res, true);
-
-      }, () => this.isLoading = false, {mrRequirementId: this.mrRequirementId})
-    },
-    deleteWorkProcedure(row) { //删除零件工序
-      
-      this.handle.setting.workProcedure = this.handle.setting.workProcedure.filter(item => (item.componentWorkProcedureId != row.componentWorkProcedureId || (item.id && item.id != row.id)))
-    },
-    getRepeatWorkProcedure() { //获取重复的工序名称
-
-      let arr = this.handle.setting.workProcedure;
-      let repeatWorkProcedureArr = [];
-
-      for(let i = 0; i < arr.length; i++) {
-
-        for(let j = i+1; j < arr.length; j++) {
-          
-          if(arr[i].name && arr[i].name == arr[j].name && repeatWorkProcedureArr.indexOf(arr[i].name) == -1) {
-
-            repeatWorkProcedureArr.push(arr[i].name);
-          }
-        }
-      }
-
-      return repeatWorkProcedureArr
-    },
-    setProcessInfo() { //工序设置
-
-      let repeatArr = this.getRepeatWorkProcedure();
-      if(repeatArr.length) {
-
-        this.$utils.showTip('warning', 'error', '', `${repeatArr.join('、')}工序名有重复！`);
-        return;
-      }
-
-      let params = [];
-      for(let i = 0; i < this.handle.setting.workProcedure.length; i++) {
-
-        let item = this.handle.setting.workProcedure[i];
-
-        if(item.name) {
-
-          if(item.name.toUpperCase() == 'QC') {
-
-            this.$utils.showTip('warning', 'error', '', `工序名不能为QC`);
-            return;
-          }else {
-
-            params.push({
-              componentWorkProcedureId: item.componentWorkProcedureId || '',
-              name: item.name || '',
-              price: parseFloat(item.price) || 0,
-              requirementId: this.mrRequirementId || ''
-            })
-          }
-        }
-      }
-      
-      this.handle.setting.isLoading = true;
-      this.$utils.getJson(this.$utils.CONFIG.api.setProcessInfo, (res) =>  {
-
-        this.handle.setting.isLoading = false;
-        this.handle.setting.dialogVisible = false;
-        this.$utils.showTip('success', 'success', '121');
-
-        this.initWorkProcedure(res, false);
-
-        let data = this.tabs.calc.data;
-        if(data.records && data.records.length) { //更新表格工序数据
-          data.records.map(item => {
-
-            let processesObj = this.$utils.deepCopy(item.processesObj);
-            item.processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj);
-            
-            for(let key in item.processesObj) {
-
-              item.processesObj[key] = processesObj[key] || processesObj[key] == 0 ? processesObj[key] : ''; 
-            }
-          })
-        }
-      }, () => this.handle.setting.isLoading = false, params)
-    },
   },
   computed: {
     qc() { //qc
@@ -728,8 +471,15 @@ export default {
 
         let totalTime = 0;
         for(let key in row.processesObj) {
-          totalTime += (parseFloat(row.processesObj[key]) || 0);
+
+          if(key == 'QC') {
+            
+            totalTime += (parseFloat(row.qc) || 0);
+          }else {
+            totalTime += (parseFloat(row.processesObj[key]) || 0);
+          }
         }
+
         totalTime = totalTime.toFixed(1);
 
         this.$set(row, 'totalTime', totalTime);
@@ -754,8 +504,15 @@ export default {
        
         for(let key in row.processesObj) {
 
-          rmbTotal += (parseFloat(row.processesObj[key]) || 0) * (parseFloat(this.workProcedurePrice[key]) || 0);
+          if(key == 'QC') {
+
+            rmbTotal += (parseFloat(row.qc) || 0) * (parseFloat(this.workProcedurePrice[key]) || 0);
+          }else {
+
+            rmbTotal += (parseFloat(row.processesObj[key]) || 0) * (parseFloat(this.workProcedurePrice[key]) || 0);
+          }
         }
+        
         rmbTotal += ((parseFloat(row.orderPrice) || 0) + (parseFloat(row.copperProduct) || 0) + (parseFloat(row.steelProduct) || 0)) * (parseFloat(row.amount) || 0);
 
         this.$set(row, 'rmbTotal', row.detNo ? rmbTotal.toFixed(1) : '') //合计人民币
@@ -850,6 +607,278 @@ export default {
         //交易货币总价
       }
     }
+  },
+  methods: {
+    getDetail() { //需求详情
+
+      let params = {
+        mrRequirementId: this.mrRequirementId
+      };
+    
+      this.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.queryRequirementDetail, (res) =>  {
+
+        this.isLoading = false;
+        this.tabs.calc.requirement = res.data || {};
+      }, () => this.isLoading = false, params)
+    },
+    getData(offerNo) { //表格数据
+        
+      this.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.queryOfferRecord, (res) =>  {
+
+        this.isLoading = false;
+        let data = {
+          currency: {},
+          exchangeRateValue: '',
+          records: [{}]
+        };
+        if(res.data) {
+
+          data = res.data;
+
+          if(data.currencyName && this.$dict.currencyList) { //货币初始化
+            
+            for(let i = 0; i < this.$dict.currencyList.length; i++) {
+
+              if(data.currencyName == this.$dict.currencyList[i].name) {
+
+                data.currency = this.$dict.currencyList[i];
+                break;
+              }
+            }
+          }
+
+          if(data.records && data.records.length) { //表格数据
+            data.records.map(item => {
+
+              item.processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj);
+              item.mrComWorkProcedureOfferIdObj = {};
+              item.processes && item.processes.length && item.processes.map(itemc => {
+
+                item.mrComWorkProcedureOfferIdObj[itemc.name] = itemc.mrComWorkProcedureOfferId;
+                if(item.processesObj.hasOwnProperty(itemc.name)) {
+
+                  item.processesObj[itemc.name] = itemc.workTime || 0;
+                }
+              })
+            })
+          }else {
+
+            data.records = [{}]
+          }
+        }
+        this.tabs.calc.data = data;
+      }, () => this.isLoading = false, {offerNo: offerNo})
+    },
+    showInput(list, index, key, keyParent, isAdd = true) {
+        
+        if(keyParent) {
+          this.$set(list[index][keyParent], key, true);
+        }else {
+          this.$set(list[index], key, true);
+        }
+
+        if(list.length -1 == index && isAdd) list.push({
+          processesObj: this.$utils.deepCopy(this.tabs.calc.processesObj)
+        })
+    },
+    showWorkProcedureInput(list, index, key) {
+        
+      this.$set(list[index], key, true);
+      if(list.length -1 == index) list.push({
+        id: new Date().getTime()
+      })
+    },
+    save(saveAsDraft = false) {//报价 saveAsDraft是否保存草稿
+
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+      
+          let params = {
+            mrComponentOfferRecordId: this.tabs.calc.data.mrComponentOfferRecordId || '',
+            offerRecordStatus: saveAsDraft ? 10 : 20,
+            requirementId: this.mrRequirementId,
+            offerNo: this.tabs.calc.data.offerNo,
+            currencyName: this.tabs.calc.data.currency.name || '',
+            exchangeRateValue: this.tabs.calc.data.exchangeRateValue || '',
+            managementFeeFloatingRatio: this.tabs.calc.data.managementFeeFloatingRatio || '',
+            records: []
+          };
+
+          this.tabs.calc.data.records.map(item => {
+
+            if(item.detNo) {
+              let obj = {
+                mrComponentOfferId: item.mrComponentOfferId || '',
+                detNo: item.detNo || '',
+                amount: parseInt(item.amount) || 0,
+                stuffNo: item.stuffNo || '',
+                length: parseFloat(item.length) || 0,
+                width: parseFloat(item.width) || 0,
+                height: parseFloat(item.height) || 0,
+                orderPrice: parseFloat(item.orderPrice) || 0,
+                copperProduct: parseFloat(item.copperProduct) || 0,
+                stuffUnitPrice: parseFloat(item.stuffUnitPrice) || 0,
+                freightUnitPrice: parseFloat(item.freightUnitPrice) || 0,
+                weight: parseFloat(item.weight) || 0,
+                qc: parseFloat(item.qc) || 0,
+                totalTime: parseFloat(item.totalTime) || 0,
+                steelProduct: parseFloat(item.steelProduct) || 0,
+                rmbTotal: parseFloat(item.rmbTotal) || 0,
+                rmbUnitPrice: parseFloat(item.rmbUnitPrice) || 0,
+                unitPrice: parseFloat(item.unitPrice) || 0,
+                lastTotalPrice: parseFloat(item.lastTotalPrice) || 0,
+                processes: []
+              }
+              
+              for(let key in item.processesObj) {
+                if(this.tabs.calc
+                  .processesIdObj[key]) {
+          
+                  obj.processes.push({
+                    componentWorkProcedureId: this.tabs.calc
+                    .processesIdObj[key],
+                    workTime: item.processesObj[key] || 0,
+                    mrComWorkProcedureOfferId: item.mrComWorkProcedureOfferIdObj[key] || ''
+                  })
+                }
+              }
+              params.records.push(obj)
+            }
+          })
+
+          if(!params.records.length) {
+
+            this.$utils.showTip('warning', 'error', '-1100');
+            return;
+          }
+
+          this.isLoading = true;
+          this.$utils.getJson(this.$utils.CONFIG.api.saveComponentOfferRecord, (res) =>  {
+
+            this.isLoading = false;
+            this.$utils.showTip('success', 'success', '117');
+            this.back();
+          }, () => this.isLoading = false, params)
+        } else {
+          
+          return false;
+        }
+      });
+    },
+    getDropDownList() {
+
+      this.getList(this.$utils.CONFIG.api.queryOffer, this.tabs.calc.filter, 'offerRecord', {mrRequirementId: this.mrRequirementId}); //零件报价记录列表
+      this.getList(this.$utils.CONFIG.api.floatRatio, this.tabs.calc.filter, 'floatRatio'); //管理费用上浮比例列表
+      this.getList(this.$utils.CONFIG.api.stuff, this.tabs.calc.filter, 'stuff'); //获取材料列表
+    },
+    initWorkProcedure(res, isFirst = false) {
+
+      //表头设置
+      let allProcessOfIndex = [];
+      let processesObj = {};
+      let processesIdObj = {};
+      if(res.data && res.data.length) {
+
+        allProcessOfIndex = this.$utils.deepCopy(res.data || []);
+        allProcessOfIndex.map(item => {
+          if(item.name.toUpperCase() == 'QC') item.name = 'QC';
+          processesObj[item.name] = '';
+          processesIdObj[item.name] = item.componentWorkProcedureId;
+        })
+      }
+
+      this.tabs.calc.allProcessOfIndex = allProcessOfIndex;
+      this.tabs.calc.processesObj = processesObj;
+      this.tabs.calc.processesIdObj = processesIdObj;
+      isFirst && (this.tabs.calc.data.records[0].processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj));
+
+      //工序设置弹框设置
+      this.workProcedure = this.$utils.deepCopy(allProcessOfIndex);
+      this.workProcedurePrice = {};
+      this.workProcedure && this.workProcedure.map(item => this.workProcedurePrice[item.name] = item.price || 0) //工序价格对象赋值
+      this.handle.setting.workProcedure = this.$utils.deepCopy(res.data && res.data.length ? res.data : [{}]) || [{}]; //工序赋值弹框数据
+    },
+    getWorkProcedure() { //零件工序查询
+
+      this.$utils.getJson(this.$utils.CONFIG.api.queryWorkProcedure, (res) =>  {
+
+        this.initWorkProcedure(res, true);
+
+      }, () => this.isLoading = false, {mrRequirementId: this.mrRequirementId})
+    },
+    deleteWorkProcedure(row) { //删除零件工序
+      
+      this.handle.setting.workProcedure = this.handle.setting.workProcedure.filter(item => (item.componentWorkProcedureId != row.componentWorkProcedureId || (item.id && item.id != row.id)))
+    },
+    getRepeatWorkProcedure() { //获取重复的工序名称
+
+      let arr = this.handle.setting.workProcedure;
+      let repeatWorkProcedureArr = [];
+
+      for(let i = 0; i < arr.length; i++) {
+
+        for(let j = i+1; j < arr.length; j++) {
+          
+          if(arr[i].name && arr[j].name && (arr[i].name.toUpperCase()) == (arr[j].name.toUpperCase()) && repeatWorkProcedureArr.indexOf(arr[i].name.toUpperCase()) == -1) {
+
+            repeatWorkProcedureArr.push(arr[i].name.toUpperCase());
+          }
+        }
+      }
+
+      return repeatWorkProcedureArr
+    },
+    setProcessInfo() { //工序设置
+
+      let repeatArr = this.getRepeatWorkProcedure();
+      if(repeatArr.length) {
+
+        this.$utils.showTip('warning', 'error', '', `${repeatArr.join('、')}工序名有重复！`);
+        return;
+      }
+
+      let params = [];
+      for(let i = 0; i < this.handle.setting.workProcedure.length; i++) {
+
+        let item = this.handle.setting.workProcedure[i];
+
+        if(item.name) {
+
+          params.push({
+            componentWorkProcedureId: item.componentWorkProcedureId || '',
+            name: item.name || '',
+            price: parseFloat(item.price) || 0,
+            requirementId: this.mrRequirementId || ''
+          })
+        }
+      }
+      
+      this.handle.setting.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.setProcessInfo, (res) =>  {
+
+        this.handle.setting.isLoading = false;
+        this.handle.setting.dialogVisible = false;
+        this.$utils.showTip('success', 'success', '121');
+
+        this.initWorkProcedure(res, false);
+
+        let data = this.tabs.calc.data;
+        if(data.records && data.records.length) { //更新表格工序数据
+          data.records.map(item => {
+
+            let processesObj = this.$utils.deepCopy(item.processesObj);
+            item.processesObj = this.$utils.deepCopy(this.tabs.calc.processesObj);
+            
+            for(let key in item.processesObj) {
+
+              item.processesObj[key] = processesObj[key] || processesObj[key] == 0 ? processesObj[key] : ''; 
+            }
+          })
+        }
+      }, () => this.handle.setting.isLoading = false, params)
+    },
   },
   created() {
 
