@@ -188,50 +188,17 @@
       };
     },
     methods: {
-      getData() { //获取采购订单列表
+      getLeftList(loadingKey = 'isLoading') { //售后反馈列表
 
         let params = {
-
-        };
-        let mock = [
-          {
-            id: 0,
-            a: 'A公司',
-            b: 'T-0045',
-            c: '投诉',
-            d: '2019.03.31',
-            e: '待处理'
-          },
-          {
-            id: 1,
-            a: 'B公司',
-            b: 'T-0045',
-            c: '投诉',
-            d: '2019.03.31',
-            e: '待处理'
-          },
-          {
-            id: 2,
-            a: 'C公司',
-            b: 'T-0045',
-            c: '投诉',
-            d: '2019.03.31',
-            e: '内部已回复'
-          }
-        ]
-
-        this.left.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-          this.left.isLoading = false;
-          this.left.list = res.data || [];
-          if(this.left.list.length) {
-
-            this.left.activeId = this.left.list[0].id;
-            this.currentData = this.left.list[0];
-            this.getDetail();
-          }
-        }, () => this.left.isLoading = false, params, mock)
+          parameter: this.form.parameter || '',
+          type: this.filter.selectedValue,
+          sorting: '',
+          pageNo: this.left.page.pageNo,
+          pageSize: this.left.page.pageSize,
+        }
+        
+        this.getData(this.$utils.CONFIG.api.queryUnfinishedProjectList, params, 'mrSaleOrderId', loadingKey, this.getDetail);
       },
       getDetail() {
 
@@ -329,7 +296,7 @@
     },
     created() {
 
-      this.getData();
+      this.getLeftList();
     }
   };
 </script>

@@ -28,24 +28,24 @@
           </div>
         </div>
         <div class="list" style="top: 64px;">
-          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.id }" v-show="isShowList" @click="handleSelect(item)">
+          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrSaleOrderId }" v-show="isShowList" @click="handleSelect(item)">
             <div class="dflex">
               <div>
-                <img :src="item.business && item.business.fileId ? `${$utils.CONFIG.api.image}?fileId=${item.business.fileId}` : defaultImg" width="40" class="mgr10 mgt10" />
+                <img :src="item.img ? `${$utils.CONFIG.api.image}?fileId=${item.img}` : defaultImg" width="40" class="mgr10 mgt10" />
               </div>
               <div class="flex ellipsis">
                 <p class="ellipsis">
-                  <span>模具号：{{ item.a | filterNull }}</span>
-                  <span class="mgl10">订单类型:<span :title="item.b | filterNull">{{ item.b | filterNull }}</span></span>
+                  <span>模具号：{{ item.mouldNo | filterNull }}</span>
+                  <span class="mgl10">订单类型:<span :title="item.saleOrderTypeText | filterNull">{{ item.saleOrderTypeText | filterNull }}</span></span>
                 </p>
-                <p class="ellipsis">{{ item.c | filterNull }}</p>
+                <p class="ellipsis">客户：{{ item.name | filterNull }}</p>
               </div>
             </div>
             <el-row>
-              <el-col :span="12" class="ellipsis">交期：{{ item.d | filterNull }}</el-col>
-              <el-col :span="12" class="ellipsis" :title="item.e | filterNull">订单价格：{{ item.e | filterNull }}</el-col>
+              <el-col :span="12" class="ellipsis">交期：{{ item.completionDateString | filterNull }}</el-col>
+              <el-col :span="12" class="ellipsis" :title="item.saleTotalPrice | filterNull">订单价格：{{ item.saleTotalPrice | filterNull }}</el-col>
               <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="$router.push(`/project/approval/${item.id}`)">立项</a>
+                <a href="javascript: void(0);" @click="$router.push(`/project/approval/${item.mrSaleOrderId}`)">立项</a>
               </el-col>
             </el-row>
           </div>
@@ -60,16 +60,16 @@
           <div>
             <div class="main-content-title">
               <div>
-                <i class="el-icon-lx-edit"></i> 订单{{currentData.a | filterNull}}基础信息
+                <i class="el-icon-lx-edit"></i> 订单{{currentData.mrSaleOrderId | filterNull}}基础信息
               </div>
             </div>
             <el-scrollbar class="main-content-scorll pdt10">
               <el-row>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{currentData.detail.a | filterNull}}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{currentData.detail.b | filterNull}}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">模具号：{{currentData.detail.c | filterNull}}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单类型：{{currentData.detail.d | filterNull}}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">要求交期号：{{currentData.detail.e | filterNull}}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{currentData.detail.name | filterNull}}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{currentData.customerPoNo | filterNull}}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">模具号：{{currentData.mouldNo | filterNull}}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单类型：{{currentData.saleOrderTypeText | filterNull}}</el-col>
+                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">要求交期号：{{currentData.completionDateString | filterNull}}</el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单状态：{{currentData.detail.dd | filterNull}}</el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单总价：{{currentData.detail.f | filterNull}}</el-col>
                 <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">交易货币种类：{{currentData.detail.g | filterNull}}</el-col>
@@ -125,110 +125,21 @@
       };
     },
     methods: {
-      getLeftList() { //获取采购订单列表
+      getLeftList(loadingKey = 'isLoading') { //获取采购订单列表
 
         let params = {
-
-        };
-        let mock = [
-          {
-            id: 0,
-            a: 'T-0031',
-            b: '整体模具',
-            c: 'A公司',
-            d: '2019.03.31',
-            e: '12500.00元',
-            detail: {
-              a: 'A公司',
-              b: '12334567',
-              c: 'T-0031',
-              d: '整体模具',
-              e: '2019.03.31',
-              dd: '已立项',
-              f: '12301.00',
-              g: '欧元',
-              h: '7.0',
-              i: '12301.00',
-              j: [
-                {
-                  fileName: '172988图纸',
-                  fileId: 'crQhc2flTyetPwbJ'
-                }
-              ],
-              k: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc eget.'
-            }
-          },
-          {
-            id: 1,
-            a: 'T-0032',
-            b: '整体模具',
-            c: 'B公司',
-            d: '2019.03.31',
-            e: '12500.00元',
-            detail: {
-              a: 'B公司',
-              b: '12334567',
-              c: 'T-0032',
-              d: '整体模具',
-              e: '2019.03.31',
-              dd: '已立项',
-              f: '12301.00',
-              g: '欧元',
-              h: '7.5',
-              i: '12301.00',
-              j: [
-                {
-                  fileName: '36988图纸',
-                  fileId: 'crQhc2flTyetPwbJ'
-                }
-              ],
-              k: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc eget.'
-            }
-          },
-          {
-            id: 2,
-            a: 'T-0033',
-            b: '整体模具',
-            c: 'A公司',
-            d: '2019.03.31',
-            e: '12500.00元',
-            detail: {
-              a: 'A公司',
-              b: '12334567',
-              c: 'T-0033',
-              d: '整体模具',
-              e: '2019.03.31',
-              dd: '已立项',
-              f: '12301.00',
-              g: '欧元',
-              h: '7.0',
-              i: '12301.00',
-              j: [
-                {
-                  fileName: '172988图纸',
-                  fileId: 'crQhc2flTyetPwbJ'
-                }
-              ],
-              k: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc eget.'
-            }
-          }
-        ]
-
-        this.left.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-          this.left.isLoading = false;
-          this.left.list = res.data || [];
-          if(this.left.list.length) {
-
-            this.left.activeId = this.left.list[0].id;
-            this.currentData = this.left.list[0];
-          }
-        }, () => this.left.isLoading = false, params, mock)
+          parameter: this.form.parameter || '',
+          type: this.filter.selectedValue,
+          sorting: '',
+          pageNo: this.left.page.pageNo,
+          pageSize: this.left.page.pageSize,
+        }
+        
+        this.getData(this.$utils.CONFIG.api.queryUnfinishedProjectList, params, 'mrSaleOrderId', loadingKey, this.getDetail);
       },
       handleSelect(item) {
 
-        this.left.activeId = item.id;
+        this.left.activeId = item.mrSaleOrderId;
         this.currentData = item;
       },
       refresh() {}

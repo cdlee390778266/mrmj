@@ -75,15 +75,15 @@ let leftMixin = {
 						project: [
 							{
 								label: '按客户名称排序',
-								value: '_MrCustomer.name',
+								value: 'abbreviation',
 							},
 							{
 								label: '按订单金额排序',
-								value: '_MrSaleOrder.completionDate',
+								value: 'saleTotal',
 							},
 							{
 								label: '按要求交期排序',
-								value: '_MrSaleOrder.saleOrderType',
+								value: 'complationDateSort',
 							},
 						]
 					}

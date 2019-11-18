@@ -69,6 +69,9 @@ const CONFIG = {
 		modifyCustomerInfo: baseUrl + 'requirement/customer/modifyCustomerInfo', //客户档案--修改客户信息
 		sumCusRequirement: baseUrl + 'requirement/customer/sumCusRequirement', //客户档案--统计当前符合条件的客户需求数量
 
+		/* 项目模块*/
+		queryUnfinishedProjectList: baseUrl + 'requirement/project/develp/queryUnfinishedProjectList', //需求--新增需求
+
 		/* 生产模块*/
 		saveSaleInProduct: baseUrl + 'requirement/productionOrder/saveSaleInProduct', //生产--工艺路线处新增销售订单
 		queryPendingSaleOrder: baseUrl + 'requirement/saleOrder/queryPendingSaleOrder', //生产--待处理的销售订单列表
