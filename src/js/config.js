@@ -126,6 +126,7 @@ const CONFIG = {
 		
 		/* 计划模块*/
 		setMaxWorkTime: baseUrl + 'requirement/threshold/sou', //计划--工序估工阈值设置
+		setDayCapacity: baseUrl + 'requirement/plan/setDayCapacity', //计划--工序日产能设置
 		getAllProcessOfIndex: baseUrl + 'requirement/productionOrder/getAllProcessOfIndex', //计划--获取计划表表头工序
 		queryPlanList: baseUrl + 'requirement/makeworkplan/queryPlanList', //计划--当前生产计划列表
 		sendOutGoods: baseUrl + 'requirement/plan/sendOutGoods', //生产进度跟踪--发货
@@ -239,6 +240,7 @@ const CONFIG = {
 		'-1098': '请输入报价单编号',
 		'-1099': '报价单编号已存在',
 		'-1100': '报价零件列表不能为空(有Det No.才为有效的数据)',
+		'-1101': '',
 	}
 }
 

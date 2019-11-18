@@ -37,7 +37,7 @@
                   <span class="mgb10 dib">
                     客户：
                     <el-select clearable size="mini" v-model="form.abbreviation" placeholder="请选择客户" style="width: 120px;">
-                      <el-option v-for="(item, index) in filter.customer" :key="index" :label="item.abbreviation" :value="item.abbreviation"></el-option>
+                      <el-option v-if="item.abbreviation && item.abbreviation != 'null'" v-for="(item, index) in filter.customer" :key="index" :label="item.abbreviation" :value="item.abbreviation"></el-option>
                     </el-select>
                   </span>
                   <span class="mgl20 mgb10 dib">
@@ -145,7 +145,7 @@
                     show-overflow-tooltip>
                     <template slot-scope="scope">
                       <div >
-                        {{scope.row.abbreviation | filterNull(' ')}}
+                        {{ scope.row.abbreviation && scope.row.abbreviation != 'null' ? scope.row.abbreviation : ''}}
                       </div>
                     </template>
                   </el-table-column>
@@ -234,11 +234,27 @@
                       label-class-name="fc-red"
                       show-overflow-tooltip>
                       <template slot-scope="scope">
-                        <div>
-                          <!-- <div @click="showInput(tableData, scope.$index, 'currentSituationEdit', {}, false)">
-                            <div class="ecurrentSituationipsis">{{ scope.row.currentSituation }}</div>
-                            <el-input size="mini" v-model="scope.row.currentSituationInput" @focus="showInput(tableData, scope.$index, 'currentSituationEdit', {}, false)" @blur="() => setCurrentSituation(scope.row)" :style="{opacity: scope.row.currentSituationEdit ? 1 : 0}"/>
-                          </div> -->
+                        <div :class="{'fc-red': (scope.row[item.key] > maxWorkTime) && !scope.row[`${item.key}-isOut`]}" v-if="scope.row[item.key]">
+                          <div @click="showInput(tableData, scope.$index, `${item.key}Edit`)">
+                            <div class="ellipsis">
+                              {{ 
+                                scope.row[`${item.key}-isOut`] == 1 ? '外协' : scope.row[item.key]
+                              }}
+                            </div>
+                            <el-select
+                              v-model="scope.row[`${item.key}-isOut`]"
+                              placeholder="请选择"
+                              :style="{opacity: scope.row[`${item.key}Edit`] ? 1 : 0}"
+                              @focus="showInput(tableData, scope.$index, `${item.key}Edit`)"
+                              @blur="scope.row[`${item.key}Edit`] = false">
+                              <el-option
+                                v-for="itemc in $dict.outsourceLabelList"
+                                :key="itemc.value"
+                                :label="itemc.label"
+                                :value="itemc.value">
+                              </el-option>
+                            </el-select>
+                          </div>
                         </div>
                       </template>
                     </el-table-column>
@@ -257,7 +273,7 @@
             <h5 class="content-right-title">5月2日-6月5日 产能负荷对比图</h5>
             <div class="content-right">
               <div class="mgtb10">
-                <el-button type="primary" style="width: 100%;" @click="handle.setting.dialogVisible = true;">工序日产能设置</el-button>
+                <el-button type="primary" style="width: 100%;" @click="() => getProcess()">工序日产能设置</el-button>
               </div>
               <div class="capacity">
                 <div class="capacity-head">
@@ -274,38 +290,6 @@
                       <div><span></span>669</div>
                     </div>
                   </div>
-                  <div class="capacity-item">
-                    <div>M工序</div>
-                    <div class="progress">
-                      <div><span></span>669</div>
-                      <div><span></span>669</div>
-                      <div><span></span>669</div>
-                    </div>
-                  </div>
-                  <div class="capacity-item">
-                    <div>M工序</div>
-                    <div class="progress">
-                      <div><span></span>669</div>
-                      <div><span></span>669</div>
-                      <div><span></span>669</div>
-                    </div>
-                  </div>
-                  <div class="capacity-item">
-                    <div>M工序</div>
-                    <div class="progress">
-                      <div><span></span>669</div>
-                      <div><span></span>669</div>
-                      <div><span></span>669</div>
-                    </div>
-                  </div>
-                  <div class="capacity-item">
-                    <div>M工序</div>
-                    <div class="progress">
-                      <div><span></span>669</div>
-                      <div><span></span>669</div>
-                      <div><span></span>669</div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -313,82 +297,44 @@
         </div>
       </div>
     </div>
-    <el-dialog title="生产订单信息查看修改" class="dialog-gray" :visible.sync="handle.setting.dialogVisible" width="500px">
-      <el-form :model="handle.setting.form" label-width="100px">
+    <el-dialog title="工序日产能设置" class="dialog-gray" :visible.sync="handle.setting.dialogVisible" width="500px">
+      <el-form :model="handle.setting.form" label-width="100px" v-loading="handle.setting.isLoading">
         <div class="dialog-content pdt10">
-          <el-row class="pdtb10" :gutter="20">
-            <el-col :span="12" class="pos-relative">
-              <div class="setting-item">
-                <h3>G工序日产能</h3>
-                <div>
-                  <p class="mgt10">
-                    <span>高产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                  <p class="mgt10">
-                    <span>低产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                </div>
-              </div>
-            </el-col>
-            <el-col :span="12" class="pos-relative">
-              <div class="setting-item">
-                <h3>G工序日产能</h3>
-                <div>
-                  <p class="mgt10">
-                    <span>高产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                  <p class="mgt10">
-                    <span>低产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                </div>
-              </div>
-            </el-col>
-            <el-col :span="12" class="pos-relative">
-              <div class="setting-item">
-                <h3>G工序日产能</h3>
-                <div>
-                  <p class="mgt10">
-                    <span>高产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                  <p class="mgt10">
-                    <span>低产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                </div>
-              </div>
-            </el-col>
-            <el-col :span="12" class="pos-relative">
-              <div class="setting-item">
-                <h3>G工序日产能</h3>
-                <div>
-                  <p class="mgt10">
-                    <span>高产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                  <p class="mgt10">
-                    <span>低产能：</span> 
-                    <el-input size="mini" v-model="right.page1.craftVersionNo" style="width: 100px" />
-                    <span> 小时</span> 
-                  </p>
-                </div>
-              </div>
-            </el-col>
-          </el-row>
-          <div slot="footer" class="dialog-footer tr pdb20 pdlr10">
-            <el-button type="primary" @click="handle.setting.dialogVisible = false">保 存</el-button>
-            <el-button @click="handle.setting.dialogVisible = false">返 回</el-button>
+          <div class="bgfff mgtb10" :gutter="20">
+            <el-table
+              :data="handle.setting.data"
+              border
+              size="mini"
+              max-height="300"
+              class="edit-table content-table input-center"
+              style="width: 100%"
+            >
+              <el-table-column prop="name" label="工序" min-width="140px" align="center" show-overflow-tooltip></el-table-column>
+              <el-table-column label="高产能" min-width="140px" align="center" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div>
+                    <div @click="showInput(handle.setting.data, scope.$index, 'highCapacityEdit', {}, false)">
+                      <div class="eaaipsis">{{ scope.row.highCapacity }}</div>
+                      <el-input size="mini" v-model="scope.row.highCapacity" @focus="showInput(handle.setting.data, scope.$index, 'highCapacityEdit', {}, false)" @blur="scope.row.highCapacityEdit = false" :style="{opacity: scope.row.highCapacityEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="低产能" min-width="140px" align="center" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <div>
+                    <div @click="showInput(handle.setting.data, scope.$index, 'lowCapacityEdit', {}, false)">
+                      <div class="eaaipsis">{{ scope.row.lowCapacity }}</div>
+                      <el-input size="mini" v-model="scope.row.lowCapacity" @focus="showInput(handle.setting.data, scope.$index, 'lowCapacityEdit', {}, false)" @blur="scope.row.lowCapacityEdit = false" :style="{opacity: scope.row.lowCapacityEdit ? 1 : 0}"/>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <div slot="footer" class="dialog-footer tr pdtb20 pdlr10">
+            <el-button type="primary" @click="setDayCapacity">保 存</el-button>
+            <el-button @click="handle.setting.dialogVisible = false">关 闭</el-button>
           </div>
         </div>
       </el-form>
@@ -420,7 +366,8 @@
         handle: {
           setting: {
             dialogVisible: false,
-            data: {}
+            isLoading: false,
+            data: []
           }
         }
       }
@@ -519,6 +466,52 @@
           })
           this.tableData = res.data || [];
         }, () => this.isLoading = false, params)
+      },
+      getProcess() { //日产能查询
+
+        this.handle.setting.dialogVisible = true;
+        this.handle.setting.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.process, (res) =>  {
+
+          this.handle.setting.isLoading = false;
+          this.handle.setting.data = res.data || [];
+        }, () => this.handle.setting.isLoading = false)
+      },
+      setDayCapacity() { //日产能查询
+
+        if(!this.handle.setting.data || !this.handle.setting.data.length) {
+
+          this.$utils.showTip('warning', 'error', '-1079');
+          return;
+        }
+
+        let params = [];
+        for(let i = 0; i < this.handle.setting.data.length; i++) {
+
+          let item = this.handle.setting.data[i];
+          if((parseFloat(item.highCapacity) || 0) < parseFloat(item.lowCapacity) || 0) {
+
+            this.$utils.showTip('warning', '', '', `${item.name}工序高产能小于低产能`);
+            return;
+          }
+
+          if(item.name) {
+
+            params.push({
+              name: item.name,
+              highCapacity: parseFloat(item.highCapacity) || 0,
+              lowCapacity: parseFloat(item.lowCapacity) || 0
+            })
+          }
+        }
+
+        this.handle.setting.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.setDayCapacity, (res) =>  {
+
+          this.handle.setting.isLoading = false;
+          this.handle.setting.dialogVisible = false;
+          this.$utils.showTip('success', 'success', '102');
+        }, () => this.handle.setting.isLoading = false, params)
       },
       setRowClass(row) {
 

@@ -331,7 +331,7 @@
           border
           size="mini"
           max-height="300px"
-          class="edit-table gray-head mgt5"
+          class="edit-table input-center gray-head mgt5"
           style="width: 100%">
           <el-table-column
             label="工序名称"
