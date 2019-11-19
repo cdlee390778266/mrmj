@@ -71,6 +71,7 @@ const CONFIG = {
 
 		/* 项目模块*/
 		queryUnfinishedProjectList: baseUrl + 'requirement/project/develp/queryUnfinishedProjectList', //需求--新增需求
+		queryUnfinishedProjectDetail: baseUrl + 'requirement/project/develp/queryUnfinishedProjectDetail', //需求--新增需求
 
 		/* 生产模块*/
 		saveSaleInProduct: baseUrl + 'requirement/productionOrder/saveSaleInProduct', //生产--工艺路线处新增销售订单
@@ -148,6 +149,9 @@ const CONFIG = {
 		checkPurchaseOrderNo: baseUrl + 'requirement/purchaseOrder/checkPurchaseOrderNo', //计划--于采购订单号验重
 		releasedPurchaseOrder: baseUrl + 'requirement/purchaseOrder/releasedPurchaseOrder', //计划--下达采购订单
 		queryPurchaseOrder: baseUrl + 'requirement/purchaseOrder/queryPurchaseOrder', //计划--未发货的外协采购订单
+		queryOutSourceArrivalInfo: baseUrl + 'requirement/arrival/queryOutSourceArrivalInfo', //计划--外协到货查询
+		saveOutsourceGoods: baseUrl + 'requirement/arrival/saveOutsourceGoods', //计划--外协到货录入
+
 
 		/* 质检模块*/
 		queryGoodsInspectInfo: baseUrl + 'requirement/goodsInspection/queryGoodsInspectInfo', //质量质检--采购到货查询
@@ -243,7 +247,7 @@ const CONFIG = {
 		'-1098': '请输入报价单编号',
 		'-1099': '报价单编号已存在',
 		'-1100': '报价零件列表不能为空(有Det No.才为有效的数据)',
-		'-1101': '',
+		'-1101': '没有选中要保存的数据',
 	}
 }
 

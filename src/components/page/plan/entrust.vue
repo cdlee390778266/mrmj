@@ -135,12 +135,14 @@
                     <el-table-column prop="earliestDeliveryDate" label="最近要求交期" width="120" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="totalPrice" label="总金额(CNY)" sortable width="120"  show-overflow-tooltip></el-table-column>
                     <el-table-column prop="description" label="操作" width="200">
-                      <template scope="scope">
-                        <el-button type="text" @click="$router.push('/plan/register/1')">到货</el-button>
-                        <el-button type="text" @click="$router.push('/plan/order/1')">查看</el-button>
-                        <el-button type="text" @click="$router.push('/plan/placeOrder/1')">编辑</el-button>
-                        <el-button type="text"  @click="$router.push('/plan/order/1')">完成</el-button>
-                        <el-button type="text" @click="deleteOrder(scope.row, scope.$index)">删除</el-button>
+                      <template slot-scope="scope">
+                        <div>
+                          <el-button type="text" @click="$router.push(`/plan/register/${scope.row.mrPurchaseOrderId}`)">到货</el-button>
+                          <el-button type="text" @click="$router.push('/plan/order/1')">查看</el-button>
+                          <el-button type="text" @click="$router.push('/plan/placeOrder/1')">编辑</el-button>
+                          <el-button type="text"  @click="$router.push('/plan/order/1')">完成</el-button>
+                          <el-button type="text" @click="deleteOrder(scope.row, scope.$index)">删除</el-button>
+                        </div>
                       </template>
                     </el-table-column>
                   </el-table>
@@ -403,10 +405,10 @@
         console.log(this.left.tabs[1].form)
         let params = {
           name: this.left.tabs[1].form.name,
-          releasedOrderDate_from: this.left.tabs[1].form.makeOrderDaterange[0] || '',
-          releasedOrderDate_to: this.left.tabs[1].form.makeOrderDaterange[1] || '',
-          earliestDeliveryDate_from: this.left.tabs[1].form.requireDaterange[0] || '',
-          earliestDeliveryDate_to: this.left.tabs[1].form.requireDaterange[1] || '',
+          releasedOrderDate_from: this.left.tabs[1].form.makeOrderDaterange ? this.left.tabs[1].form.makeOrderDaterange[0] : '',
+          releasedOrderDate_to: this.left.tabs[1].form.makeOrderDaterange ? this.left.tabs[1].form.makeOrderDaterange[1] : '',
+          earliestDeliveryDate_from: this.left.tabs[1].form.requireDaterange ? this.left.tabs[1].form.requireDaterange[0] : '',
+          earliestDeliveryDate_to: this.left.tabs[1].form.requireDaterange ? this.left.tabs[1].form.requireDaterange[1] : '',
           minTotalPrice: parseInt(this.left.tabs[1].form.minTotalPrice) || '',
           maxTotalPrice: parseInt(this.left.tabs[1].form.maxTotalPrice) || ''
         };

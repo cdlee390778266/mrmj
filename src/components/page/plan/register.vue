@@ -11,54 +11,73 @@
       <div class="calc">
         <div class="mgt20 pdlr10">
           <div class="mgb10">
-             <span>采购订单号：MR2018-09-10</span>
-             <span class="mgl20">供应商：asdfasdfasdfasdf</span>
-             <span class="mgl20">联系人：asdfasdf</span>
-             <span class="mgl20">增值税率：7%</span>
+             <span>采购订单号：{{data.purchaseOrderNo | filterNull}}</span>
+             <span class="mgl20">供应商：{{data.name | filterNull}}</span>
+             <span class="mgl20">联系人：{{data.purchaseOrderNo | filterNull}}</span>
+             <span class="mgl20">增值税率：{{data.purchaseOrderNo | filterNull}}%</span>
           </div>
           <div class="mgb5">
             录入到货零件的合格数量等信息，确认零件到货
           </div>
           <el-table
-            :data="tabs.calc.list"
+            :data="data.contents"
             border
             size="mini"
             style="width: 100%;"
-            class="content-table edit-table">
+            class="content-table edit-table"
+            @selection-change="handleSelectionChange">
+            <el-table-column
+              type="selection"
+              width="55"
+              align="center"
+              fixed="left">
+            </el-table-column>
             <el-table-column type="index" label="序号" width="50"></el-table-column>
-            <el-table-column prop="aa" label="模具号" class-name="notEdit" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="a" label="零件号" class-name="notEdit" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="b" label="零件数量" class-name="notEdit"  width="100" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="c" label="加工数量" class-name="notEdit" width="100" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="d" label="单位" class-name="notEdit" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="e" label="工序" class-name="notEdit" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="f" label="要求交货期" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="mouldNo" label="模具号" class-name="notEdit" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column label="零件号" class-name="notEdit" show-overflow-tooltip align="center">
+              <template slot-scope="scope">
+                {{scope.row.components | concatString('componentNo')}}
+              </template>
+            </el-table-column>
+            <el-table-column label="零件数量" class-name="notEdit" width="100" show-overflow-tooltip align="center">
+              <template slot-scope="scope">
+                {{scope.row.components | concatString('quantity')}}
+              </template>
+            </el-table-column>
+            <el-table-column prop="machineQuantity" label="加工数量" class-name="notEdit" width="100" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="machineUnit" label="单位" class-name="notEdit" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column label="工序" class-name="notEdit" show-overflow-tooltip align="center">
+              <template slot-scope="scope">
+                {{scope.row.processes | concatString('processName')}}
+              </template>
+            </el-table-column>
+            <el-table-column prop="requireDeliveryDateString" label="要求交货期" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
             <el-table-column label="到货日期" show-overflow-tooltip align="center" width="120">
-              <template scope="scope">
+              <template slot-scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'ggEdit', {}, false)">
-                    <div class="ellipsis tc">{{ scope.row.gg }}</div>
+                  <div @click="showInput(data.contents, scope.$index, 'arrivalDateStringEdit', {}, false)">
+                    <div class="ellipsis tc">{{ scope.row.arrivalDateString }}</div>
                     <el-date-picker
                       type="date"
                       size="mini"
                       placeholder="选择日期"
                       format="yyyy-MM-dd"
                       value-format="yyyy-MM-dd"
-                      v-model="scope.row.gg"
-                      @focus="showInput(tabs.calc.list, scope.$index, 'ggEdit', {}, false)"
-                      @blur="scope.row.ggEdit = false"
-                      :style="{opacity: scope.row.ggEdit ? 1 : 0}">
+                      v-model="scope.row.arrivalDateString"
+                      @focus="showInput(data.contents, scope.$index, 'arrivalDateStringEdit', {}, false)"
+                      @blur="scope.row.arrivalDateStringEdit = false"
+                      :style="{opacity: scope.row.arrivalDateStringEdit ? 1 : 0}">
                     </el-date-picker>
                   </div>
                 </div>
               </template>
             </el-table-column>
             <el-table-column label="包数" show-overflow-tooltip align="center">
-              <template scope="scope">
+              <template slot-scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'hhEdit', {}, false)">
-                    <div class="ellipsis">{{ scope.row.hh }}</div>
-                    <el-input size="mini" v-model="scope.row.hh" @focus="showInput(tabs.calc.list, scope.$index, 'hhEdit', {}, false)" @blur="scope.row.hhEdit = false" :style="{opacity: scope.row.hhEdit ? 1 : 0}"/>
+                  <div @click="showInput(data.contents, scope.$index, 'packageNumEdit', {}, false)">
+                    <div class="ellipsis">{{ scope.row.packageNum }}</div>
+                    <el-input size="mini" v-model="scope.row.packageNum" @focus="showInput(data.contents, scope.$index, 'packageNumEdit', {}, false)" @blur="scope.row.packageNumEdit = false" :style="{opacity: scope.row.packageNumEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -66,9 +85,9 @@
             <el-table-column label="准时包数" show-overflow-tooltip align="center">
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'iiEdit', {}, false)">
-                    <div class="ellipsis">{{ scope.row.ii }}</div>
-                    <el-input size="mini" v-model="scope.row.ii" @focus="showInput(tabs.calc.list, scope.$index, 'iiEdit', {}, false)" @blur="scope.row.iiEdit = false" :style="{opacity: scope.row.iiEdit ? 1 : 0}"/>
+                  <div @click="showInput(data.contents, scope.$index, 'punctualPackageNumEdit', {}, false)">
+                    <div class="ellipsis">{{ scope.row.punctualPackageNum }}</div>
+                    <el-input size="mini" v-model="scope.row.punctualPackageNum" @focus="showInput(data.contents, scope.$index, 'punctualPackageNumEdit', {}, false)" @blur="scope.row.punctualPackageNumEdit = false" :style="{opacity: scope.row.punctualPackageNumEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -76,9 +95,9 @@
             <el-table-column label="合格" show-overflow-tooltip align="center">
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'jjEdit', {}, false)">
-                    <div class="ellipsis">{{ scope.row.jj }}</div>
-                    <el-input size="mini" v-model="scope.row.jj" @focus="showInput(tabs.calc.list, scope.$index, 'jjEdit', {}, false)" @blur="scope.row.jjEdit = false" :style="{opacity: scope.row.jjEdit ? 1 : 0}"/>
+                  <div @click="showInput(data.contents, scope.$index, 'qualifiedNumEdit', {}, false)">
+                    <div class="ellipsis">{{ scope.row.qualifiedNum }}</div>
+                    <el-input size="mini" v-model="scope.row.qualifiedNum" @focus="showInput(data.contents, scope.$index, 'qualifiedNumEdit', {}, false)" @blur="scope.row.qualifiedNumEdit = false" :style="{opacity: scope.row.qualifiedNumEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -86,9 +105,9 @@
             <el-table-column prop="name" label="修" show-overflow-tooltip align="center">
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'kkEdit', {}, false)">
-                    <div class="ellipsis">{{ scope.row.kk }}</div>
-                    <el-input size="mini" v-model="scope.row.kk" @focus="showInput(tabs.calc.list, scope.$index, 'kkEdit', {}, false)" @blur="scope.row.kkEdit = false" :style="{opacity: scope.row.kkEdit ? 1 : 0}"/>
+                  <div @click="showInput(data.contents, scope.$index, 'maintainNumEdit', {}, false)">
+                    <div class="ellipsis">{{ scope.row.maintainNum }}</div>
+                    <el-input size="mini" v-model="scope.row.maintainNum" @focus="showInput(data.contents, scope.$index, 'maintainNumEdit', {}, false)" @blur="scope.row.maintainNumEdit = false" :style="{opacity: scope.row.maintainNumEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -96,9 +115,9 @@
             <el-table-column prop="name" label="试用" show-overflow-tooltip align="center">
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'llEdit', {}, false)">
-                    <div class="ellipsis">{{ scope.row.ll }}</div>
-                    <el-input size="mini" v-model="scope.row.ll" @focus="showInput(tabs.calc.list, scope.$index, 'llEdit', {}, false)" @blur="scope.row.llEdit = false" :style="{opacity: scope.row.llEdit ? 1 : 0}"/>
+                  <div @click="showInput(data.contents, scope.$index, 'tryOutNumEdit', {}, false)">
+                    <div class="ellipsis">{{ scope.row.tryOutNum }}</div>
+                    <el-input size="mini" v-model="scope.row.tryOutNum" @focus="showInput(data.contents, scope.$index, 'tryOutNumEdit', {}, false)" @blur="scope.row.tryOutNumEdit = false" :style="{opacity: scope.row.tryOutNumEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -106,9 +125,9 @@
             <el-table-column label="报废" show-overflow-tooltip align="center">
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'mmEdit', {}, false)">
-                    <div class="emmipsis">{{ scope.row.mm }}</div>
-                    <el-input size="mini" v-model="scope.row.mm" @focus="showInput(tabs.calc.list, scope.$index, 'mmEdit', {}, false)" @blur="scope.row.mmEdit = false" :style="{opacity: scope.row.mmEdit ? 1 : 0}"/>
+                  <div @click="showInput(data.contents, scope.$index, 'scrapNumEdit', {}, false)">
+                    <div class="emmipsis">{{ scope.row.scrapNum }}</div>
+                    <el-input size="mini" v-model="scope.row.scrapNum" @focus="showInput(data.contents, scope.$index, 'scrapNumEdit', {}, false)" @blur="scope.row.scrapNumEdit = false" :style="{opacity: scope.row.scrapNumEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -116,9 +135,9 @@
             <el-table-column label="备注" show-overflow-tooltip align="center">
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'nnEdit', {}, false)">
-                    <div class="ennipsis">{{ scope.row.nn }}</div>
-                    <el-input size="mini" v-model="scope.row.nn" @focus="showInput(tabs.calc.list, scope.$index, 'nnEdit', {}, false)" @blur="scope.row.nnEdit = false" :style="{opacity: scope.row.nnEdit ? 1 : 0}"/>
+                  <div @click="showInput(data.contents, scope.$index, 'remarkEdit', {}, false)">
+                    <div class="ennipsis">{{ scope.row.remark }}</div>
+                    <el-input size="mini" v-model="scope.row.remark" @focus="showInput(data.contents, scope.$index, 'remarkEdit', {}, false)" @blur="scope.row.remarkEdit = false" :style="{opacity: scope.row.remarkEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -142,14 +161,10 @@ export default {
     return {
       activeTab: "calc",
       isLoading: false,
-      tabs: {
-        calc: {
-          form: {
-            type: ''
-          },
-          list: []
-        },
-        preview: {}
+      mrPurchaseOrderId: '',
+      multipleSelection: [],
+      data: {
+        contents: []
       }
     };
   },
@@ -157,60 +172,55 @@ export default {
     getData() {
 
       let params = {
-
+        mrPurchaseOrderId: this.mrPurchaseOrderId,
+        type: 'NoArrivalGoods'
       };
-      let mock = [
-       {
-        aa: 'M1845TF',
-        a: '301',
-        b: '55',
-        c: '10',
-        d: '孔',
-        e: 'EDB',
-        f: '2019/8/26',
-        gg: '',
-        hh: '',
-        ii: '',
-        jj: '',
-        kk: '',
-        ll: '',
-        mm: '',
-        nn: ''
-       },
-       {
-        aa: 'M1845TF1',
-        a: '301/T102',
-        b: '1',
-        c: '2',
-        d: '个',
-        e: 'EDB',
-        f: '2019/8/25',
-        gg: '',
-        hh: '',
-        ii: '',
-        jj: '',
-        kk: '',
-        ll: '',
-        mm: '',
-        nn: ''
-       },
-      ]
-      
+     
       this.isLoading = true;
-      this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+      this.$utils.getJson(this.$utils.CONFIG.api.queryOutSourceArrivalInfo, (res) =>  {
 
         this.isLoading = false;
-        this.tabs.calc.list = res.data || [];
-      }, () => this.isLoading = false, params, mock)
+        this.data = res.data || {contents: []};
+        this.data.contents.map(item => {
+
+          if(!item.arrivalDateString) {
+
+            item.arrivalDateString = new Date().Format('yyyy-MM-dd'); 
+          }
+        })
+      }, () => this.isLoading = false, params)
+    },
+    handleSelectionChange(val) {
+
+      this.multipleSelection = val;
     },
     save() {
 
-      let params = {
+      let params = [];
 
-      };
+      if(!this.multipleSelection.length) {
+
+        this.$utils.showTip('warning', 'error', '-1101')
+        return;
+      }
+
+      this.multipleSelection.map(item => {
+
+        params.push({
+          purchaseOrderId: item.mrOutsourcePurchaseOrderId,
+          arrivalDate: item.arrivalDateString || '',
+          packageNum: parseInt(item.packageNum) || '',
+          punctualPackageNum: parseInt(item.punctualPackageNum) || '',
+          qualifiedNum: parseInt(item.qualifiedNum) || '',
+          tryOutNum: parseInt(item.tryOutNum) || '',
+          maintainNum: parseInt(item.maintainNum) || '',
+          scrapNum: parseInt(item.scrapNum) || '',
+          remark: item.remark || '',
+        })
+      })
       
       this.isLoading = true;
-      this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+      this.$utils.getJson(this.$utils.CONFIG.api.saveOutsourceGoods, (res) =>  {
 
         this.isLoading = false;
         this.$utils.showTip('success', 'success', '102');
@@ -220,6 +230,8 @@ export default {
   },
   created() {
 
+    if(!this.$route.params.id) return;
+    this.mrPurchaseOrderId = this.$route.params.id;
     this.getData();
   }
 };
