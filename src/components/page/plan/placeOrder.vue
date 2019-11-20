@@ -19,40 +19,40 @@
       <div class="calc hide mgt20 mgl20" :class="{'show': activeTab == 'calc'}">
         <div class="mgt20 pdlr10">
           <div class="mgb10">
-            <span class="dib">
+            <span class="dib mgb5">
               采购订单号：
-              <el-input v-model="tabs.calc.form.orderNum" style="width: 100px" />
+              <el-input v-model="tabs.calc.data.purchaseOrderNo" style="width: 100px" />
             </span> 
-            <span class="dib mgl20">
+            <span class="dib mgl20 mgb5">
               供应商：
               <el-autocomplete
                 style="width: 100px;"
                 class="inline-input"
-                v-model="tabs.calc.form.supplier"
+                v-model="tabs.calc.data.purchaseOrderNo"
                 :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, tabs.calc.filter.supplier, 'stuffNo')"
                 valueKey="stuffNo"
                 value="stuffNo"
                 placeholder="请输入内容"
               ></el-autocomplete>
             </span>
-            <span class="dib mgl20">
+            <span class="dib mgl20 mgb5">
               联系人：
               <el-autocomplete
                 style="width: 100px;"
                 class="inline-input"
-                v-model="tabs.calc.form.contacts"
+                v-model="tabs.calc.data.contacts"
                 :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, tabs.calc.filter.contacts, 'stuffNo')"
                 valueKey="stuffNo"
                 value="stuffNo"
                 placeholder="请输入内容"
               ></el-autocomplete>
             </span>
-            <span class="dib mgl20">
+            <span class="dib mgl20 mgb5">
               增值税率：
               <el-autocomplete
                 style="width: 100px;"
                 class="inline-input"
-                v-model="tabs.calc.form.taxRate"
+                v-model="tabs.calc.data.taxRate"
                 :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, tabs.calc.filter.taxRate, 'stuffNo')"
                 valueKey="stuffNo"
                 value="stuffNo"
@@ -60,12 +60,12 @@
               ></el-autocomplete>
             </span>
           </div>
-          <div class="dflex mgb20">
+          <div class="dflex mgb20 mgb5">
             <span>技术要求：</span>
-            <el-input type="textarea" row="4" v-model="tabs.calc.form.require" style="width: 100%" class="flex"/>
+            <el-input type="textarea" row="4" v-model="tabs.calc.data.require" style="width: 100%" class="flex"/>
           </div>
           <el-table
-            :data="tabs.calc.list"
+            :data="tabs.calc.data.contents"
             border
             size="mini"
             class="content-table edit-table"
@@ -86,9 +86,9 @@
             <el-table-column label="加工数量" width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'numEdit', {}, false)">
-                    <div class="ellipsis">{{ scope.row.num }}</div>
-                    <el-input size="mini" v-model="scope.row.num" @focus="showInput(tabs.calc.list, scope.$index, 'numEdit', {}, false)" @blur="scope.row.numEdit = false" :style="{opacity: scope.row.numEdit ? 1 : 0}"/>
+                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'machineQuantityEdit', {}, false)">
+                    <div class="ellipsis">{{ scope.row.machineQuantity }}</div>
+                    <el-input size="mini" v-model="scope.row.machineQuantity" @focus="showInput(tabs.calc.data.contents, scope.$index, 'machineQuantityEdit', {}, false)" @blur="scope.row.machineQuantityEdit = false" :style="{opacity: scope.row.machineQuantityEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -96,9 +96,9 @@
             <el-table-column label="加工单位" min-width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'nameEdit', {}, false)">
-                    <div class="ellipsis">{{ scope.row.name }}</div>
-                    <el-input size="mini" v-model="scope.row.name" @focus="showInput(tabs.calc.list, scope.$index, 'nameEdit', {}, false)" @blur="scope.row.nameEdit = false" :style="{opacity: scope.row.nameEdit ? 1 : 0}"/>
+                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'machineUnitEdit', {}, false)">
+                    <div class="ellipsis">{{ scope.row.machineUnit }}</div>
+                    <el-input size="mini" v-model="scope.row.machineUnit" @focus="showInput(tabs.calc.data.contents, scope.$index, 'machineUnitEdit', {}, false)" @blur="scope.row.machineUnitEdit = false" :style="{opacity: scope.row.machineUnitEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -106,7 +106,7 @@
             <el-table-column label="工序" min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'nameEdit', {}, false)">
+                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'nameEdit', {}, false)">
                     <div class="ellipsis">
                       {{scope.row.selectProcesses}}
                     </div>
@@ -114,7 +114,7 @@
                       v-model="scope.row.selectProcesses"
                       placeholder="请选择"
                       :style="{opacity: scope.row.selectProcessesEdit ? 1 : 0}"
-                      @focus="showInput(tabs.calc.list, scope.$index, 'selectProcessesEdit', {}, false)"
+                      @focus="showInput(tabs.calc.data.contents, scope.$index, 'selectProcessesEdit', {}, false)"
                       @blur="scope.row.selectProcessesEdit = false">
                       <el-option
                         v-for="itemc in tabs.calc.filter.processes"
@@ -130,7 +130,7 @@
             <el-table-column label="要求交货期" width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'requireDeliveryDateStringEdit', {}, false)">
+                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'requireDeliveryDateStringEdit', {}, false)">
                     <div class="ellipsis">{{ scope.row.requireDeliveryDateString }}</div>
                     <el-date-picker
                       type="date"
@@ -139,7 +139,7 @@
                       format="yyyy-MM-dd"
                       value-format="yyyy-MM-dd"
                       v-model="scope.row.requireDeliveryDateString"
-                      @focus="showInput(tabs.calc.list, scope.$index, 'requireDeliveryDateStringEdit', {}, false)"
+                      @focus="showInput(tabs.calc.data.contents, scope.$index, 'requireDeliveryDateStringEdit', {}, false)"
                       @blur="scope.row.requireDeliveryDateStringEdit = false"
                       :style="{opacity: scope.row.requireDeliveryDateStringEdit ? 1 : 0}">
                     </el-date-picker>
@@ -150,9 +150,9 @@
             <el-table-column label="未含税单价" width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)">
+                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)">
                     <div class="ellipsis">{{ scope.row.noTaxRatePrice }}</div>
-                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -160,9 +160,9 @@
             <el-table-column label="未含税总价" width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'noTaxRateTotalPricesEdit', {}, false)">
+                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRateTotalPricesEdit', {}, false)">
                     <div class="ellipsis">{{ scope.row.noTaxRateTotalPrices }}</div>
-                    <el-input size="mini" v-model="scope.row.noTaxRateTotalPrices" @focus="showInput(tabs.calc.list, scope.$index, 'noTaxRateTotalPricesEdit', {}, false)" @blur="scope.row.noTaxRateTotalPricesEdit = false" :style="{opacity: scope.row.noTaxRateTotalPricesEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-model="scope.row.noTaxRateTotalPrices" @focus="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRateTotalPricesEdit', {}, false)" @blur="scope.row.noTaxRateTotalPricesEdit = false" :style="{opacity: scope.row.noTaxRateTotalPricesEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -170,9 +170,9 @@
             <el-table-column label="增殖税率" width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)">
+                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)">
                     <div class="ellipsis">{{ scope.row.noTaxRatePrice }}</div>
-                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -180,9 +180,9 @@
             <el-table-column label="含税单价" width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)">
+                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)">
                     <div class="ellipsis">{{ scope.row.noTaxRatePrice }}</div>
-                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -190,9 +190,9 @@
             <el-table-column label="含税总价" width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)">
+                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)">
                     <div class="ellipsis">{{ scope.row.noTaxRatePrice }}</div>
-                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.list, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -200,9 +200,9 @@
             <el-table-column label="备注" min-width="100" show-overflow-tooltip>
               <template scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.list, scope.$index, 'remarkEdit', {}, false)">
+                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'remarkEdit', {}, false)">
                     <div class="ellipsis">{{ scope.row.remark }}</div>
-                    <el-input size="mini" v-model="scope.row.remark" @focus="showInput(tabs.calc.list, scope.$index, 'remarkEdit', {}, false)" @blur="scope.row.remarkEdit = false" :style="{opacity: scope.row.remarkEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-model="scope.row.remark" @focus="showInput(tabs.calc.data.contents, scope.$index, 'remarkEdit', {}, false)" @blur="scope.row.remarkEdit = false" :style="{opacity: scope.row.remarkEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -237,6 +237,7 @@ export default {
     return {
       activeTab: "calc",
       isLoading: false,
+      mrPurchaseOrderId: '',
       ids: [],
       tabs: {
         calc: {
@@ -273,21 +274,28 @@ export default {
             contacts: '',
             taxRate: ''
           },
-          list: []
+          data: {
+            contents: []
+          }
         },
         preview: {}
       }
     };
   },
   methods: {
-    getData() { //获取下达采购订单列表
+    getData() {
 
+      let params = {
+        mrPurchaseOrderId: this.mrPurchaseOrderId,
+        type: 'NoArrivalGoods'
+      };
+     
       this.isLoading = true;
-      this.$utils.getJson(this.$utils.CONFIG.api.queryReleasingPurchase, (res) => {
-        res.data = [{}]
+      this.$utils.getJson(this.$utils.CONFIG.api.queryOutSourceArrivalInfo, (res) =>  {
+
         this.isLoading = false;
-        this.tabs.calc.list = res.data || [];
-      }, () => this.isLoading = false, this.ids)
+        this.tabs.calc.data = res.data || {contents: []};
+      }, () => this.isLoading = false, params)
     },
     save() {
 
@@ -303,7 +311,7 @@ export default {
         this.back();
       }, () => this.isLoading = false, params)
     },
-    refresh() {
+    getDropDownList() {
 
       // this.getList(this.$utils.CONFIG.api.stuff, this.tabs.calc.filter, 'supplier'); //获取供应商列表
       // this.getList(this.$utils.CONFIG.api.stuff, this.tabs.calc.filter, 'contacts'); //获取联系人列表
@@ -313,17 +321,10 @@ export default {
   },
   created() {
 
-    if(this.$route.params.id) {
-
-      let json = this.$utils.getSessionStorage(this.$route.params.id);
-      this.ids = json ? JSON.parse(json) : [];
-    }else {
-
-      return;
-    }
-    
+    if(!this.$route.params.id) return;
+    this.mrPurchaseOrderId = this.$route.params.id;
     this.getData();
-    this.refresh();
+    this.getDropDownList();
   }
 };
 </script>

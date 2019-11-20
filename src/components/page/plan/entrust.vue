@@ -134,13 +134,13 @@
                     <el-table-column prop="releasedOrderDate" label="下单日期" sortable width="120" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="earliestDeliveryDate" label="最近要求交期" width="120" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="totalPrice" label="总金额(CNY)" sortable width="120"  show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="description" label="操作" width="200">
+                    <el-table-column fixed="right" label="操作" width="200">
                       <template slot-scope="scope">
                         <div>
                           <el-button type="text" @click="$router.push(`/plan/register/${scope.row.mrPurchaseOrderId}`)">到货</el-button>
-                          <el-button type="text" @click="$router.push('/plan/order/1')">查看</el-button>
-                          <el-button type="text" @click="$router.push('/plan/placeOrder/1')">编辑</el-button>
-                          <el-button type="text"  @click="$router.push('/plan/order/1')">完成</el-button>
+                          <el-button type="text" @click="$router.push(`/plan/order/${scope.row.mrPurchaseOrderId}`)">查看</el-button>
+                          <el-button type="text" @click="$router.push(`/plan/placeOrder/${scope.row.mrPurchaseOrderId}`)">编辑</el-button>
+                          <el-button type="text"  @click="$router.push(`/plan/order/${scope.row.mrPurchaseOrderId}`)">完成</el-button>
                           <el-button type="text" @click="deleteOrder(scope.row, scope.$index)">删除</el-button>
                         </div>
                       </template>

@@ -20,47 +20,55 @@
         <div>
           <div class="mgb10">
             <span class="dib">
-              采购订单号：{{tabs.calc.form.orderNum | filterNull}}
+              采购订单号：{{tabs.calc.data.purchaseOrderNo | filterNull}}
             </span> 
             <span class="dib mgl20">
-              供应商：{{tabs.calc.form.supplier | filterNull}}
+              供应商：{{tabs.calc.data.name | filterNull}}
             </span>
             <span class="dib mgl20">
-              联系人：采购订单号：{{tabs.calc.form.contacts | filterNull}}
+              联系人：{{tabs.calc.data.contacts | filterNull}}
             </span>
             <span class="dib mgl20">
-              增值税率：{{tabs.calc.form.taxRate | filterNull}}
+              增值税率：{{tabs.calc.data.taxRate | filterNull}}
             </span>
-          </div>
-          <div class="dflex mgb20">
-            <span>技术要求：</span>
-            <span class="flex">{{tabs.calc.form.require | filterNull}}</span>
           </div>
           <el-table
-            :data="tabs.calc.list"
+            :data="tabs.calc.data.contents"
             border
             size="mini"
             style="width: 100%;"
             class="content-table edit-table">
             <el-table-column type="index" label="序号" width="50"></el-table-column>
-            <el-table-column prop="aa" label="模具号" class-name="notEdit" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="a" label="零件号" class-name="notEdit" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="b" label="数量" class-name="notEdit"  width="100" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="d" label="单位" class-name="notEdit" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="e" label="工序" class-name="notEdit" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="f" label="要求交货期" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="g" label="实际交货期" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="h" label="未含税单价" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="i" label="未含税总价" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="j" label="含税总价" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="k" label="含税总价" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="l" label="包数" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="m" label="准时包数" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="n" label="合格" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="o" label="修" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="p" label="试用" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="q" label="报废" show-overflow-tooltip align="center"></el-table-column>
-            <el-table-column prop="r" label="备注" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="mouldNo" label="模具号" class-name="notEdit" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column label="零件号" class-name="notEdit" show-overflow-tooltip align="center">
+              <template slot-scope="scope">
+                {{scope.row.components | concatString('componentNo')}}
+              </template>
+            </el-table-column>
+            <el-table-column prop="b" label="数量" class-name="notEdit"  width="100" show-overflow-tooltip align="center">
+              <template slot-scope="scope">
+                {{scope.row.components | concatString('quantity')}}
+              </template>
+            </el-table-column>
+            <el-table-column prop="machineUnit" label="单位" class-name="notEdit" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column label="工序" class-name="notEdit" show-overflow-tooltip align="center">
+              <template slot-scope="scope">
+                {{scope.row.processes | concatString('processName')}}
+              </template>
+            </el-table-column>
+            <el-table-column prop="requireDeliveryDateString" label="要求交货期" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="arrivalDateString" label="实际交货期" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="noTaxRatePrice" label="未含税单价" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="noTaxRateTotalPrices" label="未含税总价" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="haveTaxRatePrice" label="含税单价" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="haveTaxRateTotalPrices" label="含税总价" class-name="notEdit" width="120" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="packageNum" label="包数" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="punctualPackageNum" label="准时包数" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="qualifiedNum" label="合格" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="maintainNum" label="修" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="tryOutNum" label="试用" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="scrapNum" label="报废" show-overflow-tooltip align="center"></el-table-column>
+            <el-table-column prop="remark" label="备注" show-overflow-tooltip align="center"></el-table-column>
           </el-table>
         </div>
       </div>
@@ -90,12 +98,15 @@ export default {
     return {
       activeTab: "calc",
       isLoading: false,
+      mrPurchaseOrderId: '',
       tabs: {
         calc: {
           form: {
             type: ''
           },
-          list: []
+          data: {
+            contents: []
+          }
         },
         preview: {}
       }
@@ -105,63 +116,22 @@ export default {
     getData() {
 
       let params = {
-
+        mrPurchaseOrderId: this.mrPurchaseOrderId,
+        type: 'ArrivalGoods'
       };
-      let mock = [
-       {
-        aa: 'M1845TF',
-        a: '301',
-        b: '55',
-        c: '10',
-        d: '孔',
-        e: 'EDB',
-        f: '2019/8/26',
-        g: '2019/9/26',
-        h: '10',
-        i: '125',
-        j: '12',
-        k: '130',
-        l: '1',
-        m: '5',
-        n: '6',
-        o: '1',
-        p: '2',
-        q: '9',
-        r: '测试'
-       },
-       {
-        aa: 'FTEDS108',
-        a: '01',
-        b: '5',
-        c: '101',
-        d: '孔',
-        e: 'EDB',
-        f: '2019/8/01',
-        g: '2019/9/10',
-        h: '1',
-        i: '15',
-        j: '1.1',
-        k: '20',
-        l: '2',
-        m: '5',
-        n: '7',
-        o: '1',
-        p: '2',
-        q: '9',
-        r: '测试'
-       }
-      ]
-      
+     
       this.isLoading = true;
-      this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+      this.$utils.getJson(this.$utils.CONFIG.api.queryOutSourceArrivalInfo, (res) =>  {
 
         this.isLoading = false;
-        this.tabs.calc.list = res.data || [];
-      }, () => this.isLoading = false, params, mock)
-    }
+        this.tabs.calc.data = res.data || {contents: []};
+      }, () => this.isLoading = false, params)
+    },
   },
   created() {
 
+    if(!this.$route.params.id) return;
+    this.mrPurchaseOrderId = this.$route.params.id;
     this.getData();
   }
 };
