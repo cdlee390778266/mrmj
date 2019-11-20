@@ -151,6 +151,8 @@ const CONFIG = {
 		queryPurchaseOrder: baseUrl + 'requirement/purchaseOrder/queryPurchaseOrder', //计划--未发货的外协采购订单
 		queryOutSourceArrivalInfo: baseUrl + 'requirement/arrival/queryOutSourceArrivalInfo', //计划--外协到货查询
 		saveOutsourceGoods: baseUrl + 'requirement/arrival/saveOutsourceGoods', //计划--外协到货录入
+		editPurchaseOrder: baseUrl + 'requirement/purchaseOrder/editPurchaseOrder', //计划--编辑采购订单
+		completePurchase: baseUrl + 'requirement/purchaseOrder/completePurchase', //计划--采购完成
 
 
 		/* 质检模块*/
@@ -248,6 +250,7 @@ const CONFIG = {
 		'-1099': '报价单编号已存在',
 		'-1100': '报价零件列表不能为空(有Det No.才为有效的数据)',
 		'-1101': '没有选中要保存的数据',
+		'-1102': '采购订单号不存在',
 	}
 }
 

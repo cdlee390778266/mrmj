@@ -3,7 +3,7 @@
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-copy"></i> 当前位置：委外加工->下达采购订单
+          <i class="el-icon-lx-copy"></i> 当前位置：委外加工->编辑采购订单
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -21,48 +21,28 @@
           <div class="mgb10">
             <span class="dib mgb5">
               采购订单号：
-              <el-input v-model="tabs.calc.data.purchaseOrderNo" style="width: 100px" />
+              {{tabs.calc.data.purchaseOrderNo | filterNull}}
             </span> 
             <span class="dib mgl20 mgb5">
               供应商：
-              <el-autocomplete
-                style="width: 100px;"
-                class="inline-input"
-                v-model="tabs.calc.data.purchaseOrderNo"
-                :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, tabs.calc.filter.supplier, 'stuffNo')"
-                valueKey="stuffNo"
-                value="stuffNo"
-                placeholder="请输入内容"
-              ></el-autocomplete>
+              <el-select size="mini" v-model="tabs.calc.data.supplier" value-key="name" placeholder="请选择供应商" style="width: 100px;" @change="$set(tabs.calc.data, 'liaisonManName', '')">
+                <el-option v-for="(item, index) in tabs.calc.filter.supplier" :key="index" :label="item.name" :value="item"></el-option>
+              </el-select>
             </span>
             <span class="dib mgl20 mgb5">
               联系人：
-              <el-autocomplete
-                style="width: 100px;"
-                class="inline-input"
-                v-model="tabs.calc.data.contacts"
-                :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, tabs.calc.filter.contacts, 'stuffNo')"
-                valueKey="stuffNo"
-                value="stuffNo"
-                placeholder="请输入内容"
-              ></el-autocomplete>
+              <el-select size="mini" v-model="tabs.calc.data.liaisonManName"  placeholder="请选择联系人" style="width: 100px;" @change="">
+                <el-option v-for="(item, index) in (tabs.calc.data.supplier && tabs.calc.data.supplier.liaisonMens ? tabs.calc.data.supplier.liaisonMens : [])" :key="index" :label="item.name" :value="item.name"></el-option>
+              </el-select>
             </span>
             <span class="dib mgl20 mgb5">
               增值税率：
-              <el-autocomplete
-                style="width: 100px;"
-                class="inline-input"
-                v-model="tabs.calc.data.taxRate"
-                :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, tabs.calc.filter.taxRate, 'stuffNo')"
-                valueKey="stuffNo"
-                value="stuffNo"
-                placeholder="请输入内容"
-              ></el-autocomplete>
+              <el-input v-model="tabs.calc.data.valueAddedTax" style="width: 100px" />
             </span>
           </div>
           <div class="dflex mgb20 mgb5">
             <span>技术要求：</span>
-            <el-input type="textarea" row="4" v-model="tabs.calc.data.require" style="width: 100%" class="flex"/>
+            <el-input type="textarea" row="4" v-model="tabs.calc.data.skillRequire" style="width: 100%" class="flex"/>
           </div>
           <el-table
             :data="tabs.calc.data.contents"
@@ -71,19 +51,19 @@
             class="content-table edit-table"
             style="width: 100%;"
           >
-            <el-table-column type="index" label="序号" width="50"></el-table-column>
-            <el-table-column prop="mouldNo" label="模具号" class-name="notEdit" width="100" show-overflow-tooltip></el-table-column>
-            <el-table-column label="零件号" class-name="notEdit" min-width="100" show-overflow-tooltip>
+            <el-table-column type="index" label="序号" width="50" align="center"></el-table-column>
+            <el-table-column prop="mouldNo" label="模具号" class-name="notEdit" width="100" align="center" show-overflow-tooltip></el-table-column>
+            <el-table-column label="零件号" class-name="notEdit" min-width="100" align="center" show-overflow-tooltip>
               <template scope="scope">
                 {{scope.row.components | concatString('componentNo')}}
               </template>
             </el-table-column>
-            <el-table-column label="零件数量" class-name="notEdit" min-width="100" show-overflow-tooltip>
+            <el-table-column label="零件数量" class-name="notEdit" min-width="100" align="center" show-overflow-tooltip>
               <template scope="scope">
                 {{scope.row.components | concatString('quantity')}}
               </template>
             </el-table-column>
-            <el-table-column label="加工数量" width="100" show-overflow-tooltip>
+            <el-table-column label="加工数量" width="100" align="center" show-overflow-tooltip>
               <template scope="scope">
                 <div>
                   <div @click="showInput(tabs.calc.data.contents, scope.$index, 'machineQuantityEdit', {}, false)">
@@ -93,7 +73,7 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="加工单位" min-width="100" show-overflow-tooltip>
+            <el-table-column label="加工单位" min-width="100" align="center" show-overflow-tooltip>
               <template scope="scope">
                 <div>
                   <div @click="showInput(tabs.calc.data.contents, scope.$index, 'machineUnitEdit', {}, false)">
@@ -103,10 +83,10 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="工序" min-width="100" show-overflow-tooltip>
+            <el-table-column label="工序" min-width="100" align="center" show-overflow-tooltip>
               <template slot-scope="scope">
                 <div>
-                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'nameEdit', {}, false)">
+                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'selectProcessesEdit', {}, false)">
                     <div class="ellipsis">
                       {{scope.row.selectProcesses}}
                     </div>
@@ -117,17 +97,17 @@
                       @focus="showInput(tabs.calc.data.contents, scope.$index, 'selectProcessesEdit', {}, false)"
                       @blur="scope.row.selectProcessesEdit = false">
                       <el-option
-                        v-for="itemc in tabs.calc.filter.processes"
-                        :key="itemc.name"
-                        :label="itemc.name"
-                        :value="itemc.name">
+                        v-for="item in (scope.row.processes || [])"
+                        :key="item.processName"
+                        :label="item.processName"
+                        :value="item.processName">
                       </el-option>
                     </el-select>
                   </div>
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="要求交货期" width="100" show-overflow-tooltip>
+            <el-table-column label="要求交货期" width="100" align="center" show-overflow-tooltip>
               <template scope="scope">
                 <div>
                   <div @click="showInput(tabs.calc.data.contents, scope.$index, 'requireDeliveryDateStringEdit', {}, false)">
@@ -147,7 +127,7 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="未含税单价" width="100" show-overflow-tooltip>
+            <el-table-column label="未含税单价" width="100" align="center" show-overflow-tooltip>
               <template scope="scope">
                 <div>
                   <div @click="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)">
@@ -157,7 +137,7 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="未含税总价" width="100" show-overflow-tooltip>
+            <el-table-column label="未含税总价" width="100" align="center" show-overflow-tooltip>
               <template scope="scope">
                 <div>
                   <div @click="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRateTotalPricesEdit', {}, false)">
@@ -167,37 +147,13 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="增殖税率" width="100" show-overflow-tooltip>
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)">
-                    <div class="ellipsis">{{ scope.row.noTaxRatePrice }}</div>
-                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
-                  </div>
-                </div>
-              </template>
+            <el-table-column prop="valueAddedTax" label="增殖税率" width="100" align="center" show-overflow-tooltip>
             </el-table-column>
-            <el-table-column label="含税单价" width="100" show-overflow-tooltip>
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)">
-                    <div class="ellipsis">{{ scope.row.noTaxRatePrice }}</div>
-                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
-                  </div>
-                </div>
-              </template>
+            <el-table-column prop="haveTaxRatePrice" label="含税单价" width="100" align="center" show-overflow-tooltip>
             </el-table-column>
-            <el-table-column label="含税总价" width="100" show-overflow-tooltip>
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)">
-                    <div class="ellipsis">{{ scope.row.noTaxRatePrice }}</div>
-                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
-                  </div>
-                </div>
-              </template>
+            <el-table-column prop="haveTaxRateTotalPrices" label="含税总价" width="100" align="center" show-overflow-tooltip>
             </el-table-column>
-            <el-table-column label="备注" min-width="100" show-overflow-tooltip>
+            <el-table-column label="备注" min-width="100" align="center" show-overflow-tooltip>
               <template scope="scope">
                 <div>
                   <div @click="showInput(tabs.calc.data.contents, scope.$index, 'remarkEdit', {}, false)">
@@ -242,39 +198,12 @@ export default {
       tabs: {
         calc: {
           filter: {
-            supplier: [
-              {
-                stuffNo: 'A公司'
-              },
-              {
-                stuffNo: 'B公司'
-              },
-            ],
-            contacts: [
-              {
-                stuffNo: '王强'
-              },
-              {
-                stuffNo: '张二一'
-              },
-            ],
-            taxRate: [
-              {
-                stuffNo: '5.1'
-              },
-              {
-                stuffNo: '7.8'
-              },
-            ],
-            processes: []
-          },
-          form: {
-            orderNum: '',
-            supplier: '',
-            contacts: '',
-            taxRate: ''
+            supplier: []
           },
           data: {
+            supplier: {
+              liaisonMens: []
+            },
             contents: []
           }
         },
@@ -291,10 +220,10 @@ export default {
       };
      
       this.isLoading = true;
-      this.$utils.getJson(this.$utils.CONFIG.api.queryOutSourceArrivalInfo, (res) =>  {
+      this.$utils.getJson(this.$utils.CONFIG.api.editPurchaseOrder, (res) =>  {
 
         this.isLoading = false;
-        this.tabs.calc.data = res.data || {contents: []};
+        
       }, () => this.isLoading = false, params)
     },
     save() {
@@ -313,10 +242,20 @@ export default {
     },
     getDropDownList() {
 
-      // this.getList(this.$utils.CONFIG.api.stuff, this.tabs.calc.filter, 'supplier'); //获取供应商列表
-      // this.getList(this.$utils.CONFIG.api.stuff, this.tabs.calc.filter, 'contacts'); //获取联系人列表
-      // this.getList(this.$utils.CONFIG.api.stuff, this.tabs.calc.filter, 'taxRate'); //获取增值税率列表
-      this.getList(this.$utils.CONFIG.api.process, this.tabs.calc.filter, 'processes'); //获取工序名称列表
+      this.getList(this.$utils.CONFIG.api.customerQcip, this.tabs.calc.filter.supplier, 'supplier', {customerType: 20}, (res) => {
+
+          let supplier = res.content || [];
+
+          if(this.tabs.calc.data.name) {
+
+            this.$set(this.tabs.calc.data, 'supplier', supplier.find(item => item.name == this.tabs.calc.data.name))
+          }
+
+          this.$set(this.tabs.calc.filter, 'supplier', supplier)
+        }); //获取供应商
+
+        // this.getList(this.$utils.CONFIG.api.queryOutsourceProcess, this.filter, 'outsourceProcess'); //外协工序列表
+        // this.getList(this.$utils.CONFIG.api.process, this.filter, 'processes', ); //工序名称列表
     }
   },
   created() {

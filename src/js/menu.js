@@ -246,7 +246,7 @@ const MENU = {
 				icon: 'el-icon-potato-strips'
 			},
 			{
-				name: '达采购订单',
+				name: '编辑采购订单',
 				path: '/placeOrder',
 				paramsPath: '/placeOrder/:id?',
 				icon: '',
@@ -260,9 +260,16 @@ const MENU = {
 				isSubPage: true
 			},
 			{
-				name: '外协订单',
+				name: '下达采购订单',
 				path: '/order',
 				paramsPath: '/order/:id?',
+				icon: '',
+				isSubPage: true
+			},
+			{
+				name: '采购订单完成确认',
+				path: '/finish',
+				paramsPath: '/finish/:id?',
 				icon: '',
 				isSubPage: true
 			},

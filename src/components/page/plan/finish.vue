@@ -3,7 +3,7 @@
     <div class="crumbs">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <i class="el-icon-lx-copy"></i> 当前位置：委外加工->下达采购订单
+          <i class="el-icon-lx-copy"></i> 当前位置：委外加工-> 采购订单完成确认
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -85,6 +85,7 @@
 			</div>
     </div>
     <div class="detail-footer tr">
+      <el-button type="primary" @click="save">订单完成</el-button>
       <el-button type="primary" @click="back">返 回</el-button>
     </div>
   </div>
@@ -99,6 +100,7 @@ export default {
       activeTab: "calc",
       isLoading: false,
       mrPurchaseOrderId: '',
+      multipleSelection: [],
       tabs: {
         calc: {
           form: {
@@ -127,6 +129,26 @@ export default {
         this.tabs.calc.data = res.data || {contents: []};
       }, () => this.isLoading = false, params)
     },
+    save() {
+
+      if(!this.tabs.calc.data.mrPurchaseOrderId) {
+
+        this.$utils.showTip('warning', 'error', '-1102')
+        return;
+      }
+
+      let params = {
+        mrPurchaseOrderId: this.tabs.calc.data.mrPurchaseOrderId
+      };
+
+      this.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.completePurchase, (res) =>  {
+
+        this.isLoading = false;
+        this.$utils.showTip('success', 'success', '117');
+        this.back();
+      }, () => this.isLoading = false, params)
+    }
   },
   created() {
 

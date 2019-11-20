@@ -13,8 +13,8 @@
           <div class="mgb10">
              <span>采购订单号：{{data.purchaseOrderNo | filterNull}}</span>
              <span class="mgl20">供应商：{{data.name | filterNull}}</span>
-             <span class="mgl20">联系人：{{data.purchaseOrderNo | filterNull}}</span>
-             <span class="mgl20">增值税率：{{data.purchaseOrderNo | filterNull}}%</span>
+             <span class="mgl20">联系人：{{data.liaisonManName | filterNull}}</span>
+             <span class="mgl20">增值税率：{{data.valueAddedTax | filterNull}}%</span>
           </div>
           <div class="mgb5">
             录入到货零件的合格数量等信息，确认零件到货

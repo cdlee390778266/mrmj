@@ -140,7 +140,7 @@
                           <el-button type="text" @click="$router.push(`/plan/register/${scope.row.mrPurchaseOrderId}`)">到货</el-button>
                           <el-button type="text" @click="$router.push(`/plan/order/${scope.row.mrPurchaseOrderId}`)">查看</el-button>
                           <el-button type="text" @click="$router.push(`/plan/placeOrder/${scope.row.mrPurchaseOrderId}`)">编辑</el-button>
-                          <el-button type="text"  @click="$router.push(`/plan/order/${scope.row.mrPurchaseOrderId}`)">完成</el-button>
+                          <el-button type="text"  @click="$router.push(`/plan/finish/${scope.row.mrPurchaseOrderId}`)">完成</el-button>
                           <el-button type="text" @click="deleteOrder(scope.row, scope.$index)">删除</el-button>
                         </div>
                       </template>
