@@ -17,7 +17,7 @@
     </div>
     <div class="detail-main">
       <div class="calc hide mgt20 mgl20" :class="{'show': activeTab == 'calc'}">
-        <div class="mgt20 pdlr10">
+        <div class="pdlr10">
           <div class="mgb10">
             <span class="dib mgb5">
               采购订单号：
@@ -36,8 +36,12 @@
               </el-select>
             </span>
             <span class="dib mgl20 mgb5">
-              增值税率：
-              <el-input v-model="tabs.calc.data.valueAddedTax" style="width: 100px" />
+              成交方式：
+              <el-input v-model="tabs.calc.data.deliveryWayText" style="width: 100px" />
+            </span>
+            <span class="dib mgl20 mgb5">
+              付款条件：
+              <el-input v-model="tabs.calc.data.payConditionText" style="width: 100px" />
             </span>
           </div>
           <div class="dflex mgb20 mgb5">
@@ -50,7 +54,7 @@
             size="mini"
             class="content-table edit-table"
             style="width: 100%;"
-          >
+            @selection-change="handleSelectionChange">
             <el-table-column type="index" label="序号" width="50" align="center"></el-table-column>
             <el-table-column prop="mouldNo" label="模具号" class-name="notEdit" width="100" align="center" show-overflow-tooltip></el-table-column>
             <el-table-column label="零件号" class-name="notEdit" min-width="100" align="center" show-overflow-tooltip>
@@ -128,24 +132,22 @@
               </template>
             </el-table-column>
             <el-table-column label="未含税单价" width="100" align="center" show-overflow-tooltip>
-              <template scope="scope">
+              <template slot-scope="scope">
                 <div>
+                  {{noTaxRateTotalPrices(scope.row)}}
+                  {{haveTaxRatePrice(scope.row)}}
+                  {{haveTaxRateTotalPrices(scope.row)}}
                   <div @click="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)">
                     <div class="ellipsis">{{ scope.row.noTaxRatePrice }}</div>
-                    <el-input size="mini" v-model="scope.row.noTaxRatePrice" @focus="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)" @blur="scope.row.noTaxRatePriceEdit = false" :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-model="scope.row.noTaxRatePrice"
+                    @focus="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRatePriceEdit', {}, false)"
+                    @blur="scope.row.noTaxRatePriceEdit = false"
+                    :style="{opacity: scope.row.noTaxRatePriceEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="未含税总价" width="100" align="center" show-overflow-tooltip>
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRateTotalPricesEdit', {}, false)">
-                    <div class="ellipsis">{{ scope.row.noTaxRateTotalPrices }}</div>
-                    <el-input size="mini" v-model="scope.row.noTaxRateTotalPrices" @focus="showInput(tabs.calc.data.contents, scope.$index, 'noTaxRateTotalPricesEdit', {}, false)" @blur="scope.row.noTaxRateTotalPricesEdit = false" :style="{opacity: scope.row.noTaxRateTotalPricesEdit ? 1 : 0}"/>
-                  </div>
-                </div>
-              </template>
+            <el-table-column prop="noTaxRateTotalPrices" label="未含税总价" width="100" align="center" show-overflow-tooltip>
             </el-table-column>
             <el-table-column prop="valueAddedTax" label="增殖税率" width="100" align="center" show-overflow-tooltip>
             </el-table-column>
@@ -195,6 +197,7 @@ export default {
       isLoading: false,
       mrPurchaseOrderId: '',
       ids: [],
+      multipleSelection: [],
       tabs: {
         calc: {
           filter: {
@@ -204,12 +207,35 @@ export default {
             supplier: {
               liaisonMens: []
             },
-            contents: []
+            contents: [{}]
           }
         },
         preview: {}
       }
     };
+  },
+  computed: {
+    noTaxRateTotalPrices() { //未含税总价
+
+      return function(row) {
+
+        this.$set(row, 'noTaxRateTotalPrices', (parseFloat(row.noTaxRatePrice) || 0) * (parseFloat(row.machineQuantity) || 0))
+      }
+    },
+    haveTaxRatePrice() { //含税单价
+
+      return function(row) {
+
+        this.$set(row, 'haveTaxRatePrice', (parseFloat(row.noTaxRatePrice) || 0) * (1 + (parseFloat(row.valueAddedTax) || 0)))
+      }
+    },
+    haveTaxRateTotalPrices() { //含税总价
+
+      return function(row) {
+
+        this.$set(row, 'haveTaxRateTotalPrices', (parseFloat(row.haveTaxRatePrice) || 0) * (parseFloat(row.machineQuantity) || 0))
+      }
+    }
   },
   methods: {
     getData() {
@@ -226,19 +252,49 @@ export default {
         
       }, () => this.isLoading = false, params)
     },
+    handleSelectionChange(val) {
+
+      this.multipleSelection = val;
+    },
     save() {
 
-      let params = {
+      if(!this.multipleSelection.length) {
 
-      };
+        this.$utils.showTip('warning', 'error', '-1101')
+        return;
+      }
+
+      let params = {
+        mrPurchaseOrderId: this.tabs.calc.data.mrPurchaseOrderId,
+        name: this.tabs.calc.data.supplier && this.tabs.calc.data.supplier.name ? this.tabs.calc.data.supplier.name : '',
+        deliveryWayText: this.tabs.calc.data.deliveryWayText || '',
+        payConditionText: this.tabs.calc.data.payConditionText || '',
+        skillRequire: this.tabs.calc.data.skillRequire || '',
+        contents: []
+      }
+
+      this.multipleSelection.map(item => {
+
+        params.contents.push({
+          mrOutsourcePurchaseOrderId: item.mrOutsourcePurchaseOrderId,
+          arrivalDate: item.arrivalDateString || '',
+          packageNum: parseInt(item.packageNum) || '',
+          punctualPackageNum: parseInt(item.punctualPackageNum) || '',
+          qualifiedNum: parseInt(item.qualifiedNum) || '',
+          tryOutNum: parseInt(item.tryOutNum) || '',
+          maintainNum: parseInt(item.maintainNum) || '',
+          scrapNum: parseInt(item.scrapNum) || '',
+          remark: item.remark || '',
+        })
+      })
       
       this.isLoading = true;
-      this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+      this.$utils.getJson(this.$utils.CONFIG.api.editPurchaseOrder, (res) =>  {
 
         this.isLoading = false;
-        this.$utils.showTip('success', 'success', '108');
+        this.$utils.showTip('success', 'success', '117');
         this.back();
-      }, () => this.isLoading = false, params)
+      }, () => this.isLoading = false)
     },
     getDropDownList() {
 

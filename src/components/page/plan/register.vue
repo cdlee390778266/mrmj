@@ -223,7 +223,7 @@ export default {
       this.$utils.getJson(this.$utils.CONFIG.api.saveOutsourceGoods, (res) =>  {
 
         this.isLoading = false;
-        this.$utils.showTip('success', 'success', '102');
+        this.$utils.showTip('success', 'success', '117');
         this.back();
       }, () => this.isLoading = false, params)
     },

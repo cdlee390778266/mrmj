@@ -48,6 +48,7 @@
                   >
                     <el-table-column
                     type="selection"
+                    fixed="left"
                     width="50">
                     </el-table-column>
                     <el-table-column prop="mouldNo" sortable label="模具号" width="180" show-overflow-tooltip></el-table-column>
@@ -134,7 +135,7 @@
                     <el-table-column prop="releasedOrderDate" label="下单日期" sortable width="120" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="earliestDeliveryDate" label="最近要求交期" width="120" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="totalPrice" label="总金额(CNY)" sortable width="120"  show-overflow-tooltip></el-table-column>
-                    <el-table-column fixed="right" label="操作" width="200">
+                    <el-table-column label="操作" width="200">
                       <template slot-scope="scope">
                         <div>
                           <el-button type="text" @click="$router.push(`/plan/register/${scope.row.mrPurchaseOrderId}`)">到货</el-button>
@@ -402,7 +403,7 @@
         }, () => this.right.isLoading = false, params)
       },
       queryOrder() { //获取采购订单跟踪列表
-        console.log(this.left.tabs[1].form)
+        
         let params = {
           name: this.left.tabs[1].form.name,
           releasedOrderDate_from: this.left.tabs[1].form.makeOrderDaterange ? this.left.tabs[1].form.makeOrderDaterange[0] : '',
@@ -423,15 +424,15 @@
       deleteOrder(item, index) {
 
         let params = {
-
+          mrPurchaseOrderId: item.mrPurchaseOrderId
         };
-      
+
         this.right.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
+        this.$utils.getJson(this.$utils.CONFIG.api.deletePurchaseOrder, (res) =>  {
 
           this.right.isLoading = false;
           this.$utils.showTip('success', 'success', '104');
-          this.left.tabs[1].list.splice(index, 1);
+          this.queryOrder();
         }, () => this.right.isLoading = false, params)
       },
       queryUser() { //获取供应商列表

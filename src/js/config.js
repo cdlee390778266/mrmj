@@ -153,6 +153,7 @@ const CONFIG = {
 		saveOutsourceGoods: baseUrl + 'requirement/arrival/saveOutsourceGoods', //计划--外协到货录入
 		editPurchaseOrder: baseUrl + 'requirement/purchaseOrder/editPurchaseOrder', //计划--编辑采购订单
 		completePurchase: baseUrl + 'requirement/purchaseOrder/completePurchase', //计划--采购完成
+		deletePurchaseOrder: baseUrl + 'requirement/purchaseOrder/deletePurchaseOrder', //计划--删除采购订单
 
 
 		/* 质检模块*/
