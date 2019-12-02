@@ -27,6 +27,7 @@ Vue.prototype.$filters = Vue.options.filters
 Vue.use(ElementUI, {
     size: 'small'
 });
+
 Vue.use(VuePreview)
 
 //使用钩子函数对路由进行权限跳转
