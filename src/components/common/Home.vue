@@ -3,7 +3,7 @@
         <v-head></v-head>
         <v-sidebar></v-sidebar>
         <div class="content-box content-collapse">
-            <v-tags></v-tags>
+            <!-- <v-tags></v-tags> -->
             <div class="content">
                 <transition name="move" mode="out-in">
                     <keep-alive :include="tagsList">
@@ -11,9 +11,6 @@
                     </keep-alive>
                 </transition>
             </div>
-        </div>
-        <div class="foot">
-            © 2018 Chengdu Ming Rui Precision Mold & Die Co.,Ltd
         </div>
     </div>
 </template>
@@ -51,10 +48,9 @@
 </script>
 <style scoped>
     .content-collapse {
-        top: 50px;
-        left: 0 !important;
-        right: 70px;
-        bottom: 20px;
+        top: 60px;
+        right: 0px;
+        bottom: 0px;
     }
     .foot {
         position: absolute;

@@ -1,14 +1,47 @@
 <template>
   <div>
-    <div class="crumbs">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item>
-          <i class="el-icon-lx-copy"></i> 当前位置：客户档案
-        </el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
     <div class="main">
-      <div class="main-left" v-loading="left.isLoading">
+      <div class="posFull pd15">
+        <div class="mgtb10">
+          <span>
+            <span>客户：</span> 
+            <el-input v-model="form.parameter" style="width: 100px" />
+          </span>
+          <span class="mgl20">
+            <span>区域：</span> 
+            <el-input v-model="form.parameter" style="width: 100px" />
+          </span>
+          <span class="mgl20">
+            <span>国家：</span> 
+            <el-input v-model="form.parameter" style="width: 100px" />
+          </span>
+        </div>
+        <el-table
+          :data="left.list"
+          border
+          size="mini"
+          class="content-table"
+          style="width: 100%"
+          v-loading="left.isLoading"
+        >
+          <el-table-column prop="name" label="客户姓名" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="abbreviation" label="客户简称" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="name" label="address" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="name" label="所在国家" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column label="常用联系人" width="120" show-overflow-tooltip>
+            <template slot-scope="scope">
+              {{scope.row.liaisonMens | concatString('name', ',')}}
+            </template>
+          </el-table-column>
+          <el-table-column prop="phone" label="电话" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="name" label="付款账期" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="name" label="结算货币" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="name" label="操作" width="120" fixed="right">
+            <el-button type="primary" size="mini">修改</el-button>
+          </el-table-column>
+        </el-table>
+      </div>
+      <!-- <div class="main-left" v-loading="left.isLoading">
         <div class="main-left-search pd10">
           <div class="mgb10">
             客户：
@@ -100,7 +133,7 @@
             </div>
           </template>
         </page-wrapper>
-      </div>
+      </div> -->
     </div>
 
     <el-dialog title="客户档案" center :visible.sync="handle.update.dialogVisible" width="800px">
@@ -488,6 +521,10 @@
       
       this.resetLiaisonMan();
       this.search();
+    },
+    updated() {
+      this.setTableMaxHeight();
+      window.onresize = this.setTableMaxHeight;
     }
   };
 </script>

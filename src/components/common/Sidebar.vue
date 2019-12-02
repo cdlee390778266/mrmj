@@ -1,20 +1,22 @@
 <template>
   <div class="sidebar">
-    <el-menu
-      class="sidebar-el-menu"
-      :default-active="onRoutes"
-      :collapse="true"
-      background-color="#000"
-      text-color="#fff"
-      active-text-color="#20a0ff"
-      unique-opened
-      router
-    >
-      <el-menu-item v-for="item in menu[type].list" :index="`/${type}${item.path}`" :key="item.path" v-if="!item.isSubPage">
-        <i :class="item.icon"></i>
-        <span slot="title">{{ item.name }}</span>
-      </el-menu-item>
-    </el-menu>
+    <el-scrollbar>
+      <el-menu
+        class="sidebar-el-menu"
+        :default-active="onRoutes"
+        background-color="#fff"
+        text-color="#000"
+        active-text-color="#1d9ce5"
+        router
+      >
+        <el-submenu :index="item.orgCode" v-for="(item, key) in menu">
+          <template slot="title">{{item.name}}</template>
+          <el-menu-item v-for="(itemc, key) in item.list" :index="`/${type}${itemc.path}`" :key="itemc.path" v-if="!itemc.isSubPage">
+          <span slot="title">{{ itemc.name }}</span>
+        </el-menu-item>
+        </el-submenu>
+      </el-menu>
+    </el-scrollbar>
   </div>
 </template>
 
@@ -44,23 +46,39 @@
 	};
 </script>
 
-<style scoped>
-	.sidebar {
-		display: block;
-		position: absolute;
-		right: 0;
-		top: 50px;
-		bottom: 23px;
-		overflow-y: scroll;
-		z-index: 1000;
-	}
-	.sidebar::-webkit-scrollbar {
-		width: 0;
-	}
-	.sidebar-el-menu:not(.el-menu--collapse) {
-		width: 250px;
-	}
-	.sidebar > ul {
-		height: 100%;
-	}
+<style lang="scss">
+	.sidebar{
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 60px;
+    bottom:0;
+    width: 200px;
+    border-right: 2px solid #021f3c;
+    overflow-y: scroll;
+    z-index: 999;
+  }
+  .sidebar::-webkit-scrollbar{
+      width: 0;
+  }
+  .sidebar > ul {
+      height:100%;
+  }
+  .el-menu-item, .el-submenu__title {
+    height: 50px;
+    line-height: 50px;
+  }
+  .sidebar-el-menu {
+    margin: 0px 15px 15px 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow-x: hidden;
+    .el-submenu__title, .el-menu-item {
+      border-bottom: 1px solid #e0e0e0;
+      border-bottom-color: #e0e0e0 !important;
+      &:hover {
+        background-color: #eee !important;
+      }
+    }
+  }
 </style>

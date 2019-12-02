@@ -20,10 +20,9 @@ a {
     text-decoration: none
 }
 
-
 .content-box {
     position: absolute;
-    left: 250px;
+    left: 205px;
     right: 0;
     top: 70px;
     bottom: 0;
@@ -39,10 +38,6 @@ a {
     padding: 10px;
     overflow-y: auto;
     box-sizing: border-box;
-}
-
-.content-collapse {
-    left: 65px;
 }
 
 .container {

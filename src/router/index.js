@@ -32,27 +32,6 @@ let routes = [
     component: resolve => require(['../components/common/Home.vue'], resolve),
     children:[
       {
-        path: '/table',
-        component: resolve => require(['../components/page/BaseTable.vue'], resolve),
-        meta: { title: '基础表格' }
-      },
-      {
-        path: '/tabs',
-        component: resolve => require(['../components/page/Tabs.vue'], resolve),
-        meta: { title: 'tab选项卡' }
-      },
-      {
-        path: '/form',
-        component: resolve => require(['../components/page/BaseForm.vue'], resolve),
-        meta: { title: '基本表单' }
-      },
-      {
-        // 图片上传组件
-        path: '/upload',
-        component: resolve => require(['../components/page/Upload.vue'], resolve),
-        meta: { title: '文件上传' }   
-      },
-      {
         // vue-schart组件
         path: '/charts',
         component: resolve => require(['../components/page/BaseCharts.vue'], resolve),

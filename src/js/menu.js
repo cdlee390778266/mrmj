@@ -1,6 +1,7 @@
 const MENU = {
 	sale: {
 		orgCode: 'org_sale',
+		name: '销售',
 		list: [
 			{
 				name: '首页',
@@ -63,6 +64,7 @@ const MENU = {
 	},
 	project: {
 		orgCode: 'org_proj',
+		name: '项目',
 		list: [
 			{
 				name: '首页',
@@ -113,6 +115,7 @@ const MENU = {
 	},
 	product: {
 		orgCode: 'org_manu',
+		name: '生产',
 		list: [
 			{
 				name: '首页',
@@ -210,6 +213,7 @@ const MENU = {
 	},
 	plan: {
 		orgCode: 'org_plan',
+		name: '计划',
 		list: [
 			{
 				name: '首页',
@@ -282,6 +286,7 @@ const MENU = {
 	},
 	quality: {
 		orgCode: 'org_qa',
+		name: '质检',
 		list: [
 			{
 				name: '首页',

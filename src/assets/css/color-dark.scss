@@ -8,7 +8,7 @@ $borderColor: #ddd;
 $themeColor: rgba(22, 155, 213, 1);
 
 body {
-	color: #333;
+	color: #495057;
 	font-size: 14px;
 	font-family: '微软雅黑'
 }
@@ -257,6 +257,10 @@ body {
 .pdlr10 {
 	padding-left: 10px;
 	padding-right: 10px;
+}
+
+.pd15 {
+	padding: 15px;
 }
 
 .pd20 {
@@ -570,10 +574,11 @@ body {
 	display: -webkit-flex;
 	display: flex;
 	position: absolute;
-	top: 80px;
+	top: 0px;
 	right: 10px;
 	bottom: 10px;
 	left: 10px;
+	padding: 15px;
 	border: 1px solid $borderColor;
 	box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
 
