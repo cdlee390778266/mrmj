@@ -11,43 +11,11 @@ let leftMixin = {
 			filter: {
 				selectedValue: '',
 				typeList: [
-					{
-						label: '按照客户名称搜索需求',
-						value: '1',
-					},
-					{
-						label: '按照零件号搜索需求',
-						value: '2',
-					},
-					{
-						label: '按照客户PO号搜索需求',
-						value: '3',
-					}
 				],
 				listType: {
 					project: [
-						{
-							label: '按照客户名称搜索',
-							value: '1',
-						},
-						{
-							label: '按照模具号搜索',
-							value: '3',
-						}
 					],
 					product: [
-						{
-							label: '按照客户名称搜索',
-							value: '1',
-						},
-						{
-							label: '按照模具号搜索',
-							value: '3',
-						},
-						{
-							label: '按照零件号搜索',
-							value: '2',
-						}
 					],
 				},
 				sort: {
@@ -55,36 +23,9 @@ let leftMixin = {
 					sortField: '_MrSaleOrder.mouldNo',
 					listType: {
 						product: [
-							{
-								label: '按模具号排序',
-								value: '_MrSaleOrder.mouldNo',
-							},
-							{
-								label: '按客户名称排序',
-								value: '_MrCustomer.name',
-							},
-							{
-								label: '按要求交期排序',
-								value: '_MrSaleOrder.completionDate',
-							},
-							{
-								label: '按订单类型排序',
-								value: '_MrSaleOrder.saleOrderType',
-							},
+							
 						],
 						project: [
-							{
-								label: '按客户名称排序',
-								value: 'abbreviation',
-							},
-							{
-								label: '按订单金额排序',
-								value: 'saleTotal',
-							},
-							{
-								label: '按要求交期排序',
-								value: 'complationDateSort',
-							},
 						]
 					}
 				}
@@ -108,6 +49,11 @@ let leftMixin = {
 				page2: {},
 				page3: {},
 				page4: {}
+			},
+			table: {
+				isLoading: false,
+				data: [],
+				page: Object.assign({}, this.$utils.CONFIG.page)
 			}
 		}
 	},
@@ -491,31 +437,9 @@ let leftMixin = {
       }
     }
   },
-	mounted() {
-		let _this = this;
-		let prevScrollTop = 0;
-		let isScrollDown = false;
-		if(this.$refs.list) {
 	
-			this.$refs.list.onscroll = function() {	//下拉加载更多
-
-		   		let scrollTop = this.scrollTop;
-		   		let clientHeight = this.clientHeight;
-		   		let scrollHeight = this.scrollHeight;
-					isScrollDown = prevScrollTop < scrollTop;
-					prevScrollTop = scrollTop;
-		      if((scrollTop+clientHeight+40 > scrollHeight) && isScrollDown && !_this.left.isLoadingMore && (_this.left.page.pageNo < _this.left.page.totalPages)){
-			
-					_this.left.isLoadingMore = true;
-					_this.left.page.pageNo++;
-					_this.getLeftList('isLoadingMore');
-				}
-			}
-		}
-	},
 	destroyed() {
 
-		this.$refs.list && (this.$refs.list.onscroll = null);
 		window.onresize = null;
 	}
 }

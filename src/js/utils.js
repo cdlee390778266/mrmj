@@ -242,14 +242,13 @@ Date.prototype.Format = function(fmt, hasWeek) {
 }
 
 // 拿到表格的高度和最高高度 高度===最高高度
-Utils.getTableMaxHeight = (minusSelectors = ['.crumbs', '.detail-footer'], minusHeight = 55, containerSelector = '.content') => {
+Utils.getTableMaxHeight = (minusSelectors = ['.table-out'], minusHeight = 36, containerSelector = '.content') => {
 
   let [container, minusHeightTotal]  = [document.querySelector(containerSelector), minusHeight];
   if (!container) return 200;
 
   let [boxHeight, maxHeight] = [container.clientHeight, maxHeight];
 
-  if (navigator.userAgent.includes('Firefox')) minusHeightTotal += 20;
   for (let selector of minusSelectors) {
 
     minusHeightTotal += container.querySelector(selector).clientHeight;

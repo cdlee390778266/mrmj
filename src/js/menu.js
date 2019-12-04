@@ -9,17 +9,22 @@ const MENU = {
 				icon: 'el-icon-lx-home'
 			},
 			{
-				name: '跟踪需求',
+				name: '客户档案',
+				path: '/user',
+				icon: 'el-icon-lx-people'
+			},
+			{
+				name: '报价管理',
 				path: '/demand',
 				icon: 'el-icon-lx-edit'
 			},
 			{
-				name: '销售订单开展',
+				name: '订单管理',
 				path: '/order',
 				icon: 'el-icon-tickets'
 			},
 			{
-				name: '售后反馈',
+				name: '客户投诉',
 				path: '/service',
 				icon: 'el-icon-lx-service'
 			},
@@ -29,12 +34,7 @@ const MENU = {
 				icon: 'el-icon-lx-redpacket'
 			},
 			{
-				name: '客户档案',
-				path: '/user',
-				icon: 'el-icon-lx-people'
-			},
-			{
-				name: '信息查询与分析',
+				name: '发票管理',
 				path: '/query',
 				icon: 'el-icon-lx-rank'
 			},

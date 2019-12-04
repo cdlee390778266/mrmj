@@ -3,23 +3,28 @@
     <div class="main">
       <div class="posFull pd15">
         <div class="mgtb10">
-          <span>
-            <span>客户：</span> 
-            <el-input v-model="form.parameter" style="width: 100px" />
-          </span>
-          <span class="mgl20">
-            <span>区域：</span> 
-            <el-input v-model="form.parameter" style="width: 100px" />
-          </span>
-          <span class="mgl20">
-            <span>国家：</span> 
-            <el-input v-model="form.parameter" style="width: 100px" />
-          </span>
+          <el-form :model="form" :inline="true" label-width="40px" ref="form" class="table-out">
+            <el-form-item label="客户" prop="customerName">
+              <el-input v-model="form.parameter" style="width: 170px" />
+            </el-form-item>
+            <el-form-item label="区域" prop="customerName">
+              <el-input v-model="form.parameter" style="width: 170px" />
+            </el-form-item>
+            <el-form-item label="国家" prop="customerName">
+              <el-input v-model="form.parameter" style="width: 170px" />
+            </el-form-item>
+            <el-form-item label="" class="pdl40">
+              <el-button type="primary" size="small">查询</el-button>
+              <el-button type="primary" size="small">重置</el-button>
+            </el-form-item>
+          </el-form>
         </div>
         <el-table
           :data="left.list"
-          border
+          :height="maxHeight"
+          :max-height="maxHeight"
           size="mini"
+          stripe
           class="content-table"
           style="width: 100%"
           v-loading="left.isLoading"
@@ -36,104 +41,16 @@
           <el-table-column prop="phone" label="电话" width="120" show-overflow-tooltip></el-table-column>
           <el-table-column prop="name" label="付款账期" width="120" show-overflow-tooltip></el-table-column>
           <el-table-column prop="name" label="结算货币" width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="name" label="操作" width="120" fixed="right">
-            <el-button type="primary" size="mini">修改</el-button>
+          <el-table-column prop="name" label="操作" width="260" fixed="right">
+            <template slot-scope="scope">
+              <el-button type="primary" size="mini" @click="edit('edit', 'updateForm', scope.row)">修改</el-button>
+              <el-button type="success" size="mini">详情</el-button>
+              <el-button type="info" size="mini">历史事件</el-button>
+              <el-button type="danger" size="mini">删除</el-button>
+            </template>
           </el-table-column>
         </el-table>
       </div>
-      <!-- <div class="main-left" v-loading="left.isLoading">
-        <div class="main-left-search pd10">
-          <div class="mgb10">
-            客户：
-            <el-input v-model="form.text" style="width: 140px" prefix-icon="el-icon-search" @focus="isShowList = false" />
-            <el-button type="primary" @click="edit('add', 'updateForm')" style="width: 80px; margin-left: 10px;">新增客户</el-button>
-          </div>
-        </div>
-        <div class="list" style="top: 64px;" ref="list">
-          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrCustomerId }" v-show="isShowList" @click="handleSelect(item)">
-            <div class="dflex" style="align-items:center">
-              <div>
-                <img :src="item.business && item.business.fileId ? `${$utils.CONFIG.api.image}?fileId=${item.business.fileId}` : defaultImg" width="30" class="mgr10 mgt10" />
-              </div>
-              <div class="flex ellipsis">
-                <p>{{ item.name }}</p>
-              </div>
-            </div>
-            <el-row>
-              <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click.stop="edit('edit', 'updateForm', item)">编辑</a>
-              </el-col>
-            </el-row>
-          </div>
-          <div class="tc pd10" v-show="isShowList && left.page.offset < left.page.totalPages && left.list.length && left.isLoadingMore">
-            加载中<i class="el-icon-loading"></i>
-          </div>
-          <div class="filter" v-show="!isShowList">
-            <p v-for="(item, index) in filter.typeList" :key="index" @click="selectType(item)"><i class="el-icon-search"></i> {{ item.label }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="main-right" v-loading="right.isLoading">
-        <page-wrapper @change="search" :rightList="left.list">
-          <template #pageName>
-            客户信息明细
-          </template>
-          <template v-slot:default="slotProps">
-            <div>
-              <div class="main-content-title">
-                <div>
-                  <i class="el-icon-lx-edit"></i> 客户信息
-                </div>
-              </div>
-              <el-scrollbar class="main-content-scorll pdt10">
-                <el-row>
-                  <el-col :span="24"><strong>客户信息</strong></el-col>
-                  <el-col :span="24">
-                    <div class="dflex">
-                      <div class="flex">
-                        <el-row>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户名称：{{ currentData.name | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户简称：{{ currentData.abbreviation | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">客户所在国：{{ currentData.country ? currentData.country.name : '-' }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">详细地址：{{ currentData.address | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">联系电话：{{ currentData.phone | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">传真：{{ currentData.fax | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">电子邮件：{{ currentData.email | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">企业负责人：{{ currentData.personInCharge | filterNull }}</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">付款账期：{{ currentData.accountPeriod | filterNull }}天</el-col>
-                          <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">使用货币：{{ currentData.currency ? currentData.currency.name : '-' }}</el-col>
-                        </el-row>
-                      </div>
-                      <div class="pd10">
-                        <img :src="currentData.business && currentData.business.fileId ? `${$utils.CONFIG.api.image}?fileId=${currentData.business.fileId}` : defaultImg" width="88" height="88">
-                      </div>
-                    </div>
-                  </el-col>
-                </el-row>
-                <el-row>
-                  <el-col :span="24"><strong>联系人信息：</strong></el-col>
-                  <el-col :span="24">
-                    <el-table
-                      :data="currentData.liaisonMens"
-                      border
-                      size="mini"
-                      class="content-table"
-                      style="width: 100%"
-                    >
-                      <el-table-column prop="name" label="联系人姓名" width="180" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="gender" label="性别" width="180" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="position" label="职位" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="phone" label="联系电话" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="email" label="电子邮件" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="remark" label="备注" show-overflow-tooltip></el-table-column>
-                    </el-table>
-                  </el-col>
-                </el-row>
-              </el-scrollbar>
-            </div>
-          </template>
-        </page-wrapper>
-      </div> -->
     </div>
 
     <el-dialog title="客户档案" center :visible.sync="handle.update.dialogVisible" width="800px">
@@ -301,21 +218,7 @@
           remarkEdit: false
         },
         filter: {
-          selectedValue: 0,
-          typeList: [
-            {
-						label: '按照客户名称搜索客户',
-              value: '0',
-            },
-            {
-              label: '按照联系人名称搜索客户',
-              value: '1',
-            }
-          ]
-        },
-        right: {
-          activeIndex: 0,
-          isLoading: false
+          
         },
         handle: {
           update: {

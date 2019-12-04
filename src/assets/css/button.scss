@@ -1,9 +1,32 @@
+.el-button {
+  padding: 9px !important;
+}
 .el-button--primary {
-  background-color: rgba(22, 155, 213, 1) !important;
-  border-color: rgba(22, 155, 213, 1) !important;
+  background-color: #3ba9e8 !important;
+  border-color: #2fa4e7 !important;
   &:hover {
-    background-color: rgba(22, 155, 213, .8) !important;
-    border-color: rgba(22, 155, 213, .8) !important;
+    opacity: .8;
+  }
+}
+.el-button--success {
+  background-color: #81b944 !important;
+  border-color: #73a839 !important;
+  &:hover {
+    opacity: .8;
+  }
+}
+.el-button--info {
+  background-color: #414951 !important;
+  border-color: #343a40 !important;
+  &:hover {
+    opacity: .8;
+  }
+}
+.el-button--danger {
+  background-color: #d9262c !important;
+  border-color: #c71c22 !important;
+  &:hover {
+    opacity: .8;
   }
 }
 .el-button--text {

@@ -104,3 +104,15 @@
 .input-center input {
   text-align: center !important;
 }
+.content-table {
+  color: #495057 !important;
+  th {
+    color: #495057 !important;
+    border-top: 1px solid #dee2e6;
+    border-bottom: 2px solid #dee2e6 !important;
+  }
+  &.el-table--striped .el-table__body tr.el-table__row--striped td {
+    border-top: 1px solid #93d0f3;
+    background-color: #c5e6f8;
+  }
+}

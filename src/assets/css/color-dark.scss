@@ -726,12 +726,6 @@ body {
 	}
 }
 
-.content-table {
-	th {
-		background-color: #e4e4e4 !important;
-	}
-}
-
 .v-upload {
 	width: 88px;
 
@@ -1017,4 +1011,13 @@ body {
 		height: 178px;
 		display: block;
 	}
+}
+.el-form-item__label {
+	color: #495057 !important;
+}
+.el-input__inner {
+	border: 1px solid #a9a9a9 !important; 
+}
+.el-input.is-active .el-input__inner, .el-input__inner:focus {
+	border-color: #3ba9e8 !important;
 }
