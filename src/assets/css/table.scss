@@ -105,6 +105,15 @@
   text-align: center !important;
 }
 .content-table {
+  &.el-table--mini {
+    td, th {
+      padding: 3px 0px;
+      .el-button--mini {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+      }
+    }
+  }
   color: #495057 !important;
   th {
     color: #495057 !important;

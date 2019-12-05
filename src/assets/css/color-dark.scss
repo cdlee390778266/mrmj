@@ -460,15 +460,15 @@ body {
 }
 
 .tl {
-	text-align: left;
+	text-align: left !important;
 }
 
 .tc {
-	text-align: center;
+	text-align: center !important;
 }
 
 .tr {
-	text-align: right;
+	text-align: right !important;
 }
 
 .fr {
@@ -627,6 +627,7 @@ body {
 		-webkit-flex: 1;
 		flex: 1;
 		position: relative;
+		overflow: auto;
 
 		.up,
 		.down {
@@ -647,11 +648,12 @@ body {
 		}
 
 		.main-right-title {
-			font-size: 16px;
+			padding: 0 20px;
+			font-size: 14px;
+			color: rgb(29, 156, 229);
 			line-height: 50px;
-			text-align: center;
-			border-bottom: 1px solid $borderColor;
-			background: rgb(242, 242, 242);
+			border-radius: 2px;
+			background: #e9ecef;
 		}
 
 		.main-content-title {

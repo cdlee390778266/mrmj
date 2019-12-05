@@ -1,8 +1,8 @@
 <template>
     <div class="header">
         <div class="logo mgl10">
-            <img src="../../assets/img/logo.png" height="32">
-            <img src="../../assets/img/LogoText.svg" height="30" class="mgl10">
+            <img src="../../assets/img/logo.png" height="28">
+            <img src="../../assets/img/LogoText.svg" height="24" class="mgl10">
         </div>
         <div class="header-right">
             <div class="header-user-con">
@@ -69,7 +69,7 @@
     }
     .header .logo{
         position: relative;
-        top: 8px;
+        top: 6px;
         float: left;
         width:250px;
         line-height: 50px;

@@ -1,123 +1,82 @@
 <template>
   <div>
-    <div class="crumbs">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item>
-          <i class="el-icon-lx-copy"></i> 当前位置：需求跟踪
-        </el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
     <div class="main">
-      <div class="main-left" v-loading="left.isLoading">
-        <div class="main-left-search pd10">
-          <div class="mgb10">
-            需求列表：
-            <el-input v-model="left.form.parameter" style="width: 200px" prefix-icon="el-icon-search" @focus="isShowList = false" />
-          </div>
-          <div>
-            <el-button type="primary" @click="handle.update.type = 'add';handle.update.form.userFace = '', handle.update.addFiles = []; showDialog('update', 'updateForm', true)" style="width: 130px;">新增需求</el-button>
-            <el-button type="primary" class="fr" @click="showPlanDialog" style="width: 130px;">查看生产计划</el-button>
-          </div>
-        </div>
-        <div class="list" ref="list">
-          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.mrRequirementId }" v-show="isShowList" @click="handleSelect(item, 'mrRequirementId', getDetail)">
-            <div class="dflex">
-              <div>
-                <div>
-                <img :src="item.fileId ? `${$utils.CONFIG.api.image}?fileId=${item.fileId}` : defaultImg" width="30" height="30" class="mgr10 mgt10" />
-              </div>
-              </div>
-              <div class="flex">
-                <p>{{ item.name | filterNull }}</p>
-                <p>客户PO号：{{ item.customerPoNo | filterNull }}</p>
-              </div>
-            </div>
-            <el-row>
-              <el-col :span="12">需求类型：{{ item.requirementTypeText }}</el-col>
-              <el-col :span="12">交期：{{ item.requireDeliveryDateString | filterNull }}</el-col>
-              <el-col :span="24">报价：{{ item.totalPrice | filterNull }}{{ (item.currencyName ? item.currencyName : '') | filterNull }}</el-col>
-              <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click.stop="handle.update.type = 'edit';handle.update.dialogVisible = true; getDetail(item);">修改</a>
-                <a href="javascript: void(0);" @click.stop="showStopDialog(item)">终止</a>
-                <router-link :to="`/sale/detail/${item.mrRequirementId}`">报价</router-link>
-                <a href="javascript: void(0);" @click.stop="handle.order.dialogVisible = true; getOrderDetail(item);">下单</a>
-              </el-col>
-            </el-row>
-          </div>
-          <div class="tc pd10" v-show="isShowList && left.isLoadingMore">
-            加载中<i class="el-icon-loading"></i>
-          </div>
-          <div class="filter" v-show="!isShowList">
-            <p v-for="(item, index) in filter.typeList" :key="index" @click="selectType(item)"><i class="el-icon-search"></i> {{ item.label }}</p>
-          </div>
-        </div>
-      </div>
       <div class="main-right" v-loading="right.isLoading">
-        <page-wrapper @change="refresh" :haveCarousel="false">
-          <div class="main-content-title">
-            <div>
-              <slot name="pageTitle"><i class="el-icon-lx-edit"></i> 模具零件需求信息</slot>
-            </div>
-          </div>
-          <div class="pdt10 mgt10">
-            <el-scrollbar class="main-content-scorll pdt10">
-              <el-row>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户名称：{{ right.page1.name | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{ right.page1.customerPoNo | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求编号：{{ right.page1.requirementNum | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求类型：{{ right.page1.requirementTypeText | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">需求状态：{{ right.page1.requirementStatusText | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">已报总价：{{ right.page1.totalPrice | filterNull }}</el-col>
-                <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">报价货币：{{ right.page1.currencyName | filterNull }}</el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="24">需求零件列表：</el-col>
-                <el-col :span="24">
-                  <el-table
-                    :data="right.page1.components"
-                    border
-                    size="mini"
-                    class="content-table"
-                    style="width: 100%"
-                  >
-                    <el-table-column type="index" label="序号" width="50" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="componentNo" label="零件号" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="customerNo" label="客户编号" width="180" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="quantity" label="需求数量" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="deliveryDateString" label="要求交期" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="remark" label="说明" show-overflow-tooltip></el-table-column>
-                  </el-table>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="24">需求附件：</el-col>
-                <el-col :span="24">
-                  <el-table
-                    :data="right.page1.attachments"
-                    border
-                    size="mini"
-                    class="content-table"
-                    style="width: 100%"
-                  >
-                    <el-table-column type="index" label="序号" width="50"></el-table-column>
-                    <el-table-column prop="fileName" label="附件名称" show-overflow-tooltip></el-table-column>
-                    <el-table-column width="100" label="操作">
-                      <template slot-scope="scope">
-                        <a href="javascript:void(0);" style="color: #3375AB;" @click="down(scope.row.fileId)">下载</a>
-                      </template>
-                    </el-table-column>
-                  </el-table>
-                </el-col>
-              </el-row>
-              <el-row>
-                <el-col :span="24">需求说明：</el-col>
-                <el-col
-                  :span="24"
-                >{{ right.page1.remark | filterNull }}</el-col>
-              </el-row>
-            </el-scrollbar>
-          </div>
-        </page-wrapper>
+        <div class="main-right-title tl">销售 / 报价管理</div>
+        <div class="mgt20">
+          <el-form :model="form" :inline="true" label-width="40px" ref="form" class="table-out">
+            <el-form-item label="客户" prop="customerName">
+              <el-input v-model="form.parameter" style="width: 170px" />
+            </el-form-item>
+            <el-form-item label="区域" prop="customerName">
+              <el-input v-model="form.parameter" style="width: 170px" />
+            </el-form-item>
+            <el-form-item label="国家" prop="customerName">
+              <el-input v-model="form.parameter" style="width: 170px" />
+            </el-form-item>
+            <el-form-item label="" class="pdl40">
+              <el-button type="primary" size="small">查询</el-button>
+              <el-button type="primary" size="small">重置</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+        <el-table
+          :show-header="false"
+          :data="left.list"
+          :height="maxHeight"
+          :max-height="maxHeight"
+          size="mini"
+          class="content-table"
+          style="width: 100%"
+          v-loading="left.isLoading">
+          <el-table-column type="expand">
+            <template slot-scope="props">
+              <el-form label-position="left" inline class="demo-table-expand">
+                <el-form-item label="商品名称">
+                  <span>{{ props.row.name }}</span>
+                </el-form-item>
+                <el-form-item label="所属店铺">
+                  <span>{{ props.row.shop }}</span>
+                </el-form-item>
+                <el-form-item label="商品 ID">
+                  <span>{{ props.row.id }}</span>
+                </el-form-item>
+                <el-form-item label="店铺 ID">
+                  <span>{{ props.row.shopId }}</span>
+                </el-form-item>
+                <el-form-item label="商品分类">
+                  <span>{{ props.row.category }}</span>
+                </el-form-item>
+                <el-form-item label="店铺地址">
+                  <span>{{ props.row.address }}</span>
+                </el-form-item>
+                <el-form-item label="商品描述">
+                  <span>{{ props.row.desc }}</span>
+                </el-form-item>
+              </el-form>
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" label="客户姓名" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="abbreviation" label="客户简称" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="name" label="address" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="name" label="所在国家" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column label="常用联系人" width="120" show-overflow-tooltip>
+            <template slot-scope="scope">
+              {{scope.row.liaisonMens | concatString('name', ',')}}
+            </template>
+          </el-table-column>
+          <el-table-column prop="phone" label="电话" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="name" label="付款账期" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="name" label="结算货币" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="name" label="操作" width="260" fixed="right">
+            <template slot-scope="scope">
+              <el-button type="primary" size="mini" @click="edit('edit', 'updateForm', scope.row)">修改项目</el-button>
+              <el-button type="danger" size="mini">删除项目</el-button>
+              <el-button type="success" size="mini">新增项目</el-button>
+              <el-button type="info" size="mini">历史事件</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
     </div>
 
@@ -1140,6 +1099,10 @@
           }
         })
       },
+      setTableMaxHeight() {
+
+        this.maxHeight = this.$utils.getTableMaxHeight(['.main-right-title', '.table-out']);
+      },
       refresh() {}
     },
     computed: {
@@ -1159,6 +1122,10 @@
     },
     created() {
       this.getLeftList();
+    },
+    updated() {
+      this.setTableMaxHeight();
+      window.onresize = this.setTableMaxHeight;
     }
   };
 </script>
