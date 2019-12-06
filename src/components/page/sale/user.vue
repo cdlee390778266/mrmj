@@ -31,7 +31,7 @@
         >
           <el-table-column prop="name" label="客户姓名" width="120" show-overflow-tooltip></el-table-column>
           <el-table-column prop="abbreviation" label="客户简称" width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="name" label="address" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="name" label="address" min-width="120" show-overflow-tooltip></el-table-column>
           <el-table-column prop="name" label="所在国家" width="120" show-overflow-tooltip></el-table-column>
           <el-table-column label="常用联系人" width="120" show-overflow-tooltip>
             <template slot-scope="scope">
