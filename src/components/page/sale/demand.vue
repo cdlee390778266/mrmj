@@ -1,17 +1,17 @@
 <template>
   <div>
     <div class="main">
-      <div class="main-right" v-loading="right.isLoading">
+      <div class="main-right">
         <div class="main-right-title tl">销售 / 报价管理</div>
         <div class="mgt20">
-          <el-form :model="form" :inline="true" label-width="40px" ref="form" class="table-out">
+          <el-form :model="form" :inline="true" ref="form" class="table-out">
             <el-form-item label="客户" prop="customerName">
               <el-input v-model="form.parameter" style="width: 170px" />
             </el-form-item>
-            <el-form-item label="区域" prop="customerName">
+            <el-form-item label="报价单号" prop="customerName">
               <el-input v-model="form.parameter" style="width: 170px" />
             </el-form-item>
-            <el-form-item label="国家" prop="customerName">
+            <el-form-item label="客户项目编号" prop="customerName">
               <el-input v-model="form.parameter" style="width: 170px" />
             </el-form-item>
             <el-form-item label="" class="pdl40">
@@ -22,13 +22,13 @@
         </div>
         <el-table
           :show-header="false"
-          :data="left.list"
+          :data="table.data"
           :height="maxHeight"
           :max-height="maxHeight"
           size="mini"
           class="content-table"
           style="width: 100%"
-          v-loading="left.isLoading">
+          v-loading="table.isLoading">
           <el-table-column type="expand">
             <template slot-scope="props">
               <el-form label-position="left" inline class="demo-table-expand">
@@ -233,217 +233,6 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="查看当前计划" :visible.sync="handle.plan.dialogVisible">
-      <div v-loading="handle.plan.isLoading">
-        <el-table
-          :data="handle.plan.tableData"
-          size="mini"
-          style="width: 100%"
-          class="edit-table"
-          :highlight-current-row="true"
-          :row-class-name="setRowClass">
-          <el-table-column
-            label="出货日期"
-            width="120"
-            label-class-name="fc-el-table-head"
-            class-name="fc-red"
-            show-overflow-tooltip>
-            <template slot-scope="scope">
-              <div >
-                {{scope.row.shipmentDateString | filterNull(' ')}}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="mouldNo"
-            sortable
-            label="模具号"
-            width="120"
-            show-overflow-tooltip>
-            <template slot-scope="scope">
-              <div >
-                {{scope.row.mouldNo | filterNull(' ')}}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="零件号码"
-            min-width="100"
-            align="center"
-            show-overflow-tooltip>
-            <template slot-scope="scope">
-              <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" >
-                {{scope.row.components | concatString('componentNo')}}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="数量"
-            min-width="100"
-            align="center"
-            show-overflow-tooltip>
-            <template slot-scope="scope">
-              <div :class="{'bg8db4e3 fcfff': scope.row.productionTasksStatus == 80}" >
-                {{scope.row.components | concatString('quantity')}}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="versionNo"
-            label="版本"
-            width="100"
-            align="center"
-            show-overflow-tooltip>
-            <template slot-scope="scope">
-              <div >
-                {{scope.row.versionNo | filterNull(' ')}}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="整体外协"
-            width="100"
-            align="center"
-            show-overflow-tooltip>
-            <template slot-scope="scope">
-              <div >
-                {{ 
-                  scope.row.buy == 1 ? '是' : (
-                     scope.row.buy == 0 ? '否' : ''
-                  )
-                }}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column label="工艺时间" align="center" min-width="100">
-            <el-table-column
-              v-for="(item, index) in allProcessOfIndex"
-              :key="index"
-              :label="item.name"
-              align="center"
-              min-width="70"
-              label-class-name="fc-red"
-              show-overflow-tooltip>
-              <template slot-scope="scope">
-                <div
-                :class="{
-                  'fc-red': scope.row[item.key] > maxWorkTime,
-                  'bg00b0f0 fcfff': scope.row.currentPlanProcessId == scope.row[item.key+'-id'],
-                  'bg-green fcfff': scope.row.nextPlanProcessId == scope.row[item.key+'-id'],
-                  'bgffff00': scope.row.workpieceLocationId == scope.row[item.key+'-id']}"
-                  v-if="scope.row[item.key] || scope.row[item.key] == 0"
-                  >
-                  {{scope.row[item.key]}}
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column
-              prop="qc"
-              label="Else"
-              align="center"
-              min-width="70"
-              label-class-name="fc-blue"
-              show-overflow-tooltip>
-            </el-table-column>
-          </el-table-column>
-          <el-table-column
-            prop="requireCompletionDate"
-            sortable
-            label="要求交期"
-            min-width="100"
-            align="center"
-            label-class-name="fc-el-table-head"
-            class-name="fc-blue"
-            show-overflow-tooltip>
-            <template slot-scope="scope">
-              <div >
-                {{scope.row.requireCompletionDate | filterNull(' ')}}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="abbreviation"
-            sortable
-            label="客户"
-            min-width="100"
-            align="center"
-            class-name="fc-blue"
-            show-overflow-tooltip>
-            <template slot-scope="scope">
-              <div >
-                {{scope.row.abbreviation | filterNull(' ')}}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="surplus"
-            sortable
-            label="交期剩余(天)"
-            min-width="120"
-            align="center"
-            label-class-name="fc-el-table-head"
-            show-overflow-tooltip>
-            <template slot-scope="scope">
-              <div :class="{fcfff: dateMinusBgColor(scope.row.surplus)}" :style="{background: dateMinusBgColor(scope.row.surplus)}"
-              >
-                {{scope.row.surplus}}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column label="现状" class-name="fc800000" min-width="180" show-overflow-tooltip>
-            <template slot-scope="scope">
-              <div >
-                {{ scope.row.currentSituation }}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="电极"
-            min-width="100"
-            align="center"
-            label-class-name="fc-el-table-head"
-            class-name="fc-blue"
-            show-overflow-tooltip>
-            <template slot-scope="scope">
-              <div >
-                {{scope.row.electrode | filterNull(' ')}}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="residueWorkTime"
-            sortable
-            label="剩余工时"
-            min-width="100"
-            align="center"
-            label-class-name="fc-el-table-head"
-            show-overflow-tooltip>
-            <template scope="scope">
-              <div :class="{'bgRed fcfff': scope.row.residueWorkTime > 200}" >{{scope.row.residueWorkTime | filterNull(' ')}}</div>
-            </template>
-          </el-table-column>
-        </el-table>
-        <div slot="footer" class="dialog-footer mgt20 tr">
-          <el-button @click="handle.plan.dialogVisible = false">关 闭</el-button>
-        </div>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="终止原因" :visible.sync="handle.stop.dialogVisible" width="500px">
-      <el-form ref="stopForm" :model="handle.stop.form" :rules="handle.stop.rules" label-width="110px" v-loading="handle.stop.isLoading">
-        <el-form-item prop="causeTypeText" label="需求终止原因" class="mgt20">
-          <el-input v-model="handle.stop.form.causeTypeText"></el-input>
-        </el-form-item>
-        <el-form-item prop="description" label="说明" class="mgt20">
-          <el-input type="textarea" v-model="handle.stop.form.description" class="v-textarea"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="stop">确 定</el-button>
-        <el-button @click="handle.stop.dialogVisible = false">取 消</el-button>
-      </div>
-    </el-dialog>
-
     <el-dialog title="新增模具零件订单" :visible.sync="handle.order.dialogVisible" width="820px">
       <el-form ref="orderForm" :model="handle.order.form" :rules="handle.order.rules" label-width="110px" v-loading="handle.order.isLoading">
         <div class="dflex">
@@ -642,10 +431,10 @@
       };
 
       return {
-        left: {
-          form: {
-            parameter: ''
-          }
+        form: {
+          name: '',
+          areaName: '',
+          countryName: ''
         },
         handle: {
           update: {
@@ -743,18 +532,16 @@
       };
     },
     methods: {
-      getLeftList(loadingKey = 'isLoading') { //获取左侧列表数据
+      getData() {
 
-        let params = {
-          parameter: this.left.form.parameter,
-          type: this.filter.selectedValue,
-          pageNo: this.left.page.pageNo,
-          pageSize: this.left.page.pageSize,
-          //sorting: `${this.filter.sort.sortField} ${this.filter.sort.sortType}`
-        }
-        if(this.form.text) params.name = this.form.text;
+        this.table.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryOfferList, (res) => {
 
-        this.getData(this.$utils.CONFIG.api.queryRequirement, params, 'mrRequirementId', loadingKey, this.getDetail);
+          this.table.isLoading = false;
+          res.data = [{}]
+          this.table.srcData = res.data || [];
+          this.table.data = this.$utils.deepCopy(this.table.srcData);
+        }, () => this.table.isLoading = false)
       },
       getDetail(item = null, isOrder = false) { //需求详情 isOrder 是否是下单
 
@@ -880,7 +667,7 @@
               this.handle.update.isLoading = false;
               this.handle.update.dialogVisible = false;
               this.$utils.showTip('success', 'success', this.handle.update.type == 'add' ? '111' : '120');
-              this.getLeftList();
+              this.getData();
             }, () => this.handle.update.isLoading = false, params)
           }else {
 
@@ -955,7 +742,7 @@
               this.handle.stop.isLoading = false;
               this.handle.stop.dialogVisible = false;
               this.$utils.showTip('success', 'success', '115');
-              this.getLeftList();
+              this.getData();
             }, () => this.handle.stop.isLoading = false, params)
           } else {
             
@@ -1091,7 +878,7 @@
               this.handle.order.isLoading = false;
               this.handle.order.dialogVisible = false;
               this.$utils.showTip('success', 'success', '117');
-              this.getLeftList();
+              this.getData();
             }, () => this.handle.order.isLoading = false, params)
           }else {
 
@@ -1121,7 +908,7 @@
       }
     },
     created() {
-      this.getLeftList();
+      this.getData();
     },
     updated() {
       this.setTableMaxHeight();

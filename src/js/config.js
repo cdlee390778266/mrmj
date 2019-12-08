@@ -1,6 +1,7 @@
 import Utils from './utils';
 
-var baseUrl = 'http://118.178.229.13:41000/';
+var baseUrl = 'http://132.232.51.40:9106';
+//var baseUrl = '/api/';
 
 const CONFIG = {
 	activeMenuType: 'sale',
@@ -18,155 +19,19 @@ const CONFIG = {
 	},
 	api: {
 		//公共
-		currencyList: baseUrl + 'requirement/currency/qc', //货币种类列表
-		countryList: baseUrl + 'requirement/country/qc', //国家列表
-		uploadFiles: baseUrl + 'fc/uploadFiles', //上传文件
-		deleteFiles: baseUrl + 'fc/deleteFiles', //生产--删除服务器端的文件
-		download: baseUrl + 'fc/downloadFiles', //下载文件
-		image: baseUrl + 'fc/imgStreamOther', //图片接口
-		customer: baseUrl + 'requirement/customer/qc', //客户名称查询接口
-		qwm: baseUrl + 'requirement/saleOrder/qwm', //模具与零件号联动查询接口
-		maxWorkTime: baseUrl + 'requirement/threshold/qc', //查询工序估工阈值
-		currency: baseUrl + 'requirement/currency/qwm', //货币与汇率联动查询
-		checkMouldNo: baseUrl + 'requirement/saleOrder/checkMouldNo', //销售订单的模具号验重
-		queryOutsourceProcess: baseUrl + 'requirement/purchaseOrder/queryOutsourceProcess', //外协工序列表
-		
-		
-		login: baseUrl + 'authMR/login', //登录
+		queryCurrencyList: baseUrl + '/sys/currency/queryCurrencyList', //货币种类列表
+		queryCountryList: baseUrl + '/sys/country/queryCountryList', //国家列表
+		queryAreaList: baseUrl + '/sys/area/queryAreaList', //地区列表
 
-		/* 销售模块*/
-		addRequirement: baseUrl + 'requirement/req/addRequirement', //需求--新增需求
-		modifyRequirement: baseUrl + 'requirement/req/modifyRequirement', //需求--需求修改
-		queryRequirement: baseUrl + 'requirement/req/queryRequirement', //需求--需求查询
-		queryRequirementDetail: baseUrl + 'requirement/req/queryRequirementDetail', //需求--客户需求详细信息
-		saveDemand: baseUrl + 'requirement/demand/saveDemand', //需求--需求终止
-		querySaleOrderInModify: baseUrl + 'requirement/req/querySaleOrderInModify', //需求--需求下单出销售订单查询
-		matchCodeType: baseUrl + 'requirement/demand/matchCodeType', //需求--终止类型联想匹配
-		floatRatio: baseUrl + 'requirement/floatRatio/qc', //管理费用上浮比例列表
-		checkOfferNo: baseUrl + 'requirement/componentOfferRecord/checkOfferNo', //零件报价单号验重
-		queryOffer: baseUrl + 'requirement/componentOfferRecord/queryOffer', //零件报价记录列表
-		getOfferProcessListIndex: baseUrl + 'requirement/componentOfferRecord/getOfferProcessListIndex', //零件报价工序表头
-		queryOfferRecord: baseUrl + 'requirement/componentOfferRecord/queryOfferRecord', //零件报价记录详细信息
-		saveComponentOfferRecord: baseUrl + 'requirement/componentOfferRecord/saveComponentOfferRecord', //零件报价或保存为草稿
-		queryWorkProcedure: baseUrl + 'requirement/workProcedure/queryWorkProcedure', //零件工序查询
-		saveWorkProcedure: baseUrl + 'requirement/workProcedure/saveWorkProcedure', //零件工序新增
-		setProcessInfo: baseUrl + 'requirement/componentOfferRecord/setProcessInfo', //工序设置
-		
-		querySaleOrder: baseUrl + 'requirement/saleOrder/querySaleOrder', //销售订单开展--销售订单查询
-		saveSaleOrder: baseUrl + 'requirement/saleOrder/saveSaleOrder', //销售订单开展--新增销售订单或保存为草稿
-		checkRequirementNum: baseUrl + 'requirement/req/checkRequirementNum', //销售订单开展--需求编号验重
-		editSaleOrder: baseUrl + 'requirement/saleOrder/editSaleOrder', //销售订单开展--编辑销售订单
-		deleteSaleOrder: baseUrl + 'requirement/saleOrder/deleteSaleOrder', //销售订单开展--删除销售订单
-		pauseOrStopSaleOrder: baseUrl + 'requirement/saleOrder/pauseOrStopSaleOrder', //销售订单开展--暂停或终止销售订单
-		resetSaleOrder: baseUrl + 'requirement/saleOrder/resetSaleOrder', //销售订单开展--恢复已暂停的销售订单
-		queryReceivables: baseUrl + 'requirement/receipt/queryReceivables', //应收款--查询
-		querySaleOrderByCustomer: baseUrl + 'requirement/receipt/querySaleOrderByCustomer', //应收款--登记页面查询
-		saveReceivables: baseUrl + 'requirement/receipt/saveReceivables', //应收款--应收款登记
-		customerQueryCustomer: baseUrl + 'requirement/customer/queryCustomer', //客户档案--客户/供应商查询
-		saveCustomerHeadPortraits: baseUrl + 'requirement/customer/saveCustomerHeadPortraits', //客户档案--存储客户当前上传的头像
-		saveCustomer: baseUrl + 'requirement/customer/saveCustomer', //客户档案--客户/供应商信息录入
-		customerQcip: baseUrl + 'requirement/customer/selectCustomer', //客户档案--查询客户/供应商信息
-		modifyCustomerInfo: baseUrl + 'requirement/customer/modifyCustomerInfo', //客户档案--修改客户信息
-		sumCusRequirement: baseUrl + 'requirement/customer/sumCusRequirement', //客户档案--统计当前符合条件的客户需求数量
+		login: baseUrl + '/sys/login/doLogin', //登录
 
-		/* 项目模块*/
-		queryUnfinishedProjectList: baseUrl + 'requirement/project/develp/queryUnfinishedProjectList', //需求--新增需求
-		queryUnfinishedProjectDetail: baseUrl + 'requirement/project/develp/queryUnfinishedProjectDetail', //需求--新增需求
-
-		/* 生产模块*/
-		saveSaleInProduct: baseUrl + 'requirement/productionOrder/saveSaleInProduct', //生产--工艺路线处新增销售订单
-		queryPendingSaleOrder: baseUrl + 'requirement/saleOrder/queryPendingSaleOrder', //生产--待处理的销售订单列表
-		queryPendingSaleOrderDetail: baseUrl + 'requirement/saleOrder/queryPendingSaleOrderDetail', //生产--销售订单详细信息
-		modifyCraftRouteLine: baseUrl + 'requirement/productionOrder/modifyCraftRouteLine', //生产--修改零件工艺与下料清单
-		deleteCraftInfoById: baseUrl + 'requirement/productionOrder/deleteCraftInfoById', //生产--删除已制定工艺卡
-		designCraftRouteLine: baseUrl + 'requirement/productionOrder/designCraftRouteLine', //生产--制定零件工艺与下料清单
-		queryNoMakeCraft: baseUrl + 'requirement/productionOrder/queryNoMakeCraft', //生产--待制定订单零件列表查询
-		queryHaveMakeCraftComponent: baseUrl + 'requirement/productionOrder/queryHaveMakeCraftComponent', //生产--已制定工艺列表查询
-		queryProductionOrderInfo: baseUrl + 'requirement/productionOrder/queryProductionOrderInfo', //生产--查询待下达生产订单时的详细信息
-		releasedProductionOrder: baseUrl + 'requirement/productionOrder/releasedProductionOrder', //生产--下达生产订单
-		saveAsDraft: baseUrl + 'requirement/productionOrder/saveAsDraft', //生产--将生产订单保存为草稿
-
-		stuff: baseUrl + 'requirement/stuff/qc', //生产--材料列表
-		process: baseUrl + 'requirement/process/qc', //生产--工序名称查询
-		sysCode: baseUrl + 'requirement/sysCode/qc', //生产--工序内容查询
-		queryComponentVersion: baseUrl + 'requirement/productionOrder/queryComponentVersion', //生产--零件版本查询接口
-		queryVersionDetail: baseUrl + 'requirement/productionOrder/queryVersionDetail', //生产--版本详细信息查询接口
-		saveCraftAttachment: baseUrl + 'requirement/productionOrder/saveCraftAttachment', //生产--存储上传的文件
-		deleteCraftAttachment: baseUrl + 'requirement/productionOrder/deleteCraftAttachment', //生产--删除本地文件信息
-		
-		queryNoDealEleOrCNC: baseUrl + 'requirement/productionOrder/queryNoDealEleOrCNC', //生产--待设计电极与待处理CNC编程查询
-		queryElectrodeComponentInfo: baseUrl + 'requirement/electrodeOrder/queryElectrodeComponentInfo', //生产--电极设计完成页面查询
-		electrodeDesignCompletion: baseUrl + 'requirement/electrodeOrder/electrodeDesignCompletion', //生产--电极设计完成
-		saveEleAsModify: baseUrl + 'requirement/electrodeOrder/saveEleAsModify', //生产--将电极生产订单保存为草稿
-		applyElectrodeDesignTasks: baseUrl + 'requirement/electrodeOrder/applyElectrodeDesignTasks', //生产--申领电极任务
-		queryElectrodeNoById: baseUrl + 'requirement/electrodeOrder/queryElectrodeNoById', //生产--电极工艺版本列表查询
-		modifyEleInfo: baseUrl + 'requirement/electrodeOrder/modifyEleInfo', //生产--修改电极工艺版本列表信息
-		deleteElectrodeList: baseUrl + 'requirement/electrodeOrder/deleteElectrodeList', //生产--删除电极列表
-		designElectrodeDesignTasks: baseUrl + 'requirement/electrodeOrder/designElectrodeDesignTasks', //生产--设计电极任务
-		saveEleAttachment: baseUrl + 'requirement/electrodeOrder/saveEleAttachment', //生产--存储电极附件
-		deleteAttachment: baseUrl + 'requirement/attachment/deleteAttachment', //生产--删除本地电极附件
-		applyProgrammeTask: baseUrl + 'requirement/electrodeOrder/applyProgrammeTask', //生产--申领编程任务
-		saveProAttachment: baseUrl + 'requirement/electrodeOrder/saveProAttachment', //生产--编程任务附件存储
-		queryAttInProgramme: baseUrl + 'requirement/electrodeOrder/queryAttInProgramme', //生产--编程任务附件列表
-		releasedElectrodeProductionOrder: baseUrl + 'requirement/electrodeOrder/releasedElectrodeProductionOrder', //生产--下达电极生产订单
-		trackProductionOrder: baseUrl + 'requirement/productionOrder/trackProductionOrder', //生产--生产订单跟踪查询
-		editProductionTrack: baseUrl + 'requirement/productionOrder/editProductionTrack', //生产--编辑
-		terminateOrPauseOrder: baseUrl + 'requirement/productionOrder/terminateOrPauseOrder', //生产--暂停与终止生产订单
-		querySaleOrderInfo: baseUrl + 'requirement/saleOrder/querySaleOrderInfo', //生产--查看相关销售订单
-		queryPlanList: baseUrl + 'requirement/makeworkplan/queryPlanList', //生产--查看制定作业计划
-		queryRestartComponent: baseUrl + 'requirement/productionOrder/queryRestartComponent', //生产--零件重置版本信息查询
-		queryTodayProcess: baseUrl + 'requirement/productionOrder/queryTodayProcess', //生产--工序生产列表
-		queryTodayProcessByName: baseUrl + 'requirement/jobbooking/queryTodayProcessByName', //生产--报工工序查找
-		queryProcessorById: baseUrl + 'requirement/productionOrder/queryProcessorById', //生产--派工加工人员信息查找
-		checkNumber: baseUrl + 'requirement/idle/checkNumber', //生产-- 工序加工人员编号验重
-		addProcessor: baseUrl + 'requirement/productionOrder/addProcessor', //生产--添加加工人员
-		workTimeDays: baseUrl + 'requirement/workTimeDays/qc', //日工时查询
-		setWorkTimeDays: baseUrl + 'requirement/workTimeDays/sou', //生产--设置日工时
-		queryOperationalProcess: baseUrl + 'requirement/operationalPlan/queryOperationalProcess', //生产--派工工序查找
-		queryAssignWorkInfo: baseUrl + 'requirement/productionOrder/queryAssignWorkInfo', //生产--派工页面详细信息
-		processAssignWork: baseUrl + 'requirement/operationalPlan/processAssignWork', //生产--工序派工
-		idle: baseUrl + 'requirement/idle/qc', //生产--报工处加工人员下拉框
-		saveJobBooking: baseUrl + 'requirement/jobbooking/saveJobBooking', //生产--报工
-		
-		/* 计划模块*/
-		setMaxWorkTime: baseUrl + 'requirement/threshold/sou', //计划--工序估工阈值设置
-		setDayCapacity: baseUrl + 'requirement/plan/setDayCapacity', //计划--工序日产能设置
-		getAllProcessOfIndex: baseUrl + 'requirement/productionOrder/getAllProcessOfIndex', //计划--获取计划表表头工序
-		queryPlanList: baseUrl + 'requirement/makeworkplan/queryPlanList', //计划--当前生产计划列表
-		sendOutGoods: baseUrl + 'requirement/plan/sendOutGoods', //生产进度跟踪--发货
-		saveSelectedTask: baseUrl + 'requirement/plan/saveSelectedTask', //生产进度跟踪--记录勾选的任务
-		queryPlanProcess: baseUrl + 'requirement/plan/queryPlanProcess', //生产进度跟踪--查询已制定的作业计划
-		queryNeedStopOfOrder: baseUrl + 'requirement/plan/queryNeedStopOfOrder', //生产进度跟踪--未终止生产订单查询
-		stopOrPauseOrder: baseUrl + 'requirement/term/stopOrPauseOrder', //生产进度跟踪--暂停与终止生产订单
-		resetOrder: baseUrl + 'requirement/term/resetOrder', //生产进度跟踪--恢复订单
-		stopOrPauseRoute: baseUrl + 'requirement/term/stopOrPauseRoute', //生产进度跟踪--暂停与终止零件工艺路线
-		resetCraftRoute: baseUrl + 'requirement/term/resetCraftRoute', //生产进度跟踪--恢复生产
-		makeOperationPlan: baseUrl + 'requirement/operationalPlan/makeOperationPlan', //生产进度跟踪--制定作业计划
-		processTransferRegister: baseUrl + 'requirement/plan/processTransferRegister', //计划--工件流转登记
-		queryNoReleasedPurchase: baseUrl + 'requirement/purchaseOrder/queryNoReleasedPurchase', //计划--外协申请
-		deletePurchaseApply: baseUrl + 'requirement/purchaseOrder/deletePurchaseApply', //计划--删除外协申请
-		queryReleasingPurchase: baseUrl + 'requirement/purchaseOrder/queryReleasingPurchase', //计划--查询当前选择的外协
-		checkPurchaseOrderNo: baseUrl + 'requirement/purchaseOrder/checkPurchaseOrderNo', //计划--于采购订单号验重
-		releasedPurchaseOrder: baseUrl + 'requirement/purchaseOrder/releasedPurchaseOrder', //计划--下达采购订单
-		queryPurchaseOrder: baseUrl + 'requirement/purchaseOrder/queryPurchaseOrder', //计划--未发货的外协采购订单
-		queryOutSourceArrivalInfo: baseUrl + 'requirement/arrival/queryOutSourceArrivalInfo', //计划--外协到货查询
-		saveOutsourceGoods: baseUrl + 'requirement/arrival/saveOutsourceGoods', //计划--外协到货录入
-		editPurchaseOrder: baseUrl + 'requirement/purchaseOrder/editPurchaseOrder', //计划--编辑采购订单
-		completePurchase: baseUrl + 'requirement/purchaseOrder/completePurchase', //计划--采购完成
-		deletePurchaseOrder: baseUrl + 'requirement/purchaseOrder/deletePurchaseOrder', //计划--删除采购订单
-
-
-		/* 质检模块*/
-		queryGoodsInspectInfo: baseUrl + 'requirement/goodsInspection/queryGoodsInspectInfo', //质量质检--采购到货查询
-		queryGoodsInspect: baseUrl + 'requirement/goodsInspection/queryGoodsInspect', //质量质检--未全部收货的采购订单表头查询
-		saveGoodsInspection: baseUrl + 'requirement/goodsInspection/saveGoodsInspection', //质量质检--外协到货检验录入
-		queryProcessInspectInfo: baseUrl + 'requirement/processInspection/queryProcessInspectInfo', //质量质检--完工检验查询
-		queryNoJobBookingProcess: baseUrl + 'requirement/processInspection/queryNoJobBookingProcess', //质量质检--报工中未进行工序检验的零件查询
-		saveProcessInspection: baseUrl + 'requirement/processInspection/saveProcessInspection', //质量质检--工序完工检验录入
-		queryGoodsInspectInfo: baseUrl + 'requirement/goodsInspection/queryGoodsInspectInfo', //质量质检--采购到货不良品查询
-		saveGoodsRejectsInfo: baseUrl + 'requirement/goodsInspection/saveGoodsRejectsInfo', //质量质检--采购到货不良品处置录入
-		queryProcessInspectInfo: baseUrl + 'requirement/processInspection/queryProcessInspectInfo', //质量质检--工序完工不良品查询
-		saveProcessRejectsInfo: baseUrl + 'requirement/processInspection/saveProcessRejectsInfo', //质量质检--工序完工不良品处置录入
+		//销售
+		queryCustomerList: baseUrl + '/sale/customer/queryCustomerList', //客户档案-列表
+		customerDetail: baseUrl + '/sale/customer/queryCustomerDetail', //客户档案-客户详情
+		editCustomer: baseUrl + '/sale/customer/editCustomer', //客户档案-编辑客户档案
+		queryCustomerMettingRecordList: baseUrl + '/sale/customer/queryCustomerMettingRecordList', //客户档案-会议记录列表
+		delCustomer: baseUrl + '/sale/customer/delCustomer', //客户档案-删除客户档案
+		queryOfferList: baseUrl + '/sale/offer/queryOfferList', //报价管理-报价记录列表
 	},
 	success: {
 		"1": "加载数据成功",
@@ -252,6 +117,10 @@ const CONFIG = {
 		'-1100': '报价零件列表不能为空(有Det No.才为有效的数据)',
 		'-1101': '没有选中要保存的数据',
 		'-1102': '采购订单号不存在',
+		'-1103': '请输入主题',
+		'-1104': '请输入地点',
+		'-1105': '请选择时间',
+		'-1106': '请选择处理状态',
 	}
 }
 

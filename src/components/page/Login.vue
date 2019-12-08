@@ -61,18 +61,9 @@ export default {
             res => {
 
               this.isLoading = false;
-              let orgObj = this.$utils.checkModuleExistence(res.data.orgCode);
-              if(orgObj.existence) {	//如果部门存在
-
-								this.$utils.CONFIG.activeMenuType = orgObj.webOrgKey;
-
-                this.$utils.setUserStorage(res.data.token, res.data.userId, res.data.userName, res.data.orgCode); //保存用户信息
-								
-								this.$router.push(`/${this.$utils.CONFIG.activeMenuType}/home`);
-              }else {
-
-								this.$utils.showTip('error', 'error', '-1000');
-							}
+              this.$utils.setUserStorage('', '', this.form.userAccount, ''); //保存用户信息
+              
+              this.$router.push('/sale/user')
             },
             () => (this.isLoading = false),
             this.form

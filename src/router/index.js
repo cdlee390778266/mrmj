@@ -10,20 +10,12 @@ let routes = [
     path: '',
     beforeEnter: (to, from, next) => {
 
-      let token = Utils.getStorage(Utils.CONFIG.storageNames.tokenName);
+      // let token = Utils.getStorage(Utils.CONFIG.storageNames.tokenName);
+      let token = 1234;
 
       if(token) {
-        
-        let orgCode = Utils.getStorage(Utils.CONFIG.storageNames.orgcodeName);
-        let orgObj = Utils.checkModuleExistence(orgCode);
-        if(orgObj.existence) {	//如果部门存在
-          
-          (to.fullPath == '/' || !to.fullPath.split('/').includes(orgObj.webOrgKey)) ? next(`/${orgObj.webOrgKey}/home`) : next();
-        }else {
-          
-          Utils.removeUserStorage();
-          next('/login');
-        }
+
+        next();
       }else {
 
         next('/login');

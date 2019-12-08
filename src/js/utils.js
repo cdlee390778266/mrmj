@@ -83,7 +83,8 @@ Utils.getJson = function (url, success, error, params = {}, method='post', isFil
 	var loadingInstance;
 	var config = {
 		headers: {
-			Authorization: localStorage.getItem('token') || ''
+			//Authorization: localStorage.getItem('token') || '',
+			token: 1234
 		},
 		method: method,
 		url: url,
@@ -176,27 +177,6 @@ Utils.setSessionStorage = function(key, value) {
 }
 
 /**
- * 检查部门是否存在，并返回数据对象
- * orgCode 部门代码
- */
-Utils.checkModuleExistence = function(orgCode) {
-
-	let existence = false;
-	let webOrgKey = '';
-
-	for(let key in Menu) {
-
-		if(Menu[key].orgCode == orgCode) {
-
-			existence = true;
-			webOrgKey = key;
-			break;
-		}
-	}
-	return {existence: existence, webOrgKey: webOrgKey};
-}
-
-/**
  * 数组或对象深度拷贝
  */
 Utils.deepCopy = function(o) {
@@ -257,16 +237,5 @@ Utils.getTableMaxHeight = (minusSelectors = ['.table-out'], minusHeight = 36, co
   maxHeight = boxHeight - minusHeightTotal;
   return  maxHeight > 200 ? maxHeight : 200;
 };
-
-//模拟请求
-Utils.mock = function(url, success, error, params = {}, resData = {}) {
-
-	window.setTimeout(() => {
-		let res = {
-			data: resData
-		}
-		if (typeof success == 'function') success(res)
-	}, 1000)
-}
 
 export default Utils

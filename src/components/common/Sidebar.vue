@@ -39,9 +39,7 @@
 		},
 		created() {
 
-			let orgCode = this.$utils.getStorage(this.$utils.CONFIG.storageNames.orgcodeName);
-			let orgObj = this.$utils.checkModuleExistence(orgCode);
-			this.type = orgObj.webOrgKey;
+			this.type = 'sale';
 		}
 	};
 </script>

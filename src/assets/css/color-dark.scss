@@ -514,6 +514,10 @@ body {
 	white-space: nowrap;
 }
 
+.lh26 {
+	line-height: 26px;
+}
+
 .lh32 {
 	line-height: 32px;
 }
@@ -527,15 +531,15 @@ body {
 }
 
 .bor {
-	border: 1px solid #f2f2f2; 
+	border: 1px solid #e0e0e0; 
 }
 
 .bort {
-	border-top: 1px solid #f2f2f2;
+	border-top: 1px solid #e0e0e0;
 }
 
 .borb {
-	border-bottom: 1px solid #f2f2f2;
+	border-bottom: 1px solid #e0e0e0;
 }
 
 .borb-green {
@@ -904,6 +908,9 @@ body {
  		}
  	}
 }
+.el-dialog__body {
+	color: #495057 !important;
+}
 .dialog-gray {
 	.el-dialog__body {
 		padding: 0 10px;
@@ -1022,4 +1029,35 @@ body {
 }
 .el-input.is-active .el-input__inner, .el-input__inner:focus {
 	border-color: #3ba9e8 !important;
+}
+.history {
+	position: relative;
+	.empty {
+		height: 100px;
+		line-height: 100px;
+		text-align: center;
+		color: #999;
+	}
+	.history-line {
+		position: absolute;
+		top: 10px;
+		bottom: 0;
+		left: 0;
+		width: 0px;
+		border-left: 2px dashed #797979;
+		//background: url('../img/dashed.png');
+	}
+	.history-item {
+		position: relative;
+		padding: 10px 15px;
+		color: #495057 !important;
+		.history-icon {
+			position: absolute;
+			top: 5px;
+			left: -10px;
+			display: inline-block;
+			font-size: 20px;
+			z-index: 8;
+		}
+	}
 }
