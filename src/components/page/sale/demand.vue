@@ -4,7 +4,7 @@
       <div class="main-right">
         <div class="main-right-title tl">销售 / 报价管理</div>
         <div class="mgt20">
-          <el-form :model="form" :inline="true" ref="form" class="table-out">
+          <el-form :model="form" :inline="true" size="small" ref="form" class="table-out">
             <el-form-item label="客户" prop="customerName">
               <el-input v-model="form.parameter" style="width: 170px" />
             </el-form-item>
@@ -31,49 +31,83 @@
           v-loading="table.isLoading">
           <el-table-column type="expand">
             <template slot-scope="props">
-              <el-form label-position="left" inline class="demo-table-expand">
-                <el-form-item label="商品名称">
-                  <span>{{ props.row.name }}</span>
-                </el-form-item>
-                <el-form-item label="所属店铺">
-                  <span>{{ props.row.shop }}</span>
-                </el-form-item>
-                <el-form-item label="商品 ID">
-                  <span>{{ props.row.id }}</span>
-                </el-form-item>
-                <el-form-item label="店铺 ID">
-                  <span>{{ props.row.shopId }}</span>
-                </el-form-item>
-                <el-form-item label="商品分类">
-                  <span>{{ props.row.category }}</span>
-                </el-form-item>
-                <el-form-item label="店铺地址">
-                  <span>{{ props.row.address }}</span>
-                </el-form-item>
-                <el-form-item label="商品描述">
-                  <span>{{ props.row.desc }}</span>
-                </el-form-item>
-              </el-form>
+              <el-table
+                :show-header="false"
+                :data="props.row.rpOfferListDtoList"
+                size="mini"
+                class="content-table pdl10">
+                <el-table-column type="expand">
+                  <template slot-scope="scope">
+                    <el-table
+                      :data="scope.row.rpOfferListRecordlDtoList"
+                      size="mini"
+                      class="content-table pdl10"
+                      style="width: 100%">
+                      <el-table-column label="询价时间" width="120" show-overflow-tooltip>
+                        <template slot-scope="scope">
+                        {{scope.row.customerEnquiryDateString | filterNull}}
+                        </template>
+                      </el-table-column>
+                      <el-table-column prop="offerNo" label="报价单编号" min-width="120" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="customerEnquiryNo" label="客户询价编号" min-width="120" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="customerProjectNo" label="客户项目编号" min-width="120" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="offerTotalPrice" label="总价" width="120" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="a" label="要求交货日期" width="120" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="offerVersion" label="版本" width="120" show-overflow-tooltip></el-table-column>
+                      <el-table-column label="操作" width="260">
+                        <template slot-scope="scope">
+                          <el-button type="info" size="mini" @click="edit('edit', 'updateForm', scope.row)">下单</el-button>
+                          <el-button type="primary" size="mini" @click="edit('edit', 'updateForm', scope.row)">修改</el-button>
+                          <el-button type="success" size="mini">详情</el-button>
+                          <el-button type="danger" size="mini">删除</el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </template>
+                </el-table-column>
+                <el-table-column label="项目编号" min-width="160" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    项目编号：{{scope.row.customerProjectNo | filterNull}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" width="260">
+                  <template slot-scope="scope">
+                    <el-button type="primary" size="mini" @click="edit('edit', 'updateForm', scope.row)">修改项目</el-button>
+                    <el-button type="danger" size="mini">删除项目</el-button>
+                    <el-button type="success" size="mini">新增项目</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
             </template>
           </el-table-column>
-          <el-table-column prop="name" label="客户姓名" width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="abbreviation" label="客户简称" width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="name" label="address" width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="name" label="所在国家" width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column label="常用联系人" width="120" show-overflow-tooltip>
+          <el-table-column label="客户名称" min-width="160" show-overflow-tooltip>
             <template slot-scope="scope">
-              {{scope.row.liaisonMens | concatString('name', ',')}}
+              客户名称：{{scope.row.name | filterNull}}
             </template>
           </el-table-column>
-          <el-table-column prop="phone" label="电话" width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="name" label="付款账期" width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="name" label="结算货币" width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="name" label="操作" width="260" fixed="right">
+          <el-table-column label="地区" width="160" show-overflow-tooltip>
             <template slot-scope="scope">
-              <el-button type="primary" size="mini" @click="edit('edit', 'updateForm', scope.row)">修改项目</el-button>
-              <el-button type="danger" size="mini">删除项目</el-button>
+              地区：{{scope.row.areaName | filterNull}}
+            </template>
+          </el-table-column>
+          <el-table-column label="国家" min-width="160" show-overflow-tooltip>
+            <template slot-scope="scope">
+              国家：{{scope.row.countryName | filterNull}}
+            </template>
+          </el-table-column>
+          <el-table-column label="总价" min-width="160" show-overflow-tooltip>
+            <template slot-scope="scope">
+              总价：{{scope.row.total | filterNull}}
+            </template>
+          </el-table-column>
+          <el-table-column label="货币" min-width="160" show-overflow-tooltip>
+            <template slot-scope="scope">
+              货币：{{scope.row.currencyName | filterNull}}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="260">
+            <template slot-scope="scope">
               <el-button type="success" size="mini">新增项目</el-button>
-              <el-button type="info" size="mini">历史事件</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -538,7 +572,6 @@
         this.$utils.getJson(this.$utils.CONFIG.api.queryOfferList, (res) => {
 
           this.table.isLoading = false;
-          res.data = [{}]
           this.table.srcData = res.data || [];
           this.table.data = this.$utils.deepCopy(this.table.srcData);
         }, () => this.table.isLoading = false)
@@ -919,12 +952,4 @@
 
 
 <style scoped lang="scss">
-  .el-row {
-    margin-bottom: 20px;
-  }
-  .main-left-search {
-    button {
-      width: 130px;
-    }
-  }
 </style>

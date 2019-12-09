@@ -125,3 +125,20 @@
     background-color: #c5e6f8;
   }
 }
+.el-table__expanded-cell {
+  border-bottom: none !important; 
+  .el-table__body-wrapper {
+    overflow: hidden !important;
+  }
+  .el-table {
+    th {
+      border-top: none !important;
+      border-bottom: 1px solid #dee2e6 !important;
+    }
+    tbody {
+      tr:last-child td{
+        border-bottom: none;
+      }
+    }
+  }
+}
