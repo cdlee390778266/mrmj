@@ -21,12 +21,11 @@
           </el-form>
         </div>
         <el-table
-          :show-header="false"
           :data="table.data"
           :height="maxHeight"
           :max-height="maxHeight"
           size="mini"
-          class="content-table"
+          class="content-table green-table"
           style="width: 100%"
           v-loading="table.isLoading">
           <el-table-column type="expand">
@@ -35,29 +34,65 @@
                 :show-header="false"
                 :data="props.row.rpOfferListDtoList"
                 size="mini"
-                class="content-table pdl10">
+                class="content-table orage-table"
+                style="width: 100%">
                 <el-table-column type="expand">
-                  <template slot-scope="scope">
+                  <template slot-scope="props1">
                     <el-table
-                      :data="scope.row.rpOfferListRecordlDtoList"
+                      :show-header="false"
+                      :data="props1.row.rpOfferListRecordlDtoList"
+                      stripe
                       size="mini"
-                      class="content-table pdl10"
+                      class="content-table blue-table"
                       style="width: 100%">
-                      <el-table-column label="询价时间" width="120" show-overflow-tooltip>
+                      <el-table-column type="expand"></el-table-column>
+                      <el-table-column label="客户名称" min-width="160" show-overflow-tooltip>
                         <template slot-scope="scope">
-                        {{scope.row.customerEnquiryDateString | filterNull}}
+                          {{props.row.name | filterNull}}
                         </template>
                       </el-table-column>
-                      <el-table-column prop="offerNo" label="报价单编号" min-width="120" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="customerEnquiryNo" label="客户询价编号" min-width="120" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="customerProjectNo" label="客户项目编号" min-width="120" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="offerTotalPrice" label="总价" width="120" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="a" label="要求交货日期" width="120" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="offerVersion" label="版本" width="120" show-overflow-tooltip></el-table-column>
-                      <el-table-column label="操作" width="260">
+                      <el-table-column label="客户项目编号" width="100" show-overflow-tooltip>
+                        {{props1.row.customerProjectNo | filterNull}}
+                      </el-table-column>
+                      <el-table-column label="客户询价编号" min-width="100" show-overflow-tooltip>
                         <template slot-scope="scope">
-                          <el-button type="info" size="mini" @click="edit('edit', 'updateForm', scope.row)">下单</el-button>
-                          <el-button type="primary" size="mini" @click="edit('edit', 'updateForm', scope.row)">修改</el-button>
+                          {{scope.row.customerEnquiryNo | filterNull}}
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="询价时间" min-width="100" show-overflow-tooltip>
+                        <template slot-scope="scope">
+                          {{scope.row.customerEnquiryDateString | filterNull}}
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="报价单编号" min-width="100" show-overflow-tooltip>
+                        <template slot-scope="scope">
+                          {{scope.row.offerNo | filterNull}}
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="版本" min-width="100" show-overflow-tooltip>
+                        <template slot-scope="scope">
+                          {{scope.row.offerVersion | filterNull}}
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="总价" min-width="100" show-overflow-tooltip>
+                        <template slot-scope="scope">
+                          {{scope.row.offerTotalPrice | filterNull}}
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="要求交货日期" min-width="100" show-overflow-tooltip>
+                        <template slot-scope="scope">
+                          {{scope.row.deliveryDateString | filterNull}}
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="备注" min-width="100" show-overflow-tooltip>
+                        <template slot-scope="scope">
+                          {{scope.row.customerEnquiryNo | filterNull}}
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="操作" width="260" align="center">
+                        <template slot-scope="scope"> 
+                          <el-button type="info" size="mini">下单</el-button>
+                          <el-button type="primary" size="mini">修改</el-button>
                           <el-button type="success" size="mini">详情</el-button>
                           <el-button type="danger" size="mini">删除</el-button>
                         </template>
@@ -65,16 +100,28 @@
                     </el-table>
                   </template>
                 </el-table-column>
-                <el-table-column label="项目编号" min-width="160" show-overflow-tooltip>
+                <el-table-column label="客户名称" min-width="160" show-overflow-tooltip>
                   <template slot-scope="scope">
-                    项目编号：{{scope.row.customerProjectNo | filterNull}}
+                    {{props.row.name | filterNull}}
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" width="260">
+                <el-table-column label="客户项目编号" width="100" show-overflow-tooltip>
                   <template slot-scope="scope">
-                    <el-button type="primary" size="mini" @click="edit('edit', 'updateForm', scope.row)">修改项目</el-button>
-                    <el-button type="danger" size="mini">删除项目</el-button>
-                    <el-button type="success" size="mini">新增项目</el-button>
+                    {{scope.row.customerProjectNo | filterNull}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="客户询价编号" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column label="询价时间" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column label="报价单编号" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column label="版本" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column label="总价" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column label="备注" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column label="操作" width="260" align="center">
+                  <template slot-scope="scope">
+                    <el-button type="primary" size="mini">修改</el-button>
+                    <el-button type="danger" size="mini">删除</el-button>
+                    <el-button type="success" size="mini">报价</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -82,191 +129,27 @@
           </el-table-column>
           <el-table-column label="客户名称" min-width="160" show-overflow-tooltip>
             <template slot-scope="scope">
-              客户名称：{{scope.row.name | filterNull}}
+              <strong>{{scope.row.name | filterNull}}</strong>
             </template>
           </el-table-column>
-          <el-table-column label="地区" width="160" show-overflow-tooltip>
+          <el-table-column label="客户项目编号" width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="客户询价编号" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="询价时间" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="报价单编号" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="版本" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="总价" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="备注" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="操作" width="260" align="center">
             <template slot-scope="scope">
-              地区：{{scope.row.areaName | filterNull}}
-            </template>
-          </el-table-column>
-          <el-table-column label="国家" min-width="160" show-overflow-tooltip>
-            <template slot-scope="scope">
-              国家：{{scope.row.countryName | filterNull}}
-            </template>
-          </el-table-column>
-          <el-table-column label="总价" min-width="160" show-overflow-tooltip>
-            <template slot-scope="scope">
-              总价：{{scope.row.total | filterNull}}
-            </template>
-          </el-table-column>
-          <el-table-column label="货币" min-width="160" show-overflow-tooltip>
-            <template slot-scope="scope">
-              货币：{{scope.row.currencyName | filterNull}}
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" width="260">
-            <template slot-scope="scope">
-              <el-button type="success" size="mini">新增项目</el-button>
+              <el-button type="primary" size="mini">新增项目</el-button>
             </template>
           </el-table-column>
         </el-table>
       </div>
     </div>
 
-    <el-dialog :title="`${handle.update.type == 'add' ? '新增' : '修改'}客户需求`" :visible.sync="handle.update.dialogVisible">
-      <el-form ref="updateForm" :model="handle.update.form" :rules="handle.update.rules" label-width="100px" v-loading="handle.update.isLoading">
-        <div class="dflex">
-          <div class="flex pdr10">
-            <el-form-item prop="name" label="客户">
-              <el-input v-model="handle.update.form.name" auto-complete="off"></el-input>
-            </el-form-item>
-            <el-form-item prop="customerPoNo" label="客户PO.号">
-              <el-input v-model="handle.update.form.customerPoNo" auto-complete="off"></el-input>
-            </el-form-item>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item prop="
-                requirementTypeText" label="需求类型">
-                  <el-select v-model="handle.update.form.requirementTypeText">
-                    <el-option label="模具零件" value="模具零件"></el-option>
-                    <el-option label="整体模具" value="整体模具"></el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item  prop="requirementNum" label="需求编号" v-show="handle.update.type == 'add'">
-                  <el-input v-model="handle.update.form.requirementNum" auto-complete="off"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="24" v-show="handle.update.form.requirementTypeText == '整体模具'">
-                <el-form-item  prop="deliveryDate" label="要求交期">
-                  <el-date-picker
-                    type="date"
-                    size="mini"
-                    placeholder="选择日期"
-                    format="yyyy-MM-dd"
-                    value-format="yyyy-MM-dd"
-                    style="width: '98px'"
-                    :clearable="false"
-                    :editable="false"
-                    v-model="handle.update.form.deliveryDate">
-                  </el-date-picker>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </div>
-          <el-upload
-            class="avatar-uploader"
-            name="files"
-            ref="upload"
-            :action="$utils.CONFIG.api.uploadFiles"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload"
-          >
-            <img v-if="handle.update.form.userFace" :src="handle.update.form.userFace" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-          </el-upload>
-        </div>
-        <div class="mgb20" v-show="handle.update.form.requirementTypeText == '模具零件'">
-          <p>需求明细：</p>
-          <el-table :data="handle.update.form.components" max-height="160" border size="mini" class="edit-table" style="width: 100%">
-            <el-table-column label="零件号" min-width="100" show-overflow-tooltip>
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(handle.update.form.components, scope.$index, 'componentNoEdit', {})">
-                    <div class="ellipsis">{{ scope.row.componentNo }}</div>
-                    <el-input size="mini" v-model="scope.row.componentNo" @focus="showInput(handle.update.form.components, scope.$index, 'componentNoEdit', {}, false)" @blur="scope.row.componentNoEdit = false" :style="{opacity: scope.row.componentNoEdit ? 1 : 0}"/>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column label="客户编号" min-width="88" show-overflow-tooltip>
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(handle.update.form.components, scope.$index, 'customerNoEdit', {})">
-                    <div class="ellipsis">{{ scope.row.customerNo }}</div>
-                    <el-input size="mini" v-model="scope.row.customerNo" @focus="showInput(handle.update.form.components, scope.$index, 'customerNoEdit', {}, false)" @blur="scope.row.customerNoEdit = false" :style="{opacity: scope.row.customerNoEdit ? 1 : 0}"/>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column label="数量" min-width="88" show-overflow-tooltip align="center">
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(handle.update.form.components, scope.$index, 'quantityEdit', {})">
-                    <div class="ellipsis">{{ scope.row.quantity }}</div>
-                    <el-input size="mini" v-model="scope.row.quantity" @focus="showInput(handle.update.form.components, scope.$index, 'quantityEdit', {}, false)" @blur="scope.row.quantityEdit = false" :style="{opacity: scope.row.quantityEdit ? 1 : 0}"/>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="address" label="要求交期" show-overflow-tooltip align="center" width="100">
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(handle.update.form.components, scope.$index, 'deliveryDateStringEdit', {})">
-                    <div class="ellipsis tc">{{ scope.row.deliveryDateString }}</div>
-                    <el-date-picker
-                      type="date"
-                      size="mini"
-                      placeholder="选择日期"
-                      format="yyyy-MM-dd"
-                      value-format="yyyy-MM-dd"
-                      v-model="scope.row.deliveryDateString"
-                      @focus="showInput(handle.update.form.components, scope.$index, 'deliveryDateStringEdit', {})"
-                      @blur="scope.row.deliveryDateStringEdit = false"
-                      :style="{opacity: scope.row.deliveryDateStringEdit ? 1 : 0}">
-                    </el-date-picker>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="address" label="说明" show-overflow-tooltip>
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(handle.update.form.components, scope.$index, 'remarkEdit', {})">
-                    <div class="ellipsis">{{ scope.row.remark }}</div>
-                    <el-input size="mini" v-model="scope.row.remark" @focus="showInput(handle.update.form.components, scope.$index, 'remarkEdit', {}, false)" @blur="scope.row.remarkEdit = false" :style="{opacity: scope.row.remarkEdit ? 1 : 0}"/>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <div>
-          <p class="mgb10">
-            上传附件：
-            <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
-              <el-button size="mini" type="primary">选择上传文件</el-button>
-              <input type="file" name="file" ref="fileUpdate" class="posFull opacity0" @change="() => addAttachments($refs.fileUpdate, handle.update)">
-            </span>
-          </p>
-          <el-table
-            :data="handle.update.form.attachments"
-            max-height="160"
-            border
-            size="mini"
-            style="width: 100%"
-          >
-            <el-table-column prop="fileName" label="资料名称"></el-table-column>
-            <el-table-column label="操作" width="100" align="center">
-              <template slot-scope="scope">
-                <el-button size="mini" type="text" @click="deleteAttachments(scope.row, handle.update)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <el-form-item prop="remark" label="说明" class="mgt20">
-          <el-input type="textarea" v-model="handle.update.form.remark"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="saveFileAndData(handle.update, uploadSuccess)">确 定</el-button>
-        <el-button @click="handle.update.dialogVisible = false">取 消</el-button>
-      </div>
-    </el-dialog>
-
+   
     <el-dialog title="新增模具零件订单" :visible.sync="handle.order.dialogVisible" width="820px">
       <el-form ref="orderForm" :model="handle.order.form" :rules="handle.order.rules" label-width="110px" v-loading="handle.order.isLoading">
         <div class="dflex">
@@ -572,48 +455,9 @@
         this.$utils.getJson(this.$utils.CONFIG.api.queryOfferList, (res) => {
 
           this.table.isLoading = false;
-          this.table.srcData = res.data || [];
+          this.table.srcData = [{}, {}] //res.data || [];
           this.table.data = this.$utils.deepCopy(this.table.srcData);
         }, () => this.table.isLoading = false)
-      },
-      getDetail(item = null, isOrder = false) { //需求详情 isOrder 是否是下单
-
-        let params = {
-          mrRequirementId: this.currentData.mrRequirementId
-        };
-        let obj = this.right;
-
-        if(item && item.mrRequirementId) { //如果是修改
-
-          this.handle.update.item = item;
-          params.mrRequirementId = item.mrRequirementId;
-          obj = this.handle.update;
-        }
-
-        if(item && isOrder) { //如果是修改
-
-          this.handle.order.item = item;
-          params.mrRequirementId = item.mrRequirementId;
-          obj = this.handle.order;
-        }
-        
-        obj.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryRequirementDetail, (res) =>  {
-
-          obj.isLoading = false;
-          if(item && item.mrRequirementId) {
-
-             obj.form = res.data || {};
-             obj.form.attachments = obj.form.attachments || [];
-             if(obj.form.fileId) {
-
-              obj.form.userFace = `${this.$utils.CONFIG.api.image}?fileId=${obj.form.fileId}`;
-             }
-          }else {
-
-             obj.page1 = res.data || {};
-          }
-        }, () => obj.isLoading = false, params)
       },
       handleAvatarSuccess(res, file) { //上传头像
         
@@ -624,133 +468,6 @@
 
         this.handle.order.form.userFace = `${this.$utils.CONFIG.api.image}?fileId=${res.data[0].fileId}`;
         this.handle.order.form.fileId = res.data[0].fileId;
-      },
-      uploadSuccess(res) { //需求
-        
-        this.$refs.updateForm.validate((valid) => {
-          if (valid) {
-            let url = this.$utils.CONFIG.api.addRequirement;
-            let params = {
-              fileId: this.handle.update.form.fileId,
-              name: this.handle.update.form.name,
-              customerPoNo: this.handle.update.form.customerPoNo,
-              requirementTypeText: this.handle.update.form.requirementTypeText,
-              requirementNum: this.handle.update.form.requirementNum,
-              components: [],
-              attachments: [],
-              remark: this.handle.update.form.remark
-            };
-            
-            if(params.requirementTypeText == '模具零件') { //零件
-
-              let components = [];
-              this.handle.update.form.components.map(item => {
-
-                if(item.componentNo && item.quantity && item.customerNo && item.deliveryDateString) {
-
-                  components.push({
-                    mrComponentReqId: item.mrComponentReqId,
-                    componentNo: item.componentNo,
-                    quantity: parseInt(item.quantity) || 0,
-                    customerNo: item.customerNo,
-                    deliveryDate: item.deliveryDateString, 
-                    remark: item.remark
-                  })
-                }
-              })
-
-              if(!components || !components.length ) {
-
-                this.handle.update.isLoading = false;
-                this.$utils.showTip('warning', 'error', '-1089');
-                return;
-              }
-
-              params.components = components;
-            }
-
-            params.attachments = [];
-            if(this.handle.update.type == 'edit') { //如果是编辑
-
-              url = this.$utils.CONFIG.api.modifyRequirement;
-              params.mrRequirementId = this.handle.update.item.mrRequirementId;
-              params.requireDeliveryDate = this.handle.update.form.deliveryDate;
-            }
-            if(res && res.data && res.data.length) { //附件
-
-              res.data.map(item => params.attachments.push({
-                fileId: item.fileId,
-                fileName: item.fileName
-              }))
-            }
-            this.handle.update.form.attachments &&  this.handle.update.form.attachments.map(item => {
-
-              if(item.type != 'add') {
-                params.attachments.push({
-                  fileId: item.fileId,
-                  fileName: item.fileName
-                })
-              }
-            })
-
-
-            this.handle.update.isLoading = true;
-            this.$utils.getJson(url, (res) =>  {
-
-              this.handle.update.isLoading = false;
-              this.handle.update.dialogVisible = false;
-              this.$utils.showTip('success', 'success', this.handle.update.type == 'add' ? '111' : '120');
-              this.getData();
-            }, () => this.handle.update.isLoading = false, params)
-          }else {
-
-            this.handle.update.isLoading = false;
-          }
-        })
-      },
-      showPlanDialog() { //查看生产计划
-
-        this.handle.plan.dialogVisible = true;
-        if(!this.handle.plan.tableData.length) {
-
-          this.getAllProcessOfIndex();
-          this.getPlan();
-        }
-      },
-      getPlan() { //获取订单列表
-
-        let params = {
-
-        };
-        this.handle.plan.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryPlanList, (res) =>  {
-
-          this.handle.plan.isLoading = false;
-          res.data && res.data.map(item => {
-
-            item.surplus = this.dateMinus(item.requireCompletionDate);
-            item.processes && item.processes.map(itemc => {
-
-              if(itemc.name && !itemc.haveSort) {
-
-                let processes = item.processes.filter(itemcc => itemcc.name == itemc.name);
-                processes.sort(this.compare('processSequence'));
-                
-                processes.map((itemcc, index) => {
-
-                  itemc.haveSort = true;
-                  itemc.processesIndex = index + 1;
-                  itemc.webName = `${itemcc.name}${itemcc.processesIndex}`;
-
-                  item[`${this.procedurePrefix}-${itemcc.name}${itemcc.processesIndex}`] = itemcc.workTime;
-                  item[`${this.procedurePrefix}-${itemcc.name}${itemcc.processesIndex}-id`] = itemcc.mrProductionPlanProcessId;
-                })
-                item.webProcesses = processes;
-              }
-            })
-          })
-          this.handle.plan.tableData = res.data || [];
-        }, () => this.handle.plan.isLoading = false, params)
       },
       showStopDialog(item) {
 
