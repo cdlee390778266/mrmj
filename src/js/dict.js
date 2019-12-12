@@ -1,6 +1,7 @@
 import Utils from './utils';
 let Dict = {
 	currencyList: [],	//币种列表
+	exchangeRateList: [],	//汇率列表
 	countryList: [],	//国家列表
 	areaList: [], //地区列表
 	reqTypeList: [ //需求类型列表
@@ -43,6 +44,12 @@ Dict.getCurrency = () => {	//获取币种列表
 	})
 }
 
+Dict.getExchangeRate = () => {	//获取汇率列表
+	Utils.getJson(Utils.CONFIG.api.queryExchangeRateList, (res) => {
+		Dict.exchangeRateList = res.data;
+	})
+}
+
 Dict.getCountry = () => {	//获取国家列表
 	Utils.getJson(Utils.CONFIG.api.queryCountryList, (res) => {
 		Dict.countryList = res.data;
@@ -70,6 +77,7 @@ Dict.getArea = () => {	//获取地区列表
 
 function init() {	//初始化
 	Dict.getCurrency();
+	Dict.getExchangeRate();
 	Dict.getCountry();
 	Dict.getArea();
 	// Dict.getMaxWorkTime();

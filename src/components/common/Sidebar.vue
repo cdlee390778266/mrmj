@@ -52,7 +52,6 @@
     top: 60px;
     bottom:0;
     width: 200px;
-    border-right: 2px solid #021f3c;
     overflow-y: scroll;
     z-index: 999;
   }

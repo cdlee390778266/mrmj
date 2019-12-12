@@ -142,13 +142,74 @@
           <el-table-column label="备注" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="操作" width="260" align="center">
             <template slot-scope="scope">
-              <el-button type="primary" size="mini">新增项目</el-button>
+              <el-button type="primary" size="mini" @click="showProjectDialog('add')">新增项目</el-button>
             </template>
           </el-table-column>
         </el-table>
       </div>
     </div>
 
+    <el-dialog title="项目信息" :visible.sync="handle.project.dialogVisible" width="600px">
+      <el-form ref="projectForm" :model="handle.project.form" :rules="handle.project.rules" v-loading="handle.project.isLoading">
+        <el-row :gutter="20" class="bor pd10">
+          <el-col :span="8" class="ellipsis">
+            客户名称：<span title="">567987913414654987981321657979889</span>
+          </el-col>
+          <el-col :span="8">&nbsp;</el-col>
+          <el-col :span="8" class="ellipsis">
+            客户PO.号：<span title="">567987913414654987981321657979889</span>
+          </el-col>
+          <el-col :span="8" class="ellipsis">
+            需求编号：<span title="">567987913414654987981321657979889</span>
+          </el-col>
+          <el-col :span="8" class="ellipsis">
+            需求类型：<span title="">567987913414654987981321657979889</span>
+          </el-col>
+          <el-col :span="8" class="ellipsis">
+            需求状态：<span title="">567987913414654987981321657979889</span>
+          </el-col>
+          <el-col :span="8" class="ellipsis">
+            已报总价：<span title="">567987913414654987981321657979889</span>
+          </el-col>
+          <el-col :span="8" class="ellipsis">
+            报价货币：<span title="">567987913414654987981321657979889</span>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <p class="mgtb10 mgt10">
+              上传文件：
+              <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
+                <el-button size="mini" type="primary">选择上传文件</el-button>
+                <input type="file" name="file" ref="fileUpdate" class="posFull opacity0" @change="() => addAttachments()">
+              </span>
+            </p>
+            <el-table
+              :data="handle.update.form.attachments"
+              max-height="160"
+              border
+              size="mini"
+              style="width: 100%"
+            >
+              <el-table-column type="index" label="序号"></el-table-column>
+              <el-table-column prop="fileName" label="附件名称"></el-table-column>
+              <el-table-column label="操作" width="100px">
+                <template slot-scope="scope">
+                  <el-button size="mini" type="text" @click="() => deleteAttachments(scope.row)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-col>
+        </el-row>
+        <el-form-item label="说明" class="mgt20">
+          <el-input type="textarea" v-model="handle.project.form.remark"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary">保存</el-button>
+        <el-button @click="handle.project.dialogVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
    
     <el-dialog title="新增模具零件订单" :visible.sync="handle.order.dialogVisible" width="820px">
       <el-form ref="orderForm" :model="handle.order.form" :rules="handle.order.rules" label-width="110px" v-loading="handle.order.isLoading">
@@ -327,26 +388,6 @@
     mixins: [leftMixin],
     data() {
 
-      var checkNumber = (rule, value, callback) => { //需求编号验重
-        if (!value) {
-          return callback(new Error(this.$utils.getTipText('error', '-1087')));
-        }
-
-        if(this.handle.update.type != 'add') {
-          return callback();
-        }
-        
-        this.$utils.getJson(this.$utils.CONFIG.api.checkRequirementNum, (res) => {
-
-          if(res.data != 1) { //如果编号重复
-
-            callback(new Error(this.$utils.getTipText('error', '-1088')));
-          }else {
-            callback();
-          }
-        }, null, {requirementNum: value})
-      };
-
       return {
         form: {
           name: '',
@@ -354,6 +395,14 @@
           countryName: ''
         },
         handle: {
+          project: {
+            dialogVisible: false,
+            isLoading: false,
+            type: 'add',
+            form: {
+              remark: ''
+            }
+          },
           update: {
             dialogVisible: false,
             isLoading: false,
@@ -379,9 +428,6 @@
               ],
               customerPoNo: [
                 { required: true, message: this.$utils.getTipText('error', '-1086')},
-              ],
-              requirementNum: [
-                { validator: checkNumber, trigger: 'blur' }
               ]
             }
           },
@@ -458,6 +504,11 @@
           this.table.srcData = [{}, {}] //res.data || [];
           this.table.data = this.$utils.deepCopy(this.table.srcData);
         }, () => this.table.isLoading = false)
+      },
+      showProjectDialog(type = 'add') {
+
+        this.resetForm('projectForm');
+        this.handle.project.dialogVisible = true;
       },
       handleAvatarSuccess(res, file) { //上传头像
         

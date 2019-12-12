@@ -20,6 +20,7 @@ const CONFIG = {
 	api: {
 		//公共
 		queryCurrencyList: baseUrl + '/sys/currency/queryCurrencyList', //货币种类列表
+		queryExchangeRateList: baseUrl + '/sys/exchangeRate/queryExchangeRateList', //汇率列表
 		queryCountryList: baseUrl + '/sys/country/queryCountryList', //国家列表
 		queryAreaList: baseUrl + '/sys/area/queryAreaList', //地区列表
 
@@ -121,6 +122,7 @@ const CONFIG = {
 		'-1104': '请输入地点',
 		'-1105': '请选择时间',
 		'-1106': '请选择处理状态',
+		'-1107': '请选择客户所在区域',
 	}
 }
 

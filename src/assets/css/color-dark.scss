@@ -10,6 +10,7 @@ $themeColor: rgba(22, 155, 213, 1);
 body {
 	color: #495057;
 	font-size: 14px;
+	line-height: 24px;
 	font-family: '微软雅黑'
 }
 
@@ -909,6 +910,7 @@ body {
  	}
 }
 .el-dialog__body {
+	padding: 10px 20px !important;
 	color: #495057 !important;
 }
 .dialog-gray {

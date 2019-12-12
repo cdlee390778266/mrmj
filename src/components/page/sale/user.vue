@@ -20,6 +20,7 @@
             <el-form-item label="" class="pdl40">
               <el-button type="primary" size="small" @click="filterDada">查询</el-button>
               <el-button type="primary" size="small" @click="resetForm('form')">重置</el-button>
+              <el-button type="primary" size="mini" @click="edit('add')">新增</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -33,26 +34,26 @@
           style="width: 100%"
           v-loading="table.isLoading"
         >
-          <el-table-column prop="name" label="客户姓名" width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="abbreviation" label="客户简称" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="name" label="客户姓名" min-width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="abbreviation" label="客户简称" min-width="120" show-overflow-tooltip></el-table-column>
           <el-table-column label="所在区域" min-width="120" show-overflow-tooltip>
             <template slot-scope="scope">
               {{scope.row.area && scope.row.area.areaName ? scope.row.area.areaName : '-'}}
             </template>
           </el-table-column>
-          <el-table-column label="所在国家" width="120" show-overflow-tooltip>
+          <el-table-column label="所在国家" min-width="120" show-overflow-tooltip>
             <template slot-scope="scope">
               {{scope.row.country && scope.row.country.countryName ? scope.row.country.countryName : '-'}}
             </template>
           </el-table-column>
-          <el-table-column label="常用联系人" width="120" show-overflow-tooltip>
+          <el-table-column label="常用联系人" min-width="120" show-overflow-tooltip>
             <template slot-scope="scope">
               {{scope.row.contacts | concatString('name', ',')}}
             </template>
           </el-table-column>
-          <el-table-column prop="phone" label="电话" width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="paymentPeriod" label="付款账期" width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="currencyName" label="结算货币" width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="phone" label="电话" min-width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="paymentPeriod" label="付款账期" min-width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="currencyName" label="结算货币" min-width="120" show-overflow-tooltip></el-table-column>
           <el-table-column prop="name" label="操作" width="260" fixed="right">
             <template slot-scope="scope">
               <el-button type="primary" size="mini" @click="edit('edit', 'updateForm', scope.row)">修改</el-button>
@@ -66,7 +67,7 @@
     </div>
 
     <el-dialog title="客户档案" center :visible.sync="handle.update.dialogVisible" width="800px">
-      <el-form :model="handle.update.form" :rules="handle.update.rules" v-loading="handle.update.isLoading" label-width="100px" ref="updateForm">
+      <el-form :model="handle.update.form" :rules="handle.update.rules" v-loading="handle.update.isLoading" label-width="110px" ref="updateForm">
         <div class="dflex">
           <div class="flex pdr10">
             <el-form-item label="客户名称" prop="name">
@@ -74,6 +75,11 @@
             </el-form-item>
             <el-form-item label="客户简称" prop="abbreviation">
               <el-input v-model="handle.update.form.abbreviation" auto-complete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="客户所在区域" prop="areaId">
+              <el-select v-model="handle.update.form.areaId" placeholder="请选择区域" style="width: 100%">
+                <el-option :label="item.areaName" :value="item.areaId" v-for="(item, index) in $dict.areaList" :index="index"></el-option>
+              </el-select>
             </el-form-item>
             <el-form-item label="客户所在国" prop="country">
               <el-select v-model="handle.update.form.country" style="width: 100%;" value-key="countryName">
@@ -97,19 +103,26 @@
                   <el-input v-model="handle.update.form.email" auto-complete="off" aria-placeholder="请输入电子邮件"></el-input>
                 </el-form-item>
               </el-col>
-              <el-col :span="8">
-                <el-form-item label="企业负责人" prop="personInCharge">
-                  <el-input v-model="handle.update.form.personInCharge" auto-complete="off" aria-placeholder="请输入企业负责人"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
+              <el-col :span="12">
                 <el-form-item label="常用货币" prop="currency">
                   <el-select v-model="handle.update.form.currency" value-key="currencyName" style="width: 100%;">
                     <el-option v-for="item in $dict.currencyList" :key="item.currencyName" :label="item.currencyName" :value="item"></el-option>
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="8">
+              <el-col :span="12">
+                <el-form-item label="汇率" prop="exchangeRateId">
+                  <el-select v-model="handle.update.form.exchangeRateId"  style="width: 100%;">
+                    <el-option v-for="item in $dict.exchangeRateList" :key="item.exchangeRateId" :label="item.exchangeRateVal" :value="item.exchangeRateId"></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="企业负责人" prop="personInCharge">
+                  <el-input v-model="handle.update.form.personInCharge" auto-complete="off" aria-placeholder="请输入企业负责人"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
                 <el-form-item label="付款账期" prop="paymentPeriod">
                   <div class="dflex">
                     <div class="flex">
@@ -428,10 +441,11 @@
               fileId: '',
               userFace: '',
               name: '',
-              customerType: 10,
               abbreviation: '',
+              areaId: '',
               country: '',
               currency: '',
+              exchangeRateId: '',
               address: '',
               phone: '',
               valueScale: '',
@@ -453,11 +467,17 @@
               abbreviation: [
                 { required: true, message: this.$utils.getTipText('error', '-1012')}
               ],
+              areaId: [
+                { required: true, message: this.$utils.getTipText('error', '-1107')}
+              ],
               country: [
                 { required: true, message: this.$utils.getTipText('error', '-1013')}
               ],
               currency: [
                 { required: true, message: this.$utils.getTipText('error', '-1017')}
+              ],
+              exchangeRateId: [
+                { required: true, message: this.$utils.getTipText('error', '请选择汇率')}
               ],
               address: [
                 { required: true, message: this.$utils.getTipText('error', '-1014')}
@@ -572,7 +592,9 @@
         this.handle.update.handleType = type;
         this.handle.update.dialogVisible = true;
 
-        this.getDetail(item);
+        if(this.handle.update.handleType == 'edit') {
+          this.getDetail(item);
+        }
       },
       showDetail(item) {
 
@@ -588,15 +610,16 @@
 
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            console.log(this.handle.update.form.country.countryId)
-            let url = this.handle.update.handleType == 'add' ? this.$utils.CONFIG.api.saveCustomer : this.$utils.CONFIG.api.editCustomer;
+            
+            let url = this.handle.update.handleType == 'add' ? this.$utils.CONFIG.api.editCustomer : this.$utils.CONFIG.api.editCustomer;
             let params = Object.assign({}, this.handle.update.form);
             params = {
               fileId: this.handle.update.form.fileId,
               customerType: 1,
-              customerId: this.handle.update.form.customerId || '',
+              customerId: this.handle.update.form.customerId || null,
               name: this.handle.update.form.name,
               abbreviation: this.handle.update.form.abbreviation,
+              areaId: this.handle.update.form.areaId,
               countryId: this.handle.update.form.country.countryId,
               address: this.handle.update.form.address,
               phone: this.handle.update.form.phone,
@@ -604,6 +627,7 @@
               email: this.handle.update.form.email,
               personInCharge: this.handle.update.form.personInCharge,
               currencyId: this.handle.update.form.currency.currencyId,
+              exchangeRateId: this.handle.update.form.exchangeRateId,
               paymentPeriod: this.handle.update.form.paymentPeriod,
               contacts: []
             }
@@ -621,7 +645,7 @@
                 });
               }
             })
-
+            console.log(url)
             this.handle.update.isLoading = true;
             this.$utils.getJson(url, (res) => {
 

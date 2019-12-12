@@ -153,6 +153,15 @@
     background-color: #cbdfb6;
   }
 }
+.gray-table {
+  th, td {
+    background-color: #c6c8ca;
+    border-color: transparent !important;
+  }
+  .el-table__body-wrapper .el-table__body tr:hover>td {
+    background-color: #b9bbbe;
+  }
+}
 .orage-table {
   th, td {
     background-color: #f5d0b8;
