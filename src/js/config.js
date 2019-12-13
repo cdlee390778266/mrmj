@@ -33,6 +33,7 @@ const CONFIG = {
 		queryCustomerMettingRecordList: baseUrl + '/sale/customer/queryCustomerMettingRecordList', //客户档案-会议记录列表
 		delCustomer: baseUrl + '/sale/customer/delCustomer', //客户档案-删除客户档案
 		queryOfferList: baseUrl + '/sale/offer/queryOfferList', //报价管理-报价记录列表
+		queryOrderList: baseUrl + '/sale/order/queryOrderList', //订单管理-列表
 	},
 	success: {
 		"1": "加载数据成功",

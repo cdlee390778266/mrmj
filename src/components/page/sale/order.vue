@@ -55,7 +55,7 @@
             <template slot-scope="props">
               <el-table
                 :show-header="false"
-                :data="props.row.rpOfferListDtoList"
+                :data="props.row.rpOrderDtoList"
                 size="mini"
                 stripe
                 class="content-table blue-table"
@@ -67,17 +67,17 @@
                 </el-table-column>
                 <el-table-column label="客户" min-width="160" show-overflow-tooltip>
                   <template slot-scope="scope">
-                    <strong>{{scope.row.name | filterNull}}</strong>
+                    <strong>{{props.row.name | filterNull}}</strong>
                   </template>
                 </el-table-column>
-                <el-table-column label="下单时间" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column label="订单编号" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column label="报价单编号" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column label="客户项目编号" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column label="总价" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column label="订单金额" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="createDtString" label="下单时间" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="" label="订单编号" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="" label="报价单编号" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="" label="客户项目编号" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="" label="总价" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="" label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="" label="订单金额" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="" label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
                 <el-table-column label="操作" width="140" align="center">
                   <template slot-scope="scope">
                     <el-button type="primary" size="mini" @click="() => showStopDialog(scope.row, 'suspend')">暂停</el-button>
@@ -199,10 +199,10 @@
       getData() {
 
         this.table.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.queryOfferList, (res) => {
+        this.$utils.getJson(this.$utils.CONFIG.api.queryOrderList, (res) => {
 
           this.table.isLoading = false;
-          this.table.srcData = [{rpOfferListDtoList: [{},{},{}]}, {}] //res.data || [];
+          this.table.srcData = res.data || [];
           this.table.data = this.$utils.deepCopy(this.table.srcData);
         }, () => this.table.isLoading = false)
       },
