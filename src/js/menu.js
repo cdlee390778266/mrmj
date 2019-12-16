@@ -34,14 +34,6 @@ const MENU = {
 				icon: 'el-icon-lx-rank'
 			},
 			{
-				name: '详情',
-				path: '/detail',
-				paramsPath: '/detail/:id',
-				icon: '',
-				isSubPage: true, //不生成标签
-				meta: '/detail' //标签唯一匹配字符串
-			},
-			{
 				name: '编辑客户投诉',
 				path: '/serviceEdit',
 				paramsPath: '/serviceEdit/:type?/:id?',

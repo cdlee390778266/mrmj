@@ -6,17 +6,17 @@
         <div class="mgt20">
           <el-form :model="form" :inline="true" size="small" ref="form" class="table-out">
             <el-form-item label="客户" prop="customerName">
-              <el-input v-model="form.parameter" style="width: 170px" />
+              <el-input v-model="form.customerName" style="width: 170px" />
             </el-form-item>
-            <el-form-item label="报价单号" prop="customerName">
-              <el-input v-model="form.parameter" style="width: 170px" />
+            <el-form-item label="报价单号" prop="offerNo">
+              <el-input v-model="form.offerNo" style="width: 170px" />
             </el-form-item>
-            <el-form-item label="客户项目编号" prop="customerName">
-              <el-input v-model="form.parameter" style="width: 170px" />
+            <el-form-item label="客户项目编号" prop="customerProjectNo">
+              <el-input v-model="form.customerProjectNo" style="width: 170px" />
             </el-form-item>
             <el-form-item label="" class="pdl40">
-              <el-button type="primary" size="small">查询</el-button>
-              <el-button type="primary" size="small">重置</el-button>
+              <el-button type="primary" size="small" @click="search">查询</el-button>
+              <el-button type="primary" size="small" @click="resetForm('form')">重置</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -24,6 +24,7 @@
           :data="table.data"
           :height="maxHeight"
           :max-height="maxHeight"
+          :default-expand-all="true"
           size="mini"
           class="content-table green-table"
           style="width: 100%"
@@ -84,15 +85,11 @@
                           {{scope.row.deliveryDateString | filterNull}}
                         </template>
                       </el-table-column>
-                      <el-table-column label="备注" min-width="100" show-overflow-tooltip>
-                        <template slot-scope="scope">
-                          {{scope.row.customerEnquiryNo | filterNull}}
-                        </template>
-                      </el-table-column>
+                      <el-table-column prop="remark" label="备注" min-width="100" show-overflow-tooltip></el-table-column>
                       <el-table-column label="操作" width="260" align="center">
                         <template slot-scope="scope"> 
                           <el-button type="info" size="mini">下单</el-button>
-                          <el-button type="primary" size="mini">修改</el-button>
+                          <el-button type="primary" size="mini" @click="showOfferDialog(scope.row, 'edit')">修改</el-button>
                           <el-button type="success" size="mini">详情</el-button>
                           <el-button type="danger" size="mini">删除</el-button>
                         </template>
@@ -119,9 +116,9 @@
                 <el-table-column label="备注" min-width="100" show-overflow-tooltip></el-table-column>
                 <el-table-column label="操作" width="260" align="center">
                   <template slot-scope="scope">
-                    <el-button type="primary" size="mini">修改</el-button>
-                    <el-button type="danger" size="mini">删除</el-button>
-                    <el-button type="success" size="mini">报价</el-button>
+                    <el-button type="primary" size="mini" @click="showProjectDialog(scope.row, 'edit')">修改</el-button>
+                    <el-button type="danger" size="mini" @click="delOffer(scope.row)">删除</el-button>
+                    <el-button type="success" size="mini" @click="showOfferDialog(scope.row, 'add')">报价</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -142,50 +139,36 @@
           <el-table-column label="备注" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="操作" width="260" align="center">
             <template slot-scope="scope">
-              <el-button type="primary" size="mini" @click="showProjectDialog('add')">新增项目</el-button>
+              <el-button type="primary" size="mini" @click="showProjectDialog(scope.row, 'add')">新增项目</el-button>
             </template>
           </el-table-column>
         </el-table>
       </div>
     </div>
 
-    <el-dialog title="项目信息" :visible.sync="handle.project.dialogVisible" width="600px">
+    <el-dialog :title="`${handle.project.type == 'add' ? '新增' : '修改'}项目`" :visible.sync="handle.project.dialogVisible" width="600px">
       <el-form ref="projectForm" :model="handle.project.form" :rules="handle.project.rules" v-loading="handle.project.isLoading">
-        <el-row :gutter="20" class="bor pd10">
-          <el-col :span="8" class="ellipsis">
-            客户名称：<span title="">567987913414654987981321657979889</span>
-          </el-col>
-          <el-col :span="8">&nbsp;</el-col>
-          <el-col :span="8" class="ellipsis">
-            客户PO.号：<span title="">567987913414654987981321657979889</span>
-          </el-col>
-          <el-col :span="8" class="ellipsis">
-            需求编号：<span title="">567987913414654987981321657979889</span>
-          </el-col>
-          <el-col :span="8" class="ellipsis">
-            需求类型：<span title="">567987913414654987981321657979889</span>
-          </el-col>
-          <el-col :span="8" class="ellipsis">
-            需求状态：<span title="">567987913414654987981321657979889</span>
-          </el-col>
-          <el-col :span="8" class="ellipsis">
-            已报总价：<span title="">567987913414654987981321657979889</span>
-          </el-col>
-          <el-col :span="8" class="ellipsis">
-            报价货币：<span title="">567987913414654987981321657979889</span>
-          </el-col>
-        </el-row>
         <el-row>
           <el-col :span="24">
-            <p class="mgtb10 mgt10">
+            <el-form-item prop="customerProjectNo" label="客户项目编号：" label-width="130px" class="mgt20">
+              <el-input v-model="handle.project.form.customerProjectNo"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item prop="offerNo" label="报价编号：" label-width="130px">
+              <el-input v-model="handle.project.form.offerNo"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <p class="mgb10">
               上传文件：
               <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
                 <el-button size="mini" type="primary">选择上传文件</el-button>
-                <input type="file" name="file" ref="fileUpdate" class="posFull opacity0" @change="() => addAttachments()">
+                <input type="file" name="file" ref="file" class="posFull opacity0" @change="() => addAttachments($refs.file, handle.project)">
               </span>
             </p>
             <el-table
-              :data="handle.update.form.attachments"
+              :data="handle.project.form.attachments"
               max-height="160"
               border
               size="mini"
@@ -193,22 +176,28 @@
             >
               <el-table-column type="index" label="序号"></el-table-column>
               <el-table-column prop="fileName" label="附件名称"></el-table-column>
-              <el-table-column label="操作" width="100px">
+              <el-table-column label="操作" width="100px" align="center">
                 <template slot-scope="scope">
-                  <el-button size="mini" type="text" @click="() => deleteAttachments(scope.row)">删除</el-button>
+                  <el-button size="mini" type="text" @click="() => deleteAttachments(scope.row, handle.project)">删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
           </el-col>
+          <el-col :span="24">
+            <el-form-item prop="remark" label="说明" class="mgt20">
+              <el-input type="textarea" v-model="handle.project.form.remark"></el-input>
+            </el-form-item>
+          </el-col>
         </el-row>
-        <el-form-item label="说明" class="mgt20">
-          <el-input type="textarea" v-model="handle.project.form.remark"></el-input>
-        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="saveDataAfterFile(handle.project, editOffer, 'projectForm')">保存</el-button>
         <el-button @click="handle.project.dialogVisible = false">取 消</el-button>
       </div>
+    </el-dialog>
+
+    <el-dialog :title="`${handle.offer.type == 'add' ? '新增' : '修改'}报价`" :visible.sync="handle.offer.dialogVisible" width="1000px">
+      <offer :type="handle.offer.type" :customerId="selectCustomerId" :data="offerData" @success="editOfferRecordSuccess" style="height: 500px" v-if="handle.offer.dialogVisible"></offer>
     </el-dialog>
    
     <el-dialog title="新增模具零件订单" :visible.sync="handle.order.dialogVisible" width="820px">
@@ -384,24 +373,44 @@
 
 <script>
   import leftMixin from '../../../js/left-mixin'
+  import Offer from './offer'
   export default {
     mixins: [leftMixin],
+    components: {Offer},
     data() {
 
       return {
+        selectCustomerId: '',
+        offerData: {},
         form: {
-          name: '',
-          areaName: '',
-          countryName: ''
+          customerName: '',
+          offerNo: '',
+          customerProjectNo: ''
         },
         handle: {
-          project: {
+          project: { //项目
             dialogVisible: false,
             isLoading: false,
             type: 'add',
+            row: {},
+            data: {},
+            addFiles: [],
             form: {
+              customerProjectNo: '',
+              offerNo: '',
+              attachments: [],
               remark: ''
+            },
+            rules: {
+              customerProjectNo: [
+                { required: true, message: this.$utils.getTipText('error', '-1113')},
+              ],
             }
+          },
+          offer: { //项目
+            dialogVisible: false,
+            isLoading: false,
+            type: 'add',
           },
           update: {
             dialogVisible: false,
@@ -430,11 +439,6 @@
                 { required: true, message: this.$utils.getTipText('error', '-1086')},
               ]
             }
-          },
-          plan: {
-            dialogVisible: false,
-            isLoading: false,
-            tableData: []
           },
           stop: {
             dialogVisible: false,
@@ -497,18 +501,104 @@
     methods: {
       getData() {
 
+        let params = {
+          customerName: this.form.customerName,
+          offerNo: this.form.offerNo,
+          customerProjectNo: this.form.customerProjectNo
+        }
+
         this.table.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryOfferList, (res) => {
 
           this.table.isLoading = false;
-          this.table.srcData = [{}, {}] //res.data || [];
+          this.table.srcData = res.data || [];
           this.table.data = this.$utils.deepCopy(this.table.srcData);
-        }, () => this.table.isLoading = false)
+        }, () => this.table.isLoading = false, params)
       },
-      showProjectDialog(type = 'add') {
+      showProjectDialog(row, type = 'edit') {
 
         this.resetForm('projectForm');
+        this.handle.project.type = type;
+        this.handle.project.row = row;
+        this.handle.project.addFiles = [];
+        this.handle.project.form.attachments = [];
         this.handle.project.dialogVisible = true;
+
+        if(type == 'add') return;
+
+        this.handle.project.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryOfferDetail, (res) => {
+
+          this.handle.project.isLoading = false;
+          this.handle.project.form = res.data || {}; 
+        }, () => this.handle.project.isLoading = false, {offerId: row.offerId})
+      },
+      editOffer(res) { //新增OR编辑项目信息
+
+        let params = {
+          customerId: this.handle.project.row.customerId,
+          customerProjectNo: this.handle.project.form.customerProjectNo,
+          offerNo: this.handle.project.form.offerNo,
+          remark: this.handle.project.form.remark,
+          attachments: []
+        }
+
+        if(res && res.data) {
+
+          params.attachments.push({
+            attachmentId: res.data.attachmentId
+          })
+        }
+
+        if(this.handle.project.type == 'edit') {
+
+          params.offerId = this.handle.project.row.offerId;
+        }
+
+        this.$utils.getJson(this.$utils.CONFIG.api.editOffer, (res) => {
+
+          this.handle.project.isLoading = false;
+          this.handle.project.dialogVisible = false;
+          this.$utils.showTip('success', 'success', '117');
+          this.search();
+        }, () => this.handle.project.isLoading = false, params)
+      },
+      delOffer(row) { //删除项目
+        
+        let params = {
+          offerId: row.offerId,
+          customerId: row.customerId
+        }
+
+        this.table.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.delOffer, (res) => {
+
+          this.table.isLoading = false;
+          this.$utils.showTip('success', 'success', '116');
+          this.search();
+        }, () => this.table.isLoading = false, params)
+      },
+      showOfferDialog(row, type = 'edit') {
+
+        this.handle.offer.type = type;
+        this.handle.offer.row = row;
+        this.selectCustomerId = row.customerId;
+        this.offerData = row;
+        this.handle.offer.dialogVisible = true;
+
+        if(type == 'add') return;
+
+        this.handle.offer.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryOfferDetail, (res) => {
+
+          this.handle.offer.isLoading = false;
+          this.handle.offer.form = res.data || {}; 
+        }, () => this.handle.offer.isLoading = false, {offerId: row.offerId})
+      },
+      editOfferRecordSuccess() {
+
+        this.handle.offer.dialogVisible = false;
+        this.search();
       },
       handleAvatarSuccess(res, file) { //上传头像
         

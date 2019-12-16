@@ -7,18 +7,18 @@
             <el-form-item label="客户" prop="name">
               <el-input v-model="form.name" placeholder="请输入客户" style="width: 170px" />
             </el-form-item>
-            <el-form-item label="区域" prop="areaName">
-              <el-select v-model="form.areaName" clearable placeholder="请选择区域" style="width: 170px">
-                <el-option :label="item.areaName" :value="item.areaName" v-for="(item, index) in $dict.areaList" :index="index"></el-option>
+            <el-form-item label="区域" prop="areaId">
+              <el-select v-model="form.areaId" clearable placeholder="请选择区域" style="width: 170px">
+                <el-option :label="item.areaName" :value="item.areaId" v-for="(item, index) in $dict.areaList" :index="index"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="国家" prop="countryName">
-              <el-select v-model="form.countryName" clearable placeholder="请选择国家" style="width: 170px">
-                <el-option :label="item.countryName" :value="item.countryName" v-for="(item, index) in $dict.countryList" :index="index"></el-option>
+            <el-form-item label="国家" prop="countryId">
+              <el-select v-model="form.countryId" clearable placeholder="请选择国家" style="width: 170px">
+                <el-option :label="item.countryName" :value="item.countryId" v-for="(item, index) in $dict.countryList" :index="index"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="" class="pdl40">
-              <el-button type="primary" size="small" @click="filterDada">查询</el-button>
+              <el-button type="primary" size="small" @click="search">查询</el-button>
               <el-button type="primary" size="small" @click="resetForm('form')">重置</el-button>
               <el-button type="primary" size="mini" @click="edit('add')">新增</el-button>
             </el-form-item>
@@ -52,8 +52,16 @@
             </template>
           </el-table-column>
           <el-table-column prop="phone" label="电话" min-width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="paymentPeriod" label="付款账期" min-width="120" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="currencyName" label="结算货币" min-width="120" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="paymentPeriod" label="付款账期" min-width="120" show-overflow-tooltip>
+            <template slot-scope="scope">
+              {{ scope.row.paymentPeriod | filterNull }}天
+            </template>
+          </el-table-column>
+          <el-table-column label="结算货币" min-width="120" show-overflow-tooltip>
+            <template slot-scope="scope">
+              {{scope.row.currency && scope.row.currency.currencyName ?  scope.row.currency.currencyName : '-'}}
+            </template>
+          </el-table-column>
           <el-table-column prop="name" label="操作" width="260" fixed="right">
             <template slot-scope="scope">
               <el-button type="primary" size="mini" @click="edit('edit', 'updateForm', scope.row)">修改</el-button>
@@ -242,7 +250,10 @@
             客户简称: {{handle.update.form.abbreviation | filterNull}}
           </el-col>
           <el-col :span="12">
-            客户所在国: {{handle.update.form.countryName | filterNull}}
+            客户所在区域: {{handle.update.form.area && handle.update.form.area.areaName ? handle.update.form.area.areaName : '-'}}
+          </el-col>
+          <el-col :span="12">
+            客户所在国: {{handle.update.form.country && handle.update.form.country.countryName ? handle.update.form.country.countryName : '-'}}
           </el-col>
           <el-col :span="12">
             详细地址: {{handle.update.form.address | filterNull}}
@@ -260,7 +271,10 @@
             企业负责人: {{handle.update.form.personInCharge | filterNull}}
           </el-col>
           <el-col :span="12">
-            常用货币: {{handle.update.form.currencyName | filterNull}}
+            常用货币: {{handle.update.form.currency && handle.update.form.currency.currencyName ? handle.update.form.currency.currencyName : '-'}}
+          </el-col>
+          <el-col :span="12">
+            汇率: {{handle.update.form.exchangeRate && handle.update.form.exchangeRate.exchangeRateName ? handle.update.form.exchangeRate.exchangeRateName : '-'}}
           </el-col>
           <el-col :span="12">
             付款账期: {{handle.update.form.paymentPeriod | filterNull}}天
@@ -301,7 +315,7 @@
               <el-table-column label="电子邮件" show-overflow-tooltip>
                 <template scope="scope">
                   <div>
-                    {{ scope.row.phone }}
+                    {{ scope.row.email }}
                   </div>
                 </template>
               </el-table-column>
@@ -338,14 +352,14 @@
         <div class="pos-relative" v-if="handle.history.data && handle.history.data.length">
           <div class="history-line"></div>
           <div class="history-item" v-for="(item, index) in handle.history.data">
-            <div class="history-icon pointer">
-              <!-- <i class="el-icon-circle-plus"></i> -->
-              <i class="el-icon-remove"></i>
+            <div class="history-icon">
+              <i class="el-icon-circle-plus pointer" v-show="item.isHide" @click="$set(item, 'isHide', false)"></i>
+              <i class="el-icon-remove pointer" v-show="!item.isHide" @click="$set(item, 'isHide', true)"></i>
             </div>
             <div class="history-title">
-              <strong>{{item.date}}</strong>
+              <strong>{{item.dateString ? new Date(item.dateString).Format('yyyy-MM-dd') : '-'}}</strong>
             </div>
-            <div class="history-body">
+            <div class="history-body" v-show="!item.isHide">
               <div class="dflex mgt5">
                 <div class="flex">
                   <strong>主题：</strong>
@@ -373,7 +387,7 @@
             没有历史事件
         </div>
         <div>
-          <div class="mgb5"><strong>增加历史事件</strong></div>
+          <div class="mgb5 mgt20"><strong>增加历史事件</strong></div>
           <el-form size="mini" :model="handle.history.form" :rules="handle.history.rules" label-width="100px" ref="historyForm" class="bor pd10">
             <el-row class="mgb0">
               <el-col :span="12">
@@ -399,6 +413,7 @@
               <el-col :span="12">
                 <el-form-item label="处理状态" prop="state">
                   <el-select v-model="handle.history.form.state" clearable placeholder="请选择区域">
+                    <el-option label="未处理" value="未处理"></el-option>
                     <el-option label="已处理" value="已处理"></el-option>
                   </el-select>
                 </el-form-item>   
@@ -425,11 +440,40 @@
   export default {
     mixins: [leftMixin],
     data() {
+
+      var checkName = (rule, value, callback) => {
+
+        if (!value) {
+
+          return callback(new Error(this.$utils.getTipText('error', '-1108')));
+        }
+
+        let params = {
+          name: value
+        }
+
+        if(this.handle.update.handleType == 'edit') {
+
+          params.customerId = this.handle.update.row.customerId;
+        }
+
+        this.$utils.getJson(this.$utils.CONFIG.api.checkCustomerName, (res) => { //验重
+
+            if(res.data == 201) {
+
+              callback(new Error(this.$utils.getTipText('error', '-1109')));
+            }else {
+
+              callback();
+            }
+        }, null, params)
+      };
+
       return {
         form: {
           name: '',
-          areaName: '',
-          countryName: ''
+          areaId: '',
+          countryId: ''
         },
         handle: {
           update: {
@@ -437,6 +481,7 @@
             dialogVisible: false,
             isLoading: false,
             handleType: 'add',
+            row: {},
             form: {
               fileId: '',
               userFace: '',
@@ -456,13 +501,12 @@
               email: '',
               personInCharge: '',
               personScale: '',
-              contacts: [],
+              contacts: [{}],
               remark: ''
             },
             rules: {
               name: [
-                { required: true, message: this.$utils.getTipText('error', '-1010')},
-                { max: 20, message: this.$utils.getTipText('error', '-1011')}
+                { required: true, validator: checkName, trigger: 'blur'}
               ],
               abbreviation: [
                 { required: true, message: this.$utils.getTipText('error', '-1012')}
@@ -490,12 +534,14 @@
           history: {
             dialogVisible: false,
             isLoading: false,
+            row: {},
             data: [],
             form: {
               title: '',
               address: '',
               date: '',
-              state: ''
+              state: '',
+              content: ''
             },
             rules: {
               title: [
@@ -518,35 +564,19 @@
     methods: {
       getData() { 
 
+        let params = {
+          name: this.form.name,
+          areaId: this.form.areaId,
+          countryId: this.form.countryId
+        }
+
         this.table.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryCustomerList, (res) => {
 
           this.table.isLoading = false;
           this.table.srcData = res.data || [];
           this.table.data = this.$utils.deepCopy(this.table.srcData);
-        }, () => this.table.isLoading = false)
-      },
-      filterDada() {
-
-        this.table.data = this.table.srcData.filter(item => {
-
-          let name = false;
-          if(!this.form.name || (this.form.name == item.name)) {
-            name = true; 
-          }
-
-          let areaName = false;
-          if(!this.form.areaName || (item.area && this.form.areaName == item.area.areaName)) {
-            areaName = true; 
-          }
-
-          let countryName = false;
-          if(!this.form.countryName || (item.country && this.form.countryName == item.country.countryName)) {
-            countryName = true; 
-          }
-
-          return name && areaName && countryName;
-        })
+        }, () => this.table.isLoading = false, params)
       },
       getDetail(item) {
 
@@ -583,17 +613,26 @@
             res.data.currency = {};
           }
 
+          if(!res.data.contacts || !res.data.contacts.length) {
+
+            res.data.contacts = [{}]
+          }
+
           this.handle.update.form = res.data || {};
         }, () => this.handle.update.isLoading = false, {customerId: item.customerId})
       },
       edit(type, formName, item) { //修改
 
         this.$refs.updateForm && this.$refs.updateForm.resetFields();
+        this.handle.update.form.contacts = [{}];
         this.handle.update.handleType = type;
         this.handle.update.dialogVisible = true;
 
         if(this.handle.update.handleType == 'edit') {
+          this.handle.update.row = item;
           this.getDetail(item);
+        }else {
+          this.handle.update.row = {}
         }
       },
       showDetail(item) {
@@ -616,6 +655,7 @@
             params = {
               fileId: this.handle.update.form.fileId,
               customerType: 1,
+              logo: '',
               customerId: this.handle.update.form.customerId || null,
               name: this.handle.update.form.name,
               abbreviation: this.handle.update.form.abbreviation,
@@ -645,7 +685,7 @@
                 });
               }
             })
-            console.log(url)
+            
             this.handle.update.isLoading = true;
             this.$utils.getJson(url, (res) => {
 
@@ -662,6 +702,8 @@
       showHistory(item) { //历史事件
 
         this.resetForm('historyForm');
+        this.handle.history.row = item;
+        this.handle.history.form.customerId = item.customerId;
         this.handle.history.dialogVisible = true;
         this.handle.history.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryCustomerMettingRecordList, (res) => {
@@ -677,10 +719,11 @@
           if (valid) {
             
             this.handle.history.isLoading = true;
-            this.$utils.getJson(this.$utils.CONFIG.api.history, (res) => {
+            this.$utils.getJson(this.$utils.CONFIG.api.editCustomerMettingRecord, (res) => {
 
               this.handle.history.dialogVisible = false;
               this.handle.history.isLoading = false;
+              this.showHistory(this.handle.history.row);
               this.$utils.showTip('success', 'success', '117')
             }, () => this.handle.history.isLoading = false, this.handle.history.form)
           } else {

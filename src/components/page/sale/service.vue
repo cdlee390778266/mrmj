@@ -1,214 +1,299 @@
 <template>
   <div>
-    <div class="crumbs">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item>
-          <i class="el-icon-lx-copy"></i> 当前位置：售后反馈
-        </el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
     <div class="main">
-      <div class="main-left" v-loading="left.isLoading">
-        <div class="main-left-search pd10">
-          <div>
-            待处理客诉：
-            <el-input v-model="form.text" style="width: 136px" prefix-icon="el-icon-search" @focus="isShowList = false" />
-            <el-dropdown ref="sort" :hide-on-click="false">
-              <el-button type="primary" icon="el-icon-sort" class="mgl10" style="width: auto;"></el-button>
-              <el-dropdown-menu slot="dropdown" class="sort">
-                <el-dropdown-item>
-                  <el-button type="text" class="fs14" :class="{active: filter.sort.sortType == ''}" @click="checkSort('')">升序</el-button>
-                  <el-button type="text" class="fr fs14" :class="{active: filter.sort.sortType == 'desc'}" @click="checkSort('desc')">降序</el-button>
-                </el-dropdown-item>
-                <el-dropdown-item divided v-for="(item, index) in filter.sort.listType.product" :key="index">
-                  <el-radio v-model="filter.sort.sortField" :label="item.value">{{item.label}}</el-radio>
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-            <div class="mgt10">
-              <el-button type="primary" @click="$router.push('/sale/serviceEdit/add')" style="width: 100%;">新增投诉</el-button>
-            </div>
-          </div>
+      <div class="main-right">
+        <div class="main-right-title tl">销售 / 客户投诉</div>
+        <div class="mgt20">
+          <el-form :model="form" :inline="true" size="small" ref="form" class="table-out">
+            <el-form-item label="日期" prop="startDate">
+              <el-date-picker
+                v-model="form.startDate"
+                type="date"
+                format="yyyy-MM-dd"
+                value-format="yyyy-MM-dd"
+                placeholder="选择日期"
+                style="width: 170px">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="客户" prop="customerName">
+              <el-input v-model="form.customerName" style="width: 170px" />
+            </el-form-item>
+            <el-form-item label="模具号" prop="mouldNo">
+              <el-input v-model="form.mouldNo" style="width: 170px" />
+            </el-form-item>
+            <el-form-item label="">
+              <el-button type="primary" size="small" @click="search">查询</el-button>
+              <el-button type="primary" size="small" @click="resetForm('form')">重置</el-button>
+            </el-form-item>
+          </el-form>
         </div>
-        <div class="list" style="top: 96px;">
-          <div class="list-item pd10" v-for="(item, index) in left.list" :key="index" :class="{ active: left.activeId == item.id }" v-show="isShowList" @click="handleSelect(item)">
-            <div class="dflex">
-              <div>
-                <img src="../../../assets/img/img1.svg" width="30" class="mgr10 mgt10" />
-              </div>
-              <div class="flex">
-                <p>{{item.a | filterNull}}</p>
-                <p>投诉订单：{{item.b | filterNull}}</p>
-              </div>
-            </div>
-            <el-row>
-              <el-col :span="13" class="ellipsis">反馈类型：{{item.c | filterNull}}</el-col>
-              <el-col :span="11">日期：{{item.d | filterNull}}</el-col>
-              <el-col :span="24" class="tr">
-                <a href="javascript: void(0);" @click="$router.push('/sale/serviceEdit/edit/11')">编辑</a>
-                <a href="javascript: void(0);" @click="$router.push('/sale/serviceComplete/11')">处理完成</a>
-              </el-col>
-            </el-row>
-          </div>
-          <div class="filter" v-show="!isShowList">
-            <p v-for="(item, index) in filter.typeList" :key="index" @click="selectType(item)"><i class="el-icon-search"></i> {{ item.label }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="main-right" v-loading="right.isLoading">
-        <page-wrapper @change="refresh" :haveCarousel="true">
-          <template #pageName>客户投诉明细</template>
-          <el-carousel
-            direction="vertical"
-            :autoplay="false"
-            :loop="false"
-            trigger="click"
-            ref="carousel">
-            <el-carousel-item>
-              <div class="main-content-title">
-                <div>
-                  <i class="el-icon-lx-edit"></i> 客诉及内部处置信息
-                </div>
-              </div>
-              <el-scrollbar class="main-content-scorll pdt10">
-                <el-row>
-                  <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24"><strong>客诉信息</strong></el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户：{{right.page1.a | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">联系人：{{right.page1.b | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">职务：{{right.page1.cc | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">联系电话：{{right.page1.c | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">邮箱地址：{{right.page1.d | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">客户PO.号：{{right.page1.e | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">投诉单号：{{right.page1.f | filterNull}}</el-col>
-                </el-row>
-                <el-row>
-                  <el-col :span="24" class="mgt10">投诉附件：</el-col>
-                  <el-col :span="24">
-                    <el-table
-                      :data="right.page1.g"
-                      border
-                      size="mini"
-                      class="content-table"
-                      style="width: 100%"
-                    >
-                      <el-table-column type="index" label="序号" width="50"></el-table-column>
-                      <el-table-column prop="fileName" label="资料名称"></el-table-column>
-                      <el-table-column width="100" label="操作">
-                        <template slot-scope="scope">
-                          <a href="javascript:void(0);" style="color: #3375AB;" @click="down(scope.row.fileId)">下载</a>
-                        </template>
-                      </el-table-column>
-                    </el-table>
-                  </el-col>
-                </el-row>
-                <div v-for="(item, index) in right.page1.h" :key="index">
-                  <el-divider class="mgtb20"></el-divider>
-                  <el-row>
-                    <el-col :span="24"><strong>客诉零件</strong></el-col>
-                    <el-col :span="24">
-                      <span>零件号：{{item.a | filterNull}}</span>
-                    </el-col>
-                    <el-col :span="24">
-                      <div class="dflex">
-                        <div>情况说明：</div>
-                        <div class="flex">
-                          {{item.b | filterNull}}
-                        </div>
-                      </div>
-                    </el-col>
-                  </el-row>
-                  <el-row class="mgt10">
-                    <el-col :span="24"><strong>内部处置信息</strong></el-col>
-                    <el-col :span="24">
-                      <span>责任部门：{{item.c | filterNull}}</span>
-                      <span class="mgl10">投诉类别：{{item.d | filterNull}}</span>
-                      <span class="mgl10">检测人员：{{item.e | filterNull}}</span>
-                    </el-col>
-                    <el-col :span="24">
-                      <div class="dflex">
-                        <div>情解决改善方案：</div>
-                        <div class="flex">
-                          {{item.f | filterNull}}
-                        </div>
-                      </div>
-                      <div>改善效果：{{item.g | filterNull}}</div>
-                    </el-col>
-                  </el-row>
-                </div>
-              </el-scrollbar>
-            </el-carousel-item>
-            <el-carousel-item>
-              <div class="main-content-title">
-                <div>
-                  <i class="el-icon-lx-edit"></i> 客诉涉及订单信息
-                </div>
-              </div>
-              <el-scrollbar class="main-content-scorll pdt10">
-                <el-row>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">模具号：{{right.page2.a | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单类型：{{right.page2.b | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">订单总价：{{right.page2.c | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">交易货币：{{right.page2.d | filterNull}}</el-col>
-                  <el-col :xs="24" :sm="24" :md="12" :lg="8" :xl="8">交易货币总价：{{right.page2.e | filterNull}}</el-col>
-                </el-row>
-                <el-row class="mgt10">
-                  <el-col :span="24">订单零件列表</el-col>
-                  <el-col :span="24">
-                    <el-table
-                      :data="right.page2.components"
-                      border
-                      size="mini"
-                      class="content-table"
-                      style="width: 100%"
-                    > 
-                      <el-table-column type="index" width="50" label="序号"></el-table-column>
-                      <el-table-column prop="a" label="零件号" width="160" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="b" label="客户编号" width="120" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="c" label="数量" width="88" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="d" label="下单日期" width="120" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="e" label="要求交期" width="120" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="f" label="实际交期" width="120" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="g" label="说明" min-width="120" show-overflow-tooltip></el-table-column>
-                    </el-table>
-                  </el-col>
-                </el-row>
-                <el-row class="mgt10">
-                  <el-col :span="24">订单附件</el-col>
-                  <el-col :span="24">
-                    <el-table
-                      :data="right.page2.g"
-                      border
-                      size="mini"
-                      class="content-table"
-                      style="width: 100%"
-                    > 
-                      <el-table-column type="index" width="50" label="序号"></el-table-column>
-                      <el-table-column prop="fileName" label="附件名称" show-overflow-tooltip></el-table-column>
-                      <el-table-column width="100" label="操作">
-                        <template slot-scope="scope">
-                          <a href="javascript:void(0);" style="color: #3375AB;" @click="down(scope.row.fileId)">下载</a>
-                        </template>
-                      </el-table-column>
-                    </el-table>
-                  </el-col>
-                </el-row>
-                <el-row>
-                  <el-col :span="24" class="mgt10">
-                    <span>订单说明：</span>
-                  </el-col>
-                  <el-col :span="24">
-                    {{right.page2.h | filterNull}}
-                  </el-col>
-                </el-row>
-              </el-scrollbar>
-            </el-carousel-item>
-          </el-carousel>
-          <div class="pdt10 mgt10">
-            
-          </div>
-        </page-wrapper>
+        <el-table
+          :data="table.data"
+          :height="maxHeight"
+          :max-height="maxHeight"
+          :default-expand-all="true"
+          size="mini"
+          class="content-table gray-table"
+          style="width: 100%"
+          v-loading="table.isLoading">
+          <el-table-column type="expand">
+            <template slot-scope="props">
+              <el-table
+                :show-header="false"
+                :data="props.row.customerComplainDtos"
+                size="mini"
+                stripe
+                class="content-table blue-table"
+                style="width: 100%">
+                <el-table-column type="expand">
+                  <template slot-scope="props1">
+                    
+                  </template>
+                </el-table-column>
+                <el-table-column label="客户" min-width="160" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    <strong>{{props.row.name | filterNull}}</strong>
+                  </template>
+                </el-table-column>
+                <el-table-column label="日期" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.createDtString ? new Date(scope.row.createDtString).Format('yyyy-MM-dd') : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="模具号码" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.mouldNo ? scope.row.mouldNo : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="投诉数量" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.complaintCount ? scope.row.complaintCount : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="加工数量" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.productionCount ? scope.row.productionCount : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="投诉问题" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.question ? scope.row.question : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="补救方式" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.saleCustomerComplaintDetail && scope.row.saleCustomerComplaintDetail.solution ? scope.row.saleCustomerComplaintDetail.solution : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="责任人" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.dutyManId ? scope.row.dutyManId : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="开始时间" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.saleCustomerComplaintDetail && scope.row.saleCustomerComplaintDetail.solutionStartTimeString ? new Date(scope.row.saleCustomerComplaintDetail.solutionStartTimeString).Format('yyyy-MM-dd') : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="完成时间" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.saleCustomerComplaintDetail && scope.row.saleCustomerComplaintDetail.solutionEndTimeString ? new Date(scope.row.saleCustomerComplaintDetail.solutionEndTimeString).Format('yyyy-MM-dd') : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="工时" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.saleCustomerComplaintDetail && scope.row.saleCustomerComplaintDetail.solutionTime ? scope.row.saleCustomerComplaintDetail.solutionTime : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="类型1" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.saleCustomerComplaintDetail && scope.row.saleCustomerComplaintDetail.type1 ? scope.row.saleCustomerComplaintDetail.type1 : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="类型2" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.saleCustomerComplaintDetail && scope.row.saleCustomerComplaintDetail.type2 ? scope.row.saleCustomerComplaintDetail.type2 : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="类型3" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.saleCustomerComplaintDetail && scope.row.saleCustomerComplaintDetail.type3 ? scope.row.saleCustomerComplaintDetail.type3 : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="类型4" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.saleCustomerComplaintDetail && scope.row.saleCustomerComplaintDetail.type4 ? scope.row.saleCustomerComplaintDetail.type4 : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" width="160" align="center">
+                  <template slot-scope="scope">
+                    <el-button type="primary" size="mini" @click="showComplaintDialog(scope.row, 'edit')">编辑</el-button>
+                    <el-button type="success" size="mini" @click="showCompleteDialog(scope.row)">处理完成</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </template>
+          </el-table-column>
+          <el-table-column label="客户" min-width="160" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <strong>{{scope.row.name | filterNull}}</strong>
+            </template>
+          </el-table-column>
+          <el-table-column label="日期" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="模具号码" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="投诉数量" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="加工数量" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="投诉问题" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="补救方式" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="责任人" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="开始时间" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="完成时间" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="工时" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="类型1" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="类型2" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="类型3" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="类型4" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="操作" width="160" align="center" fixed="right">
+            <template slot-scope="scope">
+              <el-button type="danger" size="mini" @click="showComplaintDialog(scope.row, 'add')">新增投诉</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
     </div>
+
+    <!-- 客户投诉登记 -->
+    <el-dialog title="客户投诉登记" :visible.sync="handle.complaint.dialogVisible" width="600px">
+      <div v-loading="handle.complaint.isLoading">
+        <el-form ref="complaintForm" :model="handle.complaint.form" :rules="handle.complaint.rules" size="mini" label-width="80px">
+          <el-row class="mgt20">
+            <el-col :span="12">
+              <el-form-item label="模具号" prop="mouldNo">
+                <el-input v-model="handle.complaint.form.mouldNo" placeholder="请输入模具号"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="加工数量" prop="productionCount">
+                <el-input v-model="handle.complaint.form.productionCount" placeholder="请输入加工数量"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="投诉数量" prop="complaintCount">
+                <el-input v-model="handle.complaint.form.complaintCount" placeholder="请输入投诉数量"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="责任人" prop="dutyManId">
+                <el-input v-model="handle.complaint.form.dutyManId" placeholder="请输入责任人"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="投诉问题" prop="question">
+                <el-input type="textarea" v-model="handle.complaint.form.question" placeholder="请输入投诉问题" :rows="4"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+        <div slot="footer" class="dialog-footer tr mgtb20">
+          <el-button type="primary" @click="onSubmitForm('complaintForm', editComplaint)">保存</el-button>
+          <el-button @click="handle.complaint.dialogVisible = false">取 消</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <!-- 处理完成 -->
+    <el-dialog title="处理完成" :visible.sync="handle.complete.dialogVisible" width="600px">
+      <div v-loading="handle.complete.isLoading">
+        <el-form ref="completeForm" :model="handle.complete.form" size="mini" label-width="80px">
+          <el-row class="mgt20">
+            <el-col :span="24" class="bor pd10">
+              <div class="dflex">
+                <div class="flex">
+                  <strong>日期：</strong>
+                  <span class="ellipsis">{{handle.complete.row.createDtString ? new Date(handle.complete.row.createDtString).Format('yyyy-MM-dd') : '-'}}</span>
+                </div>
+                <div class="flex">
+                  <strong>模具号：</strong>
+                  <span class="ellipsis" :title="handle.complete.row.mouldNo | filterNull">{{handle.complete.row.mouldNo | filterNull}}</span>
+                </div>
+              </div>
+              <div class="dflex">
+                <div class="flex">
+                  <strong>加工数量：</strong>
+                  <span class="ellipsis" :title="handle.complete.row.productionCount | filterNull">{{handle.complete.row.productionCount | filterNull}}</span>
+                </div>
+                <div class="flex">
+                  <strong>投诉数量：</strong>
+                  <span class="ellipsis" :title="handle.complete.row.complaintCount | filterNull">{{handle.complete.row.complaintCount | filterNull}}</span>
+                </div>
+              </div>
+              <div class="dflex">
+                <div class="flex">
+                  <strong>责任人：</strong>
+                  <span class="ellipsis" :title="handle.complete.row.dutyManId | filterNull">{{handle.complete.row.dutyManId | filterNull}}</span>
+                </div>
+              </div>
+              <div>
+                <p><strong>投诉问题：</strong></p>
+                <p>{{handle.complete.row.question | filterNull}}</p>
+              </div>
+            </el-col>
+
+            <el-col :span="24" class="mgt20">
+              <el-form-item label="补救方式" prop="solution">
+                <el-input v-model="handle.complete.form.solution" placeholder="请输入补救方式"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="新做" prop="aa">
+                <el-row>
+                  <el-col :span="17">
+                    <el-date-picker
+                      v-model="handle.complete.form.solutionTimeRange"
+                      type="daterange"
+                      range-separator="至"
+                      value-format="yyyy-MM-dd"
+                      start-placeholder="开始时间"
+                      end-placeholder="结束时间"
+                      style="width: 100%;">
+                    </el-date-picker>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-form-item label="工时" prop="solutionTime" label-width="60px" class="mgb0">
+                      <el-input v-model="handle.complete.form.solutionTime" placeholder="请输入工时"/>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="类型1" prop="type1">
+                <el-input v-model="handle.complete.form.type1" placeholder="请输入类型1"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="类型2" prop="type2">
+                <el-input v-model="handle.complete.form.type2" placeholder="请输入类型2"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="类型3" prop="type3">
+                <el-input v-model="handle.complete.form.type3" placeholder="请输入类型3"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="类型4" prop="type4">
+                <el-input v-model="handle.complete.form.type4" placeholder="请输入类型4"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+        <div slot="footer" class="dialog-footer tr mgtb20">
+          <el-button type="primary" @click="onSubmitForm('completeForm', complete)">保存</el-button>
+          <el-button @click="handle.complete.dialogVisible = false">取 消</el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -217,222 +302,157 @@
   export default {
     mixins: [leftMixin],
     data() {
+
       return {
+        form: {
+          startDate: '',
+          customerName: '',
+          mouldNo: ''
+        },
+        handle: {
+          complaint: {
+            dialogVisible: false,
+            isLoading: false,
+            type: 'edit',
+            row: {},
+            form: {
+              customerId: '',
+              complaintCount: '',
+              mouldNo: '',
+              productionCount: '',
+              dutyManId: '',
+              question: ''
+            },
+            rules: {
+              mouldNo: [
+                { required: true, message: this.$utils.getTipText('error', '-1090')},
+              ],
+              productionCount: [
+                { required: true, message: this.$utils.getTipText('error', '-1110')},
+              ],
+              complaintCount: [
+                { required: true, message: this.$utils.getTipText('error', '-1111')},
+              ],
+              dutyManId: [
+                { required: true, message: this.$utils.getTipText('error', '-1112')},
+              ]
+            }
+          },
+          complete: {
+            dialogVisible: false,
+            isLoading: false,
+            row: {},
+            form: {
+              solution: '',
+              solutionTimeRange: [],
+              solutionTime: '',
+              type1: '',
+              type2: '',
+              type3: '',
+              type4: ''
+            }
+          }
+        }
       };
     },
     methods: {
-      getLeftList() {
+      getData() {
 
         let params = {
+          startDate: this.form.startDate,
+          customerName: this.form.customerName,
+          mouldNo: this.form.mouldNo
+        }
 
-        };
-        let mock = [
-          {
-            id: 0,
-            a: '测试测试测试测试测试测试公司',
-            b: 'M-1901',
-            c: '待处理',
-            d: '2019.03.31',
-          },
-          {
-            id: 1,
-            a: '测试测试测试测试测试测试公司',
-            b: 'M-1902',
-            c: '待处理',
-            d: '2019.02.21',
-          },
-          {
-            id: 2,
-            a: '测试测试测试测试测试测试公司',
-            b: 'M-1903',
-            c: '内部已回复',
-            d: '2019.04.02',
-          },
-        ]
+        this.table.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryComplaintList, (res) => {
 
-        this.left.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-          this.left.isLoading = false;
-          this.left.list = res.data || [];
-          if(this.left.list.length) {
-
-            this.currentData = this.left.list[0];
-            this.left.activeId = this.left.list[0].id;
-            this.getDetail();
-          }
-        }, () => this.left.isLoading = false, params, mock)
+          this.table.isLoading = false;
+          this.table.srcData = res.data || [];
+          this.table.data = this.$utils.deepCopy(this.table.srcData);
+        }, () => this.table.isLoading = false, params)
       },
-      getDetail() {
+      showComplaintDialog(row, type = 'edit') { //新增投诉OR编辑投诉弹框
+
+        this.resetForm('complaintForm');
+        this.handle.complaint.row = row;
+        this.handle.complaint.type = type;
+        this.handle.complaint.dialogVisible = true;
+
+        if(type == 'add') return;
+
+        this.handle.complaint.form = row;
+      },
+      editComplaint() { //新增投诉OR编辑投诉
 
         let params = {
-
+          customerId: this.handle.complaint.row.customerId,
+          complaintCount: parseInt(this.handle.complaint.form.complaintCount) || 0,
+          mouldNo: this.handle.complaint.form.mouldNo,
+          productionCount: parseInt(this.handle.complaint.form.productionCount) || 0,
+          dutyManId: this.handle.complaint.form.dutyManId,
+          question: this.handle.complaint.form.question
         };
 
-        let mock = {
-          a: 'A公司',
-          b: '张二旺',
-          cc: '采购经理',
-          c: '13684054888',
-          d: '26895778@qq.com',
-          e: '12345678',
-          f: '1231231',
-          g: [
-            {
-              fileName: '172988图纸',
-              fileId: 'crQhc2flTyetPwbJ'
-            }
-          ],
-          h: [
-            {
-              a: '407',
-              b: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc eget.',
-              c: 'XXXX部',
-              d: '漏查',
-              e: 'ZZZZ',
-              f: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus molli',
-              g: '已改善'
-            },
-            {
-              a: '406',
-              b: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc eget.',
-              c: 'XXXX部',
-              d: '漏查',
-              e: 'ZZZZ',
-              f: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus molli',
-              g: '已改善'
-            },
-          ]
-        }
+        if(this.handle.complaint.type == 'edit') params.customerComplaintId = this.handle.complaint.row.customerComplaintId; 
 
-        let mock1 = {
-          a: 'M-1901',
-          b: '模具零件',
-          c: '12301.00',
-          d: '欧元',
-          e: '12301.00',
-          components: [
-            {
-              a: '172988',
-              b: '1',
-              c: '3',
-              d: '2019.03.15',
-              e: '2019.04.15',
-              f: '2019.04.15',
-              g: '',
-            },
-            {
-              a: '172986',
-              b: '1',
-              c: '3',
-              d: '2019.03.15',
-              e: '2019.04.15',
-              f: '2019.04.15',
-              g: '',
-            }
-          ],
-          g: [
-            {
-              fileName: '172988图纸',
-              fileId: 'crQhc2flTyetPwbJ'
-            }
-          ],
-          h: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar tempor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus sapien nunc eget.'
-        }
+        this.handle.complaint.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.editComplaint, (res) => {
 
-        this.right.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-          this.right.isLoading = false;
-          this.right.page1 = res.data || {};
-        }, () => this.right.isLoading = false, params, mock)
-
-        this.right.isLoading = true;
-        this.$utils.mock(this.$utils.CONFIG.api.terminateOrPauseOrder, (res) =>  {
-
-          this.right.isLoading = false;
-          this.right.page2 = res.data || {};
-        }, () => this.right.isLoading = false, params, mock1)
+          this.handle.complaint.isLoading = false;
+          this.handle.complaint.dialogVisible = false;
+          this.$utils.showTip('success', 'success', '117');
+          this.getData();
+        }, () => this.handle.complaint.isLoading = false, params)
       },
-      handleSelect(item) {
+      showCompleteDialog(row) {
 
-        this.left.activeId = item.id;
-        this.currentData = item;
-        this.getDetail();
+        this.resetForm('completeForm');
+        this.handle.complete.row = row;
+        this.handle.complete.dialogVisible = true;
+      },
+      complete() { //处理完成
+    
+        let params = {
+          complaintId: this.handle.complete.row.customerComplaintId,
+          solution: this.handle.complete.form.solution || '',
+          solutionStartTime: this.handle.complete.form.solutionTimeRange.length ? this.handle.complete.form.solutionTimeRange[0] : '',
+          solutionEndTime: this.handle.complete.form.solutionTimeRange.length ? this.handle.complete.form.solutionTimeRange[1] : '',
+          solutionTime: parseFloat(this.handle.complete.form.solutionTime) || '',
+          type1: this.handle.complete.form.type1 || '',
+          type2: this.handle.complete.form.type2 || '',
+          type3: this.handle.complete.form.type3 || '',
+          type4: this.handle.complete.form.type4 || ''
+        };
+
+
+        this.handle.complete.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.editComplaintDetail, (res) => {
+
+          this.handle.complete.isLoading = false;
+          this.handle.complete.dialogVisible = false;
+          this.$utils.showTip('success', 'success', '117');
+          this.getData();
+        }, () => this.handle.complete.isLoading = false, params)
+      },
+      setTableMaxHeight() {
+
+        this.maxHeight = this.$utils.getTableMaxHeight(['.main-right-title', '.table-out']);
       },
       refresh() {}
     },
+
     created() {
 
-      this.getLeftList();
+      this.getData();
+    },
+    updated() {
+      this.setTableMaxHeight();
+      window.onresize = this.setTableMaxHeight;
     }
   };
 </script>
 
 
 <style scoped lang="scss">
-  .progress-list {
-    margin-top: 20px;
-    .progress-item {
-      position: relative;
-      display: table;
-      min-width: 100%;
-      box-sizing: border-box;
-      .process-left {
-        position: absolute;
-        left: 10px;
-        bottom: 10px;
-        top: 10px;
-        width: 200px;
-        padding-top: 5px;
-        line-height: 27px;
-        border-right: 1px solid #ddd;
-        .el-button {
-          font-size: 14px;
-        }
-      }
-      .process-right {
-        height: 193px;
-        padding: 10px;
-        padding-left: 210px;
-        border-top: 1px solid rgba(188, 188, 188, 1);
-        background: rgba(242, 242, 242, 1);
-        .mrmj-table {
-          border: none;
-          margin-bottom: 10px;
-          background: transparent;
-          th {
-            border: none;
-            min-width: 66px;
-            img {
-              position: relative;
-              top: 3px;
-            }
-          }
-          td {
-            border: none;
-          }
-        }
-      }
-      &:nth-child(even) .process-right {
-        background: rgba(228, 228, 228, 1);
-      }
-    }
-    &.unqualified-list {
-      .progress-item {
-        padding: 10px;
-        background: rgba(242, 242, 242, 1);
-        &:nth-child(even) {
-          background: rgba(228, 228, 228, 1);
-        }
-      }
-    }
-  }
-  .mrmj-table {
-    td {
-      overflow: hidden;
-      text-overflow:ellipsis;
-      white-space: nowrap;
-    }
-  }
 </style>

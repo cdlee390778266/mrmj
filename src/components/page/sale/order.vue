@@ -5,41 +5,41 @@
         <div class="main-right-title tl">销售 / 订单管理</div>
         <div class="mgt20">
           <el-form :model="form" :inline="true" size="small" ref="form" class="table-out">
-            <el-form-item label="下单时间" prop="customerName">
+            <el-form-item label="下单时间" prop="createStartDate">
               <el-date-picker
-                v-model="form.parameter"
+                v-model="form.createStartDate"
                 type="date"
-                format="yyyy/MM/dd"
-                value-format="yyyy/MM/dd"
+                format="yyyy-MM-dd"
+                value-format="yyyy-MM-dd"
                 placeholder="选择下单时间"
                 style="width: 170px">
               </el-date-picker>
             </el-form-item>
             <el-form-item label="客户名称" prop="customerName">
-              <el-input v-model="form.parameter" style="width: 170px" />
+              <el-input v-model="form.customerName" style="width: 170px" />
             </el-form-item>
-            <el-form-item label="模具编号" prop="customerName">
-              <el-input v-model="form.parameter" style="width: 170px" />
+            <el-form-item label="模具编号" prop="mouldNo">
+              <el-input v-model="form.mouldNo" style="width: 170px" />
             </el-form-item>
-            <el-form-item label="客户项目编号" prop="customerName">
-              <el-input v-model="form.parameter" style="width: 170px" />
+            <el-form-item label="客户项目编号" prop="customerProjectNo">
+              <el-input v-model="form.customerProjectNo" style="width: 170px" />
             </el-form-item>
-            <el-form-item label="客户订单编号" prop="customerName">
-              <el-input v-model="form.parameter" style="width: 170px" />
+            <el-form-item label="客户订单编号" prop="orderNo">
+              <el-input v-model="form.orderNo" style="width: 170px" />
             </el-form-item>
-            <el-form-item label="要求交货日期" prop="customerName" class="mgr40">
+            <el-form-item label="要求交货日期" prop="deliveryEndDate" class="mgr40">
               <el-date-picker
-                v-model="form.parameter"
+                v-model="form.deliveryEndDate"
                 type="date"
-                format="yyyy/MM/dd"
-                value-format="yyyy/MM/dd"
+                format="yyyy-MM-dd"
+                value-format="yyyy-MM-dd"
                 placeholder="选择要求交货日期"
                 style="width: 170px">
               </el-date-picker>
             </el-form-item>
             <el-form-item label="">
-              <el-button type="primary" size="small">查询</el-button>
-              <el-button type="primary" size="small">重置</el-button>
+              <el-button type="primary" size="small" @click="search">查询</el-button>
+              <el-button type="primary" size="small" @click="resetForm('form')">重置</el-button>
             </el-form-item>
           </el-form>
         </div>
@@ -47,6 +47,7 @@
           :data="table.data"
           :height="maxHeight"
           :max-height="maxHeight"
+          :default-expand-all="true"
           size="mini"
           class="content-table gray-table"
           style="width: 100%"
@@ -70,14 +71,25 @@
                     <strong>{{props.row.name | filterNull}}</strong>
                   </template>
                 </el-table-column>
-                <el-table-column prop="createDtString" label="下单时间" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="" label="订单编号" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="" label="报价单编号" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="" label="客户项目编号" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="" label="总价" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="" label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="" label="订单金额" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="" label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column label="下单时间" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.createDtString ? new Date(scope.row.createDtString).Format('yyyy-MM-dd') : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="orderNo" label="订单编号" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="offerRecordNo" label="报价单编号" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="customerProjectNo" label="客户项目编号" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="orderPrice" label="订单金额" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="deliveryDateString" label="要求交货日期" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.deliveryDateString ? new Date(scope.row.deliveryDateString).Format('yyyy-MM-dd') : '-'}}
+                  </template>
+                </el-table-column>
+                <el-table-column v-for="(head, index) in heads" :key="index" :label="head" min-width="100" show-overflow-tooltip>
+                  <template slot-scope="scope">
+                    {{scope.row.orderProcessMap[head]}}
+                  </template>
+                </el-table-column>
                 <el-table-column label="操作" width="140" align="center">
                   <template slot-scope="scope">
                     <el-button type="primary" size="mini" @click="() => showStopDialog(scope.row, 'suspend')">暂停</el-button>
@@ -96,13 +108,12 @@
           <el-table-column label="订单编号" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="报价单编号" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="客户项目编号" min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column label="总价" min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="订单金额" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column v-for="(head, index) in heads" :key="index" :label="head" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="操作" width="140" align="center">
             <template slot-scope="scope">
-              <el-button type="success" size="mini" @click="showProjectDialog('add')">出货</el-button>
+              <el-button type="success" size="mini" @click="showShipableOrderDialog(scope.row)">出货</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -110,26 +121,47 @@
     </div>
 
     <!-- 出货 -->
-    <el-dialog title="出货" :visible.sync="handle.project.dialogVisible" width="600px">
-      <div>
+    <el-dialog title="出货" :visible.sync="handle.shipableOrder.dialogVisible" width="600px">
+      <div v-loading="handle.shipableOrder.isLoading">
         <el-table
-          :data="[]"
+          :data="handle.shipableOrder.data"
           size="mini"
           class="content-table mgt10"
-          style="width: 100%">
+          style="width: 100%"
+          @selection-change="handleSelectionChange">
           <el-table-column
             type="selection"
             width="55">
           </el-table-column>
-          <el-table-column label="要求交期" min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column label="模具号" min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column label="零件号" min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column label="数量" min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column label="客户" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="要求交期" min-width="100" show-overflow-tooltip>
+            <template slot-scope="scope">
+              {{scope.row.deliveryDateString ? new Date(scope.row.deliveryDateString).Format('yyyy-MM-dd') : '-'}}
+            </template>
+          </el-table-column>
+          <el-table-column prop="mouldNo" label="模具号" min-width="100" show-overflow-tooltip>
+            <template slot-scope="scope">
+              {{scope.row.mouldNo | filterNull}}
+            </template>
+          </el-table-column>
+          <el-table-column prop="mouldNo" label="零件号" min-width="100" show-overflow-tooltip>
+            <template slot-scope="scope">
+              {{scope.row.rpOrderPartDtos | concatString('partNo')}}
+            </template>
+          </el-table-column>
+          <el-table-column label="数量" min-width="100" show-overflow-tooltip>
+            <template slot-scope="scope">
+              {{scope.row.rpOrderPartDtos | concatString('count')}}
+            </template>
+          </el-table-column>
+          <el-table-column prop="" label="客户" min-width="100" show-overflow-tooltip>
+            <template slot-scope="scope">
+              {{scope.row.customerName | filterNull}}
+            </template>
+          </el-table-column>
         </el-table>
         <div slot="footer" class="dialog-footer tr mgtb20">
-          <el-button type="primary">保存</el-button>
-          <el-button @click="handle.project.dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="editShipableOrder">保存</el-button>
+          <el-button @click="handle.shipableOrder.dialogVisible = false">取 消</el-button>
         </div>
       </div>
     </el-dialog>
@@ -137,10 +169,10 @@
     <el-dialog :title="`${handle.stop.type == 'stop' ? '终止' : '暂停'}原因`" :visible.sync="handle.stop.dialogVisible" width="400px">
       <el-form ref="stopForm" :model="handle.stop.form" :rules="handle.stop.rules" label-width="80px" v-loading="handle.stop.isLoading">
         <el-form-item :label="`${handle.stop.type == 'stop' ? '终止' : '暂停'}原因`" class="mgt20">
-          <el-input type="causeTypeText" v-model="handle.stop.form.causeTypeText"></el-input>
+          <el-input type="reason" v-model="handle.stop.form.reason"></el-input>
         </el-form-item>
-        <el-form-item prop="description" label="说明" class="mgt20">
-          <el-input type="textarea" :rows="4" v-model="handle.stop.form.description"></el-input>
+        <el-form-item prop="remark" label="说明" class="mgt20">
+          <el-input type="textarea" :rows="4" v-model="handle.stop.form.remark"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -158,24 +190,20 @@
     data() {
 
       return {
+        heads: [],
         form: {
-          name: '',
-          areaName: '',
-          countryName: ''
+          customerName: '',
+          mouldNo: '',
+          customerProjectNo: '',
+          orderNo: '',
+          deliveryEndDate: '',
+          createStartDate: '',
         },
         handle: {
-          project: {
+          shipableOrder: {
             dialogVisible: false,
             isLoading: false,
-            type: 'add',
-            form: {
-              remark: ''
-            }
-          },
-          plan: {
-            dialogVisible: false,
-            isLoading: false,
-            tableData: []
+            data: []
           },
           stop: {
             dialogVisible: false,
@@ -183,11 +211,11 @@
             type: 'stop',
             data: {},
             form: {
-              causeTypeText: "",
-              description: ""
+              reason: "",
+              remark: ""
             },
             rules: {
-              causeTypeText: [
+              reason: [
                 { required: true, message: this.$utils.getTipText('error', '-1085')},
               ]
             }
@@ -198,28 +226,75 @@
     methods: {
       getData() {
 
+        let params = {
+          customerName: this.form.customerName,
+          mouldNo: this.form.mouldNo,
+          customerProjectNo: this.form.customerProjectNo,
+          orderNo: this.form.orderNo,
+          deliveryEndDate: this.form.deliveryEndDate,
+          createStartDate: this.form.createStartDate,
+        }
+
         this.table.isLoading = true;
         this.$utils.getJson(this.$utils.CONFIG.api.queryOrderList, (res) => {
 
           this.table.isLoading = false;
           this.table.srcData = res.data || [];
           this.table.data = this.$utils.deepCopy(this.table.srcData);
-        }, () => this.table.isLoading = false)
+        }, () => this.table.isLoading = false, params)
       },
-      showProjectDialog(type = 'add') {
+      queryOrderListTitle() {
 
-        this.resetForm('projectForm');
-        this.handle.project.dialogVisible = true;
-      },
-      handleAvatarSuccess(res, file) { //上传头像
-        
-        this.handle.update.form.userFace = `${this.$utils.CONFIG.api.image}?fileId=${res.data[0].fileId}`;
-        this.handle.update.form.fileId = res.data[0].fileId;
-      },
-      handleAvatarOrderSuccess(res, file) { //上传头像
+        this.$utils.getJson(this.$utils.CONFIG.api.queryOrderListTitle, (res) => {
 
-        this.handle.order.form.userFace = `${this.$utils.CONFIG.api.image}?fileId=${res.data[0].fileId}`;
-        this.handle.order.form.fileId = res.data[0].fileId;
+          this.heads = res.data || [];
+        })
+      },
+      showShipableOrderDialog(row) { //出货查询
+
+        this.handle.shipableOrder.dialogVisible = true;
+
+        let params = {
+          customerId: row.customerId
+        }
+
+        this.handle.shipableOrder.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.queryShipableOrderList, (res) => {
+
+          this.handle.shipableOrder.isLoading = false;
+          this.handle.shipableOrder.data = res.data || [];
+        }, () => this.handle.shipableOrder.isLoading = false, params)
+      },
+      editShipableOrder() { //出货
+
+        if(!this.multipleSelection.length) {
+
+          this.$utils.showTip('warning', 'error', '-1078');
+          return;
+        }
+
+        let params = {
+          orderIds: [],
+          partIds: []
+        }
+        this.multipleSelection.map(item => {
+
+          params.orderIds.push(item.orderId);
+
+          item.rpOrderPartDtos && item.rpOrderPartDtos.map(itemc => {
+
+            params.partIds.push(itemc.partId)
+          })
+        })
+
+        this.handle.shipableOrder.isLoading = true;
+        this.$utils.getJson(this.$utils.CONFIG.api.editShipableOrder, (res) => {
+
+          this.handle.shipableOrder.isLoading = false;
+          this.handle.shipableOrder.dialogVisible = false;
+          this.$utils.showTip('success', 'success', '117');
+          this.getData();
+        }, () => this.handle.shipableOrder.isLoading = false, params)
       },
       showStopDialog(data, type = 'stop') {
 
@@ -233,19 +308,19 @@
         this.$refs.stopForm.validate((valid) => {
           if (valid) {
             
+            let url = this.handle.stop.type == 'stop' ? this.$utils.CONFIG.api.editStopOrder : this.$utils.CONFIG.api.editSuspendOrder;
             let params = {
-              mrRequirementId: this.handle.stop.data.mrRequirementId,
-              causeTypeText: this.handle.stop.form.causeTypeText,
-              description: this.handle.stop.form.description
+              orderId: this.handle.stop.data.orderId,
+              reason: this.handle.stop.form.reason,
+              remark: this.handle.stop.form.remark
             };
             
             this.handle.stop.isLoading = true;
-            this.$utils.getJson(this.$utils.CONFIG.api.saveDemand, (res) =>  {
+            this.$utils.getJson(url, (res) =>  {
 
               this.handle.stop.isLoading = false;
               this.handle.stop.dialogVisible = false;
-              this.$utils.showTip('success', 'success', '115');
-              this.getData();
+              this.$utils.showTip('success', 'success', '117');
             }, () => this.handle.stop.isLoading = false, params)
           } else {
             
@@ -253,167 +328,20 @@
           }
         });
       },
-      getOrderDetail(item) { //订单详情
-
-        let params = {
-          mrRequirementId: item.mrRequirementId
-        };
-
-        this.handle.order.item = item;
-        this.handle.order.isLoading = true;
-        this.$utils.getJson(this.$utils.CONFIG.api.querySaleOrderInModify, (res) =>  {
-
-          this.handle.order.isLoading = false;
-          let obj  = res.data || {};
-          obj.componentOrders = obj.componentOrders || [{}];
-          obj.settlementExchangeRate = obj.settlementExchangeRate || '';
-          obj.attachments = obj.attachments || [];
-          if(obj.fileId) {
-
-            obj.userFace = `${this.$utils.CONFIG.api.image}?fileId=${obj.fileId}`;
-          }else {
-
-            obj.userFace = '';
-          }
-          if(obj.settlementCurrency && this.$dict.currencyList) {
-
-            for(let i = 0; i < this.$dict.currencyList.length; i++) {
-
-              if(this.$dict.currencyList[i].name == obj.settlementCurrency) {
-
-                obj.currency = this.$dict.currencyList[i];
-                break;
-              }
-            }
-          }
-          this.handle.order.form = obj;
-          this.handle.order.originModulNo = this.handle.order.form.mouldNo || '';
-        }, () => obj.isLoading = false, params)
-      },
-      checkMouldNo() { //模具号验重
-
-        if(!this.handle.order.form.mouldNo) {
-
-          this.$utils.showTip('warning', 'error', '-1090')
-          return;
-        }
-        this.$utils.getJson(this.$utils.CONFIG.api.checkMouldNo, (res) => {
-
-          if(res.data != 1) { //如果模具号重复
-
-            this.$utils.showTip('warning', 'error', '-1094');
-          }else {
-            
-            this.saveFileAndData(this.handle.order, this.saveOrder);
-          }
-        }, null, {mouldNo: this.handle.order.form.mouldNo})
-      },
-      saveOrder(res) { //下单
-
-        this.$refs.orderForm.validate((valid) => {
-          if (valid) {
-
-            let params = {
-              mrSaleOrderId: this.handle.order.form.mrSaleOrderId || '',
-              mrRequirementId: this.handle.order.form.mrRequirementId || this.handle.order.item.mrRequirementId,
-              judgeType: this.handle.order.judgeType,
-              name: this.handle.order.form.name, 
-              createBy: this.$utils.getStorage(this.$utils.CONFIG.storageNames.usernameName),
-              fileId: this.handle.order.form.fileId,
-              mouldNo: this.handle.order.form.mouldNo, 
-              customerPoNo: this.handle.order.form.customerPoNo,
-              saleOrderTypeText: this.handle.order.item.requirementTypeText,
-              settlementCurrency: this.handle.order.form.currency.name,
-              settlementExchangeRate: this.handle.order.form.settlementExchangeRate,
-              settlementCurrencyTotalPrice: parseFloat(this.handle.order.form.settlementCurrencyTotalPrice) || 0,
-              saleTotalPrice: this.handle.order.form.saleTotalPrice,
-              componentOrders: [],
-              attachments: [],
-              remark: this.handle.order.form.remark
-            };
-            
-            let componentOrders = [];
-            this.handle.order.form.componentOrders && this.handle.order.form.componentOrders.map(item => {
-
-              if(item.componentNo && item.quantity && item.customerNo && item.deliveryDate) {
-                componentOrders.push({
-                  componentNo: item.componentNo,
-                  quantity: parseInt(item.quantity) || 0,
-                  customerNo: item.customerNo,
-                  deliveryDate: item.deliveryDate,
-                  componentPrice: parseInt(item.componentPrice) || 0,
-                  componentTotal: item.componentTotal,
-                  description: item.description
-                })
-              }
-            })
-
-            if(!componentOrders || !componentOrders.length ) {
-
-              this.handle.order.isLoading = false;
-              this.$utils.showTip('warning', 'error', '-1084');
-              return;
-            }
-
-            params.componentOrders = componentOrders;
-
-            params.attachments = [];
-            if(res && res.data && res.data.length) { //附件
-
-              res.data.map(item => params.attachments.push({
-                fileId: item.fileId,
-                fileName: item.fileName
-              }))
-            }
-            this.handle.order.form.attachments &&  this.handle.order.form.attachments.map(item => {
-
-              if(item.type != 'add') {
-                params.attachments.push({
-                  fileId: item.fileId,
-                  fileName: item.fileName
-                })
-              }
-            })
-
-            this.handle.order.isLoading = true;
-            this.$utils.getJson(this.$utils.CONFIG.api.saveSaleOrder, (res) =>  {
-
-              this.handle.order.isLoading = false;
-              this.handle.order.dialogVisible = false;
-              this.$utils.showTip('success', 'success', '117');
-              this.getData();
-            }, () => this.handle.order.isLoading = false, params)
-          }else {
-
-            this.handle.order.isLoading = false;
-          }
-        })
-      },
       setTableMaxHeight() {
 
         this.maxHeight = this.$utils.getTableMaxHeight(['.main-right-title', '.table-out']);
       },
       refresh() {}
     },
-    computed: {
-      saleTotalPrice() {
 
-        let saleTotalPrice = 0;
-        this.handle.order.form.componentOrders && this.handle.order.form.componentOrders.map(item => {
-
-          if(item.componentNo && item.quantity && item.customerNo && item.deliveryDate) {
-
-            saleTotalPrice += (parseInt(item.quantity) || 0) * (parseFloat(item.componentPrice) || 0);
-          }
-        })
-
-        this.handle.order.form.saleTotalPrice = saleTotalPrice;
-      }
-    },
     created() {
+
+      this.queryOrderListTitle();
       this.getData();
     },
     updated() {
+
       this.setTableMaxHeight();
       window.onresize = this.setTableMaxHeight;
     }
