@@ -86,12 +86,12 @@
                         </template>
                       </el-table-column>
                       <el-table-column prop="remark" label="备注" min-width="100" show-overflow-tooltip></el-table-column>
-                      <el-table-column label="操作" width="260" align="center">
+                      <el-table-column label="操作" width="260" align="center" fixed="right">
                         <template slot-scope="scope"> 
-                          <el-button type="info" size="mini">下单</el-button>
+                          <el-button type="info" size="mini" @click="showOfferDialog(scope.row, 'order')">下单</el-button>
                           <el-button type="primary" size="mini" @click="showOfferDialog(scope.row, 'edit')">修改</el-button>
-                          <el-button type="success" size="mini">详情</el-button>
-                          <el-button type="danger" size="mini">删除</el-button>
+                          <el-button type="success" size="mini" @click="showOfferDialog(scope.row, 'read')">详情</el-button>
+                          <el-button type="danger" size="mini" @click="delOfferRecord(scope.row)">删除</el-button>
                         </template>
                       </el-table-column>
                     </el-table>
@@ -196,176 +196,57 @@
       </div>
     </el-dialog>
 
-    <el-dialog :title="`${handle.offer.type == 'add' ? '新增' : '修改'}报价`" :visible.sync="handle.offer.dialogVisible" width="1000px">
+    <el-dialog :title="handle.offer.title" :visible.sync="handle.offer.dialogVisible" width="1200px">
       <offer :type="handle.offer.type" :customerId="selectCustomerId" :data="offerData" @success="editOfferRecordSuccess" style="height: 500px" v-if="handle.offer.dialogVisible"></offer>
     </el-dialog>
    
     <el-dialog title="新增模具零件订单" :visible.sync="handle.order.dialogVisible" width="820px">
-      <el-form ref="orderForm" :model="handle.order.form" :rules="handle.order.rules" label-width="110px" v-loading="handle.order.isLoading">
-        <div class="dflex">
-          <div class="flex pdr10">
-            <el-form-item prop="name" label="客户">
-              <el-input v-model="handle.order.form.name" auto-complete="off"></el-input>
+      <el-form ref="projectForm" :model="handle.project.form" :rules="handle.project.rules" v-loading="handle.project.isLoading">
+        <el-row>
+          <el-col :span="24">
+            <el-form-item prop="customerProjectNo" label="客户项目编号：" label-width="130px" class="mgt20">
+              <el-input v-model="handle.project.form.customerProjectNo"></el-input>
             </el-form-item>
-            <el-form-item prop="customerPoNo" label="客户PO.号">
-              <el-input v-model="handle.order.form.customerPoNo" auto-complete="off"></el-input>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item prop="offerNo" label="报价编号：" label-width="130px">
+              <el-input v-model="handle.project.form.offerNo"></el-input>
             </el-form-item>
-            <el-form-item prop="mouldNo" label="模具号">
-              <el-input v-model="handle.order.form.mouldNo" auto-complete="off"></el-input>
+          </el-col>
+          <el-col :span="24">
+            <p class="mgb10">
+              上传文件：
+              <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
+                <el-button size="mini" type="primary">选择上传文件</el-button>
+                <input type="file" name="file" ref="file" class="posFull opacity0" @change="() => addAttachments($refs.file, handle.project)">
+              </span>
+            </p>
+            <el-table
+              :data="handle.project.form.attachments"
+              max-height="160"
+              border
+              size="mini"
+              style="width: 100%"
+            >
+              <el-table-column type="index" label="序号"></el-table-column>
+              <el-table-column prop="fileName" label="附件名称"></el-table-column>
+              <el-table-column label="操作" width="100px" align="center">
+                <template slot-scope="scope">
+                  <el-button size="mini" type="text" @click="() => deleteAttachments(scope.row, handle.project)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item prop="remark" label="说明" class="mgt20">
+              <el-input type="textarea" v-model="handle.project.form.remark"></el-input>
             </el-form-item>
-            <!-- <el-form-item prop="
-              requirementTypeText" label="需求类型">
-              <el-select v-model="handle.order.form.requirementTypeText">
-                <el-option label="模具零件" value="模具零件"></el-option>
-                <el-option label="整体模具" value="整体模具"></el-option>
-              </el-select>
-            </el-form-item> -->
-          </div>
-          <el-upload
-            class="avatar-uploader"
-            name="files"
-            :action="$utils.CONFIG.api.uploadFiles"
-            :show-file-list="false"
-            :on-success="handleAvatarOrderSuccess"
-            :before-upload="beforeAvatarUpload"
-          >
-            <img v-if="handle.order.form.userFace" :src="handle.order.form.userFace" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-          </el-upload>
-        </div>
-        <div class="mgb20">
-          <p>零件清单：</p>
-          <el-table :data="handle.order.form.componentOrders" max-height="160" border size="mini" class="edit-table" style="width: 100%">
-            <el-table-column label="零件号" min-width="100" show-overflow-tooltip>
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(handle.order.form.componentOrders, scope.$index, 'componentNoEdit', {})">
-                    <div class="ellipsis">{{ scope.row.componentNo }}</div>
-                    <el-input size="mini" v-model="scope.row.componentNo" @focus="showInput(handle.order.form.componentOrders, scope.$index, 'componentNoEdit', {}, false)" @blur="scope.row.componentNoEdit = false" :style="{opacity: scope.row.componentNoEdit ? 1 : 0}"/>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column label="数量" min-width="88" show-overflow-tooltip align="center">
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(handle.order.form.componentOrders, scope.$index, 'quantityEdit', {})">
-                    <div class="ellipsis">{{ scope.row.quantity }}</div>
-                    <el-input size="mini" v-model="scope.row.quantity" @focus="showInput(handle.order.form.componentOrders, scope.$index, 'quantityEdit', {}, false)" @blur="scope.row.quantityEdit = false; scope.row.componentTotal = (parseInt(scope.row.quantity) || 0) * (parseFloat(scope.row.componentPrice) || 0)" :style="{opacity: scope.row.quantityEdit ? 1 : 0}"/>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column label="客户编号" min-width="88" show-overflow-tooltip>
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(handle.order.form.componentOrders, scope.$index, 'customerNoEdit', {})">
-                    <div class="ellipsis">{{ scope.row.customerNo }}</div>
-                    <el-input size="mini" v-model="scope.row.customerNo" @focus="showInput(handle.order.form.componentOrders, scope.$index, 'customerNoEdit', {}, false)" @blur="scope.row.customerNoEdit = false" :style="{opacity: scope.row.customerNoEdit ? 1 : 0}"/>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="address" label="要求交期" show-overflow-tooltip align="center" width="100">
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(handle.order.form.componentOrders, scope.$index, 'deliveryDateEdit', {})">
-                    <div class="ellipsis tc">{{ scope.row.deliveryDate }}</div>
-                    <el-date-picker
-                      type="date"
-                      size="mini"
-                      placeholder="选择日期"
-                      format="yyyy-MM-dd"
-                      value-format="yyyy-MM-dd"
-                      v-model="scope.row.deliveryDate"
-                      @focus="showInput(handle.order.form.componentOrders, scope.$index, 'deliveryDateEdit', {})"
-                      @blur="scope.row.deliveryDateEdit = false"
-                      :style="{opacity: scope.row.deliveryDateEdit ? 1 : 0}">
-                    </el-date-picker>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column label="单价" align="center" min-width="88" show-overflow-tooltip>
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(handle.order.form.componentOrders, scope.$index, 'componentPriceEdit', {})">
-                    <div class="ellipsis">{{ scope.row.componentPrice }}</div>
-                    <el-input size="mini" v-model="scope.row.componentPrice" @focus="showInput(handle.order.form.componentOrders, scope.$index, 'componentPriceEdit', {}, false)" @blur="scope.row.componentPriceEdit = false; scope.row.componentTotal = (parseInt(scope.row.quantity) || 0) * (parseFloat(scope.row.componentPrice) || 0)" :style="{opacity: scope.row.componentPriceEdit ? 1 : 0}"/>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column prop="componentTotal" label="总价" min-width="88" align="center" class="notEdit" show-overflow-tooltip>
-            </el-table-column>
-            <el-table-column prop="address" label="说明" show-overflow-tooltip>
-              <template scope="scope">
-                <div>
-                  <div @click="showInput(handle.order.form.componentOrders, scope.$index, 'descriptionEdit', {})">
-                    <div class="ellipsis">{{ scope.row.description }}</div>
-                    <el-input size="mini" v-model="scope.row.description" @focus="showInput(handle.order.form.componentOrders, scope.$index, 'descriptionEdit', {}, false)" @blur="scope.row.descriptionEdit = false" :style="{opacity: scope.row.descriptionEdit ? 1 : 0}"/>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <div>
-          <div class="mgb10 dflex el-form-item-mgb0" style="line-height: 32px;">
-            {{saleTotalPrice}}
-            <div class="flex">订单总价(RMB)：{{handle.order.form.saleTotalPrice}}</div>
-            <div class="flex">
-              <el-form-item prop="currency" label="常用货币">
-                <el-select size="mini" v-model="handle.order.form.currency" value-key="name"  @change="(currency) => handle.order.form.settlementExchangeRate = ''">
-                  <el-option v-for="(item, index) in $dict.currencyList" :key="item.name" :label="item.name" :value="item"></el-option>
-                </el-select>
-              </el-form-item>
-            </div>
-            <div class="flex">
-              <el-form-item prop="settlementExchangeRate" label="汇率">
-                <el-select size="mini" v-model="handle.order.form.settlementExchangeRate">
-                  <template v-if="handle.order.form.currency">
-                    <el-option v-for="(item, index) in handle.order.form.currency.currencyRates" :key="index" :label="item.value" :value="item.value"></el-option>
-                  </template>
-                </el-select>
-              </el-form-item>
-            </div>
-            <div class="flex">
-              <el-form-item prop="settlementCurrencyTotalPrice" label="结算货币总价:">
-                <el-input size="mini" v-model="handle.order.form.settlementCurrencyTotalPrice" auto-complete="off"></el-input>
-              </el-form-item>
-            </div>
-          </div>
-          <p class="mgb10">
-            上传附件：
-            <span class="pos-relative overflowHidden" style="display: inline-block;top: 8px;">
-              <el-button size="mini" type="primary">选择上传文件</el-button>
-              <input type="file" name="file" ref="fileOrder" class="posFull opacity0" @change="() => addAttachments($refs.fileOrder, handle.order)">
-            </span>
-          </p>
-          <el-table
-            :data="handle.order.form.attachments"
-            height="160"
-            border
-            size="mini"
-            style="width: 100%"
-          >
-            <el-table-column prop="fileName" label="资料名称"></el-table-column>
-            <el-table-column label="操作">
-              <template slot-scope="scope">
-                <el-button size="mini" type="text" @click="deleteAttachments(scope.row, handle.order)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-        <el-form-item label="说明" class="mgt20">
-          <el-input type="textarea" v-model="handle.order.form.remark"></el-input>
-        </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="handle.order.judgeType = 1; checkMouldNo();">下达订单</el-button>
-        <el-button type="primary" @click="handle.order.judgeType = 2;saveFileAndData(handle.order, saveOrder);">存为草稿</el-button>
-        <el-button @click="handle.order.dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveDataAfterFile(handle.project, editOffer, 'projectForm')">保存</el-button>
+        <el-button @click="handle.project.dialogVisible = false">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -411,48 +292,7 @@
             dialogVisible: false,
             isLoading: false,
             type: 'add',
-          },
-          update: {
-            dialogVisible: false,
-            isLoading: false,
-            type: 'add',
-            item: {},
-            attachments: [],
-            addFiles: [],
-            form: {
-              userFace: '',
-              fileId: "",
-              name: "",
-              customerPoNo: "",
-              requirementTypeText: "模具零件",
-              requirementNum: "",
-              deliveryDateString: new Date(),
-              components: [{}],
-              attachments: [],
-              remark: ''
-            },
-            rules: {
-              name: [
-                { required: true, message: this.$utils.getTipText('error', '-1010')},
-              ],
-              customerPoNo: [
-                { required: true, message: this.$utils.getTipText('error', '-1086')},
-              ]
-            }
-          },
-          stop: {
-            dialogVisible: false,
-            isLoading: false,
-            data: {},
-            form: {
-              causeTypeText: "",
-              description: ""
-            },
-            rules: {
-              causeTypeText: [
-                { required: true, message: this.$utils.getTipText('error', '-1085')},
-              ]
-            }
+            title: ''
           },
           order: {
             dialogVisible: false,
@@ -578,12 +418,42 @@
           this.search();
         }, () => this.table.isLoading = false, params)
       },
+      delOfferRecord(row) { //删除报价
+        
+        let params = {
+          offerRecordId: row.offerRecordId
+        }
+
+        this.table.isLoading = true;
+        console.log(this.$utils.CONFIG.api.delOfferRecord)
+        this.$utils.getJson(this.$utils.CONFIG.api.delOfferRecord, (res) => {
+
+          this.table.isLoading = false;
+          this.$utils.showTip('success', 'success', '116');
+          this.search();
+        }, () => this.table.isLoading = false, params)
+      },
       showOfferDialog(row, type = 'edit') {
 
         this.handle.offer.type = type;
         this.handle.offer.row = row;
         this.selectCustomerId = row.customerId;
         this.offerData = row;
+    
+        switch(type) {
+          case 'add':
+            this.handle.offer.title = '新增报价';
+            break;
+          case 'edit':
+            this.handle.offer.title = '修改报价';
+            break;
+          case 'read':
+            this.handle.offer.title = '详情';
+            break;
+          case 'order':
+            this.handle.offer.title = '下单';
+            break;
+        }
         this.handle.offer.dialogVisible = true;
 
         if(type == 'add') return;
@@ -799,6 +669,7 @@
       }
     },
     created() {
+
       this.getData();
     },
     updated() {

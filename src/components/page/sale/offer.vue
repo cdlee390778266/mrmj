@@ -1,15 +1,15 @@
 <template>
   <div v-loading="isLoading">
-    <el-form ref="form" :model="form" :rules="rules" :inline="true" label-width="100px" class="mgtb20">
+    <el-form ref="form" :model="form" :rules="rules" :inline="true" :hide-required-asterisk="!canEdit" label-width="100px" class="mgtb20" :class="{read: !canEdit}">
       <el-row>
         <el-col :span="16">
           <el-breadcrumb separator="/">
             <el-breadcrumb-item>
-              <i class="el-icon-lx-copy"></i> 报价计算
-              <span class="mgl20">人民币总价：{{offerTotalPrice()}}{{form.offerTotalPrice}}</span>
-              <span class="mgl20">调整后人民币总价：{{totalPrice()}}{{form.totalPrice}}</span>
-              <span class="mgl20">外币总价：{{totalPrice()}}{{form.totalPrice}}</span>
-              <span class="mgl20">调整后外币总价：{{totalPrice()}}{{form.totalPrice}}</span>
+              报价计算
+              <span class="mgl20">人民币总价：{{totalPrice()}}{{form.totalPrice}}</span>
+              <span class="mgl20">调整后人民币总价：{{adjustmentTotalPrice()}}{{form.adjustmentTotalPrice}}</span>
+              <span class="mgl20">外币总价：{{wbTotalPrice()}}{{form.wbTotalPrice}}</span>
+              <span class="mgl20">调整后外币总价：{{wbAdjustmentTotalPrice()}}{{form.wbAdjustmentTotalPrice}}</span>
             </el-breadcrumb-item>
           </el-breadcrumb>
         </el-col>
@@ -20,41 +20,56 @@
             <div style="width: 100px;" class="ellipsis">{{this.customer.name}}</div>
           </el-form-item>
           <el-form-item label="联系人：" prop="customerContactsId" size="mini">
-            <el-select size="mini" style="width: 100px;" v-model="form.customerContactsId">
+            <div v-if="!canEdit" class="w100 ellipsis">{{form.customerContactsId | filterNull}}</div>
+            <el-select size="mini" style="width: 100px;" v-else v-model="form.customerContactsId">
               <el-option v-for="(item, index) in filters.contacts" :key="index" :label="item.name" :value="item.customerContactsId"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="报价单号：" prop="offerNo" size="mini">
-            <el-input v-model="form.offerNo" style="width: 100px;"></el-input>
+            <div v-if="!canEdit" class="w100 ellipsis">{{form.offerNo | filterNull}}</div>
+            <el-input v-else v-model="form.offerNo" style="width: 100px;"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="佣金率：" prop="commissionRate" size="mini">
-            <el-input v-model="form.commissionRate" style="width: 100px;">
+            <div v-if="!canEdit" class="w100 ellipsis">{{form.commissionRate | filterNull}}%</div>
+            <el-input v-else v-model="form.commissionRate" style="width: 100px;">
               <template slot="append">%</template>
             </el-input>
           </el-form-item>
           <el-form-item label="费用率：" prop="costRate" size="mini">
-           <el-input v-model="form.costRate" style="width: 100px;">
+            <div v-if="!canEdit" class="w100 ellipsis">{{form.costRate | filterNull}}%</div>
+           <el-input v-else v-model="form.costRate" style="width: 100px;">
              <template slot="append">%</template>
            </el-input>
           </el-form-item>
           <el-form-item label="调整率：" prop="adjustmentRate" size="mini">
-            <el-input v-model="form.adjustmentRate" style="width: 100px;">
+            <div v-if="!canEdit" class="w100 ellipsis">{{form.costRate | filterNull}}%</div>
+            <el-input v-else v-model="form.adjustmentRate" style="width: 100px;">
               <template slot="append">%</template>
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item prop="currencyName" label="交易货币：">
-            <el-select v-model="form.currencyName" value-key="currencyName" size="mini" style="width: 100px;">
+            <div v-if="!canEdit" class="w100 ellipsis">{{form.currencyName | filterNull}}%</div>
+            <el-select v-else v-model="form.currencyName" value-key="currencyName" size="mini" style="width: 100px;">
               <el-option v-for="item in $dict.currencyList" :key="item.currencyName" :label="item.currencyName" :value="item.currencyName"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="汇率：" prop="exchangeRateVal" size="mini">
-            <el-select v-model="form.exchangeRateVal"  style="width: 100px;">
+            <div v-if="!canEdit" class="w100 ellipsis">{{form.exchangeRateVal | filterNull}}%</div>
+            <el-select v-else v-model="form.exchangeRateVal"  style="width: 100px;">
               <el-option v-for="item in $dict.exchangeRateList" :key="item.exchangeRateId" :label="item.exchangeRateVal" :value="item.exchangeRateVal"></el-option>
             </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24" v-if="type == 'order'">
+          <el-form-item prop="currencyName" label="模具号：">
+            <div class="w100 ellipsis">{{orderSerialNo.mouldNo | filterNull}}</div>
+          </el-form-item>
+          <el-form-item label="订单号：" prop="exchangeRateVal" size="mini">
+            <div class="w100 ellipsis">{{orderSerialNo.orderNo | filterNull}}</div>
           </el-form-item>
         </el-col>
         <el-col :span="24" class="mgb20">
@@ -72,7 +87,7 @@
                 <div >
                   <div @click="showInput(table, scope.$index, 'partNoEdit')">
                     <div class="ellipsis">{{ scope.row.partNo }}</div>
-                    <el-input size="mini" v-model="scope.row.partNo" @focus="showInput(table, scope.$index, 'partNoEdit')" @blur="scope.row.partNoEdit = false;" :style="{opacity: scope.row.partNoEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-if="canEdit" v-model="scope.row.partNo" @focus="showInput(table, scope.$index, 'partNoEdit')" @blur="scope.row.partNoEdit = false;" :style="{opacity: scope.row.partNoEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -82,7 +97,7 @@
                 <div >
                   <div @click="showInput(table, scope.$index, 'countEdit')">
                     <div class="ellipsis">{{ scope.row.count }}</div>
-                    <el-input size="mini" v-model="scope.row.count" @focus="showInput(table, scope.$index, 'countEdit')" @blur="scope.row.countEdit = false;" :style="{opacity: scope.row.countEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-if="canEdit" v-model="scope.row.count" @focus="showInput(table, scope.$index, 'countEdit')" @blur="scope.row.countEdit = false;" :style="{opacity: scope.row.countEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -94,6 +109,7 @@
                     <div class="ellipsis">{{ scope.row.stuffNo }}</div>
                     <el-autocomplete
                       class="inline-input"
+                      v-if="canEdit"
                       v-model="scope.row.stuffNo"
                       :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, filters.stuff, 'name')"
                       valueKey="name"
@@ -113,7 +129,7 @@
                 <div >
                   <div @click="showInput(table, scope.$index, `${head.name}Edit`)">
                     <div class="ellipsis">{{ scope.row[head.name] }}</div>
-                    <el-input size="mini" v-model="scope.row[head.name]" @focus="showInput(table, scope.$index, `${head.name}Edit`)" @blur="scope.row[`${head.name}Edit`] = false;" :style="{opacity: scope.row[`${head.name}Edit`] ? 1 : 0}"/>
+                    <el-input size="mini" v-if="canEdit" v-model="scope.row[head.name]" @focus="showInput(table, scope.$index, `${head.name}Edit`)" @blur="scope.row[`${head.name}Edit`] = false;" :style="{opacity: scope.row[`${head.name}Edit`] ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -139,7 +155,7 @@
                 <div >
                   <div @click="showInput(table, scope.$index, 'orderPriceEdit')">
                     <div class="ellipsis">{{ scope.row.orderPrice }}</div>
-                    <el-input size="mini" v-model="scope.row.orderPrice" @focus="showInput(table, scope.$index, 'orderPriceEdit')" @blur="scope.row.orderPriceEdit = false;" :style="{opacity: scope.row.orderPriceEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-if="canEdit" v-model="scope.row.orderPrice" @focus="showInput(table, scope.$index, 'orderPriceEdit')" @blur="scope.row.orderPriceEdit = false;" :style="{opacity: scope.row.orderPriceEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -149,7 +165,7 @@
                 <div >
                   <div @click="showInput(table, scope.$index, 'copperProductEdit')">
                     <div class="ellipsis">{{ scope.row.copperProduct }}</div>
-                    <el-input size="mini" v-model="scope.row.copperProduct" @focus="showInput(table, scope.$index, 'copperProductEdit')" @blur="scope.row.copperProductEdit = false;" :style="{opacity: scope.row.copperProductEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-if="canEdit" v-model="scope.row.copperProduct" @focus="showInput(table, scope.$index, 'copperProductEdit')" @blur="scope.row.copperProductEdit = false;" :style="{opacity: scope.row.copperProductEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -199,7 +215,7 @@
                 <div >
                   <div @click="showInput(table, scope.$index, 'lengthEdit')">
                     <div class="ellipsis">{{ scope.row.length }}</div>
-                    <el-input size="mini" v-model="scope.row.length" @focus="showInput(table, scope.$index, 'lengthEdit')" @blur="scope.row.lengthEdit = false;" :style="{opacity: scope.row.lengthEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-if="canEdit" v-model="scope.row.length" @focus="showInput(table, scope.$index, 'lengthEdit')" @blur="scope.row.lengthEdit = false;" :style="{opacity: scope.row.lengthEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -209,7 +225,7 @@
                 <div >
                   <div @click="showInput(table, scope.$index, 'widthEdit')">
                     <div class="ellipsis">{{ scope.row.width }}</div>
-                    <el-input size="mini" v-model="scope.row.width" @focus="showInput(table, scope.$index, 'widthEdit')" @blur="scope.row.widthEdit = false;" :style="{opacity: scope.row.widthEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-if="canEdit" v-model="scope.row.width" @focus="showInput(table, scope.$index, 'widthEdit')" @blur="scope.row.widthEdit = false;" :style="{opacity: scope.row.widthEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -219,7 +235,7 @@
                 <div >
                   <div @click="showInput(table, scope.$index, 'heightEdit')">
                     <div class="ellipsis">{{ scope.row.height }}</div>
-                    <el-input size="mini" v-model="scope.row.height" @focus="showInput(table, scope.$index, 'heightEdit')" @blur="scope.row.heightEdit = false;" :style="{opacity: scope.row.heightEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-if="canEdit" v-model="scope.row.height" @focus="showInput(table, scope.$index, 'heightEdit')" @blur="scope.row.heightEdit = false;" :style="{opacity: scope.row.heightEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -237,7 +253,7 @@
                 <div >
                   <div @click="showInput(table, scope.$index, 'stuffUnitPriceEdit')">
                     <div class="ellipsis">{{ scope.row.stuffUnitPrice }}</div>
-                    <el-input size="mini" v-model="scope.row.stuffUnitPrice" @focus="showInput(table, scope.$index, 'stuffUnitPriceEdit')" @blur="scope.row.stuffUnitPriceEdit = false;" :style="{opacity: scope.row.stuffUnitPriceEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-if="canEdit" v-model="scope.row.stuffUnitPrice" @focus="showInput(table, scope.$index, 'stuffUnitPriceEdit')" @blur="scope.row.stuffUnitPriceEdit = false;" :style="{opacity: scope.row.stuffUnitPriceEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -247,7 +263,7 @@
                 <div >
                   <div @click="showInput(table, scope.$index, 'freightUnitPriceEdit')">
                     <div class="ellipsis">{{ scope.row.freightUnitPrice }}</div>
-                    <el-input size="mini" v-model="scope.row.freightUnitPrice" @focus="showInput(table, scope.$index, 'freightUnitPriceEdit')" @blur="scope.row.freightUnitPriceEdit = false;" :style="{opacity: scope.row.freightUnitPriceEdit ? 1 : 0}"/>
+                    <el-input size="mini" v-if="canEdit" v-model="scope.row.freightUnitPrice" @focus="showInput(table, scope.$index, 'freightUnitPriceEdit')" @blur="scope.row.freightUnitPriceEdit = false;" :style="{opacity: scope.row.freightUnitPriceEdit ? 1 : 0}"/>
                   </div>
                 </div>
               </template>
@@ -280,11 +296,13 @@
         </el-col>
       </el-row>
     </el-form>
-    <div class="detail-footer tr">
+    <div class="detail-footer tr" v-if="canEdit">
       <!-- <el-button type="primary" @click="saveAsDraft = false; onSubmitForm('form', save);">报价</el-button> -->
       <el-button type="primary" @click="saveAsDraft = true; onSubmitForm('form', save);">报价</el-button>
       <el-button type="primary" @click="dowloadOfferRecordPdf" v-if="type == 'edit'">生成报价单</el-button>
-      <el-button type="primary" @click="back">关 闭</el-button>
+    </div>
+    <div class="detail-footer tr" v-if="type =='order'">
+      <el-button type="primary" @click="placeSaleOrder">下单</el-button>
     </div>
   </div>
 </template>
@@ -310,10 +328,10 @@ export default {
       }, null, {offerNo: value})
     };
     return {
+      canEdit: true,
       isLoading: false,
-      workProcedure: [],
-      workProcedurePrice: {},
       customer: {},
+      orderSerialNo: {},
       filters: {
         contacts: [],
         stuff: []
@@ -475,33 +493,51 @@ export default {
         this.$set(row, 'totalWeight', totalWeight.toFixed(1) || '');
       }
     },
-    offerTotalPrice() { //总价
-
-      return () => {
-
-        let offerTotalPrice = 0;
-
-        this.table && this.table.map(item => {
-
-          offerTotalPrice += (parseFloat(item.rmbTotal) || 0)
-        })
-
-        this.$set(this.form, 'offerTotalPrice', offerTotalPrice.toFixed(1) || '')
-      }
-    },
-    totalPrice() { //总价
+    totalPrice() { //人民币总价
 
       return () => {
 
         let totalPrice = 0;
 
-        if(this.form.exchangeRateValue && parseFloat(this.form.exchangeRateValue) > 0) {
+        this.table && this.table.map(item => {
 
-          totalPrice = this.form.offerTotalPrice / parseFloat(this.form.exchangeRateValue);
-        }
+          totalPrice += (parseFloat(item.rmbTotal) || 0)
+        })
 
-        this.$set(this.form, 'totalPrice', totalPrice.toFixed(1))
-        //交易货币总价
+        this.$set(this.form, 'totalPrice', totalPrice.toFixed(1) || '')
+      }
+    },
+    adjustmentTotalPrice() { //调整后人民币总价
+
+      return () => {
+
+        let adjustmentTotalPrice = 0;
+        let totalPrice = parseFloat(this.form.totalPrice) || 0;
+        let rate = (parseFloat(this.form.commissionRate || 0) + parseFloat(this.form.costRate || 0) + parseFloat(this.form.adjustmentRate || 0)) / 100;
+        adjustmentTotalPrice = totalPrice + totalPrice*rate;
+
+        this.$set(this.form, 'adjustmentTotalPrice', adjustmentTotalPrice.toFixed(1));
+      }
+    },
+    wbTotalPrice() { //外币总价
+
+      return () => {
+
+        let wbTotalPrice = (parseFloat(this.form.totalPrice) || 0) * (parseFloat(this.form.exchangeRateVal || 0))
+
+        this.$set(this.form, 'wbTotalPrice', wbTotalPrice.toFixed(1));
+      }
+    },
+    wbAdjustmentTotalPrice() { //调整后外币总价
+
+      return () => {
+
+        let wbAdjustmentTotalPrice = 0;
+        let wbTotalPrice = parseFloat(this.form.wbTotalPrice) || 0;
+        let rate = (parseFloat(this.form.commissionRate || 0) + parseFloat(this.form.costRate || 0) + parseFloat(this.form.adjustmentRate || 0)) / 100;
+        wbAdjustmentTotalPrice = wbTotalPrice + wbTotalPrice*rate;
+
+        this.$set(this.form, 'wbAdjustmentTotalPrice', wbAdjustmentTotalPrice.toFixed(1));
       }
     }
   },
@@ -534,6 +570,8 @@ export default {
         rqOfferRecordDetailDtoList: []
       }
 
+      if(this.type == 'edit') params.offerRecordId = this.data.offerRecordId;
+
       this.table.map(item => {
 
         if(item.partNo) {
@@ -548,7 +586,7 @@ export default {
               processTime: parseFloat(item[process.name]) || 0,
             })
           })
-          params.rqOfferRecordDetailDtoList.push({
+          let data = {
             partNo: item.partNo, 
             count: item.count, 
             stuffId: item.stuffId, 
@@ -568,7 +606,11 @@ export default {
             freightUnitPrice: item.freightUnitPrice,
             totalWeight: item.totalWeight,
             saleOfferRecordDetailProcessList: saleOfferRecordDetailProcessList
-          })
+          }
+
+          if(this.type == 'edit') data.offerRecordDetailId = item.offerRecordDetailId;
+
+          params.rqOfferRecordDetailDtoList.push(data)
         }
       })
       
@@ -584,12 +626,11 @@ export default {
         this.isLoading = false;
         this.$emit('success');
         this.$utils.showTip('success', 'success', '117');
-  
       }, () => this.isLoading = false, params)    
     },
     dowloadOfferRecordPdf() {
 
-      location.href = `${this.$utils.CONFIG.api.dowloadOfferRecordPdf}?offerRecordId=FBix0Sp2WVz905lV`;
+      location.href = `${this.$utils.CONFIG.api.dowloadOfferRecordPdf}?offerRecordId=${this.data.offerRecordId}`;
     },
     getDropDownList() {
 
@@ -603,14 +644,53 @@ export default {
         this.heads = res.data || [];
       })
     },
-    queryOfferRecord() {
-      console.log(this.data)
+    queryOfferRecord() { //查询记录
+      
       this.isLoading = true;
       this.$utils.getJson(this.$utils.CONFIG.api.queryOfferRecord, (res) => {
 
         this.isLoading = false;
-        
+
+        if(res.data && res.data.saleOfferRecord) {
+
+          this.form = res.data.saleOfferRecord;
+          let table = this.form.saleOfferRecordDetails && this.form.saleOfferRecordDetails.length ? this.form.saleOfferRecordDetails : [{}];
+          table.map(item => {
+
+            if(item.process) item = Object.assign({}, item, item.process);
+          })
+
+          this.table = table;
+        }  
       }, () => this.isLoading = false, {offerRecordId: this.data.offerRecordId})
+    },
+    queryOrderSerialNo() { //查询订单流水号
+
+      this.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.queryOrderSerialNo, (res) => {
+
+        this.isLoading = false;
+        this.orderSerialNo = res.data || {};
+      }, () => this.isLoading = false, {})
+    },
+    placeSaleOrder() { //下单
+
+      let params = {
+        offerRecordId: this.data.offerRecordId,
+        mouldNo: this.orderSerialNo.mouldNo,
+        orderNo: this.orderSerialNo.orderNo,
+        orderType: 0,
+        attachmentList: []
+      }
+
+      this.isLoading = true;
+      this.$utils.getJson(this.$utils.CONFIG.api.placeSaleOrder, (res) => {
+
+        
+        this.isLoading = false;
+        this.$emit('success');
+        this.$utils.showTip('success', 'success', '117');
+      }, () => this.isLoading = false, params)
     },
     refresh() {
 
@@ -623,7 +703,11 @@ export default {
     this.refresh();
     this.queryOrderListTitle(); //零件工序列表
     
-    if(this.type == 'edit') this.queryOfferRecord();
+    if(this.type == 'edit' || this.type == 'read' || this.type == 'order') this.queryOfferRecord();
+
+    if(this.type == 'order') this.queryOrderSerialNo();
+
+    if(this.type == 'read' || this.type == 'order') this.canEdit = false;
   },
 };
 </script>
@@ -662,5 +746,13 @@ export default {
 	}
   .el-form-item {
     margin-bottom: 15px;
+  }
+  .w100 {
+    width: 100px;
+  }
+  .read {
+    .el-form-item {
+      margin-bottom: 0;
+    }
   }
 </style>

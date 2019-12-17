@@ -45,6 +45,8 @@ const CONFIG = {
 		dowloadOfferRecordPdf: baseUrl + '/sale/offer/dowloadOfferRecordPdf', //报价管理-生成报价单
 		queryOfferRecord: baseUrl + '/sale/offer/queryOfferRecord', //报价管理-报价详细信息
 		placeSaleOrder: baseUrl + '/sale/offer/placeSaleOrder', //报价管理-下达销售订单
+		delOfferRecord: baseUrl + '/sale/offer/delOfferRecord', //报价管理-删除报价
+		queryOrderSerialNo: baseUrl + '/sale/offer/queryOrderSerialNo', //报价管理-查询订单流水号
 		
 		queryOrderList: baseUrl + '/sale/order/queryOrderList', //订单管理-列表
 		queryOrderListTitle: baseUrl + '/sale/order/queryOrderListTitle', //订单管理-表头工序列表
