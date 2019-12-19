@@ -27,25 +27,25 @@
           </el-form-item>
           <el-form-item label="报价单号：" prop="offerNo" size="mini">
             <div v-if="!canEdit" class="w100 ellipsis">{{form.offerNo | filterNull}}</div>
-            <el-input v-else v-model="form.offerNo" style="width: 100px;"></el-input>
+            <el-input v-else v-model="form.offerNo"  class="w100"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="佣金率：" prop="commissionRate" size="mini">
             <div v-if="!canEdit" class="w100 ellipsis">{{form.commissionRate | filterNull}}%</div>
-            <el-input v-else v-model="form.commissionRate" style="width: 100px;">
+            <el-input v-else v-model="form.commissionRate"  class="w100">
               <template slot="append">%</template>
             </el-input>
           </el-form-item>
           <el-form-item label="费用率：" prop="costRate" size="mini">
             <div v-if="!canEdit" class="w100 ellipsis">{{form.costRate | filterNull}}%</div>
-           <el-input v-else v-model="form.costRate" style="width: 100px;">
+           <el-input v-else v-model="form.costRate"  class="w100">
              <template slot="append">%</template>
            </el-input>
           </el-form-item>
           <el-form-item label="调整率：" prop="adjustmentRate" size="mini">
             <div v-if="!canEdit" class="w100 ellipsis">{{form.costRate | filterNull}}%</div>
-            <el-input v-else v-model="form.adjustmentRate" style="width: 100px;">
+            <el-input v-else v-model="form.adjustmentRate"  class="w100">
               <template slot="append">%</template>
             </el-input>
           </el-form-item>
@@ -53,23 +53,48 @@
         <el-col :span="24">
           <el-form-item prop="currencyName" label="交易货币：">
             <div v-if="!canEdit" class="w100 ellipsis">{{form.currencyName | filterNull}}%</div>
-            <el-select v-else v-model="form.currencyName" value-key="currencyName" size="mini" style="width: 100px;">
+            <el-select v-else v-model="form.currencyName" value-key="currencyName" size="mini"  class="w100">
               <el-option v-for="item in $dict.currencyList" :key="item.currencyName" :label="item.currencyName" :value="item.currencyName"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="汇率：" prop="exchangeRateVal" size="mini">
             <div v-if="!canEdit" class="w100 ellipsis">{{form.exchangeRateVal | filterNull}}%</div>
-            <el-select v-else v-model="form.exchangeRateVal"  style="width: 100px;">
+            <el-select v-else v-model="form.exchangeRateVal"   class="w100">
               <el-option v-for="item in $dict.exchangeRateList" :key="item.exchangeRateId" :label="item.exchangeRateVal" :value="item.exchangeRateVal"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="24" v-if="type == 'order'">
-          <el-form-item prop="currencyName" label="模具号：">
-            <div class="w100 ellipsis">{{orderSerialNo.mouldNo | filterNull}}</div>
+          <el-form-item label="模具号：">
+            <el-input v-model="orderSerialNo.mouldNo"  class="w100" />
           </el-form-item>
-          <el-form-item label="订单号：" prop="exchangeRateVal" size="mini">
-            <div class="w100 ellipsis">{{orderSerialNo.orderNo | filterNull}}</div>
+          <el-form-item label="订单号：" size="mini">
+            <el-input v-model="orderSerialNo.orderNo"  class="w100" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <el-form-item label="询价编号：" size="mini" prop="customerEnquiryNo">
+            <el-input v-model="form.customerEnquiryNo"  class="w100"></el-input>
+          </el-form-item>
+          <el-form-item label="询价时间：" prop="customerEnquiryDate" size="mini">
+            <el-date-picker
+              v-model="form.customerEnquiryDate"
+              type="date"
+              format="yyyy-MM-dd"
+              value-format="yyyy-MM-dd"
+              placeholder="选择询价时间"
+              class="w100">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="要求交期：" prop="deliveryDate" size="mini">
+            <el-date-picker
+              v-model="form.deliveryDate"
+              type="date"
+              format="yyyy-MM-dd"
+              value-format="yyyy-MM-dd"
+              placeholder="选择要求交期"
+              class="w100">
+            </el-date-picker>
           </el-form-item>
         </el-col>
         <el-col :span="24" class="mgb20">
@@ -78,8 +103,8 @@
             border
             size="mini"
             style="width: 100%"
-            height="276px"
-            min-height="276px"
+            height="250px"
+            min-height="250px"
             class="edit-table gray-head mgt10"
             :highlight-current-row="true">
             <el-table-column label="零件编号" min-width="100"  show-overflow-tooltip>
@@ -106,11 +131,11 @@
               <template slot-scope="scope">
                 <div>
                   <div @click="showInput(table, scope.$index, 'stuffNoEdit')">
-                    <div class="ellipsis">{{ scope.row.stuffNo }}</div>
+                    <div class="ellipsis">{{ scope.row.stuffName }}</div>
                     <el-autocomplete
                       class="inline-input"
                       v-if="canEdit"
-                      v-model="scope.row.stuffNo"
+                      v-model="scope.row.stuffName"
                       :fetch-suggestions="(queryString, cb) =>querySearch(queryString, cb, filters.stuff, 'name')"
                       valueKey="name"
                       value="stuffNo"
@@ -344,6 +369,9 @@ export default {
         adjustmentRate: '',
         currencyName: '',
         exchangeRateVal: '',
+        customerEnquiryNo: '',
+        customerEnquiryDate: '',
+        deliveryDate: ''
       },
       rules: {
         customerContactsId: [
@@ -558,8 +586,10 @@ export default {
         adjustmentRate: this.form.adjustmentRate,
         areaName: this.form.areaName,
         commissionRate: this.form.commissionRate,
+        costRate: this.form.costRate,
         currencyName: this.form.currencyName,
         customerContactsId: this.form.customerContactsId,
+        customerEnquiryNo: this.form.customerEnquiryNo,
         customerEnquiryDate: this.form.customerEnquiryDate,
         customerId: this.customerId,
         offerId: this.data.offerId,
@@ -567,6 +597,7 @@ export default {
         offerNo: this.form.offerNo,
         offerVersion: this.form.offerVersion,
         deliveryDate: this.form.deliveryDate,
+        offerTotalPrice: this.form.adjustmentTotalPrice,
         rqOfferRecordDetailDtoList: []
       }
 
@@ -579,12 +610,19 @@ export default {
         let saleOfferRecordDetailProcessList = [];
           this.heads.map(process => {
 
-            saleOfferRecordDetailProcessList.push({
+            let data = {
               processId: process.processId,
               processName: process.name,
               processPrice: process.price,
               processTime: parseFloat(item[process.name]) || 0,
-            })
+            }
+
+            if(this.type == 'edit') {
+
+              data.offerRecordDetailProcessId = item[process.name + '_offerRecordDetailProcessId'];
+            }
+
+            saleOfferRecordDetailProcessList.push(data)
           })
           let data = {
             partNo: item.partNo, 
@@ -600,6 +638,7 @@ export default {
             wbUnitPrice: item.wbUnitPrice,
             wbTotal: item.wbTotal,
             length: item.length,
+            width: item.width,
             height: item.height,
             onePieceOfWeight: item.onePieceOfWeight,
             stuffUnitPrice: item.stuffUnitPrice,
@@ -655,12 +694,20 @@ export default {
 
           this.form = res.data.saleOfferRecord;
           let table = this.form.saleOfferRecordDetails && this.form.saleOfferRecordDetails.length ? this.form.saleOfferRecordDetails : [{}];
+
           table.map(item => {
 
-            if(item.process) item = Object.assign({}, item, item.process);
+            if(item.process) {
+
+              for(let key in item.process) { //工序数据处理
+
+                item[key] = item.process[key].processTime;
+                item[key + '_offerRecordDetailProcessId'] = item.process[key].offerRecordDetailProcessId;
+              }
+            }
           })
 
-          this.table = table;
+          this.$set(this, 'table', this.$utils.deepCopy(table));
         }  
       }, () => this.isLoading = false, {offerRecordId: this.data.offerRecordId})
     },
@@ -748,7 +795,7 @@ export default {
     margin-bottom: 15px;
   }
   .w100 {
-    width: 100px;
+    width: 140px;
   }
   .read {
     .el-form-item {

@@ -419,8 +419,8 @@
                 </el-form-item>   
               </el-col>
               <el-col :span="24">
-                <el-form-item label="变更影响说明" prop="content">
-                  <el-input type="textarea" v-model="handle.history.form.content" :rows="4" size="mini" placeholder="请输入变更影响说明" style="width: 100%" />
+                <el-form-item label="会议内容" prop="content">
+                  <el-input type="textarea" v-model="handle.history.form.content" :rows="4" size="mini" placeholder="请输入会议内容" style="width: 100%" />
                 </el-form-item>   
               </el-col>
             </el-row>

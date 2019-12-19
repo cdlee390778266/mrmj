@@ -80,6 +80,7 @@
                 <el-table-column prop="offerRecordNo" label="报价单编号" min-width="100" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="customerProjectNo" label="客户项目编号" min-width="100" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="orderPrice" label="订单金额" min-width="100" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="stateName" label="订单状态" min-width="100" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="deliveryDateString" label="要求交货日期" min-width="100" show-overflow-tooltip>
                   <template slot-scope="scope">
                     {{scope.row.deliveryDateString ? new Date(scope.row.deliveryDateString).Format('yyyy-MM-dd') : '-'}}
@@ -109,6 +110,7 @@
           <el-table-column label="报价单编号" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="客户项目编号" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="订单金额" min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="订单状态" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column v-for="(head, index) in heads" :key="index" :label="head" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="操作" width="140" align="center">

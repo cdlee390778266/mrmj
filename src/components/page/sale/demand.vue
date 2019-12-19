@@ -55,6 +55,11 @@
                       <el-table-column label="客户项目编号" width="100" show-overflow-tooltip>
                         {{props1.row.customerProjectNo | filterNull}}
                       </el-table-column>
+                      <el-table-column label="报价单编号" min-width="100" show-overflow-tooltip>
+                        <template slot-scope="scope">
+                          {{scope.row.offerNo | filterNull}}
+                        </template>
+                      </el-table-column>
                       <el-table-column label="客户询价编号" min-width="100" show-overflow-tooltip>
                         <template slot-scope="scope">
                           {{scope.row.customerEnquiryNo | filterNull}}
@@ -63,11 +68,6 @@
                       <el-table-column label="询价时间" min-width="100" show-overflow-tooltip>
                         <template slot-scope="scope">
                           {{scope.row.customerEnquiryDateString | filterNull}}
-                        </template>
-                      </el-table-column>
-                      <el-table-column label="报价单编号" min-width="100" show-overflow-tooltip>
-                        <template slot-scope="scope">
-                          {{scope.row.offerNo | filterNull}}
                         </template>
                       </el-table-column>
                       <el-table-column label="版本" min-width="100" show-overflow-tooltip>
@@ -107,9 +107,9 @@
                     {{scope.row.customerProjectNo | filterNull}}
                   </template>
                 </el-table-column>
+                <el-table-column label="报价单编号" min-width="100" show-overflow-tooltip></el-table-column>
                 <el-table-column label="客户询价编号" min-width="100" show-overflow-tooltip></el-table-column>
                 <el-table-column label="询价时间" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column label="报价单编号" min-width="100" show-overflow-tooltip></el-table-column>
                 <el-table-column label="版本" min-width="100" show-overflow-tooltip></el-table-column>
                 <el-table-column label="总价" min-width="100" show-overflow-tooltip></el-table-column>
                 <el-table-column label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
@@ -130,9 +130,9 @@
             </template>
           </el-table-column>
           <el-table-column label="客户项目编号" width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column label="报价单编号" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="客户询价编号" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="询价时间" min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column label="报价单编号" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="版本" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="总价" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
