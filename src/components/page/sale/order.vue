@@ -44,6 +44,7 @@
           </el-form>
         </div>
         <el-table
+          ref="orderTable"
           :data="table.data"
           :height="maxHeight"
           :max-height="maxHeight"
@@ -91,7 +92,7 @@
                     {{scope.row.orderProcessMap[head]}}
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" width="140" align="center">
+                <el-table-column label="操作" width="140" align="center" fixed="right">
                   <template slot-scope="scope">
                     <el-button type="primary" size="mini" @click="() => showStopDialog(scope.row, 'suspend')">暂停</el-button>
                     <el-button type="danger" size="mini" @click="() => showStopDialog(scope.row)">终止</el-button>
@@ -113,7 +114,7 @@
           <el-table-column label="订单状态" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column v-for="(head, index) in heads" :key="index" :label="head" min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column label="操作" width="140" align="center">
+          <el-table-column label="操作" width="140" align="center" fixed="right">
             <template slot-scope="scope">
               <el-button type="success" size="mini" @click="showShipableOrderDialog(scope.row)">出货</el-button>
             </template>
@@ -250,6 +251,10 @@
         this.$utils.getJson(this.$utils.CONFIG.api.queryOrderListTitle, (res) => {
 
           this.heads = res.data || [];
+          setTimeout(() => {
+
+            this.$refs.orderTable.doLayout();
+          }, 100)
         })
       },
       showShipableOrderDialog(row) { //出货查询

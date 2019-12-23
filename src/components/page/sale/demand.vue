@@ -21,6 +21,7 @@
           </el-form>
         </div>
         <el-table
+          ref="demandTable"
           :data="table.data"
           :height="maxHeight"
           :max-height="maxHeight"
@@ -34,6 +35,7 @@
               <el-table
                 :show-header="false"
                 :data="props.row.rpOfferListDtoList"
+                :default-expand-all="true"
                 size="mini"
                 class="content-table orage-table"
                 style="width: 100%">
@@ -114,7 +116,7 @@
                 <el-table-column label="总价" min-width="100" show-overflow-tooltip></el-table-column>
                 <el-table-column label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
                 <el-table-column label="备注" min-width="100" show-overflow-tooltip></el-table-column>
-                <el-table-column label="操作" width="260" align="center">
+                <el-table-column label="操作" width="260" align="center" fixed="right">
                   <template slot-scope="scope">
                     <el-button type="primary" size="mini" @click="showProjectDialog(scope.row, 'edit')">修改</el-button>
                     <el-button type="danger" size="mini" @click="delOffer(scope.row)">删除</el-button>
@@ -137,7 +139,7 @@
           <el-table-column label="总价" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="要求交货日期" min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column label="备注" min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column label="操作" width="260" align="center">
+          <el-table-column label="操作" width="260" align="center" fixed="right">
             <template slot-scope="scope">
               <el-button type="primary" size="mini" @click="showProjectDialog(scope.row, 'add')">新增项目</el-button>
             </template>
@@ -353,6 +355,10 @@
           this.table.isLoading = false;
           this.table.srcData = res.data || [];
           this.table.data = this.$utils.deepCopy(this.table.srcData);
+          setTimeout(() => {
+
+            this.$refs.demandTable.doLayout();
+          }, 100)
         }, () => this.table.isLoading = false, params)
       },
       showProjectDialog(row, type = 'edit') {

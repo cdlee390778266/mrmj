@@ -152,6 +152,9 @@
   .el-table__body-wrapper .el-table__body tr:hover>td {
     background-color: #cbdfb6;
   }
+  .el-table__row.hover-row td {
+    background-color: #cbdfb6;
+  }
 }
 .gray-table {
   th, td {
@@ -159,6 +162,9 @@
     border-color: transparent !important;
   }
   .el-table__body-wrapper .el-table__body tr:hover>td {
+    background-color: #b9bbbe;
+  }
+  .el-table__row.hover-row td {
     background-color: #b9bbbe;
   }
 }
@@ -169,12 +175,18 @@
   .el-table__body-wrapper .el-table__body tr:hover>td {
     background-color: #f2c1a2;
   }
+  .el-table__row.hover-row td {
+    background-color: #f2c1a2;
+  }
 }
 .blue-table {
   th, td {
     background-color: #c5e6f8;
   }
   .el-table__body-wrapper .el-table__body tr:hover>td {
+    background-color: #aedcf5;
+  }
+  .el-table__row.hover-row td {
     background-color: #aedcf5;
   }
   .el-table__expand-column div {
